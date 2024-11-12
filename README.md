@@ -85,7 +85,7 @@ At the end, you will obtain two `.csv` files, one for your instances embeddings,
 
 ##
 
-This package has been developed to help Master's students taking the CSCI-525.10 Machine Learning Design course at St. Francis Xavier University with their advanced projects. It is not limited to this specific purpose and may be applied to other related use cases. This project is licensed under the MIT License.
+This package has been developed to help Master's students taking the CSCI-525.10 Machine Learning Design course at St. Francis Xavier University with their advanced projects. It is not limited to this specific purpose and may be applied to other related use cases. As this project primary goal is to help students, the code implementation is expected to remain neat, short and clean as possible. This project is licensed under the MIT License.
 
 ## Citation
 
