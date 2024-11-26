@@ -84,8 +84,8 @@ if __name__ == "__main__":
 
     embeddings, labels = extractEmbeddings()
 
-    print(f"The shape of the embeddings matrix on dataset is{embeddings.shape}")
-    print(f"The shape of the labels vector on dataset is{labels.shape}")
+    print(f"The shape of the embeddings matrix in the dataset is{embeddings.shape}")
+    print(f"The number of the labels in the dataset is {len(labels)} labels.")
 
     # save the output as CSV file
     np.savetxt("feature_embeddings.csv", embeddings,delimiter=",")
