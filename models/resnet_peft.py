@@ -30,6 +30,11 @@ class adjustedPeftResNet(nn.Module):
             if type(m) in available_types:
                 target_modules.append(n)
         # print('Target Modules', target_modules)
+
+        """
+        To get more insights on how the LoRA weights could affect the performance, please refer to the following documentation:
+        https://huggingface.co/docs/peft/v0.13.0/en/package_reference/lora#peft.LoraConfig
+        """
         
         self.lora_config = LoraConfig(r=8, lora_alpha=16, lora_dropout=0.1, bias="none",target_modules=target_modules)
         print(self.lora_config)
