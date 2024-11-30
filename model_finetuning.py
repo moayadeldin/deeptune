@@ -1,4 +1,6 @@
 from models.resnet import adjustedResNet
+from models.resnet_peft import adjustedPeftResNet
+import importlib
 from utilities import transformations
 import os
 import torch
@@ -17,6 +19,25 @@ DEVICE = torch.device("cuda" if torch.cuda.is_available() else "cpu")
 
 parser = argparse.ArgumentParser(description="Fine-tune the model passing your Hyperparameters, train, val, and test directories.")
 
+def get_model(model_name):
+
+    """Allows the user to choose from Adjusted ResNet18 or PEFT-ResNet18 versions.
+    """
+
+    if model_name == "resnet18":
+        model = importlib.import_module('models.resnet')
+        return model.adjustedResNet
+
+    elif model_name == "peft-resnet18":
+
+        model = importlib.import_module('models.resnet_peft')
+        return model.adjustedPeftResNet
+    else:
+        raise ValueError('Please Use Either ResNet18 or PEFT-ResNet18')
+
+
+
+parser.add_argument('--model', choices=['resnet18', 'peft-resnet18'], help="Choose the Model you want to use.")
 parser.add_argument('--num_classes', type=int, required=True, help='The number of classes in your dataset.')
 parser.add_argument('--num_epochs', type=int, required=True, help='The number of epochs you wan the model to run on.')
 parser.add_argument('--batch_size', type=int, required=True, help='Batch Size to train your model.')
@@ -206,7 +227,9 @@ class Trainer:
 
 if __name__ == "__main__":
 
-    model = adjustedResNet(NUM_CLASSES)
+    choosed_model = get_model(args.model)
+
+    model = choosed_model(NUM_CLASSES)
 
     model_trainer = Trainer(model=model)
 
