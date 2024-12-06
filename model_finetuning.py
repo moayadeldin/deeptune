@@ -21,10 +21,10 @@ parser = argparse.ArgumentParser(description="Fine-tune the model passing your H
 
 def get_model(model_name):
 
-    """Allows the user to choose from Adjusted ResNet18 or PEFT-ResNet18 versions.
+    """Allows the user to choose from Adjusted ResNet50 or PEFT-ResNet18 versions.
     """
 
-    if model_name == "resnet18":
+    if model_name == "resnet50":
         model = importlib.import_module('models.resnet')
         return model.adjustedResNet
 
