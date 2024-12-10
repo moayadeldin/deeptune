@@ -68,7 +68,7 @@ python3 model_finetuning.py \
 ```
 | Hyperparameter   | Purpose                                                                      | Datatype                                |
 |------------------|------------------------------------------------------------------------------|-----------------------------------------|
-| `model`          | Decide whether to use fine-tuning ResNet18 or PEFT-ResNet18         | `str` (options: `resnet50`, `peft-resnet18`) |
+| `model`          | Decide whether to use fine-tuning ResNet50 or PEFT-ResNet18         | `str` (options: `resnet50`, `peft-resnet18`) |
 | `num_classes`    | Set this number according to the number of classes in your own dataset       | `int`                                   |
 | `num_epochs`     | Number of times you may want the model to be finetuned on the whole training set | `int`                              |
 | `batch_size`     | Number of samples that you feed into your model at each iteration of training | `int`                                   |
