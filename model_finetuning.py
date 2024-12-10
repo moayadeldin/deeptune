@@ -37,7 +37,7 @@ def get_model(model_name):
 
 
 
-parser.add_argument('--model', choices=['resnet18', 'peft-resnet18'], help="Choose the Model you want to use.")
+parser.add_argument('--model', choices=['resnet50', 'peft-resnet18'], help="Choose the Model you want to use.")
 parser.add_argument('--num_classes', type=int, required=True, help='The number of classes in your dataset.')
 parser.add_argument('--num_epochs', type=int, required=True, help='The number of epochs you wan the model to run on.')
 parser.add_argument('--batch_size', type=int, required=True, help='Batch Size to train your model.')
