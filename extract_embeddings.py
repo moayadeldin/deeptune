@@ -1,13 +1,14 @@
 """This extract_embeddings.py is integrated in order to use fine-tuned ResNet50 model as an embeddings extractor for the training images, to evaluate the performance of different classic ML algorithms who excel in tabular data.
 """
 from models.resnet import adjustedResNet
-from dataset import ImageDataset
+from models.resnet_peft import adjustedPeftResNet
+from dataset import ParquetImageDataset
 import torch
 import torch.nn as nn
 from tqdm import tqdm
 import numpy as np
 import argparse
-
+import pandas as pd
 
 parser = argparse.ArgumentParser(description="Extract the Embeddings for your fine-tuned model after entering the Hyperparameters, data and model paths.")
 
@@ -23,7 +24,7 @@ BATCH_SIZE = args.batch_size
 NUM_CLASSES = args.num_classes
 MODEL_PATH = args.finetuned_model_pth
 
-model = adjustedResNet(num_classes=NUM_CLASSES)
+model = adjustedPeftResNet(num_classes=NUM_CLASSES)
 model.load_state_dict(torch.load(MODEL_PATH, weights_only=True))
 
 def adjustModel(model):
@@ -47,7 +48,7 @@ for p in adjusted_model.parameters(): # stop gradient calculations
 
 adjusted_model.cuda() # move the model to cuda
 
-dataset = ImageDataset(root_dir=DATASET_DIR)
+dataset = ParquetImageDataset(parquet_file=DATASET_DIR)
 
 data_loader = torch.utils.data.DataLoader(
     dataset,
@@ -87,9 +88,12 @@ if __name__ == "__main__":
     print(f"The shape of the embeddings matrix in the dataset is{embeddings.shape}")
     print(f"The number of the labels in the dataset is {len(labels)} labels.")
 
-    # save the output as CSV file
-    np.savetxt("feature_embeddings.csv", embeddings,delimiter=",")
-    np.savetxt("labels_embeddings.csv", np.array(labels), delimiter=",")
+    embeddings_df = pd.DataFrame(embeddings)
+    labels_df = pd.DataFrame(labels, columns=["label"])
+
+    combined_df = pd.concat([embeddings_df,labels_df],axis=1)
+
+    combined_df.to_parquet("test_set_embeddings.parquet",index=False)
 
 
 
