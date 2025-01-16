@@ -8,7 +8,7 @@ from utilities import transformations
 
 class ParquetImageDataset(Dataset):
 
-    def __init__(self, parquet_file, transform=None):
+    def __init__(self, parquet_file, transform=None, processor=None):
         """Args:
             parquet_file (string): Path to the parquet file containing image bytes and labels.
             transform (callable, optional): Transformations to be applied.
@@ -19,6 +19,8 @@ class ParquetImageDataset(Dataset):
             self.transform = transformations
         else:
             self.transform = transform
+            
+        self.processor = processor
 
         # Extract images (bytes) and labels from the parquet file
         self.image_bytes = self.data['images'].tolist()
@@ -35,5 +37,16 @@ class ParquetImageDataset(Dataset):
 
         if self.transform:
             img = self.transform(img)
+            
+        if self.processor:
+            
+            processed = self.processor(
+                text=None,
+                images=img,
+                padding="max_length",
+                return_tensors="pt",
+            )
+            
+            return processed["pixel_values"].squeeze(0), torch.tensor(label,dtype=torch.long)
 
         return img, torch.tensor(label,dtype=torch.long)

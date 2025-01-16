@@ -15,7 +15,7 @@ label_to_index = {
 }
 
 if __name__ == "__main__":
-    workdir = Path("/media/moayad/Moayad/StFX/advanced-project/DataSet_Splitted")  # Replace with the root dataset directory
+    workdir = Path("/home/moayad/Downloads/Old Device/advanced-project/DataSet_Splitted")  # Replace with the root dataset directory
     splits = ["train", "test", "val"]  # List of dataset splits
 
     # Create a combined data dictionary

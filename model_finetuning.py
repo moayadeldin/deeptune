@@ -4,6 +4,7 @@ import importlib
 from utilities import transformations
 from utilities import save_training_metrics
 from utilities import save_cli_args
+from models.siglip import siglipModel
 import os
 import pyarrow.parquet as pq
 from sklearn.model_selection import train_test_split
@@ -42,6 +43,11 @@ def get_model(model_name):
 
         model = importlib.import_module('models.resnet_peft')
         return model.adjustedPeftResNet
+    
+    elif model_name == "peft-siglip":
+        model = siglipModel()
+        return model
+    
     else:
         raise ValueError('Please Use Either ResNet18 or PEFT-ResNet18')
 
@@ -82,9 +88,11 @@ train_data.to_parquet(train_file)
 val_data.to_parquet(val_file)
 test_data.to_parquet(test_file)
 
-train_dataset = ParquetImageDataset(parquet_file=train_file, transform=transformations)
-val_dataset = ParquetImageDataset(parquet_file=val_file, transform=transformations)
-test_dataset = ParquetImageDataset(parquet_file=test_file, transform=transformations)
+_, processor = siglipModel()
+
+train_dataset = ParquetImageDataset(parquet_file=train_file, transform=transformations,processor=processor)
+val_dataset = ParquetImageDataset(parquet_file=val_file, transform=transformations,processor=processor)
+test_dataset = ParquetImageDataset(parquet_file=test_file, transform=transformations,processor=processor)
 
 train_loader = torch.utils.data.DataLoader(
     train_dataset,
