@@ -4,7 +4,7 @@ import importlib
 from utilities import transformations
 from utilities import save_training_metrics
 from utilities import save_cli_args
-from models.siglip import siglipModel
+from models.siglip import SiglipModel # delay this now not its time
 import os
 import pyarrow.parquet as pq
 from sklearn.model_selection import train_test_split
@@ -18,18 +18,14 @@ import sys
 import pandas as pd 
 import logging
 import argparse
+from download_model import load_siglip_offline
+from peft import LoraConfig, get_peft_model
+from utilities import print_trainable_parameters
 
 torch.manual_seed(42)
-
 DEVICE = torch.device("cuda" if torch.cuda.is_available() else "cpu")
 
 parser = argparse.ArgumentParser(description="Fine-tune the model passing your Hyperparameters, train, val, and test directories.")
-
-# split ratios
-
-train_ratio=0.7
-val_to_test_ratio = 1/3
-
 def get_model(model_name):
 
     """Allows the user to choose from Adjusted ResNet50 or PEFT-ResNet18 versions.
@@ -45,19 +41,46 @@ def get_model(model_name):
         return model.adjustedPeftResNet
     
     elif model_name == "peft-siglip":
-        model = siglipModel()
-        return model
-    
+            
+            base_model, _ = load_siglip_offline()
+
+            # Freeze most of the model's parameters
+            for param in base_model.parameters():
+                param.requires_grad = False
+
+            # Define a PEFT configuration using LoRA
+            peft_config = LoraConfig(
+                inference_mode=False,  # Enable training
+                r=16,                  # Low-rank dimension
+                lora_alpha=32,         # Scaling factor
+                lora_dropout=0.1,      # Dropout
+                target_modules=[
+                    # "k_proj",
+                    "v_proj",
+                    "q_proj",
+                    # "out_proj",
+                ]
+            )
+
+            peft_model = get_peft_model(base_model, peft_config)
+            print_trainable_parameters(peft_model)
+
+            device = torch.device(DEVICE)
+            peft_model = peft_model.to(device)
+
     else:
-        raise ValueError('Please Use Either ResNet18 or PEFT-ResNet18')
+        raise ValueError('Please Use Either PEFT-Siglip or PEFT-ResNet18')
 
 
 
-parser.add_argument('--model', choices=['resnet50', 'peft-resnet18'], help="Choose the Model you want to use.")
+parser.add_argument('--model', choices=['peft-resnet18', 'peft-siglip'], help="Choose the Model you want to use.")
 parser.add_argument('--num_classes', type=int, required=True, help='The number of classes in your dataset.')
 parser.add_argument('--num_epochs', type=int, required=True, help='The number of epochs you wan the model to run on.')
 parser.add_argument('--batch_size', type=int, required=True, help='Batch Size to train your model.')
 parser.add_argument('--learning_rate', type=float, required=True, help='Learning Rate to apply for fine-tuning.')
+parser.add_argument('--train_size', type=float, required=True, help='Mention the split ratio of the Train Dataset')
+parser.add_argument('--val_size', type=float, required=True, help='Mention the split ratio of the Val Dataset')
+parser.add_argument('--test_size', type=float, required=True, help='Mention the split ratio of the Test Dataset')
 parser.add_argument('--input_dir', type=str, required=True, help='Directory containing training data.')
 
 args = parser.parse_args()
@@ -67,17 +90,16 @@ BATCH_SIZE=args.batch_size
 LEARNING_RATE=args.learning_rate
 NUM_CLASSES = args.num_classes
 NUM_EPOCHS = args.num_epochs
-
+TRAIN_SIZE = args.train_size
+VAL_SIZE = args.val_size
+TEST_SIZE = args.test_size
 CHECK_VAL_EVERY_N_EPOCH = 1
 
 
 df = pd.read_parquet(INPUT_DIR)
 
-train_data, remaining_data = train_test_split(df, test_size=(1 - train_ratio), random_state=42)
-
-# further split for the val and test
-
-val_data, test_data = train_test_split(remaining_data, test_size = (1-val_to_test_ratio), random_state=42)
+train_data, temp_data = train_test_split(df, test_size=(1 - TRAIN_SIZE), random_state=42)
+val_data, test_data = train_test_split(temp_data, test_size=(TEST_SIZE / (VAL_SIZE + TEST_SIZE)), random_state=42)
 
 
 train_file = "train_split.parquet"
@@ -88,11 +110,25 @@ train_data.to_parquet(train_file)
 val_data.to_parquet(val_file)
 test_data.to_parquet(test_file)
 
-_, processor = siglipModel()
+if args.model == "peft-siglip":
+    _, processor = load_siglip_offline()
+    dataset_args = {"processor": processor}
+    # print(f"Processor type: {type(processor)}")
+    transformations_arg = {}
+elif args.model == "peft-resnet18":
+    dataset_args = {}
+    transformations_arg = {"transform": transformations}
+else:
+    raise ValueError("Unsupported model choice. Choose either 'PEFT-Siglip' or 'PEFT-ResNet18'.")
 
-train_dataset = ParquetImageDataset(parquet_file=train_file, transform=transformations,processor=processor)
-val_dataset = ParquetImageDataset(parquet_file=val_file, transform=transformations,processor=processor)
-test_dataset = ParquetImageDataset(parquet_file=test_file, transform=transformations,processor=processor)
+train_dataset = ParquetImageDataset(parquet_file=train_file, **transformations_arg, **dataset_args)
+val_dataset = ParquetImageDataset(parquet_file=val_file, **transformations_arg, **dataset_args)
+test_dataset = ParquetImageDataset(parquet_file=test_file, **transformations_arg, **dataset_args)
+
+# print(f"Train dataset length: {len(train_dataset)}")
+# print(f"Val dataset length: {len(val_dataset)}")
+# print(f"Test dataset length: {len(test_dataset)}")
+
 
 train_loader = torch.utils.data.DataLoader(
     train_dataset,
@@ -112,6 +148,17 @@ test_loader = torch.utils.data.DataLoader(
     shuffle=False,
     num_workers=4
 )
+
+# print(f"Train loader length: {len(train_loader)}")
+# print(f"Val loader length: {len(val_loader)}")
+# print(f"Test loader length: {len(test_loader)}")
+
+# # print("Attempting to load first batch...")
+# # try:
+# #     first_batch = next(iter(train_loader))
+# #     print(f"Successfully loaded batch with shapes: {[x.shape for x in first_batch]}")
+# # except Exception as e:
+# #     print(f"Error loading batch: {str(e)}")
 
 class Trainer:
 
@@ -150,20 +197,22 @@ class Trainer:
             running_val_acc = 0
             total_val_samples=0
             total_train_samples=0
-
-            # for imgs, labels in train_loader:
-            #     print(imgs, labels)
-            #     break
-
             train_pbar = tqdm(enumerate(train_loader), total=len(train_loader))
 
             for i, (inputs, labels) in train_pbar:
+
+                # print(f"THIS IS INPUTS: {inputs}")
+                # print("THIS IS LABELS", labels)
 
                 inputs, labels = inputs.to(DEVICE), labels.to(DEVICE)
 
                 self.optimizer.zero_grad()
 
-                outputs = self.model(inputs)
+                if args.model == "peft-siglip":    
+                    outputs = self.model(pixel_values=inputs)
+                
+                else:
+                    outputs = self.model(inputs)
 
                 loss = self.criterion(outputs, labels)
 
@@ -195,7 +244,7 @@ class Trainer:
 
                 self.model.eval()
 
-                val_pbar = tqdm(enumerate(test_loader), total=len(test_loader))
+                val_pbar = tqdm(enumerate(val_loader), total=len(val_loader))
 
                 with torch.no_grad():
 
@@ -203,7 +252,10 @@ class Trainer:
 
                         inputs, labels = input.to(DEVICE), labels.to(DEVICE)
 
-                        outputs = self.model(inputs)
+                        if args.model == "peft-siglip":
+                            outputs = self.model(pixel_values=inputs)
+                        else:
+                            outputs = self.model(inputs)
 
                         loss = self.criterion(outputs, labels)
 
@@ -245,8 +297,11 @@ class Trainer:
 
                 inputs, labels = input.to(DEVICE), labels.to(DEVICE)
 
-                outputs = self.model(inputs)
+                if args.model == "peft-siglip":
 
+                    outputs = self.model(pixel_values=inputs)
+                else:
+                    outputs = self.model(inputs)
                 correct+=torch.sum(torch.argmax(outputs,dim=1)==labels).item()
 
                 total_test_samples += labels.size(0)
@@ -266,13 +321,17 @@ if __name__ == "__main__":
 
     choosed_model = get_model(args.model)
 
-    model = choosed_model(NUM_CLASSES)
+    if args.model == "peft-resnet18":
+        model = choosed_model(NUM_CLASSES)
+
+    elif args.model == "peft-siglip":
+        model = choosed_model()
 
     model_trainer = Trainer(model=model)
 
     model_trainer.train()
 
-    model_trainer.saveModel('model_weights.pth')
+    model_trainer.saveModel(path='output_directory/model_weights.pth')
 
     model_trainer.test()
 
