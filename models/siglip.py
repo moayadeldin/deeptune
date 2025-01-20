@@ -1,20 +1,18 @@
-from models import load_siglip_offline
+from download_model import load_siglip_offline
 from peft import LoraConfig, get_peft_model
 from utilities import print_trainable_parameters
 
+class SiglipModel:
+    def __init__(self):
+        self.base_model, self.processor = load_siglip_offline()
+        self.peft_model = None
+        self._freeze_parameters()
 
-def siglipModel():
-        
-        base_model, processor = load_siglip_offline()
-
-        for param in base_model.parameters():
-            
+    def _freeze_parameters(self):
+        for param in self.base_model.parameters():
             param.requires_grad = False
-    
-    
-        # Here we keep the same configurations used in John's implementation of PEFT-SIGLIP
 
-        # Define a PEFT configuration using LoRA
+    def configure_peft(self):
         peft_config = LoraConfig(
             inference_mode=False,  # Enable training
             r=16,                  # Low-rank dimension
@@ -27,11 +25,10 @@ def siglipModel():
                 # "out_proj",
             ]
         )
-        
-        peft_model = get_peft_model(base_model, peft_config)
-        
-        print_trainable_parameters(peft_model)
-        
-        return peft_model
-    
-    
+        self.peft_model = get_peft_model(self.base_model, peft_config)
+        print_trainable_parameters(self.peft_model)
+
+    def get_peft_model(self):
+        if self.peft_model is None:
+            raise ValueError("PEFT model is not configured. Call configure_peft() first.")
+        return self.peft_model

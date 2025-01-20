@@ -4,49 +4,42 @@ from PIL import Image
 import io
 import torch
 import torchvision
-from utilities import transformations
 
 class ParquetImageDataset(Dataset):
-
     def __init__(self, parquet_file, transform=None, processor=None):
-        """Args:
+        """
+        Args:
             parquet_file (string): Path to the parquet file containing image bytes and labels.
             transform (callable, optional): Transformations to be applied.
+            processor (callable, optional): SIGLIP processor for image processing.
         """
         self.data = pd.read_parquet(parquet_file)
-
-        if transform is None:
-            self.transform = transformations
-        else:
-            self.transform = transform
-            
+        self.transform = transform
         self.processor = processor
-
-        # Extract images (bytes) and labels from the parquet file
         self.image_bytes = self.data['images'].tolist()
         self.labels = self.data['labels'].tolist()
-
+        
     def __len__(self):
         return len(self.image_bytes)
-
+    
     def __getitem__(self, idx):
-        # Convert image bytes back to PIL Image
         img_bytes = self.image_bytes[idx]
         img = Image.open(io.BytesIO(img_bytes)).convert('RGB')
         label = self.labels[idx]
 
-        if self.transform:
-            img = self.transform(img)
-            
-        if self.processor:
-            
+        if self.processor is not None:
+            # SIGLIP processing path
             processed = self.processor(
-                text=None,
                 images=img,
-                padding="max_length",
                 return_tensors="pt",
+                padding=True
             )
-            
-            return processed["pixel_values"].squeeze(0), torch.tensor(label,dtype=torch.long)
-
-        return img, torch.tensor(label,dtype=torch.long)
+            # Extract pixel_values and remove batch dimension
+            pixel_values = processed["pixel_values"].squeeze(0)
+            # print('HI THEREEEEEEEE', pixel_values)
+            return pixel_values, torch.tensor(label, dtype=torch.long)
+        else:
+            # Standard processing path
+            if self.transform:
+                img = self.transform(img)
+            return img, torch.tensor(label, dtype=torch.long)
