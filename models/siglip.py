@@ -1,34 +1,69 @@
-from download_model import load_siglip_offline
-from peft import LoraConfig, get_peft_model
-from utilities import print_trainable_parameters
+"""
+This code is mostly adopted from John's repo to download siglip.
+https://github.com/johnkxl/peft4vision/
+"""
 
-class SiglipModel:
-    def __init__(self):
-        self.base_model, self.processor = load_siglip_offline()
-        self.peft_model = None
-        self._freeze_parameters()
+from pathlib import Path
+from typing import cast
+from transformers import AutoModel, AutoProcessor
+from transformers.models.siglip.modeling_siglip import SiglipModel
+from transformers.models.siglip.processing_siglip import SiglipProcessor
+from peft import PeftModel
 
-    def _freeze_parameters(self):
-        for param in self.base_model.parameters():
-            param.requires_grad = False
 
-    def configure_peft(self):
-        peft_config = LoraConfig(
-            inference_mode=False,  # Enable training
-            r=16,                  # Low-rank dimension
-            lora_alpha=32,         # Scaling factor
-            lora_dropout=0.1,      # Dropout
-            target_modules=[
-                # "k_proj",
-                "v_proj",
-                "q_proj",
-                # "out_proj",
-            ]
-        )
-        self.peft_model = get_peft_model(self.base_model, peft_config)
-        print_trainable_parameters(self.peft_model)
+ROOT = Path(__file__).parent.parent
+SIGLIP_PATH = ROOT / "downloaded_models/siglip_so400m_patch14_384/"
 
-    def get_peft_model(self):
-        if self.peft_model is None:
-            raise ValueError("PEFT model is not configured. Call configure_peft() first.")
-        return self.peft_model
+SIGLIP_PEFT_ADAPTER = SIGLIP_PATH / "peft_adapter"
+
+SIGLIP_MODEL = SIGLIP_PATH / "model"
+
+SIGLIP_MODEL_FILES = [
+    SIGLIP_MODEL / "config.json",
+    SIGLIP_MODEL / "model.safetensors",
+]
+
+
+SIGLIP_PREPROCESSOR = ROOT / SIGLIP_PATH / "preprocessor"
+SIGLIP_PREPROCESSOR_FILES = [
+    SIGLIP_PREPROCESSOR / "preprocessor_config.json",
+    SIGLIP_PREPROCESSOR / "special_tokens_map.json",
+    SIGLIP_PREPROCESSOR / "spiece.model",
+    SIGLIP_PREPROCESSOR / "tokenizer_config.json"
+]
+
+def download_siglip_model():
+    
+    model = cast(SiglipModel, AutoModel.from_pretrained("google/siglip-so400m-patch14-384"))
+    
+    model.save_pretrained(SIGLIP_MODEL)
+    print(f"Saved model to {SIGLIP_MODEL}")
+    
+    processor = cast(
+        SiglipProcessor, AutoProcessor.from_pretrained("google/siglip-so400m-patch14-384")
+    )
+    
+    processor.save_pretrained(SIGLIP_PREPROCESSOR)
+    print(f"Saved preprocessor to {SIGLIP_PREPROCESSOR}")
+    
+    
+def load_siglip_offline(peft=False):
+    
+    model = AutoModel.from_pretrained(SIGLIP_MODEL, local_files_only=True)
+    
+    tokenizer = cast(
+        SiglipProcessor,
+        AutoProcessor.from_pretrained(SIGLIP_PREPROCESSOR, local_files_only=True)
+    )
+    
+    if peft:
+        
+        model = PeftModel.from_pretrained(model, SIGLIP_PEFT_ADAPTER)
+        
+    model = cast(SiglipModel, model)
+    
+    return model,tokenizer
+
+
+if __name__ == "__main__":
+    download_siglip_model()

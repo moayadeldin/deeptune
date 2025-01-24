@@ -1,13 +1,13 @@
 import torchvision
-from torchvision.models import ResNet50_Weights
+from torchvision.models import ResNet18_Weights
 import torch.nn as nn
 import torch.nn.functional as F
 
 
 class adjustedResNet(nn.Module):
 
-    def __init__(self,num_classes, weights=ResNet50_Weights.IMAGENET1K_V1, 
-                 pretrained_resnet=torchvision.models.resnet50,fc1_input=2048):
+    def __init__(self,num_classes, weights=ResNet18_Weights.IMAGENET1K_V1, 
+                 pretrained_resnet=torchvision.models.resnet18,fc1_input=512):
 
         super(adjustedResNet, self).__init__()
 
