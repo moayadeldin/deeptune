@@ -14,7 +14,9 @@ import torch.optim as optim
 from tqdm import tqdm
 import matplotlib.pyplot as plt
 import sys
+from pathlib import Path
 import pandas as pd 
+import warnings
 import logging
 import argparse
 from utilities import PerformanceLogger
@@ -68,46 +70,40 @@ VAL_SIZE = args.val_size
 TEST_SIZE = args.test_size
 CHECK_VAL_EVERY_N_EPOCH = 1
 
+TRAIN_DATASET_PATH = Path(__file__).parent.parent / "train_split.parquet"
+VAL_DATASET_PATH = Path(__file__).parent.parent / "val_split.parquet"
+TEST_DATASET_PATH = Path(__file__).parent.parent / "test_split.parquet"
+
+TRAINVAL_OUTPUT_DIR = Path(__file__).parent.parent / 'output_directory_trainval'
+
+
 # WE load the dataset, split it and save them in the current directory (for reproducibility) if they aren't already saved.
 df = pd.read_parquet(INPUT_DIR)
 
 train_data, temp_data = train_test_split(df, test_size=(1 - TRAIN_SIZE), random_state=42)
 val_data, test_data = train_test_split(temp_data, test_size=(TEST_SIZE / (VAL_SIZE + TEST_SIZE)), random_state=42)
-datasets_paths = ["train_split.parquet", "val_split.parquet", "test_split.parquet"]
 
-for path in datasets_paths:
+train_data.to_parquet(TRAIN_DATASET_PATH, index=False)
+val_data.to_parquet(VAL_DATASET_PATH, index=False)
+test_data.to_parquet(TEST_DATASET_PATH, index=False)
 
-    if os.path.exists(path):
-        continue
-    else:
-        train_data.to_parquet(datasets_paths[0])
-        val_data.to_parquet(datasets_paths[1])
-        test_data.to_parquet(datasets_paths[2])
-
+print("Data splits have been saved and overwritten if they existed.")
 
 # The current datasets loaded as dataloaders
-train_dataset = ParquetImageDataset(parquet_file=datasets_paths[0], transform=transformations)
-val_dataset = ParquetImageDataset(parquet_file=datasets_paths[1], transform=transformations)
-test_dataset = ParquetImageDataset(parquet_file=datasets_paths[2], transform=transformations)
-
+train_dataset = ParquetImageDataset(parquet_file=TRAIN_DATASET_PATH, transform=transformations)
+val_dataset = ParquetImageDataset(parquet_file=VAL_DATASET_PATH, transform=transformations)
 
 train_loader = torch.utils.data.DataLoader(
     train_dataset,
     batch_size=BATCH_SIZE,
     shuffle=True,
-    num_workers=4
+    num_workers=0
 )
 val_loader = torch.utils.data.DataLoader(
     val_dataset,
     batch_size=BATCH_SIZE,
     shuffle=False,
-    num_workers=4
-)
-test_loader = torch.utils.data.DataLoader(
-    test_dataset,
-    batch_size=BATCH_SIZE,
-    shuffle=False,
-    num_workers=4
+    num_workers=0
 )
 
 class Trainer:
@@ -120,7 +116,7 @@ class Trainer:
         self.criterion = nn.CrossEntropyLoss()
         self.optimizer = optim.Adam(model.parameters(), lr=LEARNING_RATE)
         
-        self.performance_logger = PerformanceLogger('output_directory')
+        self.performance_logger = PerformanceLogger(f'{TRAINVAL_OUTPUT_DIR}')
 
         # logging info
         logging.basicConfig(stream=sys.stdout, level=logging.INFO, format="%(levelname)s | %(message)s")
@@ -176,16 +172,16 @@ class Trainer:
 
         
             # now we compute the average loss and accuracy for each epoch
-            epoch_loss = correct_predictions / total_predictions
+            epoch_accuracy = 100. * correct_predictions / total_predictions
 
-            epoch_accuracy = running_loss / len(train_loader)
+            epoch_loss = running_loss / len(train_loader)
             
             self.logger.info(
                 f"Epoch {epoch + 1}/{NUM_EPOCHS}, Training Loss: {running_loss / len(train_loader)}, Training Accuracy: {epoch_accuracy}"
             )
             
             # Then we see how validation set works 
-            val_loss, val_accuracy = self.evaluate()
+            val_loss, val_accuracy = self.validate()
             
             
             self.logger.info(f"Validation loss: {val_loss}, Accuracy: {val_accuracy}")
@@ -201,13 +197,13 @@ class Trainer:
             )
             
             
-            self.performance_logger.save_to_csv("output_directory/training_log.csv")
+            self.performance_logger.save_to_csv(f"{TRAINVAL_OUTPUT_DIR}/training_log.csv")
             
         
-    def evaluate(self):
+    def validate(self):
         
         """
-        The evaluation function is devoted for the validation set only, please consider the test function for test set.
+        The validation function is devoted for the validation set only, please consider the test function for test set.
         """
         
         val_accuracy=0.0
@@ -242,53 +238,7 @@ class Trainer:
         val_loss = val_loss / len(val_loader)
         return val_loss, val_accuracy
     
-
-    def test(self, best_model_weights_path=None):
-
-        if best_model_weights_path is None:
-            pass
-        else:
-            self.model.load_state_dict(torch.load(best_model_weights_path))
-            print('Model into the path is loaded.')
-
-        test_accuracy=0.0
-        test_loss=0.0
-        total,correct = 0,0
-        
-        test_pbar = tqdm(enumerate(test_loader), total=len(test_loader))
-
-        with torch.no_grad():
-
-            for _, (input, labels) in test_pbar:
-
-                self.model.eval()
-                
-                inputs, labels = input.to(DEVICE), labels.to(DEVICE)
-                
-                self.optimizer.zero_grad()
-                
-                outputs = self.model(inputs)
-                
-                loss = self.criterion(outputs,labels)
-                
-                test_loss += loss.item()
-                
-                total += labels.size(0)
-                correct += torch.sum(torch.argmax(outputs,dim=1)==labels).item()
-                
-                
-        test_accuracy = ( correct / total ) * 100
-        test_loss = test_loss / len(test_loader)
-        print(test_accuracy, test_loss)
-        
-        self.logger.info(f"Test accuracy: {(test_accuracy)}%")
-
-        save_training_metrics(test_accuracy=test_accuracy,output_dir='output_directory')
-        
-        save_cli_args(args, 'output_directory')
-        
-        
-
+    
     def saveModel(self, path):
 
         torch.save(self.model.state_dict(), path)
@@ -304,8 +254,7 @@ if __name__ == "__main__":
 
     model_trainer.train()
 
-    model_trainer.saveModel(path='output_directory/model_weights.pth')
-
-    model_trainer.test()
-
+    model_trainer.saveModel(path=f'{TRAINVAL_OUTPUT_DIR}/model_weights.pth')
+    
+    save_cli_args(args, TRAINVAL_OUTPUT_DIR)
 
