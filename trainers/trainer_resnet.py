@@ -1,5 +1,5 @@
-from models.resnet import adjustedResNet
-from models.resnet_peft import adjustedPeftResNet
+from models.resnet18 import adjustedResNet
+from models.resnet18_peft import adjustedPeftResNet
 import importlib
 from utilities import transformations
 from utilities import save_training_metrics
@@ -16,7 +16,6 @@ import matplotlib.pyplot as plt
 import sys
 from pathlib import Path
 import pandas as pd 
-import warnings
 import logging
 import argparse
 from utilities import PerformanceLogger
@@ -28,27 +27,8 @@ DEVICE = torch.device("cuda" if torch.cuda.is_available() else "cpu")
 parser = argparse.ArgumentParser(description="Fine-tune the model passing your Hyperparameters, train, val, and test directories.")
 
 
-def get_model(model_name):
-
-    """Allows the user to choose from Adjusted ResNet18 or PEFT-ResNet18 versions.
-    """
-
-    if model_name == "resnet18":
-        model = importlib.import_module('models.resnet')
-        return model.adjustedResNet
-
-    elif model_name == "peft-resnet18":
-
-        model = importlib.import_module('models.resnet_peft')
-        return model.adjustedPeftResNet
-
-    else:
-        raise ValueError('Please Use Either ResNet18 or PEFT-ResNet18')
-
-
 # Arguments constructed for CLI
 
-parser.add_argument('--model', choices=['peft-resnet18', 'resnet18'], help="Choose the Model you want to use.")
 parser.add_argument('--num_classes', type=int, required=True, help='The number of classes in your dataset.')
 parser.add_argument('--num_epochs', type=int, required=True, help='The number of epochs you wan the model to run on.')
 parser.add_argument('--batch_size', type=int, required=True, help='Batch Size to train your model.')
@@ -56,7 +36,9 @@ parser.add_argument('--learning_rate', type=float, required=True, help='Learning
 parser.add_argument('--train_size', type=float, required=True, help='Mention the split ratio of the Train Dataset')
 parser.add_argument('--val_size', type=float, required=True, help='Mention the split ratio of the Val Dataset')
 parser.add_argument('--test_size', type=float, required=True, help='Mention the split ratio of the Test Dataset')
+parser.add_argument('--use-peft', action='store_true', help='Include this flag to use PEFT-adapted model.')
 parser.add_argument('--input_dir', type=str, required=True, help='Directory containing training data.')
+
 
 args = parser.parse_args()
 
@@ -69,7 +51,23 @@ TRAIN_SIZE = args.train_size
 VAL_SIZE = args.val_size
 TEST_SIZE = args.test_size
 CHECK_VAL_EVERY_N_EPOCH = 1
+USE_PEFT = args.use_peft
 
+def get_model():
+
+    """Allows the user to choose from Adjusted ResNet18 or PEFT-ResNet18 versions.
+    """
+
+    if USE_PEFT:
+        
+        model = importlib.import_module('models.resnet_peft')
+        return model.adjustedPeftResNet
+
+    else:
+        model = importlib.import_module('models.resnet')
+        return model.adjustedResNet
+    
+    
 TRAIN_DATASET_PATH = Path(__file__).parent.parent / "train_split.parquet"
 VAL_DATASET_PATH = Path(__file__).parent.parent / "val_split.parquet"
 TEST_DATASET_PATH = Path(__file__).parent.parent / "test_split.parquet"
@@ -246,7 +244,7 @@ class Trainer:
             
 if __name__ == "__main__":
 
-    choosed_model = get_model(args.model)
+    choosed_model = get_model()
 
     model = choosed_model(NUM_CLASSES)
 

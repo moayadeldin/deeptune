@@ -1,15 +1,10 @@
-"""
-This code is mostly adopted from John's repo to download siglip.
-https://github.com/johnkxl/peft4vision/
-"""
-
 from pathlib import Path
 from typing import cast
 from transformers import AutoModel, AutoProcessor, AutoModelForImageClassification, AutoImageProcessor
 from transformers.models.siglip.modeling_siglip import SiglipModel
 from transformers.models.siglip.processing_siglip import SiglipProcessor
 from peft import PeftModel
-
+from peft import LoraConfig, get_peft_model
 
 ROOT = Path(__file__).parent.parent
 SIGLIP_PATH = ROOT / "downloaded_models/siglip_so400m_patch14_384/"
@@ -48,51 +43,60 @@ def download_siglip_model():
     print(f"Saved preprocessor to {SIGLIP_PREPROCESSOR}")
     
     
-def load_siglip_offline(peft=False):
+def load_peft_siglip_offline():
     
-    model = AutoModel.from_pretrained(SIGLIP_MODEL, local_files_only=True)
+    base_model = AutoModel.from_pretrained(SIGLIP_MODEL, local_files_only=True)
     
     tokenizer = cast(
         SiglipProcessor,
         AutoProcessor.from_pretrained(SIGLIP_PREPROCESSOR, local_files_only=True)
     )
+        
+    """Here I do something different to what John did in his implementation, John would actually call PeftModel.from_pretrained here in load_siglip function, then when referring to this function again in the trainer, he would use get_peft_model(). We could think of this as an overhead.
     
-    if peft:
+    When I searched about this, I found that the PeftModel.from_pretrained is calling an existing LoRA weights that was previously trained. On the other hand, get_peft_model creates and attaches new PEFT/LoRA weights to a base model, for new training.
+    
+    What we want to do is the second thing, a new training, so I only call get_peft_model here.
+    
+    """
+    
+    for param in base_model.parameters():
+         param.requires_grad = False
+
+    peft_config = LoraConfig(
+            inference_mode=False,  # Enable training
+            r=16,                  # Low-rank dimension
+            lora_alpha=32,         # Scaling factor
+            lora_dropout=0.1,      # Dropout
+            target_modules=[
+                # "k_proj",
+                "v_proj",
+                "q_proj",
+                # "out_proj",
+            ]
+        )
+
+    # Wrap the base model with the PEFT model
+    peft_model = get_peft_model(base_model, peft_config)
         
-        model = PeftModel.from_pretrained(model, SIGLIP_PEFT_ADAPTER)
-        
-    model = cast(SiglipModel, model)
+    model = cast(SiglipModel, peft_model)
     
     return model,tokenizer
 
 
-def load_siglip_for_image_classification_offline(peft=False):
+def load_peft_siglip_for_image_classification_offline():
     """
-    Returns SigLIP model with classification head and image processor. 
-    Specifying `peft=True` loads the model with the PEFT LoRA adapter.
-
-    Parameters
-    ----------
-    label2id: dict
-        Dictionary mapping target class labels to integers in dataset.
-    id2label: dict
-        Dictionary mapping intergers in dataset to target class lables.
-    peft: bool, default=False
-        Load the model saved with the PEFT adapter if `True`.
+    Returns PEFT SigLIP model with classification head and image processor.
+    """
     
-    Returns
-    -------
-    tuple[AutoModelForImageClassification | PeftModel, AutoImageProcessor]
+    model_path = SIGLIP_PEFT_TRAINED
 
-    """
-    model_path = SIGLIP_PEFT_TRAINED if peft else SIGLIP_MODEL
-
-    model = AutoModelForImageClassification.from_pretrained(
+    model = SiglipModel.from_pretrained(
         model_path,
         local_files_only=True
     )
     
-    
+        
     processor = AutoImageProcessor.from_pretrained(SIGLIP_PREPROCESSOR, local_files_only=True)
     
     return model, processor

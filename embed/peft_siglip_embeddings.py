@@ -5,27 +5,25 @@ from pandas import DataFrame
 import torch
 from torch.utils.data import DataLoader
 from dataset import ParquetImageDataset
-from models.peft_siglip import load_siglip_for_image_classification_offline
+from models.siglip_peft import load_peft_siglip_for_image_classification_offline
 
 parser = ArgumentParser(description="Extract Embeddings used Peft model")
 parser.add_argument('--input_df_path', type=str, required=True, help='Dataset path of test set. Must be a .parquet file with only two columns, "image" and "target".')
-parser.add_argument('--use-peft', action='store_true', help='Include this flag to extract embeddings using the PEFT-adapted model.')
 parser.add_argument('--out', type=Path, required=True, help='Destination file name (.parquet).')
 args = parser.parse_args()
 
 DEVICE = torch.device("cuda" if torch.cuda.is_available() else "cpu")
 INPUT_DF_PATH = args.input_df_path
-USE_PEFT = args.use_peft
 OUTPUT = args.out
 
 def run_embeddings():
-    model, processor = load_siglip_for_image_classification_offline(peft=USE_PEFT)
+    model, processor = load_peft_siglip_for_image_classification_offline()
     image_dataset = ParquetImageDataset(INPUT_DF_PATH, processor=processor)
     
     # Create dataloader
     loader = DataLoader(
         image_dataset,
-        batch_size=4,
+        batch_size=1,
         shuffle=False,
         num_workers=0
     )
@@ -57,11 +55,12 @@ def get_vision_embeddings(model, loader, device):
             image_embeddings = output.pooler_output
             
             all_embeddings.append(image_embeddings.cpu())
+            print(label)
             all_labels.append(label.item())
    
     embeddings = torch.cat(all_embeddings)
     
-    N, p = embeddings.shape
+    _, p = embeddings.shape
     cols = [f"embed{i:04d}" for i in range(p)]
     df_embed = DataFrame(data=embeddings.numpy(), columns=cols)
     df_embed["target"] = all_labels

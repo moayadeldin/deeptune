@@ -1,7 +1,7 @@
 """This extract_embeddings.py is integrated in order to use fine-tuned ResNet50 model as an embeddings extractor for the training images, to evaluate the performance of different classic ML algorithms who excel in tabular data.
 """
-from models.resnet import adjustedResNet
-from models.resnet_peft import adjustedPeftResNet
+from models.resnet18 import adjustedResNet
+from models.resnet18_peft import adjustedPeftResNet
 from dataset import ParquetImageDataset
 import torch
 import torch.nn as nn
