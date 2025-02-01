@@ -1,5 +1,5 @@
-from models.resnet import adjustedResNet
-from models.resnet_peft import adjustedPeftResNet
+from models.resnet18 import adjustedResNet
+from models.resnet18_peft import adjustedPeftResNet
 import importlib
 from utilities import transformations
 from utilities import save_training_metrics

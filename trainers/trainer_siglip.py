@@ -1,4 +1,4 @@
-import os
+
 import torch
 import torch.nn as nn
 import torch.optim as optim
@@ -6,15 +6,15 @@ import argparse
 from sklearn.model_selection import train_test_split
 import pandas as pd
 from dataset import ParquetImageDataset
-from models.peft_siglip import load_siglip_offline
-from models.peft_siglip import SIGLIP_PEFT_ADAPTER,SIGLIP_PEFT_TRAINED
-from peft import LoraConfig, get_peft_model
+from models.siglip_peft import load_peft_siglip_offline
+from models.siglip_peft import SIGLIP_PEFT_TRAINED
+from models.siglip import load_siglip_offline
+from models.siglip import SIGLIP_TRAINED
 from utilities import PerformanceLogger
 from tqdm import tqdm
 from pathlib import Path
 import sys
 import logging
-import warnings
 from utilities import save_cli_args, save_training_metrics
 
 ##### SEED IS IMPORTANT TO ENSURE REPRODUCABILITY #####
@@ -23,8 +23,8 @@ parser = argparse.ArgumentParser(description="Fine-tune the model passing your H
 DEVICE = torch.device("cuda" if torch.cuda.is_available() else "cpu")
 
 # Arguments constructed for CLI
-parser.add_argument('--model', type=str, required=False, default='peft-siglip', help='Model type.')
-parser.add_argument('--num_classes', type=str, required=False, default='None', help='Number of classes for your original dataset.')
+
+parser.add_argument('--use-peft', action='store_true', help='Include this flag to use PEFT-adapted model.')
 parser.add_argument('--num_epochs', type=int, required=True, help='The number of epochs you wan the model to run on.')
 parser.add_argument('--batch_size', type=int, required=True, help='Batch Size to train your model.')
 parser.add_argument('--learning_rate', type=float, required=True, help='Learning Rate to apply for fine-tuning.')
@@ -32,6 +32,8 @@ parser.add_argument('--train_size', type=float, required=True, help='Mention the
 parser.add_argument('--val_size', type=float, required=True, help='Mention the split ratio of the Val Dataset')
 parser.add_argument('--test_size', type=float, required=True, help='Mention the split ratio of the Test Dataset')
 parser.add_argument('--input_dir', type=str, required=True, help='Directory containing training data.')
+parser.add_argument('--num_classes', type=str, required=False, default='None', help='Number of classes for your original dataset.')
+
 
 
 args = parser.parse_args()
@@ -43,6 +45,20 @@ NUM_EPOCHS = args.num_epochs
 TRAIN_SIZE = args.train_size
 VAL_SIZE = args.val_size
 TEST_SIZE = args.test_size
+USE_PEFT = args.use_peft
+
+TRAINVAL_OUTPUT_DIR = Path(__file__).parent.parent / 'output_directory_trainval'
+
+if USE_PEFT:
+        
+    model, processor = load_peft_siglip_offline()
+    args.model = 'PEFT-SIGLIP'
+    
+else:
+    
+    model,processor = load_siglip_offline()
+    args.model = 'SIGLIP'    
+    
 
 
 TRAIN_DATASET_PATH = Path(__file__).parent.parent / "train_split.parquet"
@@ -57,8 +73,6 @@ df = df[:10]
 train_data, temp_data = train_test_split(df, test_size=(1 - TRAIN_SIZE), random_state=42)
 
 val_data, test_data = train_test_split(temp_data, test_size=(TEST_SIZE / (VAL_SIZE + TEST_SIZE)), random_state=42) # random_state is very important to produce the same dataset everytime.
-
-base_model, processor = load_siglip_offline()
 
 train_data.to_parquet(TRAIN_DATASET_PATH, index=False)
 val_data.to_parquet(VAL_DATASET_PATH, index=False)
@@ -95,47 +109,20 @@ test_loader = torch.utils.data.DataLoader(
     num_workers=0
 )
 
-# Get the PEFT model.
-
-for param in base_model.parameters():
-    param.requires_grad = False
-
-peft_config = LoraConfig(
-        inference_mode=False,  # Enable training
-        r=16,                  # Low-rank dimension
-        lora_alpha=32,         # Scaling factor
-        lora_dropout=0.1,      # Dropout
-        target_modules=[
-            # "k_proj",
-            "v_proj",
-            "q_proj",
-            # "out_proj",
-        ]
-    )
-
-# Wrap the base model with the PEFT model
-peft_model = get_peft_model(base_model, peft_config)
-# print_trainable_parameters(peft_model)
-
-# num_samples = len(train_loader.dataset)
-# print(f"Number of samples: {num_samples}")
-
 
 class Trainer:
-    def __init__(self, model=peft_model):
+    def __init__(self, model=model):
         self.model = model
         self.model.to(DEVICE)
         self.criterion = nn.CrossEntropyLoss()
         self.optimizer = optim.Adam(model.parameters(), lr=LEARNING_RATE)
         
-        self.performance_logger = PerformanceLogger('output_directory')
+        self.performance_logger = PerformanceLogger(f'{TRAINVAL_OUTPUT_DIR}')
 
         logging.basicConfig(stream=sys.stdout, level=logging.INFO, format="%(levelname)s | %(message)s")
         self.logger = logging.getLogger()
     
     def train(self):
-        
-        self.logger(f'Now the training of training dataset starts..')
 
         for epoch in range(NUM_EPOCHS):
             self.model.train()
@@ -214,20 +201,24 @@ class Trainer:
             )
             
             
-        self.performance_logger.save_to_csv("output_directory/training_log.csv")
+        self.performance_logger.save_to_csv(f"{TRAINVAL_OUTPUT_DIR}/training_log.csv")
         
-        print('Training is finished..')
-        self.model = self.model.merge_and_unload()
-        self.model.save_pretrained(SIGLIP_PEFT_TRAINED)
-        print(f"PEFT Siglip model saved to {SIGLIP_PEFT_TRAINED}")
-            
+        if USE_PEFT:
+        
+            peft_model = self.model.merge_and_unload()
+            peft_model.save_pretrained(SIGLIP_PEFT_TRAINED)
+            print(f"PEFT Siglip model saved to {SIGLIP_PEFT_TRAINED}")
+        
+        else:
+            self.model = self.model.merge_and_unload()
+            self.model.save_pretrained(SIGLIP_TRAINED)
+            print(f"Siglip model saved to {SIGLIP_TRAINED}")
+                
     def evaluate(self):
         
         """
         The evaluation function is devoted for the validation set only, please consider the test function for test set.
         """
-        
-        self.logger('Now the training of training dataset starts..')
         
         val_accuracy=0.0
         val_loss=0.0
