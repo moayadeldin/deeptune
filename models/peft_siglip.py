@@ -5,7 +5,7 @@ https://github.com/johnkxl/peft4vision/
 
 from pathlib import Path
 from typing import cast
-from transformers import AutoModel, AutoProcessor
+from transformers import AutoModel, AutoProcessor, AutoModelForImageClassification, AutoImageProcessor
 from transformers.models.siglip.modeling_siglip import SiglipModel
 from transformers.models.siglip.processing_siglip import SiglipProcessor
 from peft import PeftModel
@@ -17,6 +17,7 @@ SIGLIP_PATH = ROOT / "downloaded_models/siglip_so400m_patch14_384/"
 SIGLIP_PEFT_ADAPTER = SIGLIP_PATH / "peft_adapter"
 
 SIGLIP_MODEL = SIGLIP_PATH / "model"
+SIGLIP_PEFT_TRAINED = SIGLIP_PATH / "full_peft_trained"
 
 SIGLIP_MODEL_FILES = [
     SIGLIP_MODEL / "config.json",
@@ -63,6 +64,38 @@ def load_siglip_offline(peft=False):
     model = cast(SiglipModel, model)
     
     return model,tokenizer
+
+
+def load_siglip_for_image_classification_offline(peft=False):
+    """
+    Returns SigLIP model with classification head and image processor. 
+    Specifying `peft=True` loads the model with the PEFT LoRA adapter.
+
+    Parameters
+    ----------
+    label2id: dict
+        Dictionary mapping target class labels to integers in dataset.
+    id2label: dict
+        Dictionary mapping intergers in dataset to target class lables.
+    peft: bool, default=False
+        Load the model saved with the PEFT adapter if `True`.
+    
+    Returns
+    -------
+    tuple[AutoModelForImageClassification | PeftModel, AutoImageProcessor]
+
+    """
+    model_path = SIGLIP_PEFT_TRAINED if peft else SIGLIP_MODEL
+
+    model = AutoModelForImageClassification.from_pretrained(
+        model_path,
+        local_files_only=True
+    )
+    
+    
+    processor = AutoImageProcessor.from_pretrained(SIGLIP_PREPROCESSOR, local_files_only=True)
+    
+    return model, processor
 
 
 if __name__ == "__main__":

@@ -6,13 +6,15 @@ import argparse
 from sklearn.model_selection import train_test_split
 import pandas as pd
 from dataset import ParquetImageDataset
-from models.siglip import load_siglip_offline
-from models.siglip import SIGLIP_PEFT_ADAPTER
+from models.peft_siglip import load_siglip_offline
+from models.peft_siglip import SIGLIP_PEFT_ADAPTER,SIGLIP_PEFT_TRAINED
 from peft import LoraConfig, get_peft_model
 from utilities import PerformanceLogger
 from tqdm import tqdm
+from pathlib import Path
 import sys
 import logging
+import warnings
 from utilities import save_cli_args, save_training_metrics
 
 ##### SEED IS IMPORTANT TO ENSURE REPRODUCABILITY #####
@@ -43,30 +45,32 @@ VAL_SIZE = args.val_size
 TEST_SIZE = args.test_size
 
 
+TRAIN_DATASET_PATH = Path(__file__).parent.parent / "train_split.parquet"
+VAL_DATASET_PATH = Path(__file__).parent.parent / "val_split.parquet"
+TEST_DATASET_PATH = Path(__file__).parent.parent / "test_split.parquet"
+
+
 # We load the dataset, split it and save them in the current directory (for reproducibility) if they aren't already saved.
-datasets_paths = ["train_split.parquet", "val_split.parquet", "test_split.parquet"]
 
 df = pd.read_parquet(INPUT_DIR)
+df = df[:10]
 train_data, temp_data = train_test_split(df, test_size=(1 - TRAIN_SIZE), random_state=42)
 
 val_data, test_data = train_test_split(temp_data, test_size=(TEST_SIZE / (VAL_SIZE + TEST_SIZE)), random_state=42) # random_state is very important to produce the same dataset everytime.
 
 base_model, processor = load_siglip_offline()
 
-for path in datasets_paths:
+train_data.to_parquet(TRAIN_DATASET_PATH, index=False)
+val_data.to_parquet(VAL_DATASET_PATH, index=False)
+test_data.to_parquet(TEST_DATASET_PATH, index=False)
 
-    if os.path.exists(path):
-        continue
-    else:
-        train_data.to_parquet(datasets_paths[0])
-        val_data.to_parquet(datasets_paths[1])
-        test_data.to_parquet(datasets_paths[2])
+print("Data splits have been saved and overwritten if they existed.")
 
 
 # The current datasets loaded as dataloaders
-train_dataset = ParquetImageDataset(parquet_file=datasets_paths[0], transform=None, processor=processor)
-val_dataset = ParquetImageDataset(parquet_file=datasets_paths[1], transform=None, processor=processor)
-test_dataset = ParquetImageDataset(parquet_file=datasets_paths[2], transform=None, processor=processor)
+train_dataset = ParquetImageDataset(parquet_file=TRAIN_DATASET_PATH, transform=None, processor=processor)
+val_dataset = ParquetImageDataset(parquet_file=VAL_DATASET_PATH, transform=None, processor=processor)
+test_dataset = ParquetImageDataset(parquet_file=TEST_DATASET_PATH, transform=None, processor=processor)
 
 
 # Create DataLoaders  
@@ -74,21 +78,21 @@ train_loader = torch.utils.data.DataLoader(
     train_dataset,
     batch_size=BATCH_SIZE,
     shuffle=True,
-    num_workers=2
+    num_workers=0
 )
 
 val_loader = torch.utils.data.DataLoader(
     val_dataset,
     batch_size=BATCH_SIZE,
     shuffle=True,
-    num_workers=2
+    num_workers=0
 )
 
 test_loader = torch.utils.data.DataLoader(
     test_dataset,
     batch_size=BATCH_SIZE,
     shuffle=True,
-    num_workers=2
+    num_workers=0
 )
 
 # Get the PEFT model.
@@ -113,8 +117,8 @@ peft_config = LoraConfig(
 peft_model = get_peft_model(base_model, peft_config)
 # print_trainable_parameters(peft_model)
 
-num_samples = len(train_loader.dataset)
-print(f"Number of samples: {num_samples}")
+# num_samples = len(train_loader.dataset)
+# print(f"Number of samples: {num_samples}")
 
 
 class Trainer:
@@ -130,6 +134,8 @@ class Trainer:
         self.logger = logging.getLogger()
     
     def train(self):
+        
+        self.logger(f'Now the training of training dataset starts..')
 
         for epoch in range(NUM_EPOCHS):
             self.model.train()
@@ -209,12 +215,19 @@ class Trainer:
             
             
         self.performance_logger.save_to_csv("output_directory/training_log.csv")
+        
+        print('Training is finished..')
+        self.model = self.model.merge_and_unload()
+        self.model.save_pretrained(SIGLIP_PEFT_TRAINED)
+        print(f"PEFT Siglip model saved to {SIGLIP_PEFT_TRAINED}")
             
     def evaluate(self):
         
         """
         The evaluation function is devoted for the validation set only, please consider the test function for test set.
         """
+        
+        self.logger('Now the training of training dataset starts..')
         
         val_accuracy=0.0
         val_loss=0.0
@@ -300,6 +313,6 @@ class Trainer:
 if __name__ == '__main__':
 
         
-    trainr = Trainer()
-    trainr.train()
-    trainr.test()
+    model_trainer = Trainer()
+    model_trainer.train()
+    model_trainer.test()
