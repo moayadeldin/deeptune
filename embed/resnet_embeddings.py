@@ -3,6 +3,7 @@
 from models.resnet18 import adjustedResNet
 from models.resnet18_peft import adjustedPeftResNet
 from dataset import ParquetImageDataset
+from utilities import transformations
 import torch
 import torch.nn as nn
 from tqdm import tqdm
@@ -13,6 +14,7 @@ import pandas as pd
 parser = argparse.ArgumentParser(description="Extract the Embeddings for your fine-tuned model after entering the Hyperparameters, data and model paths.")
 
 parser.add_argument('--num_classes', type=int, required=True, help='The number of classes in your dataset.')
+parser.add_argument('--use-peft', action='store_true', help='Include this flag to use PEFT-adapted model.')
 parser.add_argument('--batch_size', type=int, required=True, help='Batch Size for embeddings.')
 parser.add_argument('--dataset_dir', type=str, required=True, help='Directory containing your dataset.')
 parser.add_argument('--finetuned_model_pth', type=str, required=True, help='Directory for your fine-tuned model.')
@@ -24,7 +26,17 @@ BATCH_SIZE = args.batch_size
 NUM_CLASSES = args.num_classes
 MODEL_PATH = args.finetuned_model_pth
 
-model = adjustedPeftResNet(num_classes=NUM_CLASSES)
+USE_PEFT = args.use_peft
+
+if USE_PEFT:
+    
+    model = adjustedPeftResNet(NUM_CLASSES)
+    TEST_OUTPUT = "test_set_peft_resnet18_embeddings.parquet"
+    
+else:
+    model = adjustedResNet(NUM_CLASSES)
+    TEST_OUTPUT = "test_set_resnet18_embeddings.parquet"
+
 model.load_state_dict(torch.load(MODEL_PATH, weights_only=True))
 
 def adjustModel(model):
@@ -48,13 +60,13 @@ for p in adjusted_model.parameters(): # stop gradient calculations
 
 adjusted_model.cuda() # move the model to cuda
 
-dataset = ParquetImageDataset(parquet_file=DATASET_DIR)
+dataset = ParquetImageDataset(parquet_file=DATASET_DIR, transform=transformations)
 
 data_loader = torch.utils.data.DataLoader(
     dataset,
     batch_size=BATCH_SIZE,
     shuffle=True,
-    num_workers=4
+    num_workers=0
 )
 
 def extractEmbeddings():
@@ -93,7 +105,7 @@ if __name__ == "__main__":
 
     combined_df = pd.concat([embeddings_df,labels_df],axis=1)
 
-    combined_df.to_parquet("test_set_embeddings.parquet",index=False)
+    combined_df.to_parquet(TEST_OUTPUT,index=False)
 
 
 

@@ -4,6 +4,7 @@ from models.siglip import load_siglip_for_image_classification_offline
 from utilities import save_training_metrics
 from utilities import save_cli_args
 import os
+from sklearn.metrics import classification_report, roc_auc_score, confusion_matrix
 import pyarrow.parquet as pq
 import torch
 from dataset import ParquetImageDataset
@@ -14,6 +15,7 @@ import sys
 from pathlib import Path
 import pandas as pd 
 import logging
+import numpy as np
 import argparse
 
 DEVICE = torch.device("cuda" if torch.cuda.is_available() else "cpu")
@@ -89,6 +91,7 @@ class TestTrainer:
         
         all_labels=[]
         all_predictions=[]
+        all_probs=[]
         
         with torch.no_grad():
             for _, (image_pixels, labels) in test_pbar:
@@ -100,28 +103,63 @@ class TestTrainer:
                 outputs = self.model.vision_model(pixel_values=image_pixels)
                 
                 logits = outputs.pooler_output  
+                
+                probs = torch.softmax(logits, 1)
+                
+                _, predicted = torch.max(probs,1)
 
                 loss = self.criterion(logits, labels)
                 
                 test_loss += loss.item()
                 
-                # calculate accuracy
-                
-                _, predicted = torch.max(logits, 1)
-                
                 # Store all probabilities, predictions, and labels to the CPU memory
+                all_probs.append(probs.cpu().numpy())
+                all_predictions.append(predicted.cpu().numpy())
+                all_labels.append(labels.cpu().numpy())
                 
-                
+                                
                 total += labels.size(0)
                 correct += (predicted==labels).sum().item()
                 
+                
+        all_probs = np.concatenate(all_probs, axis=0)
+        all_predictions = np.concatenate(all_predictions, axis=0)
+        all_labels = np.concatenate(all_labels, axis=0)
         
         test_accuracy = correct / total
         test_loss = test_loss / len(test_loader)
+        
+        
+        metrics_dict = {}
+        
+        metrics_dict['accuracy'] = test_accuracy
+        metrics_dict['loss'] = test_loss
+        
+        report = classification_report(
+            y_true = all_labels,
+            y_pred = all_predictions,
+            output_dict=True
+        )
+        
+        print('Metrics Dictionary is being computed..')
+        
+        metrics_dict.update(report)
+        
+        metrics_dict['confusion_matrix'] = confusion_matrix(all_labels, all_predictions)
+        
+        try:
+            metrics_dict['auroc'] = roc_auc_score(all_labels, all_probs, multi_class="ovr")
+        except ValueError:
+            metrics_dict['auroc'] = "AUROC not applicable for this setup"
+            
+            
+
         print(test_accuracy,test_loss)
         save_training_metrics(test_accuracy=test_accuracy,output_dir=TEST_OUTPUT_DIR)
         save_cli_args(args, TEST_OUTPUT_DIR)
-        return test_loss, test_accuracy
+        
+        print(metrics_dict)
+        return metrics_dict
     
 if __name__ == "__main__":
     

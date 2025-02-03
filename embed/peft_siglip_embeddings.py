@@ -1,3 +1,8 @@
+"""
+This code is mostly adopted from John's repo to extract embeddings for PEFT-siglip.
+https://github.com/johnkxl/peft4vision/
+"""
+
 from argparse import ArgumentParser
 from pathlib import Path
 from tqdm import tqdm
