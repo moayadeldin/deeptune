@@ -7,6 +7,8 @@ from utilities import save_cli_args
 import os
 import pyarrow.parquet as pq
 from sklearn.model_selection import train_test_split
+from sklearn.metrics import classification_report, roc_auc_score, confusion_matrix
+import numpy as np
 import torch
 from dataset import ParquetImageDataset
 import torch.nn as nn
@@ -28,7 +30,6 @@ TEST_OUTPUT_DIR = ROOT / 'output_directory_test'
 
 parser = argparse.ArgumentParser(description="Test the Trained Model on Your The test set.")
 
-parser.add_argument('--model', choices=['peft-resnet18', 'resnet18'], help="Choose the Model you want to use.")
 parser.add_argument('--use-peft', action='store_true', help='Include this flag to use PEFT-adapted model.')
 parser.add_argument('--num_classes', type=int, required=True, help='The number of classes in your dataset.')
 parser.add_argument('--batch_size', type=int, required=True, help='Batch Size to test your model.')
@@ -98,6 +99,10 @@ class TestTrainer:
         total,correct = 0,0
         
         test_pbar = tqdm(enumerate(test_loader), total=len(test_loader))
+        
+        all_labels = []
+        all_predictions=[]
+        all_probs=[]
 
         with torch.no_grad():
 
@@ -111,14 +116,49 @@ class TestTrainer:
                 
                 loss = self.criterion(outputs,labels)
                 
+                probs = torch.softmax(outputs,1)
+                
+                _, predicted = torch.max(probs,1)
+                
                 test_loss += loss.item()
                 
                 total += labels.size(0)
                 correct += torch.sum(torch.argmax(outputs,dim=1)==labels).item()
                 
+                # Store all probabilities, predictions, and labels to the CPU memory
+                all_probs.append(probs.cpu().numpy())
+                all_predictions.append(predicted.cpu().numpy())
+                all_labels.append(labels.cpu().numpy())
+                
+                                
+                total += labels.size(0)
+                correct += (predicted==labels).sum().item()
+                
+        all_probs = np.concatenate(all_probs, axis=0)
+        all_predictions = np.concatenate(all_predictions, axis=0)
+        all_labels = np.concatenate(all_labels, axis=0)
+                
                 
         test_accuracy = ( correct / total ) * 100
         test_loss = test_loss / len(test_loader)
+        
+        metrics_dict = {}
+        
+        metrics_dict['accuracy'] = test_accuracy
+        metrics_dict['loss'] = test_loss
+        
+        report = classification_report(
+            y_true = all_labels,
+            y_pred = all_predictions,
+            output_dict=True
+        )
+        
+        try:
+            metrics_dict['auroc'] = roc_auc_score(all_labels, all_probs, multi_class="ovr")
+        except ValueError:
+            metrics_dict['auroc'] = "AUROC not applicable for this setup"
+            
+        
         print(test_accuracy, test_loss)
         
         self.logger.info(f"Test accuracy: {(test_accuracy)}%")
