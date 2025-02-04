@@ -1,8 +1,3 @@
-"""
-This code is mostly adopted from John's repo to download siglip.
-https://github.com/johnkxl/peft4vision/
-"""
-
 from pathlib import Path
 from typing import cast
 from transformers import AutoModel, AutoProcessor, AutoModelForImageClassification, AutoImageProcessor
