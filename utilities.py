@@ -2,6 +2,7 @@ import torchvision
 import os
 import json
 import pandas as pd
+from torch import Tensor
 
 transformations = torchvision.transforms.Compose([
     # torchvision.transforms.ToPILImage(), # as I upload raw images
@@ -56,6 +57,10 @@ def print_trainable_parameters(model):
         print(
             f"trainable params: {trainable_params} || all params: {all_param} || trainable%: {100 * trainable_params / all_param:.2f}"
         )
+        
+def avg_pool(last_hidden_states: Tensor, attention_mask: Tensor) -> Tensor:
+    last_hidden = last_hidden_states.masked_fill(~attention_mask[..., None].bool(), 0.0)
+    return last_hidden.sum(dim=1) / attention_mask.sum(dim=1)[..., None]
 
 """ The following class code is adopted from John's implementation of Siglip"""
 
