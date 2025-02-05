@@ -1,5 +1,5 @@
-from models.resnet18 import adjustedResNet
-from models.resnet18_peft import adjustedPeftResNet
+from src.vision.resnet18 import adjustedResNet
+from src.vision.resnet18_peft import adjustedPeftResNet
 import importlib
 from utilities import transformations
 from utilities import save_training_metrics
@@ -8,7 +8,7 @@ import os
 import pyarrow.parquet as pq
 from sklearn.model_selection import train_test_split
 import torch
-from dataset import ParquetImageDataset
+from datasets.image_datasets import ParquetImageDataset
 import torch.nn as nn
 import torch.optim as optim
 from tqdm import tqdm

@@ -1,13 +1,13 @@
 import importlib
-from models.siglip_peft import load_peft_siglip_for_image_classification_offline
-from models.siglip import load_siglip_for_image_classification_offline
+from src.vision.siglip_peft import load_peft_siglip_for_image_classification_offline
+from src.vision.siglip import load_siglip_for_image_classification_offline
 from utilities import save_training_metrics
 from utilities import save_cli_args
 import os
 from sklearn.metrics import classification_report, roc_auc_score, confusion_matrix
 import pyarrow.parquet as pq
 import torch
-from dataset import ParquetImageDataset
+from datasets.image_datasets import ParquetImageDataset
 import torch.nn as nn
 import torch.optim as optim
 from tqdm import tqdm

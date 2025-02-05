@@ -1,5 +1,5 @@
-from models.resnet18 import adjustedResNet
-from models.resnet18_peft import adjustedPeftResNet
+from src.vision.resnet18 import adjustedResNet
+from src.vision.resnet18_peft import adjustedPeftResNet
 import importlib
 from utilities import transformations
 from utilities import save_training_metrics
@@ -10,7 +10,7 @@ from sklearn.model_selection import train_test_split
 from sklearn.metrics import classification_report, roc_auc_score, confusion_matrix
 import numpy as np
 import torch
-from dataset import ParquetImageDataset
+from datasets.image_datasets import ParquetImageDataset
 import torch.nn as nn
 import torch.optim as optim
 from tqdm import tqdm
