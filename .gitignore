@@ -3,3 +3,6 @@ PBC_DataSet_Sample
 __pycache__
 downloaded_models
 results
+train_split.parquet
+test_split.parquet
+val_split.parquet
