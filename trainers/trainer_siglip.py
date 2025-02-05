@@ -5,11 +5,11 @@ import torch.optim as optim
 import argparse
 from sklearn.model_selection import train_test_split
 import pandas as pd
-from dataset import ParquetImageDataset
-from models.siglip_peft import load_peft_siglip_offline
-from models.siglip_peft import SIGLIP_PEFT_TRAINED
-from models.siglip import load_siglip_offline
-from models.siglip import SIGLIP_TRAINED
+from datasets.image_datasets import ParquetImageDataset
+from src.vision.siglip_peft import load_peft_siglip_offline
+from src.vision.siglip_peft import SIGLIP_PEFT_TRAINED
+from src.vision.siglip import load_siglip_offline
+from src.vision.siglip import SIGLIP_TRAINED
 from utilities import PerformanceLogger
 from tqdm import tqdm
 from pathlib import Path
@@ -69,7 +69,6 @@ TEST_DATASET_PATH = Path(__file__).parent.parent / "test_split.parquet"
 # We load the dataset, split it and save them in the current directory (for reproducibility) if they aren't already saved.
 
 df = pd.read_parquet(INPUT_DIR)
-df = df[:10]
 train_data, temp_data = train_test_split(df, test_size=(1 - TRAIN_SIZE), random_state=42)
 
 val_data, test_data = train_test_split(temp_data, test_size=(TEST_SIZE / (VAL_SIZE + TEST_SIZE)), random_state=42) # random_state is very important to produce the same dataset everytime.

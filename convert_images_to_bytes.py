@@ -1,5 +1,5 @@
 from pathlib import Path
-from datasets import Dataset
+from datasets.image_datasets import Dataset
 from PIL import Image
 # Define the label-to-index mapping
 label_to_index = {
