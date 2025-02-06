@@ -6,3 +6,4 @@ results
 train_split.parquet
 test_split.parquet
 val_split.parquet
+commands.txt
