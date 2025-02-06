@@ -31,7 +31,7 @@ Thanks to [John Kendall](https://github.com/johnkxl) for their assistance.
 
 ## Citation
 
-If you find this repository helpful in your research, please cite it as follows:
+If you find this repository helpful, please cite it as follows:
 
 
 ```bibtex
