@@ -29,9 +29,11 @@ Thanks to [John Kendall](https://github.com/johnkxl) for their assistance.
 
 If you find this repository helpful in your research, please cite it as follows:
 
-@software{X-vision-helper,
+
+```bibtex
+@software{DeepTune,
   author = {Moayadeldin Hussain},
-  title = {X-vision-helper: Cutting-edge library to automate Computer Vision and Natural Language Processing Algorithms.},
+  title = {DeepTune: Cutting-edge library to automate Computer Vision and Natural Language Processing algorithms.},
   year = {2025},
   url = {https://github.com/moayadeldin/deeptune-scratch},
   version = {1.0.0}
