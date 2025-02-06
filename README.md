@@ -22,6 +22,8 @@ As a cutting-edge software library that has been specifically designed for use i
 
 ## Acknowledgments
 This software package was developed as part of work done at Medical Imaging Bioinformatics lab under the supervision of Dr. Jacob Levman at St. Francis Xavier Univeristy located in Nova Scotia, Canada.
+
+
 Thanks to [John Kendall](https://github.com/johnkxl) for their assistance.
 
 
