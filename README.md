@@ -1,13 +1,38 @@
-## Command
+# DeepTune
 
-python3 model_finetuning.py --model peft-resnet18 --num_classes 8 --num_epochs 1 --batch_size 16 --learning_rate 0.0001 --input_dir "/media/moayad/Moayad/StFX/advanced-project/DataSet_Splitted/combined.parquet"
+**DeepTune** is a full compatible library to automate Computer Vision and Natural Language Processing algorithms on diverse images and text datasets.
 
-python3 extract_embeddings.py --num_classes 8 --batch_size 16 --dataset_dir "test_split.parquet" --finetuned_model_pth "model_weights.pth"
+As a cutting-edge software library that has been specifically designed for use in different Machine Learning Tasks, inclduing but not limited to image classification, transfer learning, and embedding extraction. **DeepTune** is currently going under the process of extensive testing, and offers multiple features including ability to apply transfer learning via fine-tuning for advanced classification algorithms for images, and texts, including Parameter Efficient Fine-Tuning with LoRA, and latent feature extraction as embedding vectors. This offers a massive assistance for users to take full advantage of what their case studies may offer with simple commands.
 
-(env-df-analyze) moayad@moayad-IdeaPad-L340-15IRH-Gaming:~/.pyenv/versions/env-df-analyze/bin$ 
+## Features
 
-python -m  trainers.trainer_resnet --model resnet18 --num_classes 8 --num_epochs 1 --batch_size 16 --learning_rate 0.0001 --train_size 0.7 --val_size 0.1 --test_size 0.2 --input_dir "H:\Moayad\combined.parquet"
+- Ability of fine-tuning SoTA Computer Vision algorithms for Image Classification
+- Ability of fine-tuning SoTA NLP algorithms.
+- Providing PEFT with LoRA for Computer Vision algorithms implemented, enabling state-of-the-art models that typically require substantial computational resources to perform efficiently on lower-powered devices. This approach not only reduces computational overhead but also enhances performance
+- Ability of extracting meaningful feature embeddings representing your own dataset with SoTA algorithms for image and text classification tasks.
 
-(deeptunenv) H:\Moayad\deeptune-scratch>python -m  trainers.trainer_siglip --num_epochs 1 --batch_size 1 --learning_rate 0.0001 --train_size 0.7 --val_size 0.1 --test_size 0.2 --input_dir "H:\Moayad\combined.parquet" 
+## Algorithms Implemented
 
-(deeptune) H:\Moayad\df-analyze>python df-analyze.py --df "H:\Moayad\deeptune-scratch\results\PBC splits results\split 80-10-10\test_set_peft_resnet18_embeddings.parquet" --outdir = ./peft_resnet18_test_results --mode=classify --target label --classifiers lgbm rf sgd knn lr mlp dummy --embed-select none linear lgbm
+| Model         | Transfer Learning? | Support PEFT? | Support Embeddings Extraction? | Task                | Modality |
+|---------------|--------------------|---------------|-------------------------------|---------------------|----------|
+| ResNet18      | ✅                 | ✅            | ✅                            | Classification      | Image    |
+| Siglip        | ✅                 | ✅            | ✅                            | Classification      | Image    |
+| XLM-RoBERTa   | ❌                 | ❌            | ✅                            | Sentiment Analysis  | Text     |
+
+
+## Acknowledgments
+This software package was developed as part of work done at Medical Imaging Bioinformatics lab under the supervision of Dr. Jacob Levman at St. Francis Xavier Univeristy located in Nova Scotia, Canada.
+Thanks to [John Kendall](https://github.com/johnkxl) for their assistance.
+
+
+## Citation
+
+If you find this repository helpful in your research, please cite it as follows:
+
+@software{X-vision-helper,
+  author = {Moayadeldin Hussain},
+  title = {X-vision-helper: Cutting-edge library to automate Computer Vision and Natural Language Processing Algorithms.},
+  year = {2025},
+  url = {https://github.com/moayadeldin/deeptune-scratch},
+  version = {1.0.0}
+}
