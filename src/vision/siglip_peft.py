@@ -6,7 +6,7 @@ from transformers.models.siglip.processing_siglip import SiglipProcessor
 from peft import PeftModel
 from peft import LoraConfig, get_peft_model
 
-ROOT = Path(__file__).parent.parent
+ROOT = Path(__file__).parent.parent.parent
 SIGLIP_PATH = ROOT / "downloaded_models/siglip_so400m_patch14_384/"
 
 SIGLIP_PEFT_ADAPTER = SIGLIP_PATH / "peft_adapter"

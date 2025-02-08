@@ -54,9 +54,11 @@ MODEL_WEIGHTS = args.model_weights
 if USE_PEFT:
     
     MODEL = adjustedPeftResNet(NUM_CLASSES)
+    args.model = 'PEFT-RESNET18'
     
 else:
     MODEL = adjustedResNet(NUM_CLASSES)
+    args.model = 'RESNET18'
 
 # WE load the dataset, split it and save them in the current directory (for reproducibility) if they aren't already saved.
 df = pd.read_parquet(TEST_DATASET_PATH)
