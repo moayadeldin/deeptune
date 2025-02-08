@@ -1,9 +1,0 @@
-Command Line Arguments:
-{
-    "model": "PEFT-RESNET18",
-    "num_classes": 4,
-    "num_epochs": "None",
-    "batch_size": 16,
-    "learning_rate": "None",
-    "input_dir": "H:\\Moayad\\deeptune-scratch\\results\\leukemia splits results\\train 70-10-20\\zero_indexed_test_split.parquet"
-}
