@@ -19,7 +19,7 @@ class adjustedResNet(nn.Module):
 
         self.flatten = nn.Flatten()
         self.fc1 = nn.Linear(fc1_input,1000)
-        self.fc2 = nn.Linear(1000, num_classes)
+        self.fc2 = nn.Linear(1000,self.num_classes)
 
     def forward(self, x):
 

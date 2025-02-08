@@ -17,7 +17,7 @@ class adjustedPeftResNet(nn.Module):
 
         # this receives the output directly from the last conv layer.
 
-        self.model.fc = nn.Linear(fc1_input, 8)
+        self.model.fc = nn.Linear(fc1_input, self.num_classes)
 
         self.peftmodel = self.applyPEFT(self.model)
 

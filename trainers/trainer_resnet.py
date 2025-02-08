@@ -60,11 +60,13 @@ def get_model():
 
     if USE_PEFT:
         
-        model = importlib.import_module('models.resnet_peft')
+        model = importlib.import_module('src.vision.resnet18_peft')
+        args.model = 'PEFT-RESNET18'
         return model.adjustedPeftResNet
 
     else:
-        model = importlib.import_module('models.resnet')
+        model = importlib.import_module('src.vision.resnet18')
+        args.model = 'RESNET18'
         return model.adjustedResNet
     
     
@@ -80,6 +82,10 @@ df = pd.read_parquet(INPUT_DIR)
 
 train_data, temp_data = train_test_split(df, test_size=(1 - TRAIN_SIZE), random_state=42)
 val_data, test_data = train_test_split(temp_data, test_size=(TEST_SIZE / (VAL_SIZE + TEST_SIZE)), random_state=42)
+
+print('Number of Training Samples is', train_data.shape[0])
+print('Number of Val Samples is', val_data.shape[0])
+print('Number of Test Samples is', test_data.shape[0])
 
 train_data.to_parquet(TRAIN_DATASET_PATH, index=False)
 val_data.to_parquet(VAL_DATASET_PATH, index=False)
@@ -140,6 +146,9 @@ class Trainer:
             train_pbar = tqdm(enumerate(train_loader), total=len(train_loader))
 
             for i, (inputs, labels) in train_pbar:
+                
+                if (labels < 0).any() or (labels >= NUM_CLASSES).any():
+                    print(f"Invalid label found: {labels}")
                 
                 # make sure the inputs and labels on GPU
                 inputs, labels = inputs.to(DEVICE), labels.to(DEVICE)
