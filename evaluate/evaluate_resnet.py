@@ -31,6 +31,8 @@ TEST_OUTPUT_DIR = ROOT / 'output_directory_test'
 parser = argparse.ArgumentParser(description="Test the Trained Model on Your The test set.")
 
 parser.add_argument('--use-peft', action='store_true', help='Include this flag to use PEFT-adapted model.')
+parser.add_argument('--added_layers', type=int, choices=[1,2], help='The number of layers you already added while adjusting the model.')
+parser.add_argument('--embed_size', type=int, help='The size of embedding layer you already added while adjusting the model.')
 parser.add_argument('--num_classes', type=int, required=True, help='The number of classes in your dataset.')
 parser.add_argument('--batch_size', type=int, required=True, help='Batch Size to test your model.')
 parser.add_argument('--input_dir', type=str, required=True, help='Directory containing test data.')
@@ -50,14 +52,16 @@ BATCH_SIZE= args.batch_size
 NUM_CLASSES = args.num_classes
 USE_PEFT = args.use_peft
 MODEL_WEIGHTS = args.model_weights
+ADDED_LAYERS = args.added_layers
+EMBED_SIZE = args.embed_size
 
 if USE_PEFT:
     
-    MODEL = adjustedPeftResNet(NUM_CLASSES)
+    MODEL = adjustedPeftResNet(NUM_CLASSES, ADDED_LAYERS, EMBED_SIZE)
     args.model = 'PEFT-RESNET18'
     
 else:
-    MODEL = adjustedResNet(NUM_CLASSES)
+    MODEL = adjustedResNet(NUM_CLASSES, ADDED_LAYERS, EMBED_SIZE)
     args.model = 'RESNET18'
 
 # WE load the dataset, split it and save them in the current directory (for reproducibility) if they aren't already saved.
@@ -167,7 +171,7 @@ class TestTrainer:
 
         save_training_metrics(test_accuracy=test_accuracy,output_dir=TEST_OUTPUT_DIR)
         
-        save_cli_args(args, TEST_OUTPUT_DIR)
+        save_cli_args(args, TEST_OUTPUT_DIR, 'test')
   
   
 if __name__ == "__main__":

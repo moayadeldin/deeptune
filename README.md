@@ -15,10 +15,10 @@ As a cutting-edge software library that has been specifically designed for use i
 
 ## Algorithms Implemented
 
-| Model         | Transfer Learning? | Support PEFT? | Support Embeddings Extraction? | Task                | Modality |
+| Model         | Transfer Learning with Adjustable Embedding Layer? | Support PEFT with Adjustable Embedding Layer? | Support Embeddings Extraction? | Task                | Modality |
 |---------------|--------------------|---------------|-------------------------------|---------------------|----------|
 | ResNet18      | ✅                 | ✅            | ✅                            | Classification      | Image    |
-| Siglip        | ✅                 | ✅            | ✅                            | Classification      | Image    |
+| Siglip        | ❌                |  ❌            | ✅                            | Classification      | Image    |
 | XLM-RoBERTa   | ❌                 | ❌            | ✅                            | Sentiment Analysis  | Text     |
 
 
