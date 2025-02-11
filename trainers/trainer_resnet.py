@@ -5,6 +5,7 @@ from utilities import transformations
 from utilities import save_training_metrics
 from utilities import save_cli_args
 import os
+import numpy as np
 import pyarrow.parquet as pq
 from sklearn.model_selection import train_test_split
 import torch
@@ -31,13 +32,17 @@ parser = argparse.ArgumentParser(description="Fine-tune the model passing your H
 
 parser.add_argument('--num_classes', type=int, required=True, help='The number of classes in your dataset.')
 parser.add_argument('--num_epochs', type=int, required=True, help='The number of epochs you wan the model to run on.')
+parser.add_argument('--added_layers', type=int, choices=[1,2], required=True, help='Specify the number of layers you want to add.')
+parser.add_argument('--embed_size', type=int, required=True, help='Specify the size of the embeddings you would obtain through embedding layer.')
 parser.add_argument('--batch_size', type=int, required=True, help='Batch Size to train your model.')
 parser.add_argument('--learning_rate', type=float, required=True, help='Learning Rate to apply for fine-tuning.')
 parser.add_argument('--train_size', type=float, required=True, help='Mention the split ratio of the Train Dataset')
 parser.add_argument('--val_size', type=float, required=True, help='Mention the split ratio of the Val Dataset')
 parser.add_argument('--test_size', type=float, required=True, help='Mention the split ratio of the Test Dataset')
-parser.add_argument('--use-peft', action='store_true', help='Include this flag to use PEFT-adapted model.')
 parser.add_argument('--input_dir', type=str, required=True, help='Directory containing training data.')
+parser.add_argument('--use-peft', action='store_true', help='Include this flag to use PEFT-adapted model.')
+parser.add_argument('--fixed-seed', action='store_true', help='Choose whether a seed is required or not.')
+parser.add_argument('--freeze-backbone', action='store_true', help='Decide whether you want to freeze backbone or not.')
 
 
 args = parser.parse_args()
@@ -52,6 +57,19 @@ VAL_SIZE = args.val_size
 TEST_SIZE = args.test_size
 CHECK_VAL_EVERY_N_EPOCH = 1
 USE_PEFT = args.use_peft
+ADDED_LAYERS = args.added_layers
+EMBED_SIZE = args.embed_size
+FIXED_SEED = args.fixed_seed
+FREEZE_BACKBONE = args.freeze_backbone
+
+if FIXED_SEED:
+    seed=42
+    args.fixed_seed = 42
+else:
+    seed = np.random.randint(low=0)
+    args.fixed_seed = seed
+
+torch.manual_seed(seed)
 
 def get_model():
 
@@ -67,8 +85,7 @@ def get_model():
     else:
         model = importlib.import_module('src.vision.resnet18')
         args.model = 'RESNET18'
-        return model.adjustedResNet
-    
+        return model.adjustedResNet    
     
 TRAIN_DATASET_PATH = Path(__file__).parent.parent / "train_split.parquet"
 VAL_DATASET_PATH = Path(__file__).parent.parent / "val_split.parquet"
@@ -80,8 +97,10 @@ TRAINVAL_OUTPUT_DIR = Path(__file__).parent.parent / 'output_directory_trainval'
 # WE load the dataset, split it and save them in the current directory (for reproducibility) if they aren't already saved.
 df = pd.read_parquet(INPUT_DIR)
 
-train_data, temp_data = train_test_split(df, test_size=(1 - TRAIN_SIZE), random_state=42)
-val_data, test_data = train_test_split(temp_data, test_size=(TEST_SIZE / (VAL_SIZE + TEST_SIZE)), random_state=42)
+df = df[:10]
+
+train_data, temp_data = train_test_split(df, test_size=(1 - TRAIN_SIZE), random_state=seed)
+val_data, test_data = train_test_split(temp_data, test_size=(TEST_SIZE / (VAL_SIZE + TEST_SIZE)), random_state=seed)
 
 print('Number of Training Samples is', train_data.shape[0])
 print('Number of Val Samples is', val_data.shape[0])
@@ -118,7 +137,7 @@ class Trainer:
         self.model.to(DEVICE)
 
         self.criterion = nn.CrossEntropyLoss()
-        self.optimizer = optim.Adam(model.parameters(), lr=LEARNING_RATE)
+        self.optimizer = optim.Adam(filter(lambda p: p.requires_grad, model.parameters()), lr=LEARNING_RATE)
         
         self.performance_logger = PerformanceLogger(f'{TRAINVAL_OUTPUT_DIR}')
 
@@ -255,7 +274,7 @@ if __name__ == "__main__":
 
     choosed_model = get_model()
 
-    model = choosed_model(NUM_CLASSES)
+    model = choosed_model(NUM_CLASSES, ADDED_LAYERS, EMBED_SIZE, FREEZE_BACKBONE)
 
     model_trainer = Trainer(model=model)
 
@@ -263,5 +282,5 @@ if __name__ == "__main__":
 
     model_trainer.saveModel(path=f'{TRAINVAL_OUTPUT_DIR}/model_weights.pth')
     
-    save_cli_args(args, TRAINVAL_OUTPUT_DIR)
+    save_cli_args(args, TRAINVAL_OUTPUT_DIR, mode='train')
 

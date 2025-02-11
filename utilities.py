@@ -30,17 +30,56 @@ def save_training_metrics(test_accuracy,output_dir):
         f.write("\nTest Accuracy:\n")
         f.write(f"{test_accuracy:.4f}\n")
 
-def save_cli_args(args,output_dir):
-
-        args_dict = {
-        'model': args.model,
-        'num_classes': args.num_classes,
-        'num_epochs': args.num_epochs,
-        'batch_size': args.batch_size,
-        'learning_rate': args.learning_rate,
-        'input_dir': args.input_dir
-        }
+def save_cli_args(args,output_dir,mode):
     
+        if mode == 'train':
+            
+            args_dict = {
+            'model': args.model,
+            'num_classes': args.num_classes,
+            'num_epochs': args.num_epochs,
+            'batch_size': args.batch_size,
+            'learning_rate': args.learning_rate,
+            'added_layers': args.added_layers,
+            'embed_size': args.embed_size,
+            'input_dir': args.input_dir,
+            'train_size': args.train_size,
+            'val_size': args.val_size,
+            'test_size':args.test_size,
+            'use-peft': args.use_peft,
+            'fixed-seed': args.fixed_seed
+            }
+        
+        elif mode == 'test':
+            
+            args_dict = {
+                'num_classes': args.num_classes,
+                'use_peft': args.use_peft,
+                'added_layers': args.added_layers,
+                'embed_size': args.embed_size,
+                'batch_size': args.batch_size,
+                'input_dir': args.input_dir,
+                'model_weights': args.model_weights
+            }
+            
+        else:
+            raise ValueError('Please choose one of the following as mode ["train", "test"]')
+            
+        
+        # elif mode == 'embed':
+            
+        #     args_dict = {
+        #         'num_classes':args.num_classes,
+        #         'use_case':args.use_case,
+        #         'added_layers': args.added_layers,
+        #         'embed_size': args.embed_size,
+        #         'batch_size': args.batch_size,
+        #         'dataset_dir': args.dataset_dir,
+        #         'finetuned_model_pth': args.finetuned_model_pth
+                
+        #     }            
+
+
         output_path = os.path.join(output_dir, 'cli_arguments.txt')
         
         with open(output_path, 'w') as f:
