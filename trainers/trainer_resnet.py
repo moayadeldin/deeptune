@@ -20,9 +20,9 @@ import pandas as pd
 import logging
 import argparse
 from utilities import PerformanceLogger
+import warnings
 
 ##### SEED IS IMPORTANT TO ENSURE REPRODUCABILITY #####
-torch.manual_seed(42)
 DEVICE = torch.device("cuda" if torch.cuda.is_available() else "cpu")
 
 parser = argparse.ArgumentParser(description="Fine-tune the model passing your Hyperparameters, train, val, and test directories.")
@@ -66,8 +66,9 @@ if FIXED_SEED:
     seed=42
     args.fixed_seed = 42
 else:
-    seed = np.random.randint(low=0)
+    seed = np.random.randint(low=0, high=1000)
     args.fixed_seed = seed
+    warnings.warn("A random seed would be chosen for splitting your dataset. This usually will lead to inconsistent results using DeepTune!", category=UserWarning)
 
 torch.manual_seed(seed)
 
@@ -165,9 +166,6 @@ class Trainer:
             train_pbar = tqdm(enumerate(train_loader), total=len(train_loader))
 
             for i, (inputs, labels) in train_pbar:
-                
-                if (labels < 0).any() or (labels >= NUM_CLASSES).any():
-                    print(f"Invalid label found: {labels}")
                 
                 # make sure the inputs and labels on GPU
                 inputs, labels = inputs.to(DEVICE), labels.to(DEVICE)

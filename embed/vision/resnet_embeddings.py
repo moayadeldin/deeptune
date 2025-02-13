@@ -53,6 +53,8 @@ elif USE_CASE == 'pretrained':
 else:
     raise ValueError('There is no fourth option other than ["finetuned", "peft", "pretrained"]')
 
+
+# If the use case is peft or pretrained, and the added layers is 2, this means that we want to extract the weights of the embedding layer, otherwise the weights of the original model.
 if not USE_CASE == 'pretrained':
     if ADDED_LAYERS == 2:
         model.load_state_dict(torch.load(MODEL_PATH, weights_only=True))
@@ -127,7 +129,6 @@ if __name__ == "__main__":
     embeddings, labels = extractEmbeddings()
 
     print(f"The shape of the embeddings matrix in the dataset is{embeddings.shape}")
-    print(f"The number of the labels in the dataset is {len(labels)} labels.")
 
     embeddings_df = pd.DataFrame(embeddings)
     labels_df = pd.DataFrame(labels, columns=["label"])

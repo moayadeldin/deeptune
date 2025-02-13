@@ -8,7 +8,7 @@ from peft import LoraConfig, get_peft_model
 
 class adjustedPeftResNet(nn.Module):
 
-    def __init__(self,num_classes, added_layers, lora_attention_dimension, freeze_backbone, weights=ResNet18_Weights.IMAGENET1K_V1,
+    def __init__(self,num_classes, added_layers, lora_attention_dimension, freeze_backbone=False, weights=ResNet18_Weights.IMAGENET1K_V1,
                  pretrained_resnet=torchvision.models.resnet18,fc1_input=512):
 
         super(adjustedPeftResNet, self).__init__()
@@ -33,8 +33,8 @@ class adjustedPeftResNet(nn.Module):
                     module.eval()
         
         if self.added_layers == 2:
-            self.fc1 = nn.Linear(fc1_input,self.embedding_layer_size)
-            self.fc2 = nn.Linear(self.embedding_layer_size, self.num_classes)
+            self.fc1 = nn.Linear(fc1_input,self.lora_attention_dimension)
+            self.fc2 = nn.Linear(self.lora_attention_dimension, self.num_classes)
         elif self.added_layers == 1:
             self.fc1 = nn.Linear(fc1_input, self.num_classes)
         else:
