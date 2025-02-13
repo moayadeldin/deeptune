@@ -4,6 +4,8 @@ import json
 import pandas as pd
 from torch import Tensor
 
+
+# Kindly note that right now we pass the same transformations to ResNet and DenseNet, both trained on ImageNet
 transformations = torchvision.transforms.Compose([
     # torchvision.transforms.ToPILImage(), # as I upload raw images
 

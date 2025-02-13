@@ -57,7 +57,7 @@ EMBED_SIZE = args.embed_size
 
 if USE_PEFT:
     
-    MODEL = adjustedPeftResNet(NUM_CLASSES, ADDED_LAYERS, EMBED_SIZE)
+    MODEL = adjustedPeftResNet(NUM_CLASSES, ADDED_LAYERS, lora_attention_dimension=EMBED_SIZE)
     args.model = 'PEFT-RESNET18'
     
 else:

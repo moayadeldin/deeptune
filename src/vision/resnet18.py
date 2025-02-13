@@ -6,7 +6,7 @@ import torch.nn.functional as F
 
 class adjustedResNet(nn.Module):
 
-    def __init__(self,num_classes, added_layers, embedding_layer_size, freeze_backbone, weights=ResNet18_Weights.IMAGENET1K_V1,
+    def __init__(self,num_classes, added_layers, embedding_layer_size, freeze_backbone=False, weights=ResNet18_Weights.IMAGENET1K_V1,
                  pretrained_resnet=torchvision.models.resnet18,fc1_input=512):
 
         super(adjustedResNet, self).__init__()
@@ -25,10 +25,6 @@ class adjustedResNet(nn.Module):
             
             for param in self.model.parameters():
                 param.requires_grad = False
-            
-            for module in self.model.modules():
-                if isinstance(module, nn.BatchNorm2d):
-                    module.eval()
         
         if self.added_layers == 2:
             self.fc1 = nn.Linear(fc1_input,self.embedding_layer_size)
