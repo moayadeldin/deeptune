@@ -29,12 +29,20 @@ parser = argparse.ArgumentParser(description="Test the Trained Model on Your The
 parser.add_argument('--use-peft', action='store_true', help='Include this flag to use PEFT-adapted model.')
 parser.add_argument('--batch_size', type=int, required=True, help='Batch Size to test your model.')
 parser.add_argument('--input_dir', type=str, required=True, help='Directory containing test data.')
+parser.add_argument('--freeze-backbone', action='store_true', help='Decide whether you want to freeze backbone or not.')
+parser.add_argument('--num_classes', type=int, required=True, help='The number of classes in your dataset.')
+parser.add_argument('--added_layers', type=int, choices=[1,2], required=True, help='Specify the number of layers you want to add.')
+parser.add_argument('--embed_size', type=int, required=True, help='Specify the size of the embeddings you would obtain through embedding layer.')
 
 args = parser.parse_args()
 
 TEST_DATASET_PATH = args.input_dir
 BATCH_SIZE= args.batch_size
 USE_PEFT = args.use_peft
+FREEZE_BACKBONE = args.freeze_backbone
+ADDED_LAYERS = args.added_layers
+EMBED_SIZE = args.embed_size
+NUM_CLASSES = args.num_classes
 
 if USE_PEFT:
     

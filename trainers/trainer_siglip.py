@@ -5,10 +5,11 @@ import torch.optim as optim
 import argparse
 from sklearn.model_selection import train_test_split
 import pandas as pd
+import numpy as np
 from datasets.image_datasets import ParquetImageDataset
-from src.vision.siglip_peft import load_peft_siglip_offline
-from src.vision.siglip_peft import SIGLIP_PEFT_TRAINED
 from src.vision.siglip import load_siglip_offline
+from src.vision.siglip_peft import SIGLIP_PEFT_TRAINED
+from src.vision.siglip_peft import CustomSigLIPWithPeft, load_peft_siglip_offline
 from src.vision.siglip import SIGLIP_TRAINED
 from utilities import PerformanceLogger
 from tqdm import tqdm
@@ -17,41 +18,54 @@ import sys
 import logging
 from utilities import save_cli_args, save_training_metrics
 
-##### SEED IS IMPORTANT TO ENSURE REPRODUCABILITY #####
-torch.manual_seed(42)
+
 parser = argparse.ArgumentParser(description="Fine-tune the model passing your Hyperparameters, train, val, and test directories.")
 DEVICE = torch.device("cuda" if torch.cuda.is_available() else "cpu")
 
 # Arguments constructed for CLI
 
-parser.add_argument('--use-peft', action='store_true', help='Include this flag to use PEFT-adapted model.')
 parser.add_argument('--num_epochs', type=int, required=True, help='The number of epochs you wan the model to run on.')
+parser.add_argument('--added_layers', type=int, choices=[1,2], required=False, help='Specify the number of layers you want to add.')
+parser.add_argument('--embed_size', type=int, required=False, help='Specify the size of the embeddings you would obtain through embedding layer.')
 parser.add_argument('--batch_size', type=int, required=True, help='Batch Size to train your model.')
 parser.add_argument('--learning_rate', type=float, required=True, help='Learning Rate to apply for fine-tuning.')
 parser.add_argument('--train_size', type=float, required=True, help='Mention the split ratio of the Train Dataset')
 parser.add_argument('--val_size', type=float, required=True, help='Mention the split ratio of the Val Dataset')
 parser.add_argument('--test_size', type=float, required=True, help='Mention the split ratio of the Test Dataset')
 parser.add_argument('--input_dir', type=str, required=True, help='Directory containing training data.')
-parser.add_argument('--num_classes', type=str, required=False, default='None', help='Number of classes for your original dataset.')
-
-
+parser.add_argument('--num_classes', type=int, required=False, help='Number of classes for your original dataset.')
+parser.add_argument('--fixed-seed', action='store_true', help='Choose whether a seed is required or not.')
+parser.add_argument('--freeze-backbone', action='store_true', help='Decide whether you want to freeze backbone or not.')
+parser.add_argument('--use-peft', action='store_true', help='Include this flag to use PEFT-adapted model.')
 
 args = parser.parse_args()
 
 INPUT_DIR = args.input_dir
 BATCH_SIZE=args.batch_size
 LEARNING_RATE=args.learning_rate
+NUM_CLASSES = args.num_classes
 NUM_EPOCHS = args.num_epochs
 TRAIN_SIZE = args.train_size
 VAL_SIZE = args.val_size
 TEST_SIZE = args.test_size
 USE_PEFT = args.use_peft
+ADDED_LAYERS = args.added_layers
+EMBED_SIZE = args.embed_size
+FIXED_SEED = args.fixed_seed
+FREEZE_BACKBONE = args.freeze_backbone
+
+if FIXED_SEED:
+    seed=42
+    args.fixed_seed = 42
+else:
+    seed = np.random.randint(low=0)
+    args.fixed_seed = seed
 
 TRAINVAL_OUTPUT_DIR = Path(__file__).parent.parent / 'output_directory_trainval'
 
 if USE_PEFT:
         
-    model, processor = load_peft_siglip_offline()
+    model, processor = load_peft_siglip_offline(added_layers=ADDED_LAYERS,embedding_layer=EMBED_SIZE, freeze_backbone=FREEZE_BACKBONE,num_classes=NUM_CLASSES)
     args.model = 'PEFT-SIGLIP'
     
 else:
@@ -69,6 +83,7 @@ TEST_DATASET_PATH = Path(__file__).parent.parent / "test_split.parquet"
 # We load the dataset, split it and save them in the current directory (for reproducibility) if they aren't already saved.
 
 df = pd.read_parquet(INPUT_DIR)
+df = df[:10]
 train_data, temp_data = train_test_split(df, test_size=(1 - TRAIN_SIZE), random_state=42)
 
 val_data, test_data = train_test_split(temp_data, test_size=(TEST_SIZE / (VAL_SIZE + TEST_SIZE)), random_state=42) # random_state is very important to produce the same dataset everytime.
@@ -152,8 +167,13 @@ class Trainer:
                 self.optimizer.zero_grad()
                 
                 # Forward pass with pixel values argument very important
-                outputs = self.model.vision_model(pixel_values=pixel_values)
-                logits = outputs.pooler_output  
+                if isinstance(self.model, CustomSigLIPWithPeft):
+                    outputs = self.model.base_model.base_model.vision_model(pixel_values=pixel_values)
+                    pooled_output = outputs.pooler_output
+                    logits = self.model.fc_layers(pooled_output)  # Apply the classification head
+                else:
+                    outputs = self.model.vision_model(pixel_values=pixel_values)
+                    logits = outputs.pooler_output
                 
                 # compute loss
                 loss = self.criterion(logits, labels)
@@ -186,7 +206,7 @@ class Trainer:
                 f"Epoch {epoch + 1}/{NUM_EPOCHS}, Training Loss: {running_loss / len(train_loader)}, Training Accuracy: {epoch_accuracy}"
             )
             
-            val_loss, val_accuracy = self.evaluate()
+            val_loss, val_accuracy = self.validate()
             self.logger.info(f"Validation loss: {val_loss}, Accuracy: {val_accuracy}")
             
             
@@ -204,16 +224,16 @@ class Trainer:
         
         if USE_PEFT:
         
-            peft_model = self.model.merge_and_unload()
-            peft_model.save_pretrained(SIGLIP_PEFT_TRAINED)
-            print(f"PEFT Siglip model saved to {SIGLIP_PEFT_TRAINED}")
+            self.model = self.model.base_model.base_model.merge_and_unload()
+            self.model.save_pretrained(SIGLIP_PEFT_TRAINED)
+            print(f"Siglip model saved to {SIGLIP_PEFT_TRAINED}")
         
         else:
             self.model = self.model.merge_and_unload()
             self.model.save_pretrained(SIGLIP_TRAINED)
             print(f"Siglip model saved to {SIGLIP_TRAINED}")
                 
-    def evaluate(self):
+    def validate(self):
         
         """
         The evaluation function is devoted for the validation set only, please consider the test function for test set.
@@ -237,7 +257,10 @@ class Trainer:
                 
                 self.optimizer.zero_grad()
 
-                outputs = self.model.vision_model(pixel_values=image_pixels)
+                if isinstance(self.model, CustomSigLIPWithPeft):
+                    outputs = self.model.base_model.base_model.vision_model(pixel_values=image_pixels)
+                else:
+                    outputs = self.model.vision_model(pixel_values=image_pixels)
                 
                 logits = outputs.pooler_output  
 
@@ -255,49 +278,6 @@ class Trainer:
         val_accuracy = correct / total
         val_loss = val_loss / len(val_loader)
         return val_loss, val_accuracy
-    
-    
-    def test(self):
-        
-        test_accuracy=0.0
-        test_loss=0.0
-        total, correct= 0,0
-        
-        test_pbar = tqdm(
-        enumerate(test_loader),
-        total=len(test_loader),
-        )
-        
-        with torch.no_grad():
-            for _, (image_pixels, labels) in test_pbar:
-                
-                self.model.eval()
-                
-                image_pixels,labels = image_pixels.to(DEVICE), labels.to(DEVICE)
-                
-                self.optimizer.zero_grad()
-
-                outputs = self.model.vision_model(pixel_values=image_pixels)
-                
-                logits = outputs.pooler_output  
-
-                loss = self.criterion(logits, labels)
-                
-                test_loss += loss.item()
-                
-                # calculate accuracy
-                
-                _, predicted = torch.max(logits, 1)
-                total += labels.size(0)
-                correct += (predicted==labels).sum().item()
-                
-        
-        test_accuracy = correct / total
-        test_loss = test_loss / len(test_loader)
-        print(test_accuracy,test_loss)
-        save_training_metrics(test_accuracy=test_accuracy,output_dir='output_directory')
-        save_cli_args(args, 'output_directory')
-        return test_loss, test_accuracy
         
 
 if __name__ == '__main__':
@@ -305,4 +285,3 @@ if __name__ == '__main__':
         
     model_trainer = Trainer()
     model_trainer.train()
-    model_trainer.test()
