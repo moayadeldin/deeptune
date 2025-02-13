@@ -145,7 +145,7 @@ class Trainer:
         logging.basicConfig(stream=sys.stdout, level=logging.INFO, format="%(levelname)s | %(message)s")
         self.logger = logging.getLogger()
 
-    def train(self,train_loader=train_loader,val_loader=val_loader):
+    def train(self,train_loader=train_loader):
 
         for epoch in range(NUM_EPOCHS):
 
