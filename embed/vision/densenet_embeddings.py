@@ -1,4 +1,5 @@
 from src.vision.densenet121 import adjustedDenseNet
+from src.vision.densenet121_peft import adjustedPEFTDenseNet
 from datasets.image_datasets import ParquetImageDataset
 from utilities import transformations
 import torch
@@ -7,14 +8,13 @@ from tqdm import tqdm
 import numpy as np
 import argparse
 import pandas as pd
-import torchvision
-from torchvision.models import ResNet18_Weights
+
 
 parser = argparse.ArgumentParser(description="Extract the Embeddings for your fine-tuned model after entering the Hyperparameters, data and model paths.")
 
 parser.add_argument('--num_classes', type=int, required=True, help='The number of classes in your dataset.')
-parser.add_argument('--use_case', type=str, choices=['peft', 'finetuned', 'pretrained'], required=True,help='The mode you want to set embeddings extractor with') 
-parser.add_argument('--added_layers', type=int, choices=[1,2], help='The number of layers you already added while adjusting the model.')
+parser.add_argument('--use_case', type=str, choices=['peft', 'finetuned'], required=True,help='The mode you want to set embeddings extractor with') 
+parser.add_argument('--added_layers', type=int, choices=[2], help='The number of layers you already added while adjusting the model.')
 parser.add_argument('--embed_size', type=int, help='The size of embedding layer you already added while adjusting the model.')
 parser.add_argument('--batch_size', type=int, required=True, help='Batch Size for embeddings.')
 parser.add_argument('--dataset_dir', type=str, required=True, help='Directory containing your dataset.')
@@ -37,8 +37,12 @@ if USE_CASE == 'finetuned':
     model = adjustedDenseNet(NUM_CLASSES,ADDED_LAYERS, EMBED_SIZE,FREEZE_BACKBONE)
     TEST_OUTPUT = "test_set_finetuned_DenseNet121_embeddings.parquet"
     args.use_case = 'finetuned-Densenet121'
+
+elif USE_CASE == 'peft':
+    model = adjustedPEFTDenseNet(NUM_CLASSES, ADDED_LAYERS, EMBED_SIZE, FREEZE_BACKBONE)
+    TEST_OUTPUT = "test_set_peft_DenseNet121_embeddings.parquet"
 else:
-    raise ValueError('There is no fourth option other than ["finetuned", "peft"]')
+    raise ValueError('There is no third option other than ["finetuned", "peft"]')
 
 if ADDED_LAYERS == 1 or ADDED_LAYERS ==0:
     
@@ -56,18 +60,22 @@ def adjustModel(model):
         model.eval()
         return model
     
-    # take all layers except the last one (one used for classification) to make it output feature embeddings.
-    modules = list(model.children())[:-1]
-    
-    # Add global average pooling, when features get flattened, we obtain 1024*7*7 N-dimensional matrix. Hence, we want to obtain the regular 1024 N-dimensional matrix that comes from the last norm5 (batch norm) layer
-    
-    modules.append(nn.AdaptiveAvgPool2d((1, 1)))
+    if USE_CASE == 'peft':
+        modules = [
+            model.peftmodel,  # DenseNet features
+            model.flatten,  # Flatten
+            model.fc1   # First Linear layer (embedding)
+        ]
+        model = nn.Sequential(*modules)
+    else:
+        # take all layers except the last one (one used for classification) to make it output feature embeddings.
+        modules = list(model.children())[:-1]
 
-    # unpacking the layers in modules and now it contains the entire model minus the last one.
-    model = nn.Sequential(*modules)
-    
+        # unpacking the layers in modules and now it contains the entire model minus the last one.
+        model = nn.Sequential(*modules)
+        
     model.eval()
-
+    
     return model
 
 adjusted_model = adjustModel(model=model)

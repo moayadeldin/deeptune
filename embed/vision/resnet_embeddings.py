@@ -64,7 +64,7 @@ def adjustModel(model):
     """The model is modified to be prepared for extracting feature embeddings rather than making predictions.
     """
 
-    if ADDED_LAYERS == 1:
+    if ADDED_LAYERS == 1 or ADDED_LAYERS ==2:
         
         model.eval()
         return model
@@ -113,7 +113,7 @@ def extractEmbeddings():
         
         # If the added layers is one and we want to extract the same exact embedding features as if the added layers is zero we should handle this explicitly
         
-        if ADDED_LAYERS == 1:
+        if ADDED_LAYERS == 1 or ADDED_LAYERS == 2:
             embeddings = adjusted_model(data, extract_embed=True)
         else:
             embeddings = adjusted_model(data)

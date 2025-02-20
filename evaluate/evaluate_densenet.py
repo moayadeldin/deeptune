@@ -1,4 +1,5 @@
 from src.vision.densenet121 import adjustedDenseNet
+from src.vision.densenet121_peft import adjustedPEFTDenseNet
 import importlib
 from utilities import transformations
 from utilities import save_training_metrics
@@ -54,9 +55,13 @@ MODEL_WEIGHTS = args.model_weights
 ADDED_LAYERS = args.added_layers
 EMBED_SIZE = args.embed_size
 
-MODEL = adjustedDenseNet(NUM_CLASSES, ADDED_LAYERS, EMBED_SIZE)
-args.model = 'DenseNet121'
-
+if USE_PEFT:
+    MODEL = adjustedPEFTDenseNet(NUM_CLASSES, ADDED_LAYERS, lora_attention_dimension=EMBED_SIZE)
+    args.model = 'PEFT-RESNET18'
+    
+else:
+    MODEL = adjustedDenseNet(NUM_CLASSES, ADDED_LAYERS, EMBED_SIZE)
+    args.model = 'DenseNet121'
 
 # WE load the dataset, split it and save them in the current directory (for reproducibility) if they aren't already saved.
 df = pd.read_parquet(TEST_DATASET_PATH)
