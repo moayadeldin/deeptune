@@ -1,4 +1,5 @@
 from src.vision.densenet121 import adjustedDenseNet
+from src.vision.densenet121_peft import adjustedPEFTDenseNet
 import importlib
 from utilities import transformations
 from utilities import save_training_metrics
@@ -67,19 +68,23 @@ if FIXED_SEED:
 else:
     seed = np.random.randint(low=0,high=1000)
     args.fixed_seed = seed
-    warnings.warn("A random seed would be chosen for splitting your dataset. This usually will lead to inconsistent results using DeepTune!", category=UserWarning)
+    warnings.warn("This is liable to increase variability across consecutive runs of DeepTune!", category=UserWarning)
     
 torch.manual_seed(seed)
 
 def get_model():
 
-    """Allows the user to choose from Adjusted ResNet18 or PEFT-ResNet18 versions.
+    """Allows the user to choose from Adjusted DenseNet121 or PEFT-DenseNet121 versions.
     """
     
-    
-    model = importlib.import_module('src.vision.densenet121')
-    args.model = 'DenseNet121'
-    return model.adjustedDenseNet
+    if USE_PEFT:
+        model = importlib.import_module('src.vision.densenet121_peft')
+        args.model = 'PEFT-DenseNet121'
+        return model.adjustedPEFTDenseNet
+    else:
+        model = importlib.import_module('src.vision.densenet121')
+        args.model = 'DenseNet121'
+        return model.adjustedDenseNet
     
 TRAIN_DATASET_PATH = Path(__file__).parent.parent / "train_split.parquet"
 VAL_DATASET_PATH = Path(__file__).parent.parent / "val_split.parquet"
@@ -90,8 +95,6 @@ TRAINVAL_OUTPUT_DIR = Path(__file__).parent.parent / 'output_directory_trainval'
 
 # WE load the dataset, split it and save them in the current directory (for reproducibility) if they aren't already saved.
 df = pd.read_parquet(INPUT_DIR)
-
-df = df[:10]
 
 train_data, temp_data = train_test_split(df, test_size=(1 - TRAIN_SIZE), random_state=seed)
 val_data, test_data = train_test_split(temp_data, test_size=(TEST_SIZE / (VAL_SIZE + TEST_SIZE)), random_state=seed)
@@ -178,7 +181,6 @@ class Trainer:
 
                 # accumulate loss
                 running_loss += loss.item()
-                
                 
                 # calculate accuracy
                 correct_predictions += torch.sum(torch.argmax(outputs,dim=1)==labels).item()

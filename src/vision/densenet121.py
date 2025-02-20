@@ -49,7 +49,6 @@ class adjustedDenseNet(nn.Module):
         The implementation below ensures the following paradigm.
         """
         
-        
         x = self.model(x)
         x = self.flatten(x)
         
@@ -71,3 +70,4 @@ class adjustedDenseNet(nn.Module):
         # x = F.softmax(x, dim=1)
 
         return x
+
