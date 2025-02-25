@@ -25,6 +25,8 @@ class adjustedPEFTDenseNet(nn.Module):
         
         if self.freeze_backbone:
             
+            print('Backbone parameters are freezed!')
+            
             for param in self.model.parameters():
                 param.requires_grad = False
                 

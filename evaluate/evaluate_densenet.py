@@ -158,6 +158,9 @@ class TestTrainer:
             output_dict=True
         )
         
+        
+        metrics_dict.update(report)
+        
         try:
             metrics_dict['auroc'] = roc_auc_score(all_labels, all_probs, multi_class="ovr")
         except ValueError:
@@ -172,6 +175,7 @@ class TestTrainer:
         
         save_cli_args(args, TEST_OUTPUT_DIR, 'test')
   
+        print(metrics_dict)
   
 if __name__ == "__main__":
     

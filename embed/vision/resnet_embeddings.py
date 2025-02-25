@@ -11,6 +11,10 @@ import pandas as pd
 import torchvision
 from torchvision.models import ResNet18_Weights
 
+"""
+Note: If you chose to have the finetuned option with added layers = 1, it will have the same embeddings output as if pretrained. This is normal behavior and works as expected. Because in the pretrained option the last layer are actually mapping 512 inputs to 1000 outputs. For the finetuned option, it maps the same 512 inputs but to 8 outputs. The difference is in the output but input to the last layer is actually the same.
+"""
+
 parser = argparse.ArgumentParser(description="Extract the Embeddings for your fine-tuned model after entering the Hyperparameters, data and model paths.")
 
 parser.add_argument('--num_classes', type=int, required=True, help='The number of classes in your dataset.')

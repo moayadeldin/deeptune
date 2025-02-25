@@ -9,7 +9,7 @@ from src.vision.siglip_peft import load_peft_siglip_for_image_classification_off
 
 parser = ArgumentParser(description="Extract Embeddings used Peft model")
 parser.add_argument('--input_df_path', type=str, required=True, help='Dataset path of test set. Must be a .parquet file with only two columns, "image" and "target".')
-parser.add_argument('--out', type=Path, required=True, help='Destination file name (.parquet).')
+parser.add_argument('--out', type=Path, required=True, help='Destination file name (.parquet)')
 args = parser.parse_args()
 
 DEVICE = torch.device("cuda" if torch.cuda.is_available() else "cpu")
