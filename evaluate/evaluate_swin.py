@@ -1,6 +1,4 @@
-from src.vision.resnet18 import adjustedResNet
-from src.vision.resnet18_peft import adjustedPeftResNet
-import importlib
+from src.vision.swin import adjustedSwin
 from utilities import transformations
 from utilities import save_training_metrics
 from utilities import save_cli_args
@@ -21,7 +19,7 @@ import pandas as pd
 import warnings
 import logging
 import argparse
-from utilities import PerformanceLogger
+
 
 DEVICE = torch.device("cuda" if torch.cuda.is_available() else "cpu")
 ROOT = Path(__file__).parent.parent
@@ -57,11 +55,10 @@ EMBED_SIZE = args.embed_size
 
 if USE_PEFT:
     
-    MODEL = adjustedPeftResNet(NUM_CLASSES, ADDED_LAYERS, lora_attention_dimension=EMBED_SIZE)
-    args.model = 'PEFT-RESNET18'
+    pass
     
 else:
-    MODEL = adjustedResNet(NUM_CLASSES, ADDED_LAYERS, EMBED_SIZE)
+    MODEL = adjustedSwin(NUM_CLASSES, ADDED_LAYERS, EMBED_SIZE)
     args.model = 'RESNET18'
 
 # WE load the dataset, split it and save them in the current directory (for reproducibility) if they aren't already saved.
@@ -75,7 +72,6 @@ test_loader = torch.utils.data.DataLoader(
     shuffle=False,
     num_workers=0
 )
-
 
 class TestTrainer:
     
@@ -175,7 +171,7 @@ class TestTrainer:
         save_training_metrics(test_accuracy=test_accuracy,output_dir=TEST_OUTPUT_DIR)
         
         save_cli_args(args, TEST_OUTPUT_DIR, 'test')
-    
+  
         print(metrics_dict)
   
 if __name__ == "__main__":

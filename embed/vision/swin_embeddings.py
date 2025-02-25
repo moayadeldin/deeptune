@@ -1,5 +1,5 @@
-from src.vision.densenet121 import adjustedDenseNet
-from src.vision.densenet121_peft import adjustedPEFTDenseNet
+from torchvision.models import Swin_T_Weights
+from src.vision.swin import adjustedSwin
 from datasets.image_datasets import ParquetImageDataset
 from utilities import transformations
 import torch
@@ -8,17 +8,18 @@ from tqdm import tqdm
 import numpy as np
 import argparse
 import pandas as pd
+import torchvision
+
 
 """
-Please Note that that extracting embeddings from DenseNet is only supported through the intermediate embedding layer (ADDED_LAYERS=2).
+Note: If you chose to have the finetuned option with added layers = 1, it will have the same embeddings output as if pretrained. This is normal behavior and works as expected. Because in the pretrained option the last layer are actually mapping 768 inputs to 1000 outputs. For the finetuned option, it maps the same 768 inputs but to 8 outputs. The difference is in the output but input to the last layer is actually the same.
 """
-
 
 parser = argparse.ArgumentParser(description="Extract the Embeddings for your fine-tuned model after entering the Hyperparameters, data and model paths.")
 
 parser.add_argument('--num_classes', type=int, required=True, help='The number of classes in your dataset.')
-parser.add_argument('--use_case', type=str, choices=['peft', 'finetuned'], required=True,help='The mode you want to set embeddings extractor with') 
-parser.add_argument('--added_layers', type=int, choices=[2], help='The number of layers you already added while adjusting the model.')
+parser.add_argument('--use_case', type=str, choices=['peft', 'finetuned', 'pretrained'], required=True,help='The mode you want to set embeddings extractor with') 
+parser.add_argument('--added_layers', type=int, choices=[1,2], help='The number of layers you already added while adjusting the model.')
 parser.add_argument('--embed_size', type=int, help='The size of embedding layer you already added while adjusting the model.')
 parser.add_argument('--batch_size', type=int, required=True, help='Batch Size for embeddings.')
 parser.add_argument('--dataset_dir', type=str, required=True, help='Directory containing your dataset.')
@@ -36,50 +37,48 @@ MODEL_PATH = args.finetuned_model_pth
 ADDED_LAYERS = args.added_layers
 EMBED_SIZE = args.embed_size
 FREEZE_BACKBONE = args.freeze_backbone
-    
-if USE_CASE == 'finetuned':
-    model = adjustedDenseNet(NUM_CLASSES,ADDED_LAYERS, EMBED_SIZE,FREEZE_BACKBONE)
-    TEST_OUTPUT = "test_set_finetuned_DenseNet121_embeddings.parquet"
-    args.use_case = 'finetuned-Densenet121'
 
-elif USE_CASE == 'peft':
-    model = adjustedPEFTDenseNet(NUM_CLASSES, ADDED_LAYERS, EMBED_SIZE, FREEZE_BACKBONE)
-    TEST_OUTPUT = "test_set_peft_DenseNet121_embeddings.parquet"
+if USE_CASE == 'peft':
+    
+    pass
+
+elif USE_CASE == 'finetuned':
+    model = adjustedSwin(NUM_CLASSES,ADDED_LAYERS, EMBED_SIZE,FREEZE_BACKBONE)
+    TEST_OUTPUT = "test_set_finetuned_swin_t_embeddings.parquet"
+    args.use_case = 'finetuned-ResNet18'
+
+elif USE_CASE == 'pretrained':
+    model = torchvision.models.swin_t(weights=Swin_T_Weights.IMAGENET1K_V1)
+    model.head = nn.Identity()  # Remove classification layer to use as feature extractor
+    TEST_OUTPUT = "test_set_pretrained_swin_t_embeddings.parquet"
+    args.use_case = 'pretrained-swin_t'
 else:
-    raise ValueError('There is no third option other than ["finetuned", "peft"]')
+    raise ValueError('There is no fourth option other than ["finetuned", "peft", "pretrained"]')
 
-if ADDED_LAYERS == 1 or ADDED_LAYERS ==0:
-    
-    raise ValueError("Kindly note that extracting embeddings from DenseNet is only supported through the intermediate embedding layer (ADDED_LAYERS=2). Extracting embeddings from pretrained model directly could lead potentially to misleading results as the last layer in the densenet architecture before the classification layer is a BatchNorm, which are normalization features that is used to stabilize training, and doesn't provide meaningful images presentation.")
 
-model.load_state_dict(torch.load(MODEL_PATH, weights_only=True))
+# If the use case is peft or pretrained, and the added layers is 2, this means that we want to extract the weights of the embedding layer, otherwise the weights of the original model.
+if not USE_CASE == 'pretrained':
+    if ADDED_LAYERS == 2:
+        model.load_state_dict(torch.load(MODEL_PATH, weights_only=True))
 
 def adjustModel(model):
 
     """The model is modified to be prepared for extracting feature embeddings rather than making predictions.
     """
 
-    if ADDED_LAYERS == 1:
+    if ADDED_LAYERS == 1 or ADDED_LAYERS ==2:
         
         model.eval()
         return model
     
-    if USE_CASE == 'peft':
-        modules = [
-            model.peftmodel,  # DenseNet features
-            model.flatten,  # Flatten
-            model.fc1   # First Linear layer (embedding)
-        ]
-        model = nn.Sequential(*modules)
-    else:
-        # take all layers except the last one (one used for classification) to make it output feature embeddings.
-        modules = list(model.children())[:-1]
+    # take all layers except the last one (one used for classification) to make it output feature embeddings.
+    modules = list(model.children())[:-1]
 
-        # unpacking the layers in modules and now it contains the entire model minus the last one.
-        model = nn.Sequential(*modules)
-        
-    model.eval()
+    # unpacking the layers in modules and now it contains the entire model minus the last one.
+    model = nn.Sequential(*modules)
     
+    model.eval()
+
     return model
 
 adjusted_model = adjustModel(model=model)
@@ -116,7 +115,7 @@ def extractEmbeddings():
         
         # If the added layers is one and we want to extract the same exact embedding features as if the added layers is zero we should handle this explicitly
         
-        if ADDED_LAYERS == 1:
+        if ADDED_LAYERS == 1 or ADDED_LAYERS == 2:
             embeddings = adjusted_model(data, extract_embed=True)
         else:
             embeddings = adjusted_model(data)

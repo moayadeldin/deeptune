@@ -1,5 +1,4 @@
-from src.vision.resnet18 import adjustedResNet
-from src.vision.resnet18_peft import adjustedPeftResNet
+from src.vision.swin import adjustedSwin
 import importlib
 from utilities import transformations
 from utilities import save_training_metrics
@@ -74,19 +73,18 @@ torch.manual_seed(seed)
 
 def get_model():
 
-    """Allows the user to choose from Adjusted ResNet18 or PEFT-ResNet18 versions.
+    """Allows the user to choose from Adjusted Swin or PEFT-Swin versions.
     """
 
     if USE_PEFT:
         
-        model = importlib.import_module('src.vision.resnet18_peft')
-        args.model = 'PEFT-RESNET18'
-        return model.adjustedPeftResNet
+        pass
 
     else:
-        model = importlib.import_module('src.vision.resnet18')
-        args.model = 'RESNET18'
-        return model.adjustedResNet    
+        model = importlib.import_module('src.vision.swin')
+        args.model = 'Swin'
+        return model.adjustedSwin
+    
     
 TRAIN_DATASET_PATH = Path(__file__).parent.parent / "train_split.parquet"
 VAL_DATASET_PATH = Path(__file__).parent.parent / "val_split.parquet"
@@ -97,6 +95,8 @@ TRAINVAL_OUTPUT_DIR = Path(__file__).parent.parent / 'output_directory_trainval'
 
 # WE load the dataset, split it and save them in the current directory (for reproducibility) if they aren't already saved.
 df = pd.read_parquet(INPUT_DIR)
+
+df = df[:10]
 
 train_data, temp_data = train_test_split(df, test_size=(1 - TRAIN_SIZE), random_state=seed)
 val_data, test_data = train_test_split(temp_data, test_size=(TEST_SIZE / (VAL_SIZE + TEST_SIZE)), random_state=seed)
@@ -279,4 +279,5 @@ if __name__ == "__main__":
     model_trainer.saveModel(path=f'{TRAINVAL_OUTPUT_DIR}/model_weights.pth')
     
     save_cli_args(args, TRAINVAL_OUTPUT_DIR, mode='train')
+
 
