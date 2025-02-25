@@ -1,5 +1,6 @@
 from torchvision.models import Swin_T_Weights
 from src.vision.swin import adjustedSwin
+from src.vision.swin_peft import adjustedPeftSwin
 from datasets.image_datasets import ParquetImageDataset
 from utilities import transformations
 import torch
@@ -12,7 +13,7 @@ import torchvision
 
 
 """
-Note: If you chose to have the finetuned option with added layers = 1, it will have the same embeddings output as if pretrained. This is normal behavior and works as expected. Because in the pretrained option the last layer are actually mapping 768 inputs to 1000 outputs. For the finetuned option, it maps the same 768 inputs but to 8 outputs. The difference is in the output but input to the last layer is actually the same.
+Note: If you chose to have the finetuned option with added layers = 1 without PEFT, it will have the same embeddings output as if pretrained. This is normal behavior and works as expected. Because in the pretrained option the last layer are actually mapping 768 inputs to 1000 outputs. For the finetuned option, it maps the same 768 inputs but to 8 outputs. The difference is in the output but input to the last layer is actually the same.
 """
 
 parser = argparse.ArgumentParser(description="Extract the Embeddings for your fine-tuned model after entering the Hyperparameters, data and model paths.")
@@ -40,18 +41,19 @@ FREEZE_BACKBONE = args.freeze_backbone
 
 if USE_CASE == 'peft':
     
-    pass
-
+    model = adjustedPeftSwin(NUM_CLASSES, ADDED_LAYERS, EMBED_SIZE, FREEZE_BACKBONE)
+    TEST_OUTPUT = "test_set_peft_swin_t_embeddings.parquet"
+    args.use_case = 'peft-Swin'
 elif USE_CASE == 'finetuned':
     model = adjustedSwin(NUM_CLASSES,ADDED_LAYERS, EMBED_SIZE,FREEZE_BACKBONE)
     TEST_OUTPUT = "test_set_finetuned_swin_t_embeddings.parquet"
-    args.use_case = 'finetuned-ResNet18'
+    args.use_case = 'finetuned-Swin'
 
 elif USE_CASE == 'pretrained':
     model = torchvision.models.swin_t(weights=Swin_T_Weights.IMAGENET1K_V1)
     model.head = nn.Identity()  # Remove classification layer to use as feature extractor
     TEST_OUTPUT = "test_set_pretrained_swin_t_embeddings.parquet"
-    args.use_case = 'pretrained-swin_t'
+    args.use_case = 'pretrained-swin'
 else:
     raise ValueError('There is no fourth option other than ["finetuned", "peft", "pretrained"]')
 

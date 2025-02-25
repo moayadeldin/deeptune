@@ -20,6 +20,7 @@ As a cutting-edge software library that has been specifically designed for use i
 | ResNet18     | ✅                                              | ✅                              | ✅                              | Classification       | Image    |
 | Siglip       | (SUD)                                           | (SUD)                           | (SUD)                           | Classification       | Image    |
 | DenseNet121  | ✅                                              | ✅                              | ✅                              | Classification       | Image    |
+| Swin         | ✅                                              | ✅                              | ✅                              | Classification       | Image    |
 | XLM-RoBERTa  | ❌                                              | ❌                              | ✅                              | Sentiment Analysis   | Text     |
 
 
