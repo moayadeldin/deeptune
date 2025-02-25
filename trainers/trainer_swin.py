@@ -1,4 +1,5 @@
 from src.vision.swin import adjustedSwin
+from src.vision.swin_peft import adjustedPeftSwin
 import importlib
 from utilities import transformations
 from utilities import save_training_metrics
@@ -78,7 +79,9 @@ def get_model():
 
     if USE_PEFT:
         
-        pass
+        model = importlib.import_module('src.vision.swin_peft')
+        args.model = 'PEFT-Swin'
+        return model.adjustedPeftSwin
 
     else:
         model = importlib.import_module('src.vision.swin')

@@ -1,4 +1,5 @@
 from src.vision.swin import adjustedSwin
+from src.vision.swin_peft import adjustedPeftSwin
 from utilities import transformations
 from utilities import save_training_metrics
 from utilities import save_cli_args
@@ -55,11 +56,11 @@ EMBED_SIZE = args.embed_size
 
 if USE_PEFT:
     
-    pass
-    
+    MODEL = adjustedPeftSwin(NUM_CLASSES, ADDED_LAYERS, lora_attention_dimension=EMBED_SIZE)
+    args.model = 'PEFT-Swin'
 else:
     MODEL = adjustedSwin(NUM_CLASSES, ADDED_LAYERS, EMBED_SIZE)
-    args.model = 'RESNET18'
+    args.model = 'Swin'
 
 # WE load the dataset, split it and save them in the current directory (for reproducibility) if they aren't already saved.
 df = pd.read_parquet(TEST_DATASET_PATH)
