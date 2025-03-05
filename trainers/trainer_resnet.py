@@ -39,6 +39,9 @@ def get_model():
 
     """Allows the user to choose from Adjusted ResNet18 or PEFT-ResNet18 versions.
     """
+    if ADDED_LAYERS == 0:
+        
+        raise ValueError('As you apply one of transfer learning or PEFT, please choose 1 or 2 as your preferred number of added_layers.')
 
     if USE_PEFT:
         
@@ -49,7 +52,7 @@ def get_model():
     else:
         model = importlib.import_module('src.vision.resnet18')
         args.model = 'RESNET18'
-        return model.adjustedResNet    
+        return model.adjustedResNet
     
 TRAIN_DATASET_PATH = options.TRAIN_DATASET_PATH
 VAL_DATASET_PATH = options.VAL_DATASET_PATH
