@@ -19,10 +19,11 @@ parser.add_argument('--num_classes', type=int, help='The number of classes in yo
 parser.add_argument('--input_dir', type=str, help='Directory containing input data.')
 parser.add_argument('--use-peft', action='store_true', help='Include this flag to use PEFT-adapted model.')
 parser.add_argument('--freeze-backbone', action='store_true', help='Decide whether you want to freeze backbone or not.')
-parser.add_argument('--added_layers', type=int, choices=[1,2], help='Specify the number of layers you want to add.')
+parser.add_argument('--added_layers', type=int, choices=[0,1,2], help='Specify the number of layers you want to add.')
 parser.add_argument('--embed_size', type=int, help='Specify the size of the embeddings you would obtain through embedding layer.')
 parser.add_argument('--batch_size', type=int, help='Batch Size to feed your model.')
 parser.add_argument('--fixed-seed', action='store_true', help='Choose whether a seed is required or not.')
+parser.add_argument('--model_weights', type=str, help='Directory for your tuned model.')
 
 # training settings
 parser.add_argument('--num_epochs', type=int, help='The number of epochs you wan the model to run on.')
@@ -35,7 +36,7 @@ parser.add_argument('--test_size', type=float, help='Mention the split ratio of 
 parser.add_argument('--test_set_input_dir', type=str, help='Directory containing test data.')
 
 # embedding settings
-parser.add_argument('--model_weights', type=str, help='Directory for your tuned model.')
+parser.add_argument('--use_case', type=str, choices=['peft', 'finetuned'],help='The mode you want to set embeddings extractor with') 
 
 
 
