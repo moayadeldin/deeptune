@@ -6,7 +6,7 @@ import torch
 import torch.nn as nn
 from tqdm import tqdm
 import numpy as np
-import argparse
+import options
 import pandas as pd
 
 """
@@ -14,25 +14,15 @@ Please Note that that extracting embeddings from DenseNet is only supported thro
 """
 
 
-parser = argparse.ArgumentParser(description="Extract the Embeddings for your fine-tuned model after entering the Hyperparameters, data and model paths.")
-
-parser.add_argument('--num_classes', type=int, required=True, help='The number of classes in your dataset.')
-parser.add_argument('--use_case', type=str, choices=['peft', 'finetuned'], required=True,help='The mode you want to set embeddings extractor with') 
-parser.add_argument('--added_layers', type=int, required=True, choices=[0,2], help='The number of layers you already added while adjusting the model.')
-parser.add_argument('--embed_size', type=int, help='The size of embedding layer you already added while adjusting the model.')
-parser.add_argument('--batch_size', type=int, required=True, help='Batch Size for embeddings.')
-parser.add_argument('--dataset_dir', type=str, required=True, help='Directory containing your dataset.')
-parser.add_argument('--finetuned_model_pth', type=str, required=False, help='Directory for your fine-tuned model.')
-parser.add_argument('--freeze-backbone', action='store_true', help='Decide whether you want to freeze backbone or not.')
-
+DEVICE = options.DEVICE
+parser = options.parser
 args = parser.parse_args()
 
-
 USE_CASE = args.use_case
-DATASET_DIR = args.dataset_dir
+DATASET_DIR = args.input_dir
 BATCH_SIZE = args.batch_size
 NUM_CLASSES = args.num_classes
-MODEL_PATH = args.finetuned_model_pth
+MODEL_PATH = args.model_weights
 ADDED_LAYERS = args.added_layers
 EMBED_SIZE = args.embed_size
 FREEZE_BACKBONE = args.freeze_backbone

@@ -1,10 +1,10 @@
-from src.vision.resnet18 import adjustedResNet
-from src.vision.resnet18_peft import adjustedPeftResNet
+from src.vision.swin import adjustedSwin
+from src.vision.swin_peft import adjustedPeftSwin
 from utilities import transformations
 import torch
 from datasets.image_datasets import ParquetImageDataset
 import pandas as pd 
-from evaluate.main_test import TestTrainer
+from evaluators.evaluator import TestTrainer
 from utilities import save_cli_args
 import options
 
@@ -22,15 +22,14 @@ MODEL_WEIGHTS = args.model_weights
 ADDED_LAYERS = args.added_layers
 EMBED_SIZE = args.embed_size
 
+
 if USE_PEFT:
     
-    MODEL = adjustedPeftResNet(NUM_CLASSES, ADDED_LAYERS, lora_attention_dimension=EMBED_SIZE)
-    args.model = 'PEFT-RESNET18'
-    
+    MODEL = adjustedPeftSwin(NUM_CLASSES, ADDED_LAYERS, lora_attention_dimension=EMBED_SIZE)
+    args.model = 'PEFT-Swin'
 else:
-    MODEL = adjustedResNet(NUM_CLASSES, ADDED_LAYERS, EMBED_SIZE)
-    args.model = 'RESNET18'
-
+    MODEL = adjustedSwin(NUM_CLASSES, ADDED_LAYERS, EMBED_SIZE)
+    args.model = 'Swin'
 
 df = pd.read_parquet(TEST_DATASET_PATH)
 
@@ -52,5 +51,3 @@ if __name__ == "__main__":
     save_cli_args(args, TEST_OUTPUT_DIR, mode='test')
     
     print('Test results saved successfully!')
-    
-    

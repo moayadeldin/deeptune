@@ -64,6 +64,8 @@ def split_save_load_dataset(mode,input_dir, train_size, val_size, test_size, tra
     
     df = pd.read_parquet(input_dir)
     
+    df = df[:10]
+    
     train_data, temp_data = train_test_split(df, test_size=(1 - train_size), random_state=seed)
     val_data, test_data = train_test_split(temp_data, test_size=(test_size / (val_size + test_size)), random_state=seed)
     
