@@ -2,7 +2,7 @@ from src.vision.resnet18 import adjustedResNet
 from src.vision.resnet18_peft import adjustedPeftResNet
 import importlib
 from utilities import save_cli_args, fixed_seed,split_save_load_dataset
-from trainers.main_train import Trainer
+from trainers.trainer import Trainer
 import numpy as np
 import warnings
 import options
