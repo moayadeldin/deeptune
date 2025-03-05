@@ -4,7 +4,6 @@ from pathlib import Path
 from datetime import datetime
 
 UNIQUE_ID = datetime.now().strftime("%Y%m%d_%H%M") # unique ID based on current date and time (YYYYMMDD_HHMM)
-
 DEVICE = torch.device("cuda" if torch.cuda.is_available() else "cpu")
 
 TRAIN_DATASET_PATH = Path(__file__).parent / "train_split.parquet"

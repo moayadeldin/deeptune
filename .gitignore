@@ -11,5 +11,10 @@ embeddings_test_code.py
 test_densenet121_peft.py
 convert_images_to_bytes.py
 deeptune_results
-**/siglip.py
-**/siglip_peft.py
+
+embed/vision/peft_siglip_embeddings.py
+evaluators/evaluate_peft_siglip.py
+trainers/train_siglip.py
+src/vision/siglip_peft.py
+src/vision/siglip.py
+convert_images_to_bytes.py
