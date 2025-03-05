@@ -22,7 +22,7 @@ class adjustedResNet(nn.Module):
         self.flatten = nn.Flatten()
         
         if self.freeze_backbone:
-            
+            print('Backbone Parameters are frozen!')
             for param in self.model.parameters():
                 param.requires_grad = False
         

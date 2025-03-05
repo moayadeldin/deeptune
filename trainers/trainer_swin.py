@@ -99,8 +99,6 @@ TRAINVAL_OUTPUT_DIR = Path(__file__).parent.parent / 'output_directory_trainval'
 # WE load the dataset, split it and save them in the current directory (for reproducibility) if they aren't already saved.
 df = pd.read_parquet(INPUT_DIR)
 
-df = df[:10]
-
 train_data, temp_data = train_test_split(df, test_size=(1 - TRAIN_SIZE), random_state=seed)
 val_data, test_data = train_test_split(temp_data, test_size=(TEST_SIZE / (VAL_SIZE + TEST_SIZE)), random_state=seed)
 

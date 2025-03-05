@@ -26,6 +26,7 @@ class adjustedPeftResNet(nn.Module):
         if self.freeze_backbone:
             
             for param in self.model.parameters():
+                print('Backbone Parameters are frozen!')
                 param.requires_grad = False
             
             for module in self.model.modules():

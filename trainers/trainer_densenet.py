@@ -64,10 +64,8 @@ FREEZE_BACKBONE = args.freeze_backbone
 
 if FIXED_SEED:
     seed=42
-    args.fixed_seed = 42
 else:
     seed = np.random.randint(low=0,high=1000)
-    args.fixed_seed = seed
     warnings.warn("This is liable to increase variability across consecutive runs of DeepTune!", category=UserWarning)
     
 torch.manual_seed(seed)
