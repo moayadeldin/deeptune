@@ -9,3 +9,7 @@ val_split.parquet
 commands.txt
 embeddings_test_code.py
 test_densenet121_peft.py
+convert_images_to_bytes.py
+deeptune_results
+**/siglip.py
+**/siglip_peft.py

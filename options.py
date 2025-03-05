@@ -1,7 +1,9 @@
 import argparse
 import torch
 from pathlib import Path
+from datetime import datetime
 
+UNIQUE_ID = datetime.now().strftime("%Y%m%d_%H%M") # unique ID based on current date and time (YYYYMMDD_HHMM)
 
 DEVICE = torch.device("cuda" if torch.cuda.is_available() else "cpu")
 
@@ -9,10 +11,11 @@ TRAIN_DATASET_PATH = Path(__file__).parent / "train_split.parquet"
 VAL_DATASET_PATH = Path(__file__).parent / "val_split.parquet"
 TEST_DATASET_PATH = Path(__file__).parent / "test_split.parquet"
 
-TRAINVAL_OUTPUT_DIR = Path(__file__).parent / 'output_directory_trainval'
-TEST_OUTPUT_DIR = Path(__file__).parent / 'output_directory_test'
+TRAINVAL_OUTPUT_DIR = Path(__file__).parent / f'deeptune_results/output_directory_trainval_{UNIQUE_ID}'
+TEST_OUTPUT_DIR = Path(__file__).parent / f'deeptune_results/output_directory_test_{UNIQUE_ID}'
 
 parser = argparse.ArgumentParser(description='DeepTune CLI Arguments')
+
 # basic settings
 
 parser.add_argument('--num_classes', type=int, help='The number of classes in your dataset.')
