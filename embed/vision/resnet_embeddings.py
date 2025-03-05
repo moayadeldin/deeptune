@@ -19,7 +19,7 @@ parser = argparse.ArgumentParser(description="Extract the Embeddings for your fi
 
 parser.add_argument('--num_classes', type=int, required=True, help='The number of classes in your dataset.')
 parser.add_argument('--use_case', type=str, choices=['peft', 'finetuned', 'pretrained'], required=True,help='The mode you want to set embeddings extractor with') 
-parser.add_argument('--added_layers', type=int, choices=[1,2], help='The number of layers you already added while adjusting the model.')
+parser.add_argument('--added_layers', type=int, required=True, choices=[0,1,2], help='The number of layers you already added while adjusting the model.')
 parser.add_argument('--embed_size', type=int, help='The size of embedding layer you already added while adjusting the model.')
 parser.add_argument('--batch_size', type=int, required=True, help='Batch Size for embeddings.')
 parser.add_argument('--dataset_dir', type=str, required=True, help='Directory containing your dataset.')

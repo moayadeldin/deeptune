@@ -1,0 +1,10 @@
+Command Line Arguments:
+{
+    "num_classes": 8,
+    "use_peft": false,
+    "added_layers": 2,
+    "embed_size": 100,
+    "batch_size": 16,
+    "input_dir": null,
+    "model_weights": "H:\\Moayad\\output_directory_trainval/model_weights.pth"
+}
