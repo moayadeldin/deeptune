@@ -6,35 +6,49 @@ class adjustedDenseNet(nn.Module):
     
 
     def __init__(self,num_classes, added_layers, embedding_layer_size, freeze_backbone=False,
-                 model_to_load='densenet121'):
+                 model_to_load='densenet121',task_type="cls",output_dim=1):
 
-      super(adjustedDenseNet,self).__init__()
-      
-      self.model_to_load = model_to_load
-      self.num_classes = num_classes
-      self.added_layers = added_layers
-      self.embedding_layer_size = embedding_layer_size
-      self.freeze_backbone = freeze_backbone
-      
-    # remove the final connected layer by putting a placeholder
-      self.model = torch.hub.load('pytorch/vision:v0.10.0', self.model_to_load, pretrained=True)
-      in_features = self.model.classifier.in_features
-      self.model.classifier = nn.Identity()
-      self.flatten = nn.Flatten()
+        super(adjustedDenseNet,self).__init__()
         
-      if self.freeze_backbone:
-          
-            print('Backbone Parameters are freezed!')
-            
+        assert task_type in ["cls", "reg"], "task_type must be 'cls' or 'reg'"
+        
+        self.model_to_load = model_to_load
+        self.num_classes = num_classes
+        self.added_layers = added_layers
+        self.embedding_layer_size = embedding_layer_size
+        self.freeze_backbone = freeze_backbone
+        
+        # remove the final connected layer by putting a placeholder
+        self.model = torch.hub.load('pytorch/vision:v0.10.0', self.model_to_load, pretrained=True)
+        in_features = self.model.classifier.in_features
+        self.model.classifier = nn.Identity()
+        self.flatten = nn.Flatten()
+        
+        # additional parameters for regression
+        self.task_type = task_type
+        self.output_dim = output_dim
+        
+        if self.freeze_backbone:
+            print('Backbone Parameters are frozen!')
             for param in self.model.parameters():
                 param.requires_grad = False
-
-      if self.added_layers == 2:
+        
+        if self.added_layers == 2:
             self.fc1 = nn.Linear(in_features,self.embedding_layer_size)
-            self.fc2 = nn.Linear(self.embedding_layer_size, self.num_classes)
-      elif self.added_layers == 1:
-            self.fc1 = nn.Linear(in_features, self.num_classes)
-      else:
+            
+            if self.task_type == 'cls':
+                self.fc2 = nn.Linear(self.embedding_layer_size, self.num_classes)
+            else:
+                self.fc2 = nn.Linear(self.embedding_layer_size, self.output_dim)
+                
+                
+        elif self.added_layers == 1:
+            
+            if self.task_type == 'cls':
+                self.fc1 = nn.Linear(in_features, self.num_classes)
+            else:
+                self.fc1 = nn.Linear(in_features,self.output_dim)
+        else:
             self.fc1 = None
 
 

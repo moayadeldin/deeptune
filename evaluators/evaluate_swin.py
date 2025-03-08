@@ -21,14 +21,15 @@ USE_PEFT = args.use_peft
 MODEL_WEIGHTS = args.model_weights
 ADDED_LAYERS = args.added_layers
 EMBED_SIZE = args.embed_size
+MODE = args.mode
 
 
 if USE_PEFT:
     
-    MODEL = adjustedPeftSwin(NUM_CLASSES, ADDED_LAYERS, lora_attention_dimension=EMBED_SIZE)
+    MODEL = adjustedPeftSwin(NUM_CLASSES, ADDED_LAYERS, lora_attention_dimension=EMBED_SIZE,task_type=MODE)
     args.model = 'PEFT-Swin'
 else:
-    MODEL = adjustedSwin(NUM_CLASSES, ADDED_LAYERS, EMBED_SIZE)
+    MODEL = adjustedSwin(NUM_CLASSES, ADDED_LAYERS, EMBED_SIZE,task_type=MODE)
     args.model = 'Swin'
 
 df = pd.read_parquet(TEST_DATASET_PATH)

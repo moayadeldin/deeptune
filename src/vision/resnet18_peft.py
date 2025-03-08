@@ -9,7 +9,7 @@ from peft import LoraConfig, get_peft_model
 class adjustedPeftResNet(nn.Module):
 
     def __init__(self,num_classes, added_layers, lora_attention_dimension, freeze_backbone=False, weights=ResNet18_Weights.IMAGENET1K_V1,
-                 pretrained_resnet=torchvision.models.resnet18,fc1_input=512):
+                 pretrained_resnet=torchvision.models.resnet18,fc1_input=512,task_type="cls",output_dim=1):
 
         super(adjustedPeftResNet, self).__init__()
 
@@ -18,6 +18,11 @@ class adjustedPeftResNet(nn.Module):
         self.added_layers = added_layers
         self.lora_attention_dimension = lora_attention_dimension
         self.freeze_backbone = freeze_backbone
+        
+        # additional parameters for regression
+        
+        self.task_type = task_type
+        self.output_dim = output_dim
 
         # remove the final connected layer by putting a placeholder
         self.model.fc = nn.Identity()
@@ -35,9 +40,17 @@ class adjustedPeftResNet(nn.Module):
         
         if self.added_layers == 2:
             self.fc1 = nn.Linear(fc1_input,self.lora_attention_dimension)
-            self.fc2 = nn.Linear(self.lora_attention_dimension, self.num_classes)
+            
+            if self.task_type == "cls": 
+               self.fc2 = nn.Linear(self.lora_attention_dimension, self.num_classes)
+            else:
+                self.fc2 = nn.Linear(self.lora_attention_dimension,self.output_dim)
         elif self.added_layers == 1:
-            self.fc1 = nn.Linear(fc1_input, self.num_classes)
+            
+            if self.task_type == "cls":
+                self.fc1 = nn.Linear(fc1_input, self.num_classes)
+            else:
+                self.fc1 = nn.Linear(fc1_input, self.output_dim)
         else:
             self.fc1 = None
             

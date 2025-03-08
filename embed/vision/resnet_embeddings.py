@@ -31,18 +31,18 @@ MODE = args.mode
 if USE_CASE == 'peft':
     
     model = adjustedPeftResNet(NUM_CLASSES,ADDED_LAYERS, EMBED_SIZE,FREEZE_BACKBONE,task_type=MODE)
-    TEST_OUTPUT = f'test_set_peft_resnet18_embeddings_{MODE}.parquet'
+    TEST_OUTPUT = f'deeptune_results/test_set_peft_resnet18_embeddings_{MODE}.parquet'
     args.use_case = 'PEFT-ResNet18'
     
 elif USE_CASE == 'finetuned':
     model = adjustedResNet(NUM_CLASSES,ADDED_LAYERS, EMBED_SIZE,FREEZE_BACKBONE,task_type=MODE)
-    TEST_OUTPUT = f"test_set_finetuned_resnet18_embeddings_{MODE}.parquet"
+    TEST_OUTPUT = f"deeptune_results/test_set_finetuned_resnet18_embeddings_{MODE}.parquet"
     args.use_case = 'finetuned-ResNet18'
 
 elif USE_CASE == 'pretrained':
     model = torchvision.models.resnet18(weights=ResNet18_Weights.IMAGENET1K_V1)
     model.fc = nn.Identity()  # Remove classification layer to use as feature extractor
-    TEST_OUTPUT = "test_set_pretrained_resnet18_embeddings.parquet"
+    TEST_OUTPUT = "deeptune_results/test_set_pretrained_resnet18_embeddings.parquet"
     args.use_case = 'pretrained-ResNet18'
 else:
     raise ValueError('There is no fourth option other than ["finetuned", "peft", "pretrained"]')
