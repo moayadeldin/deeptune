@@ -25,6 +25,7 @@ ADDED_LAYERS = args.added_layers
 EMBED_SIZE = args.embed_size
 FIXED_SEED = args.fixed_seed
 FREEZE_BACKBONE = args.freeze_backbone
+MODE = args.mode
 
 if FIXED_SEED:
     SEED=42
@@ -78,7 +79,7 @@ if __name__ == "__main__":
     
     choosed_model = get_model()
     
-    model = choosed_model(NUM_CLASSES, ADDED_LAYERS, EMBED_SIZE, FREEZE_BACKBONE)
+    model = choosed_model(NUM_CLASSES, ADDED_LAYERS, EMBED_SIZE, FREEZE_BACKBONE,task_type=MODE)
     
     trainer = Trainer(model, train_loader=train_loader, val_loader=val_loader)
     
