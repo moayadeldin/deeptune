@@ -7,15 +7,23 @@ import torch.nn.functional as F
 class adjustedResNet(nn.Module):
 
     def __init__(self,num_classes, added_layers, embedding_layer_size, freeze_backbone=False, weights=ResNet18_Weights.IMAGENET1K_V1,
-                 pretrained_resnet=torchvision.models.resnet18,fc1_input=512):
+                 pretrained_resnet=torchvision.models.resnet18,fc1_input=512, task_type="cls",output_dim=1):
 
         super(adjustedResNet, self).__init__()
+
+
+        assert task_type in ["cls", "reg"], "task_type must be 'cls' or 'reg'"
+
 
         self.model = pretrained_resnet(weights)
         self.num_classes = num_classes
         self.added_layers = added_layers
         self.embedding_layer_size = embedding_layer_size
         self.freeze_backbone = freeze_backbone
+        
+        # additional parameters for regression
+        self.task_type = task_type
+        self.output_dim = output_dim
 
         # remove the final connected layer by putting a placeholder
         self.model.fc = nn.Identity()
@@ -28,9 +36,19 @@ class adjustedResNet(nn.Module):
         
         if self.added_layers == 2:
             self.fc1 = nn.Linear(fc1_input,self.embedding_layer_size)
-            self.fc2 = nn.Linear(self.embedding_layer_size, self.num_classes)
+            
+            if self.task_type == 'cls':
+                self.fc2 = nn.Linear(self.embedding_layer_size, self.num_classes)
+            else:
+                self.fc2 = nn.Linear(self.embedding_layer_size, self.output_dim)
+                
+                
         elif self.added_layers == 1:
-            self.fc1 = nn.Linear(fc1_input, self.num_classes)
+            
+            if self.task_type == 'cls':
+                self.fc1 = nn.Linear(fc1_input, self.num_classes)
+            else:
+                self.fc2 = nn.Linear(self.embedding_layer_size,self.output_dim)
         else:
             self.fc1 = None
 
@@ -70,6 +88,4 @@ class adjustedResNet(nn.Module):
         elif self.added_layers == 1:
             x = self.fc1(x)
             
-        # x = F.softmax(x, dim=1)
-
         return x

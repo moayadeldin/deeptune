@@ -21,6 +21,7 @@ USE_PEFT = args.use_peft
 MODEL_WEIGHTS = args.model_weights
 ADDED_LAYERS = args.added_layers
 EMBED_SIZE = args.embed_size
+MODE = args.mode
 
 if USE_PEFT:
     
@@ -28,7 +29,7 @@ if USE_PEFT:
     args.model = 'PEFT-RESNET18'
     
 else:
-    MODEL = adjustedResNet(NUM_CLASSES, ADDED_LAYERS, EMBED_SIZE)
+    MODEL = adjustedResNet(NUM_CLASSES, ADDED_LAYERS, EMBED_SIZE,task_type=MODE)
     args.model = 'RESNET18'
 
 

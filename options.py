@@ -17,6 +17,7 @@ parser = argparse.ArgumentParser(description='DeepTune CLI Arguments')
 
 # basic settings
 
+parser.add_argument('--mode', type=str,choices=['reg','cls'], help='Mode: Classification or Regression')
 parser.add_argument('--num_classes', type=int, help='The number of classes in your dataset.')
 parser.add_argument('--input_dir', type=str, help='Directory containing input data.')
 parser.add_argument('--use-peft', action='store_true', help='Include this flag to use PEFT-adapted model.')
@@ -26,6 +27,7 @@ parser.add_argument('--embed_size', type=int, help='Specify the size of the embe
 parser.add_argument('--batch_size', type=int, help='Batch Size to feed your model.')
 parser.add_argument('--fixed-seed', action='store_true', help='Choose whether a seed is required or not.')
 parser.add_argument('--model_weights', type=str, help='Directory for your tuned model.')
+
 
 # training settings
 parser.add_argument('--num_epochs', type=int, help='The number of epochs you wan the model to run on.')

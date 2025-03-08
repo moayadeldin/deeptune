@@ -14,6 +14,7 @@ DEVICE = options.DEVICE
 TRAINVAL_OUTPUT_DIR = options.TRAINVAL_OUTPUT_DIR
 NUM_EPOCHS = args.num_epochs
 LEARNING_RATE = args.learning_rate
+MODE = args.mode
 
 class Trainer:
 
@@ -23,8 +24,12 @@ class Trainer:
         self.model.to(DEVICE)
         self.train_loader = train_loader
         self.val_loader = val_loader
-
-        self.criterion = nn.CrossEntropyLoss()
+        
+        
+        if MODE == 'cls':    
+            self.criterion = nn.CrossEntropyLoss()
+        else: # then regression if not classification
+            self.criterion = nn.MSELoss()
         self.optimizer = optim.Adam(filter(lambda p: p.requires_grad, model.parameters()), lr=LEARNING_RATE)
         
         self.performance_logger = PerformanceLogger(f'{TRAINVAL_OUTPUT_DIR}')
@@ -55,7 +60,13 @@ class Trainer:
             for i, (inputs, labels) in train_pbar:
                 
                 # make sure the inputs and labels on GPU
-                inputs, labels = inputs.to(DEVICE), labels.to(DEVICE)
+                
+                if isinstance(self.criterion, nn.MSELoss): # if regression then we must rehape the target tensor    
+                    inputs, labels = inputs.to(DEVICE), labels.to(DEVICE)
+                    labels = labels.view(-1,1).float() # [batch_size,1]
+                else:
+                    inputs,labels = inputs.to(DEVICE),labels.to(DEVICE)
+                    
 
                 # null the gradient
                 self.optimizer.zero_grad()
@@ -73,40 +84,63 @@ class Trainer:
                 # accumulate loss
                 running_loss += loss.item()
                 
+                if MODE == "cls":
                 
-                # calculate accuracy
-                correct_predictions += torch.sum(torch.argmax(outputs,dim=1)==labels).item()
-                total_predictions += labels.size(0)
+                    # calculate accuracy
+                    correct_predictions += torch.sum(torch.argmax(outputs,dim=1)==labels).item()
+                    total_predictions += labels.size(0)
 
+                    # now we compute the average loss and accuracy for each epoch
+                    epoch_accuracy = 100. * correct_predictions / total_predictions
                 # update tqdm progress bar
                 train_pbar.set_postfix({"loss": round(running_loss / (i+1),5)})
 
-        
-            # now we compute the average loss and accuracy for each epoch
-            epoch_accuracy = 100. * correct_predictions / total_predictions
 
             epoch_loss = running_loss / len(self.train_loader)
             
-            self.logger.info(
-                f"Epoch {epoch + 1}/{NUM_EPOCHS}, Training Loss: {running_loss / len(self.train_loader)}, Training Accuracy: {epoch_accuracy}"
-            )
+            if MODE == 'cls':
+                
+                self.logger.info(
+                    f"Epoch {epoch + 1}/{NUM_EPOCHS}, Training Loss: {running_loss / len(self.train_loader)}, Training Accuracy: {epoch_accuracy}"
+                )    
+                # Then we see how validation set works 
+                val_loss, val_accuracy = self.validate()
+                self.logger.info(f"Validation loss: {val_loss}, Accuracy: {val_accuracy}")
             
-            # Then we see how validation set works 
-            val_loss, val_accuracy = self.validate()
+            else:
+                
+                self.logger.info(
+                    f"Epoch {epoch + 1}/{NUM_EPOCHS}, Training Loss: {running_loss / len(self.train_loader)}"
+                )    
+    
+                val_loss = self.validate()    
             
-            
-            self.logger.info(f"Validation loss: {val_loss}, Accuracy: {val_accuracy}")
+            self.logger.info(f"Validation loss: {val_loss}")
             
             # to save the metrics we got
-            self.performance_logger.log_epoch(
-                epoch = epoch+1,
-                epoch_loss=epoch_loss,
-                epoch_accuracy=epoch_accuracy,
-                val_loss=val_loss,
-                val_accuracy=val_accuracy,
-                
-            )
+            # if we use classification then we don't need to save accuracy, we will only save losses
             
+            if MODE == 'cls':
+                
+                self.performance_logger.log_epoch(
+                    epoch = epoch+1,
+                    epoch_loss=epoch_loss,
+                    epoch_accuracy=epoch_accuracy,
+                    val_loss=val_loss,
+                    val_accuracy=val_accuracy,
+                    
+                )
+         
+            else:
+                
+                self.performance_logger.log_epoch(
+                    epoch = epoch+1,
+                    epoch_loss=epoch_loss,
+                    val_loss=val_loss,
+                    epoch_accuracy='Regression: No Accuracy',
+                    val_accuracy = 'Regression: No Accuracy'
+                    
+                )    
             
             self.performance_logger.save_to_csv(f"{TRAINVAL_OUTPUT_DIR}/training_log.csv")
             
@@ -144,11 +178,17 @@ class Trainer:
                 total += labels.size(0)
                 
                 correct += torch.sum(torch.argmax(output,dim=1)==labels).item()
-                
-        val_accuracy = correct / total
-        val_loss = val_loss / len(self.val_loader)
-        return val_loss, val_accuracy
-    
+        
+        # if mode regression then no need to return accuracy or compute it
+        
+        if MODE == 'cls':
+            val_accuracy = correct / total
+            val_loss = val_loss / len(self.val_loader)
+            return val_loss, val_accuracy
+        else:
+            val_loss = val_loss / len(self.val_loader)
+            return val_loss
+            
     
     def saveModel(self, path):
 

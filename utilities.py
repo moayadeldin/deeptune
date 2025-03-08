@@ -64,6 +64,8 @@ def split_save_load_dataset(mode,input_dir, train_size, val_size, test_size, tra
     
     df = pd.read_parquet(input_dir)
     
+    print('Dataset is loaded!')
+    
     df = df[:10]
     
     train_data, temp_data = train_test_split(df, test_size=(1 - train_size), random_state=seed)
@@ -126,6 +128,8 @@ def save_test_metrics(test_accuracy,output_dir):
         f.write(f"{test_accuracy:.4f}\n")
 
 def save_cli_args(args,output_dir,mode):
+    
+        os.makedirs(output_dir, exist_ok=True)
     
         if mode == 'train':
             

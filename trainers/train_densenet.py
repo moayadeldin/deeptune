@@ -1,5 +1,5 @@
-from src.vision.densenet121 import adjustedDenseNet
-from src.vision.densenet121_peft import adjustedPEFTDenseNet
+from src.vision.cls.densenet121 import adjustedDenseNet
+from src.vision.cls.densenet121_peft import adjustedPEFTDenseNet
 import importlib
 from utilities import save_cli_args, fixed_seed,split_save_load_dataset
 from trainers.trainer import Trainer

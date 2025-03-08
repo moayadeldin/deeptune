@@ -26,16 +26,17 @@ MODEL_PATH = args.model_weights
 ADDED_LAYERS = args.added_layers
 EMBED_SIZE = args.embed_size
 FREEZE_BACKBONE = args.freeze_backbone
+MODE = args.mode
 
 if USE_CASE == 'peft':
     
-    model = adjustedPeftResNet(NUM_CLASSES,ADDED_LAYERS, EMBED_SIZE,FREEZE_BACKBONE)
-    TEST_OUTPUT = "test_set_peft_resnet18_embeddings.parquet"
+    model = adjustedPeftResNet(NUM_CLASSES,ADDED_LAYERS, EMBED_SIZE,FREEZE_BACKBONE,task_type=MODE)
+    TEST_OUTPUT = f'test_set_peft_resnet18_embeddings_{MODE}.parquet'
     args.use_case = 'PEFT-ResNet18'
     
 elif USE_CASE == 'finetuned':
-    model = adjustedResNet(NUM_CLASSES,ADDED_LAYERS, EMBED_SIZE,FREEZE_BACKBONE)
-    TEST_OUTPUT = "test_set_finetuned_resnet18_embeddings.parquet"
+    model = adjustedResNet(NUM_CLASSES,ADDED_LAYERS, EMBED_SIZE,FREEZE_BACKBONE,task_type=MODE)
+    TEST_OUTPUT = f"test_set_finetuned_resnet18_embeddings_{MODE}.parquet"
     args.use_case = 'finetuned-ResNet18'
 
 elif USE_CASE == 'pretrained':
