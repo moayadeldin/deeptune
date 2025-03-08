@@ -17,10 +17,10 @@ As a cutting-edge software library that has been specifically designed for use i
 
 | Model         | Transfer Learning with Adjustable Embedding Layer? | Support PEFT with Adjustable Embedding Layer? | Support Embeddings Extraction? | Task                | Modality |
 |--------------|-------------------------------------------------|---------------------------------|--------------------------------|----------------------|----------|
-| ResNet18     | ✅                                              | ✅                              | ✅                              | Classification       | Image    |
-| Siglip       | (SUD)                                           | (SUD)                           | (SUD)                           | Classification       | Image    |
-| DenseNet121  | ✅                                              | ✅                              | ✅                              | Classification       | Image    |
-| Swin         | ✅                                              | ✅                              | ✅                              | Classification       | Image    |
+| ResNet18     | ✅                                              | ✅                              | ✅                              | Classification & Regression      | Image    |
+| Siglip       | ➖                                           | ➖                           | ➖                           | Classification & Regression       | Image    |
+| DenseNet121  | ✅                                              | ✅                              | ✅                              | Classification & Regression       | Image    |
+| Swin         | ✅                                              | ✅                              | ✅                              | Classification & Regression       | Image    |
 | XLM-RoBERTa  | ❌                                              | ❌                              | ✅                              | Sentiment Analysis   | Text     |
 
 

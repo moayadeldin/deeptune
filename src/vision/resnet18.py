@@ -48,7 +48,7 @@ class adjustedResNet(nn.Module):
             if self.task_type == 'cls':
                 self.fc1 = nn.Linear(fc1_input, self.num_classes)
             else:
-                self.fc2 = nn.Linear(self.embedding_layer_size,self.output_dim)
+                self.fc1 = nn.Linear(fc1_input,self.output_dim)
         else:
             self.fc1 = None
 

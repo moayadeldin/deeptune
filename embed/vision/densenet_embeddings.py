@@ -26,15 +26,16 @@ MODEL_PATH = args.model_weights
 ADDED_LAYERS = args.added_layers
 EMBED_SIZE = args.embed_size
 FREEZE_BACKBONE = args.freeze_backbone
+MODE = args.mode
     
 if USE_CASE == 'finetuned':
-    model = adjustedDenseNet(NUM_CLASSES,ADDED_LAYERS, EMBED_SIZE,FREEZE_BACKBONE)
-    TEST_OUTPUT = "test_set_finetuned_DenseNet121_embeddings.parquet"
+    model = adjustedDenseNet(NUM_CLASSES,ADDED_LAYERS, EMBED_SIZE,FREEZE_BACKBONE,task_type=MODE)
+    TEST_OUTPUT = f"deeptune_results/test_set_finetuned_DenseNet121_embeddings_{MODE}.parquet"
     args.use_case = 'finetuned-Densenet121'
 
 elif USE_CASE == 'peft':
-    model = adjustedPEFTDenseNet(NUM_CLASSES, ADDED_LAYERS, EMBED_SIZE, FREEZE_BACKBONE)
-    TEST_OUTPUT = "test_set_peft_DenseNet121_embeddings.parquet"
+    model = adjustedPEFTDenseNet(NUM_CLASSES, ADDED_LAYERS, EMBED_SIZE, FREEZE_BACKBONE,task_type=MODE)
+    TEST_OUTPUT = f"deeptune_results/test_set_peft_DenseNet121_embeddings_{MODE}.parquet"
 else:
     raise ValueError('There is no third option other than ["finetuned", "peft"]')
 

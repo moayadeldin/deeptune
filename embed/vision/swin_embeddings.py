@@ -28,21 +28,22 @@ MODEL_PATH = args.model_weights
 ADDED_LAYERS = args.added_layers
 EMBED_SIZE = args.embed_size
 FREEZE_BACKBONE = args.freeze_backbone
+MODE = args.mode
 
 if USE_CASE == 'peft':
     
-    model = adjustedPeftSwin(NUM_CLASSES, ADDED_LAYERS, EMBED_SIZE, FREEZE_BACKBONE)
-    TEST_OUTPUT = "test_set_peft_swin_t_embeddings.parquet"
+    model = adjustedPeftSwin(NUM_CLASSES, ADDED_LAYERS, EMBED_SIZE, FREEZE_BACKBONE,task_type=MODE)
+    TEST_OUTPUT = f"test_set_peft_swin_t_embeddings_{MODE}.parquet"
     args.use_case = 'peft-Swin'
 elif USE_CASE == 'finetuned':
-    model = adjustedSwin(NUM_CLASSES,ADDED_LAYERS, EMBED_SIZE,FREEZE_BACKBONE)
-    TEST_OUTPUT = "test_set_finetuned_swin_t_embeddings.parquet"
+    model = adjustedSwin(NUM_CLASSES,ADDED_LAYERS, EMBED_SIZE,FREEZE_BACKBONE,task_type=MODE)
+    TEST_OUTPUT = f"test_set_finetuned_swin_t_embeddings_{MODE}.parquet"
     args.use_case = 'finetuned-Swin'
 
 elif USE_CASE == 'pretrained':
     model = torchvision.models.swin_t(weights=Swin_T_Weights.IMAGENET1K_V1)
     model.head = nn.Identity()  # Remove classification layer to use as feature extractor
-    TEST_OUTPUT = "test_set_pretrained_swin_t_embeddings.parquet"
+    TEST_OUTPUT = f"test_set_pretrained_swin_t_embeddings_{MODE}.parquet"
     args.use_case = 'pretrained-swin'
 else:
     raise ValueError('There is no fourth option other than ["finetuned", "peft", "pretrained"]')

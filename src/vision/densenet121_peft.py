@@ -6,7 +6,7 @@ from peft import LoraConfig, get_peft_model
 class adjustedPEFTDenseNet(nn.Module):
     
     
-    def __init__(self, num_classes, added_layers, lora_attention_dimension, freeze_backbone=False, model_to_load='densenet121'):
+    def __init__(self, num_classes, added_layers, lora_attention_dimension, freeze_backbone=False, model_to_load='densenet121',task_type='cls',output_dim=1):
         
         super(adjustedPEFTDenseNet, self).__init__()
         
@@ -18,25 +18,31 @@ class adjustedPEFTDenseNet(nn.Module):
         
         # remove the final connected layer by putting a placeholder
         
+        # additional parameters for regression
+        
+        self.task_type = task_type
+        self.output_dim = output_dim
+        
         self.model = torch.hub.load('pytorch/vision:v0.10.0', self.model_to_load, pretrained=True)
         in_features = self.model.classifier.in_features
         self.model.classifier = nn.Identity()
         self.flatten = nn.Flatten()
         
-        if self.freeze_backbone:
-            
-            print('Backbone parameters are freezed!')
-            
-            for param in self.model.parameters():
-                param.requires_grad = False
-                
         if self.added_layers == 2:
             self.fc1 = nn.Linear(in_features,self.lora_attention_dimension)
-            self.fc2 = nn.Linear(self.lora_attention_dimension, self.num_classes)
+            
+            if self.task_type == "cls": 
+               self.fc2 = nn.Linear(self.lora_attention_dimension, self.num_classes)
+            else:
+                self.fc2 = nn.Linear(self.lora_attention_dimension,self.output_dim)
         elif self.added_layers == 1:
+            
+            if self.task_type == "cls":
                 self.fc1 = nn.Linear(in_features, self.num_classes)
+            else:
+                self.fc1 = nn.Linear(in_features, self.output_dim)
         else:
-                self.fc1 = None
+            self.fc1 = None
         
         self.peftmodel = self.applyPEFT(self.model)
                 

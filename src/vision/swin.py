@@ -6,11 +6,13 @@ import torch.nn.functional as F
 class adjustedSwin(nn.Module):
     
     def __init__(self,num_classes, added_layers, embedding_layer_size, freeze_backbone=False, weights=Swin_T_Weights.IMAGENET1K_V1,
-    pretrained_swin=torchvision.models.swin_t,in_features=768):
+    pretrained_swin=torchvision.models.swin_t,in_features=768, task_type="cls",output_dim=1):
         
         super(adjustedSwin, self).__init__()
         
-        self.model = pretrained_swin(weights)
+        assert task_type in ["cls", "reg"], "task_type must be 'cls' or 'reg'"
+        
+        self.model = pretrained_swin(weights=weights)
         self.num_classes = num_classes
         self.added_layers = added_layers
         self.embedding_layer_size = embedding_layer_size
@@ -21,16 +23,30 @@ class adjustedSwin(nn.Module):
         self.model.head = nn.Identity()
         self.flatten = nn.Flatten()
         
+        # additional parameters for regression
+        self.task_type = task_type
+        self.output_dim = output_dim
+        
         if self.freeze_backbone:
-            print("Backbone Parameters are frozen!")
+            print('Backbone Parameters are frozen!')
             for param in self.model.parameters():
                 param.requires_grad = False
         
         if self.added_layers == 2:
             self.fc1 = nn.Linear(in_features,self.embedding_layer_size)
-            self.fc2 = nn.Linear(self.embedding_layer_size, self.num_classes)
+            
+            if self.task_type == 'cls':
+                self.fc2 = nn.Linear(self.embedding_layer_size, self.num_classes)
+            else:
+                self.fc2 = nn.Linear(self.embedding_layer_size, self.output_dim)
+                
+                
         elif self.added_layers == 1:
-            self.fc1 = nn.Linear(in_features, self.num_classes)
+            
+            if self.task_type == 'cls':
+                self.fc1 = nn.Linear(in_features, self.num_classes)
+            else:
+                self.fc1 = nn.Linear(in_features,self.output_dim)
         else:
             self.fc1 = None
             

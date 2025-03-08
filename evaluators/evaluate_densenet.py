@@ -21,13 +21,14 @@ USE_PEFT = args.use_peft
 MODEL_WEIGHTS = args.model_weights
 ADDED_LAYERS = args.added_layers
 EMBED_SIZE = args.embed_size
+MODE = args.mode
 
 if USE_PEFT:
-    MODEL = adjustedPEFTDenseNet(NUM_CLASSES, ADDED_LAYERS, lora_attention_dimension=EMBED_SIZE)
+    MODEL = adjustedPEFTDenseNet(NUM_CLASSES, ADDED_LAYERS, lora_attention_dimension=EMBED_SIZE,task_type=MODE)
     args.model = 'PEFT-DenseNet121'
     
 else:
-    MODEL = adjustedDenseNet(NUM_CLASSES, ADDED_LAYERS, EMBED_SIZE)
+    MODEL = adjustedDenseNet(NUM_CLASSES, ADDED_LAYERS, EMBED_SIZE,task_type=MODE)
     args.model = 'DenseNet121'
 
 df = pd.read_parquet(TEST_DATASET_PATH)

@@ -25,7 +25,7 @@ MODE = args.mode
 
 if USE_PEFT:
     
-    MODEL = adjustedPeftResNet(NUM_CLASSES, ADDED_LAYERS, lora_attention_dimension=EMBED_SIZE)
+    MODEL = adjustedPeftResNet(NUM_CLASSES, ADDED_LAYERS, lora_attention_dimension=EMBED_SIZE,task_type=MODE)
     args.model = 'PEFT-RESNET18'
     
 else:
