@@ -4,6 +4,7 @@ from pathlib import Path
 import os
 import torch
 import torch.nn as nn
+from typing import Tuple
 from transformers import BertModel, BertTokenizer
 
 ROOT = Path(__file__).parent.parent
@@ -73,10 +74,11 @@ def download_nlp_bert_ml_model() -> None:
     tokenizer.save_pretrained(BERT_MULTILINGUAL_TOKENIZER)
     print(f"Saved tokenizer to {BERT_MULTILINGUAL_TOKENIZER}")
 
-def load_nlp_bert_ml_model_offline() -> tuple[AutoModelForSequenceClassification, AutoTokenizer]:
+def load_nlp_bert_ml_model_offline() -> Tuple[AutoModelForSequenceClassification, AutoTokenizer]:
     """Load the BERT multilingual uncased sentiment model from local storage."""
     if not os.path.exists(BERT_MULTILINGUAL_MODEL):
-        raise FileNotFoundError(f"Model folder not found at {BERT_MULTILINGUAL_MODEL}. Please run download_nlp_bert_ml_model() first.")
+        print(f"Model folder not found at {BERT_MULTILINGUAL_MODEL}. Downloading now...")
+        download_nlp_bert_ml_model()
 
     if not os.path.exists(BERT_MULTILINGUAL_TOKENIZER):
         raise FileNotFoundError(f"Tokenizer folder not found at {BERT_MULTILINGUAL_TOKENIZER}. Please run download_nlp_bert_ml_model() first.")
