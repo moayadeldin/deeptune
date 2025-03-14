@@ -1,5 +1,5 @@
-from src.vision.densenet121 import adjustedDenseNet
-from src.vision.densenet121_peft import adjustedPEFTDenseNet
+from src.vision.swin import adjustedSwin
+from src.vision.swin_peft import adjustedPeftSwin
 import importlib
 from utilities import save_cli_args, fixed_seed,split_save_load_dataset
 from trainers.trainer import Trainer
@@ -38,26 +38,25 @@ else:
 
 def get_model():
 
-    """Allows the user to choose from Adjusted DenseNet121 or PEFT-DenseNet121 versions.
+    """
+    Allows the user to choose from Adjusted Swin or PEFT-Swin versions.
     """
     
     if ADDED_LAYERS == 0:
         
         raise ValueError('As you apply one of transfer learning or PEFT, please choose 1 or 2 as your preferred number of added_layers.')
-    
+
+    if USE_PEFT:
+        
+        model = importlib.import_module('src.vision.swin_peft')
+        args.model = 'PEFT-Swin'
+        return model.adjustedPeftSwin
+
     else:
-        
-        
-        if USE_PEFT:
-            model = importlib.import_module('src.vision.densenet121_peft')
-            args.model = 'PEFT-DenseNet121'
-            return model.adjustedPEFTDenseNet
-        else:
-            model = importlib.import_module('src.vision.densenet121')
-            args.model = 'DenseNet121'
-            return model.adjustedDenseNet
-        
-        
+        model = importlib.import_module('src.vision.swin')
+        args.model = 'Swin'
+        return model.adjustedSwin
+    
 TRAIN_DATASET_PATH = options.TRAIN_DATASET_PATH
 VAL_DATASET_PATH = options.VAL_DATASET_PATH
 TEST_DATASET_PATH = options.TEST_DATASET_PATH
@@ -66,6 +65,7 @@ TRAINVAL_OUTPUT_DIR = options.TRAINVAL_OUTPUT_DIR
 train_loader, val_loader = split_save_load_dataset(
     
     mode='train',
+    type='image',
     input_dir= INPUT_DIR,
     train_size = TRAIN_SIZE,
     val_size = VAL_SIZE,
@@ -74,7 +74,8 @@ train_loader, val_loader = split_save_load_dataset(
     val_dataset_path=VAL_DATASET_PATH,
     test_dataset_path=TEST_DATASET_PATH,
     seed=SEED,
-    batch_size=BATCH_SIZE
+    batch_size=BATCH_SIZE,
+    tokenizer=None
 )           
 
 
@@ -96,3 +97,4 @@ if __name__ == "__main__":
     trainer.saveModel(path=f'{TRAINVAL_OUTPUT_DIR}/model_weights.pth')
     
     save_cli_args(args, TRAINVAL_OUTPUT_DIR, mode='train')
+

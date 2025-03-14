@@ -8,7 +8,10 @@ import random
 from sklearn.model_selection import train_test_split
 import numpy as np
 from datasets.image_datasets import ParquetImageDataset
-
+from datasets.text_datasets import TextDataset
+import json
+from transformers import BertModel, BertTokenizer
+from src.nlp.multilingual_bert import CustomMultilingualBERT
 
 # Kindly note that right now we pass the same transformations to ResNet and DenseNet, both trained on ImageNet
 transformations = torchvision.transforms.Compose([
@@ -56,7 +59,7 @@ def fixed_seed(seed):
     print("torch.backends.cudnn.deterministic set to True.")
     
     
-def split_save_load_dataset(mode,input_dir, train_size, val_size, test_size, train_dataset_path,val_dataset_path, test_dataset_path, seed, batch_size):
+def split_save_load_dataset(mode,type,input_dir, train_size, val_size, test_size, train_dataset_path,val_dataset_path, test_dataset_path, seed, batch_size,tokenizer):
     
     """
     Split the dataset, save it as parquet file in the defined path, and return the dataloaders.
@@ -79,44 +82,78 @@ def split_save_load_dataset(mode,input_dir, train_size, val_size, test_size, tra
 
     print("Data splits have been saved and overwritten if they existed.")
     
-    # The current datasets loaded as dataloaders
-    if mode == 'train':    
+    if type == 'image':
         
-        train_dataset = ParquetImageDataset(parquet_file=train_dataset_path, transform=transformations)
-        val_dataset = ParquetImageDataset(parquet_file=val_dataset_path, transform=transformations)
+        tokenizer = None
+        
+        # The current datasets loaded as dataloaders
+        if mode == 'train':    
+            
+            train_dataset = ParquetImageDataset(parquet_file=train_dataset_path, transform=transformations)
+            val_dataset = ParquetImageDataset(parquet_file=val_dataset_path, transform=transformations)
 
-        train_loader = torch.utils.data.DataLoader(
-            train_dataset,
-            batch_size=batch_size,
-            shuffle=True,
-            num_workers=0
-        )
-        val_loader = torch.utils.data.DataLoader(
-            val_dataset,
-            batch_size=batch_size,
-            shuffle=False,
-            num_workers=0
-        )
-        
-        return train_loader, val_loader
-        
-    elif mode == 'test':
-        
-        test_dataset = ParquetImageDataset(parquet_file=test_dataset_path, transform=transformations)
+            train_loader = torch.utils.data.DataLoader(
+                train_dataset,
+                batch_size=batch_size,
+                shuffle=True,
+                num_workers=0
+            )
+            val_loader = torch.utils.data.DataLoader(
+                val_dataset,
+                batch_size=batch_size,
+                shuffle=False,
+                num_workers=0
+            )
+            
+            return train_loader, val_loader
+            
+        elif mode == 'test':
+            
+            test_dataset = ParquetImageDataset(parquet_file=test_dataset_path, transform=transformations)
 
-        test_loader = torch.utils.data.DataLoader(
-            test_dataset,
-            batch_size=batch_size,
-            shuffle=False,
-            num_workers=0
-        )
+            test_loader = torch.utils.data.DataLoader(
+                test_dataset,
+                batch_size=batch_size,
+                shuffle=False,
+                num_workers=0
+            )
+            
+            return test_loader
         
-        return test_loader
-    
-    
-    else:
         
-        raise ValueError('Please choose the mode either "train" or "test".')
+        else:
+            
+            raise ValueError('Please choose the mode either "train" or "test".')
+    
+    if type == 'text':
+        
+        if mode == 'train':
+        
+            train_dataset = TextDataset(parquet_file=train_dataset_path, tokenizer=tokenizer, max_length=512)
+            val_dataset = TextDataset(parquet_file=val_dataset_path, tokenizer=tokenizer, max_length=512)
+            
+            train_dataloader = torch.utils.data.DataLoader(
+                    train_dataset,
+                    batch_size=batch_size,
+                    shuffle=True,
+                    num_workers=0
+                )
+            val_dataloader = torch.utils.data.DataLoader(
+                    val_dataset,
+                    batch_size=batch_size,
+                    shuffle=False,
+                    num_workers=0
+                )
+            
+            return train_dataloader, val_dataloader
+        
+        elif mode == 'test':
+            
+            pass
+        
+        else:
+            
+            raise ValueError('Please choose the mode either "train" or "test".')
 
 
 def save_test_metrics(test_accuracy,output_dir):
@@ -201,6 +238,65 @@ def print_trainable_parameters(model):
 def avg_pool(last_hidden_states: Tensor, attention_mask: Tensor) -> Tensor:
     last_hidden = last_hidden_states.masked_fill(~attention_mask[..., None].bool(), 0.0)
     return last_hidden.sum(dim=1) / attention_mask.sum(dim=1)[..., None]
+
+
+def save_finetunedbertmodel(model,tokenizer,output_dir,model_config):
+    
+    
+    if not os.path.exists(output_dir):
+        os.makedirs(output_dir)
+        
+        
+    # save model state dic
+    torch.save(model.state_dict(), os.path.join(output_dir,'model_weights.pt'))
+    print(f"Model weights saved to {os.path.join(output_dir, 'model_weights.pt')}")
+    
+    # save underlying BERT model
+    model.bert.save_pretrained(os.path.join(output_dir, "bert_model"))
+    print(f"BERT model saved to {os.path.join(output_dir, 'bert_model')}")
+    
+    # save tokenizer
+    tokenizer.save_pretrained(os.path.join(output_dir, "tokenizer"))
+    print(f"Tokenizer saved to {os.path.join(output_dir, 'tokenizer')}")
+    
+    # save model's layers
+    with open(os.path.join(output_dir, "model_config.json"), "w") as f:
+        json.dump(model_config, f)
+    print(f"Model configuration saved to {os.path.join(output_dir, 'model_config.json')}")
+    
+
+def load_finetunedbert_model(model_dir):
+    
+    """
+    Load the model for inference. Here we unpack what we packed in the previous function.
+    """
+    
+    # load config
+    with open(os.path.join(model_dir, "model_config.json"), "r") as f:
+        model_config = json.load(f)
+        
+        
+    # load model
+    bert_model = BertModel.from_pretrained(os.path.join(model_dir, "bert_model"))
+    print(f"Loaded BERT model from {os.path.join(model_dir, 'bert_model')}")
+    
+    # load tokenizer
+    tokenizer = BertTokenizer.from_pretrained(os.path.join(model_dir, "tokenizer"))
+    print(f"Loaded tokenizer from {os.path.join(model_dir, 'tokenizer')}")
+
+    # now we create model with the same exact weights, tokenizer and configs
+    
+    model = CustomMultilingualBERT(
+        bert_model = bert_model,
+        num_classes= model_config["num_classes"],
+        added_layers=model_config['added_layers'],
+        embedding_layer=model_config['embedding_layer']
+    )
+    
+    model.load_state_dict(torch.load(os.path.join(model_dir, "model_weights.pt")))
+    print(f"Loaded model weights from {os.path.join(model_dir, 'model_weights.pt')}")
+    
+    return model, tokenizer
 
 """ The following class code is adopted from John's implementation of Siglip"""
 

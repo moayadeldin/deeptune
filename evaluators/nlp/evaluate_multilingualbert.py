@@ -1,0 +1,121 @@
+
+import torch
+from datasets.text_datasets import TextDataset
+import pandas as pd 
+from sklearn.metrics import classification_report, roc_auc_score
+from utilities import save_test_metrics
+from src.nlp.multilingual_bert import CustomMultilingualBERT
+from utilities import save_cli_args,load_finetunedbert_model
+import options
+from tqdm import tqdm
+import numpy as np
+import sys
+import logging
+import options
+
+
+parser = options.parser
+DEVICE = options.DEVICE
+TEST_OUTPUT_DIR = options.TEST_OUTPUT_DIR
+args = parser.parse_args()
+
+TEST_DATASET_PATH = args.test_set_input_dir
+BATCH_SIZE= args.batch_size
+NUM_CLASSES = args.num_classes
+USE_PEFT = args.use_peft
+MODEL_WEIGHTS = args.model_weights
+ADDED_LAYERS = args.added_layers
+EMBED_SIZE = args.embed_size
+MODE = args.mode
+ADJUSTED_BERT_MODEL_DIR = args.adjusted_bert_dir
+
+if USE_PEFT:
+    pass
+else:
+    model = CustomMultilingualBERT(NUM_CLASSES, ADDED_LAYERS, EMBED_SIZE)
+    args.model = 'Multilingual BERT'
+    
+
+df = pd.read_parquet(TEST_DATASET_PATH)
+
+model,tokenizer = load_finetunedbert_model()
+
+test_dataset = TextDataset(parquet_file=TEST_DATASET_PATH, tokenizer=ADJUSTED_BERT_MODEL_DIR)
+
+test_loader = torch.utils.data.DataLoader(
+    test_dataset,
+    batch_size=BATCH_SIZE,
+    shuffle=False,
+    num_workers=0
+)
+
+
+def test(self, text):
+    
+    test_accuracy=0.0
+    test_loss=0.0
+    total,correct=0.0
+    
+    test_pbar = tqdm(enumerate(self.test_loader), total=len(self.test_loader))
+        
+    all_labels = []
+    all_predictions=[]
+    all_probs=[]
+    
+    with torch.no_grad():
+        
+        for _, (encoding, labels) in test_pbar:
+            
+            encoding = self.tokenizer(
+            text,
+            padding='max_length',
+            truncation=True,
+            max_length=512,
+            return_tensors='pt'
+            )
+            
+            input_ids = encoding['input_ids'].to(DEVICE)
+            attention_mask = encoding['attention_mask'].to(DEVICE)
+            token_type_ids = encoding.get('token_type_ids')
+            if token_type_ids is not None:
+                token_type_ids = token_type_ids.to(DEVICE)
+            
+            outputs = self.model(input_ids, attention_mask, token_type_ids)   
+    
+            loss = self.criterion(outputs,labels)
+            test_loss += loss.item()
+    
+            probs = torch.softmax(outputs, 1)
+            _, predicted = torch.max(probs, 1)
+            
+            total += labels.size(0)
+            correct += torch.sum(torch.argmax(outputs, dim=1) == labels).item()
+            
+            # Store classification outputs
+            all_probs.append(probs.cpu().numpy())
+            all_predictions.append(predicted.cpu().numpy())
+            all_labels.append(labels.cpu().numpy())
+            
+    test_loss = test_loss / len(self.test_loader)
+    metrics_dict = {"loss": test_loss}
+
+    test_accuracy = (correct / total) * 100
+    metrics_dict["accuracy"] = test_accuracy
+    
+    all_probs = np.concatenate(all_probs, axis=0)
+    all_predictions = np.concatenate(all_predictions, axis=0)
+    all_labels = np.concatenate(all_labels, axis=0)
+    
+    report = classification_report(y_true=all_labels, y_pred=all_predictions, output_dict=True)
+    metrics_dict.update(report)
+    
+    try:
+        metrics_dict["auroc"] = roc_auc_score(all_labels, all_probs, multi_class="ovr")
+    except ValueError:
+        metrics_dict["auroc"] = "AUROC not applicable for this setup"
+    
+    print(test_accuracy, test_loss)
+    self.logger.info(f"Test accuracy: {test_accuracy}%")
+    save_test_metrics(test_accuracy=test_accuracy, output_dir=TEST_OUTPUT_DIR)
+
+    print(metrics_dict)
