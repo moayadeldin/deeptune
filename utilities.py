@@ -64,6 +64,10 @@ def split_save_load_dataset(mode,type,input_dir, train_size, val_size, test_size
     """
     Split the dataset, save it as parquet file in the defined path, and return the dataloaders.
     """
+
+    if not os.path.exists('deeptune_results'):
+
+        os.makedirs('deeptune_results',exist_ok=True)
     
     df = pd.read_parquet(input_dir)
     
