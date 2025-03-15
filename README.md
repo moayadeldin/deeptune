@@ -13,7 +13,7 @@ As a cutting-edge software library that has been specifically designed for use i
 - Providing PEFT with LoRA for Computer Vision algorithms implemented, enabling state-of-the-art models that typically require substantial computational resources to perform efficiently on lower-powered devices. This approach not only reduces computational overhead but also enhances performance
 - Ability of extracting meaningful feature embeddings representing your own dataset with SoTA algorithms for image and text classification tasks.
 
-## Algorithms Implemented
+## Models DeepTune Supports Up to Date
 <table>
   <thead>
     <tr>
