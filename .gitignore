@@ -18,5 +18,5 @@ src/vision/siglip.py
 convert_images_to_bytes.py
 split_convert_images_to_bytes.py
 
-evaluators\vision\evaluate_peft_siglip.py
-trainers\vision\train_siglip.py
+evaluators/vision/evaluate_peft_siglip.py
+trainers/vision/train_siglip.py
