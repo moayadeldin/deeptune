@@ -8,15 +8,17 @@ from torch.utils.data import DataLoader
 from datasets.text_datasets import TextDataset
 from utilities import avg_pool
 from src.nlp.E5_roberta import load_nlp_intfloat_ml_model_offline
+import options
+
 
 parser = ArgumentParser(description="Extract Embeddings using E5 Multilingual model based on Roberta")
-parser.add_argument('--input_df_path', type=str, required=True, help='Dataset path of test set. Must be a .parquet file with only two columns, "image" and "target".')
-parser.add_argument('--out', type=Path, required=True, help='Destination file name (.parquet).')
+OUTPUT = f"deeptune_results/test_set_pretrained_XLMRoBERTa_embeddings.parquet"
+parser = options.parser
 args = parser.parse_args()
 
 DEVICE = torch.device("cuda" if torch.cuda.is_available() else "cpu")
 INPUT_DF_PATH = args.input_df_path
-OUTPUT = args.out
+OUTPUT = args.output
 
 model, tokenizer = load_nlp_intfloat_ml_model_offline()
 
