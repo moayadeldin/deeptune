@@ -15,13 +15,15 @@ As a cutting-edge software library that has been specifically designed for use i
 
 ## Algorithms Implemented
 
-| Model         | Transfer Learning with Adjustable Embedding Layer? | Support PEFT with Adjustable Embedding Layer? | Support Embeddings Extraction? | Task                | Modality |
-|--------------|-------------------------------------------------|---------------------------------|--------------------------------|----------------------|----------|
-| ResNet18     | ✅                                              | ✅                              | ✅                              | Classification & Regression      | Image    |
-| Siglip       | ➖                                           | ➖                           | ➖                           | Classification & Regression       | Image    |
-| DenseNet121  | ✅                                              | ✅                              | ✅                              | Classification & Regression       | Image    |
-| Swin         | ✅                                              | ✅                              | ✅                              | Classification & Regression       | Image    |
-| XLM-RoBERTa  | ❌                                              | ❌                              | ✅                              | Sentiment Analysis   | Text     |
+| Model                  | Transfer Learning with Adjustable Embedding Layer? | Support PEFT with Adjustable Embedding Layer? | Support Embeddings Extraction?            | Task                  | Modality |
+|------------------------|-------------------------------------------------|---------------------------------|---------------------------------|----------------------|----------|
+| ResNet18              | ✅                                              | ✅                              | ✅                              | Classification & Regression | Image    |
+| Siglip                | ➖                                              | ➖                              | ➖                              | Classification & Regression | Image    |
+| DenseNet121           | ✅                                              | ✅                              | ✅                              | Classification & Regression | Image    |
+| Swin                  | ✅                                              | ✅                              | ✅                              | Classification & Regression | Image    |
+| MultiLingual Base BERT | ✅                                              | ❌                              | ✅                              | Sentiment Analysis   | Text     |
+| XLM-RoBERTa           |                              **ONLY SUPPORTS EMBEDDING EXTRACTION**                                                                          | Text     |
+
 
 
 
@@ -29,7 +31,7 @@ As a cutting-edge software library that has been specifically designed for use i
 This software package was developed as part of work done at Medical Imaging Bioinformatics lab under the supervision of Jacob Levman at St. Francis Xavier Univeristy, Nova Scotia, Canada.
 
 
-Thanks to [John Kendall](https://github.com/johnkxl) for their assistance.
+Thanks to [John's Work: PEFT4Vision](https://github.com/johnkxl/peft4vision) for providing their code.
 
 
 ## Citation
