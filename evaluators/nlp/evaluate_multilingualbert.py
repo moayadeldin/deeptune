@@ -9,7 +9,7 @@ from utilities import save_cli_args,load_finetunedbert_model
 import options
 from tqdm import tqdm
 import numpy as np
-import sys
+import torch.nn as nn
 import logging
 import options
 
@@ -28,19 +28,24 @@ ADDED_LAYERS = args.added_layers
 EMBED_SIZE = args.embed_size
 MODE = args.mode
 ADJUSTED_BERT_MODEL_DIR = args.adjusted_bert_dir
+FREEZE_BACKBONE = args.freeze_backbone
 
 if USE_PEFT:
     pass
 else:
-    model = CustomMultilingualBERT(NUM_CLASSES, ADDED_LAYERS, EMBED_SIZE)
+    model = CustomMultilingualBERT(NUM_CLASSES, ADDED_LAYERS, EMBED_SIZE,FREEZE_BACKBONE)
     args.model = 'Multilingual BERT'
     
 
 df = pd.read_parquet(TEST_DATASET_PATH)
 
-model,tokenizer = load_finetunedbert_model()
+model,tokenizer = load_finetunedbert_model(ADJUSTED_BERT_MODEL_DIR)
+model = model.to(DEVICE)
 
-test_dataset = TextDataset(parquet_file=TEST_DATASET_PATH, tokenizer=ADJUSTED_BERT_MODEL_DIR)
+criterion = nn.CrossEntropyLoss()
+logger = logging.getLogger()
+
+test_dataset = TextDataset(parquet_file=TEST_DATASET_PATH, tokenizer=tokenizer)
 
 test_loader = torch.utils.data.DataLoader(
     test_dataset,
@@ -50,13 +55,13 @@ test_loader = torch.utils.data.DataLoader(
 )
 
 
-def test(self, text):
+def test():
     
     test_accuracy=0.0
     test_loss=0.0
-    total,correct=0.0
+    total,correct=0,0
     
-    test_pbar = tqdm(enumerate(self.test_loader), total=len(self.test_loader))
+    test_pbar = tqdm(enumerate(test_loader), total=len(test_loader))
         
     all_labels = []
     all_predictions=[]
@@ -64,10 +69,11 @@ def test(self, text):
     
     with torch.no_grad():
         
-        for _, (encoding, labels) in test_pbar:
+        for _, (text, labels) in test_pbar:
+            labels = labels.to(DEVICE)
             
-            encoding = self.tokenizer(
-            text,
+            encoding = tokenizer(
+            str(text),
             padding='max_length',
             truncation=True,
             max_length=512,
@@ -80,9 +86,9 @@ def test(self, text):
             if token_type_ids is not None:
                 token_type_ids = token_type_ids.to(DEVICE)
             
-            outputs = self.model(input_ids, attention_mask, token_type_ids)   
+            outputs = model(input_ids, attention_mask, token_type_ids)   
     
-            loss = self.criterion(outputs,labels)
+            loss = criterion(outputs,labels)
             test_loss += loss.item()
     
             probs = torch.softmax(outputs, 1)
@@ -96,7 +102,7 @@ def test(self, text):
             all_predictions.append(predicted.cpu().numpy())
             all_labels.append(labels.cpu().numpy())
             
-    test_loss = test_loss / len(self.test_loader)
+    test_loss = test_loss / len(test_loader)
     metrics_dict = {"loss": test_loss}
 
     test_accuracy = (correct / total) * 100
@@ -115,7 +121,15 @@ def test(self, text):
         metrics_dict["auroc"] = "AUROC not applicable for this setup"
     
     print(test_accuracy, test_loss)
-    self.logger.info(f"Test accuracy: {test_accuracy}%")
+    logger.info(f"Test accuracy: {test_accuracy}%")
     save_test_metrics(test_accuracy=test_accuracy, output_dir=TEST_OUTPUT_DIR)
 
     print(metrics_dict)
+    
+if __name__ == "__main__":
+    
+    test()
+    
+    save_cli_args(args, TEST_OUTPUT_DIR, mode='test')
+    
+    print('Test results saved successfully!')

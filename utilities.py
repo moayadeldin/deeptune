@@ -252,8 +252,8 @@ def save_finetunedbertmodel(model,tokenizer,output_dir,model_config):
         
         
     # save model state dic
-    torch.save(model.state_dict(), os.path.join(output_dir,'model_weights.pt'))
-    print(f"Model weights saved to {os.path.join(output_dir, 'model_weights.pt')}")
+    torch.save(model.state_dict(), os.path.join(output_dir,'model_weights.pth'))
+    print(f"Model weights saved to {os.path.join(output_dir, 'model_weights.pth')}")
     
     # save underlying BERT model
     model.bert.save_pretrained(os.path.join(output_dir, "bert_model"))
@@ -291,14 +291,13 @@ def load_finetunedbert_model(model_dir):
     # now we create model with the same exact weights, tokenizer and configs
     
     model = CustomMultilingualBERT(
-        bert_model = bert_model,
         num_classes= model_config["num_classes"],
         added_layers=model_config['added_layers'],
         embedding_layer=model_config['embedding_layer']
     )
     
-    model.load_state_dict(torch.load(os.path.join(model_dir, "model_weights.pt")))
-    print(f"Loaded model weights from {os.path.join(model_dir, 'model_weights.pt')}")
+    model.load_state_dict(torch.load(os.path.join(model_dir, "model_weights.pth")))
+    print(f"Loaded model weights from {os.path.join(model_dir, 'model_weights.pth')}")
     
     return model, tokenizer
 
