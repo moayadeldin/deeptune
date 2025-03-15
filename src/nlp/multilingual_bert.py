@@ -15,7 +15,7 @@ BERT_MULTILINGUAL_MODEL = ROOT / "downloaded_models/bert_multilingual_uncased/mo
 
 class CustomMultilingualBERT(nn.Module):
     
-    def __init__(self,num_classes,added_layers,embedding_layer,freeze_backbone):
+    def __init__(self,num_classes,added_layers,embedding_layer,freeze_backbone=None):
         
         super(CustomMultilingualBERT,self).__init__()
         
