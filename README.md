@@ -14,16 +14,65 @@ As a cutting-edge software library that has been specifically designed for use i
 - Ability of extracting meaningful feature embeddings representing your own dataset with SoTA algorithms for image and text classification tasks.
 
 ## Algorithms Implemented
-
-| Model                  | Transfer Learning with Adjustable Embedding Layer? | Support PEFT with Adjustable Embedding Layer? | Support Embeddings Extraction?            | Task                  | Modality |
-|------------------------|-------------------------------------------------|---------------------------------|---------------------------------|----------------------|----------|
-| ResNet18              | ✅                                              | ✅                              | ✅                              | Classification & Regression | Image    |
-| Siglip                | ➖                                              | ➖                              | ➖                              | Classification & Regression | Image    |
-| DenseNet121           | ✅                                              | ✅                              | ✅                              | Classification & Regression | Image    |
-| Swin                  | ✅                                              | ✅                              | ✅                              | Classification & Regression | Image    |
-| MultiLingual Base BERT | ✅                                              | ❌                              | ✅                              | Sentiment Analysis   | Text     |
-| XLM-RoBERTa           |                              **ONLY SUPPORTS EMBEDDING EXTRACTION**                                                                          | Text     |
-
+<table>
+  <thead>
+    <tr>
+      <th>Model</th>
+      <th>Transfer Learning with Adjustable Embedding Layer?</th>
+      <th>Support PEFT with Adjustable Embedding Layer?</th>
+      <th>Support Embeddings Extraction?</th>
+      <th>Task</th>
+      <th>Modality</th>
+    </tr>
+  </thead>
+  <tbody>
+    <tr>
+      <td>ResNet18</td>
+      <td>✅</td>
+      <td>✅</td>
+      <td>✅</td>
+      <td>Classification & Regression</td>
+      <td>Image</td>
+    </tr>
+    <tr>
+      <td>Siglip</td>
+      <td>➖</td>
+      <td>➖</td>
+      <td>➖</td>
+      <td>Classification & Regression</td>
+      <td>Image</td>
+    </tr>
+    <tr>
+      <td>DenseNet121</td>
+      <td>✅</td>
+      <td>✅</td>
+      <td>✅</td>
+      <td>Classification & Regression</td>
+      <td>Image</td>
+    </tr>
+    <tr>
+      <td>Swin</td>
+      <td>✅</td>
+      <td>✅</td>
+      <td>✅</td>
+      <td>Classification & Regression</td>
+      <td>Image</td>
+    </tr>
+    <tr>
+      <td>MultiLingual Base BERT</td>
+      <td>✅</td>
+      <td>❌</td>
+      <td>✅</td>
+      <td>Sentiment Analysis</td>
+      <td>Text</td>
+    </tr>
+    <tr>
+      <td>XLM-RoBERTa</td>
+      <td colspan="4" style="text-align:center; font-weight:bold; font-size:16px;">Only Supports Embedding Extraction</td>
+      <td>Text</td>
+    </tr>
+  </tbody>
+</table>
 
 
 
