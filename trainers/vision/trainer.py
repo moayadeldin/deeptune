@@ -169,12 +169,15 @@ class Trainer:
                 
                 input, labels = input.to(DEVICE), labels.to(DEVICE)
                                 
+                # apply forward pass and accumulate loss                
+                
                 output = self.model(input)
                 
                 loss = self.criterion(output, labels)
                 
                 val_loss += loss.item()
                 
+                # calculate accuracy
                 total += labels.size(0)
                 
                 correct += torch.sum(torch.argmax(output,dim=1)==labels).item()
