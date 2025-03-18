@@ -12,6 +12,7 @@ from datasets.text_datasets import TextDataset
 import json
 from transformers import BertModel, BertTokenizer
 from src.nlp.multilingual_bert import CustomMultilingualBERT
+from sklearn.preprocessing import LabelEncoder
 
 # Kindly note that right now we pass the same transformations to ResNet and DenseNet, both trained on ImageNet
 transformations = torchvision.transforms.Compose([
@@ -75,7 +76,7 @@ def split_save_load_dataset(mode,type,input_dir, train_size, val_size, test_size
     
     # for testing purposes we may pock the first 10 rows
     
-    # df = df[:10]
+    # df = df[:100]
     
     train_data, temp_data = train_test_split(df, test_size=(1 - train_size), random_state=seed)
     val_data, test_data = train_test_split(temp_data, test_size=(test_size / (val_size + test_size)), random_state=seed)
@@ -113,17 +114,17 @@ def split_save_load_dataset(mode,type,input_dir, train_size, val_size, test_size
             
         elif mode == 'test':
             
-            test_dataset = ParquetImageDataset(parquet_file=test_dataset_path, transform=transformations)
+            # test_dataset = ParquetImageDataset(parquet_file=test_dataset_path, transform=transformations)
 
-            test_loader = torch.utils.data.DataLoader(
-                test_dataset,
-                batch_size=batch_size,
-                shuffle=False,
-                num_workers=0
-            )
+            # test_loader = torch.utils.data.DataLoader(
+            #     test_dataset,
+            #     batch_size=batch_size,
+            #     shuffle=False,
+            #     num_workers=0
+            # )
             
-            return test_loader
-        
+            # return test_loader
+            pass
         
         else:
             
