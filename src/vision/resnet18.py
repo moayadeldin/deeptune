@@ -10,17 +10,26 @@ class adjustedResNet(nn.Module):
                  pretrained_resnet=torchvision.models.resnet18,fc1_input=512, task_type="cls",output_dim=1):
         """
         
+        Customised ResNet class as part of DeepTune proposed Adjustments.
+        
         Args:
             num_classes (int) : Number of classes in your dataset.
             added_layers (int) : Number of additional layers you want to add while finetuning your model
-            embedding_layer_size (int): If you chose added_layers to be 2, so this specifies the size of the intermediate layer in between
-        
+            embedding_layer_size (int): If you chose added_layers to be 2, so this specifies the size of the intermediate layer in between.
+            freeze_backbone (bool): Determine whether you want to apply transfer learning on the backbone weights or the whole model.
+            task_type (str): Determine whether you want to classification or regression.
+            fc1_input (int): The size of the input of the last layer before we chop it.
+            pretrained_resnet (torchvision.models): Determine which ResNet model you want to use.
+            weights (ResNet_Weights.IMAGENET1K_V1): Determine which ResNet weights you want to use.
+            output_dim (int): The dimension of the output of regression model, default = 1.
+            
+            
         
         """
 
         super(adjustedResNet, self).__init__()
 
-
+        # Task must be regression or classification nothing else
         assert task_type in ["cls", "reg"], "task_type must be 'cls' or 'reg'"
 
 
@@ -30,18 +39,22 @@ class adjustedResNet(nn.Module):
         self.embedding_layer_size = embedding_layer_size
         self.freeze_backbone = freeze_backbone
         
-        # additional parameters for regression
+        # Additional parameters for regression
         self.task_type = task_type
         self.output_dim = output_dim
 
-        # remove the final connected layer by putting a placeholder
+        # Remove the final connected layer by putting a placeholder
         self.model.fc = nn.Identity()
         self.flatten = nn.Flatten()
+        
+        # Check if freeze_backbone true freeze the original model's weights otherwise update all weights.
         
         if self.freeze_backbone:
             print('Backbone Parameters are frozen!')
             for param in self.model.parameters():
                 param.requires_grad = False
+                
+        # Add the additional layers according to prompt.
         
         if self.added_layers == 2:
             self.fc1 = nn.Linear(fc1_input,self.embedding_layer_size)

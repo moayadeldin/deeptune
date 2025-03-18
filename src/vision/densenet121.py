@@ -7,9 +7,27 @@ class adjustedDenseNet(nn.Module):
 
     def __init__(self,num_classes, added_layers, embedding_layer_size, freeze_backbone=False,
                  model_to_load='densenet121',task_type="cls",output_dim=1):
+        
+        """
+        
+        Customised DenseNet class applying Parameter Efficient Fine Tuning with LoRA as part of DeepTune proposed Adjustments.
+        
+        Args:
+            num_classes (int) : Number of classes in your dataset.
+            added_layers (int) : Number of additional layers you want to add while finetuning your model
+            lora_attention_dimension (int): If you chose added_layers to be 2, so this specifies the size of the intermediate layer in between.
+            freeze_backbone (bool): Determine whether you want to apply transfer learning on the backbone weights or the whole model.
+            task_type (str): Determine whether you want to classification or regression.
+            model_to_load (str): Determine which DenseNet pretrained weights version would you want to use.
+            output_dim (int): The dimension of the output of regression model, default = 1.
+            
+            
+        
+        """
 
         super(adjustedDenseNet,self).__init__()
         
+        # Task must be regression or classification nothing else        
         assert task_type in ["cls", "reg"], "task_type must be 'cls' or 'reg'"
         
         self.model_to_load = model_to_load
@@ -28,10 +46,14 @@ class adjustedDenseNet(nn.Module):
         self.task_type = task_type
         self.output_dim = output_dim
         
+        # Check if freeze_backbone true freeze the original model's weights otherwise update all weights.
+        
         if self.freeze_backbone:
             print('Backbone Parameters are frozen!')
             for param in self.model.parameters():
                 param.requires_grad = False
+                
+        # Add the additional layers according to prompt.
         
         if self.added_layers == 2:
             self.fc1 = nn.Linear(in_features,self.embedding_layer_size)
@@ -82,8 +104,6 @@ class adjustedDenseNet(nn.Module):
             
         elif self.added_layers == 1:
             x = self.fc1(x)
-            
-        # x = F.softmax(x, dim=1)
 
         return x
 

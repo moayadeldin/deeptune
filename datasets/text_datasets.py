@@ -6,6 +6,20 @@ import torch
 
 
 class TextDataset(Dataset):
+  
+    """
+    
+    Loads the texts and labels from parquet file we feed to the model.
+    
+    Attributes:
+    
+        data (pd.DataFrame): The DataFrame containing image byte data and labels.
+        image_bytes (texts): The images in bytes format
+        labels (np.ndarray): The labels of corresponding image.
+        tokenizer (AutoTokenizer.from_pretrained): Tokenizer from HuggingFace for Multilingual BERT.
+        max_length (int) : Maximum length of the input sequence.
+
+    """
     
     def __init__(self, parquet_file, tokenizer, max_length=512):
         
@@ -19,9 +33,17 @@ class TextDataset(Dataset):
         
     def __len__(self):
         
+        """
+        Returns the number of samples in dataset.
+        """
+        
         return len(self.texts)
     
     def __getitem__(self, idx):
+        
+        """
+        Loads and processes the image and label at a given index idx.
+        """
         
         text = self.texts[idx]
         label = self.labels[idx]
