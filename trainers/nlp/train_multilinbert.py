@@ -13,6 +13,8 @@ import logging
 from utilities import PerformanceLogger
 import sys
 
+# Initialize the needed variables either from the CLI user sents or from the device.
+
 DEVICE = options.DEVICE
 parser = options.parser
 args = parser.parse_args()
@@ -32,6 +34,13 @@ EMBED_SIZE = args.embed_size
 FIXED_SEED = args.fixed_seed
 FREEZE_BACKBONE = args.freeze_backbone
 
+    
+TRAIN_DATASET_PATH = options.TRAIN_DATASET_PATH
+VAL_DATASET_PATH = options.VAL_DATASET_PATH
+TEST_DATASET_PATH = options.TEST_DATASET_PATH
+TRAINVAL_OUTPUT_DIR = options.TRAINVAL_OUTPUT_DIR
+
+# If we want to apply fixed seed or randomly initialize the weights.
 if FIXED_SEED:
     SEED=42
     fixed_seed(SEED)
@@ -41,9 +50,12 @@ else:
     warnings.warn('This will set a random seed for different initialization affecting Deeptune, inclduing weights and datasets splits.', category=UserWarning)
     warnings.warn("This is liable to increase variability across consecutive runs of DeepTune.", category=UserWarning)
 
+
+# Fetch whether the transfer-learning with PEFT version or transfer-learning without
 def get_model():
 
-    """Allows the user to choose from Adjusted ResNet18 or PEFT-ResNet18 versions.
+    """
+    Allows the user to choose from Adjusted ResNet18 or PEFT-ResNet18 versions.
     """
     if ADDED_LAYERS == 0:
         
@@ -57,10 +69,7 @@ def get_model():
         args.model = 'Multilingual BERT'
         return model.CustomMultilingualBERT
     
-TRAIN_DATASET_PATH = options.TRAIN_DATASET_PATH
-VAL_DATASET_PATH = options.VAL_DATASET_PATH
-TEST_DATASET_PATH = options.TEST_DATASET_PATH
-TRAINVAL_OUTPUT_DIR = options.TRAINVAL_OUTPUT_DIR
+# load the tokenizer, the dataloaders
 
 _,tokenizer = load_nlp_bert_ml_model_offline()
 
@@ -80,9 +89,26 @@ train_loader, val_loader = split_save_load_dataset(
     tokenizer=tokenizer
 )
 
+# Here we construct the trainer of Multlingual BERT
 
 class BERTrainer:
     def __init__(self,model,tokenizer):
+        
+        """
+        Performs Training & Validation on the input text dataset.
+        
+        Args:
+        
+            model (HuggingFace Model): The NLP BERT model we are loading from the src file.
+            tokenizer (HuggingFace Tokenizer): The NLP BERT model we are loading from load_nlp_bert_ml_model_offline() function in utilities file.
+            
+        Attributes:
+        
+            criterion (torch.nn.Module): Loss function, Cross Entropy as we do classification.
+            optimizer (torch.optim.Optimizer): Adam optimizer for updating the model weights during training.
+            logger (logging.Logger): Logger instance for tracking training progress.
+        """
+        
         
         self.model = model
         self.model.to(DEVICE)
@@ -101,20 +127,24 @@ class BERTrainer:
         
         for epoch in range(NUM_EPOCHS):
             
+            # set the model to training mode
             self.model.train()
             
+            # initialize metrics tracking values for training
             running_loss = 0.0
             correct_predictions = 0.0
             total_predictions = 0.0
             
-            
+            # initlaize progress bar
             train_pbar = tqdm(
                 enumerate(train_loader),
                 total=len(train_loader)
             )
             
+            # iterate over the training dataset
             for batch_idx, (encoding,labels) in train_pbar:
                 
+                # move the input to GPU 
                 input_ids = encoding['input_ids'].to(DEVICE)
                 attention_mask = encoding['attention_mask'].to(DEVICE)
                 token_type_ids = encoding.get('token_type_ids',None)
@@ -124,12 +154,15 @@ class BERTrainer:
                 
                 labels = labels.to(DEVICE)
                 
+                # null the gradient
                 self.optimizer.zero_grad()
+                #run the model
                 outputs = self.model(input_ids,attention_mask,token_type_ids)
                 
-                
+                # compute the loss
                 loss = self.criterion(outputs,labels)
                 
+                # backprop and apply optimizer
                 loss.backward()
                 self.optimizer.step()
                 
@@ -149,15 +182,18 @@ class BERTrainer:
                 epoch_loss = running_loss / len(train_loader)
                 epoch_accuracy = 100. * correct_predictions / total_predictions
                         
-                
+                        
+            # update the logger
             self.logger.info(
                 f"Epoch {epoch + 1}/{NUM_EPOCHS}, Training Loss: {running_loss / len(train_loader)}, Training Accuracy: {epoch_accuracy}"
             )
+            
+            # apply validation after each epoch on training set
                 
             val_loss, val_accuracy = self.validate()
             self.logger.info(f"Validation loss: {val_loss}, Accuracy: {val_accuracy}")
                 
-                
+            # update the performance logger
             self.performance_logger.log_epoch(
                 epoch = epoch+1,
                 epoch_loss=epoch_loss,
@@ -172,6 +208,8 @@ class BERTrainer:
             
     def validate(self):
         
+        
+        # initialize the metrics for validation
         val_accuracy=0.0
         val_loss = 0.0
         total,correct=0,0
@@ -184,10 +222,12 @@ class BERTrainer:
         
         with torch.no_grad():
             
-            for batch_idx, (encoding,labels) in val_pbar:
+            for _, (encoding,labels) in val_pbar:
                 
+                # set the model to evaluation mode
                 self.model.eval()
                 
+                # move the input to GPU
                 input_ids = encoding['input_ids'].to(DEVICE)
                 attention_mask = encoding['attention_mask'].to(DEVICE)
                 token_type_ids = encoding.get('token_type_ids',None)
@@ -196,8 +236,8 @@ class BERTrainer:
                     token_type_ids = token_type_ids.to(DEVICE)
                 
                 labels = labels.to(DEVICE)
-        
-                self.optimizer.zero_grad()
+                
+                # apply forward pass and accumulate loss
                 
                 outputs = self.model(input_ids,attention_mask,token_type_ids)
                 
@@ -218,12 +258,17 @@ class BERTrainer:
             
 if __name__ == '__main__':
     
+    
+    # fetch the appropriate model
     choosed_model = get_model()
     
+    # pass the options from the args user are feeding as input
     model = choosed_model(NUM_CLASSES, ADDED_LAYERS, EMBED_SIZE, FREEZE_BACKBONE)
     
+    # initialize trainer class
     model_trainer = BERTrainer(model,tokenizer)
     
+    # start training
     model_trainer.train()
     
     # saving the model after training
@@ -234,6 +279,8 @@ if __name__ == '__main__':
         "embedding_layer": EMBED_SIZE
     }
     
+    
+    # save the finetuned model
     save_finetunedbertmodel(model,tokenizer,output_dir=TRAINVAL_OUTPUT_DIR,model_config=model_config)
     
     print('Finetuned BERT Model Saved.')
