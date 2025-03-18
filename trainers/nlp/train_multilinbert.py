@@ -150,22 +150,22 @@ class BERTrainer:
                 epoch_accuracy = 100. * correct_predictions / total_predictions
                         
                 
-                self.logger.info(
-                    f"Epoch {epoch + 1}/{NUM_EPOCHS}, Training Loss: {running_loss / len(train_loader)}, Training Accuracy: {epoch_accuracy}"
-                )
+            self.logger.info(
+                f"Epoch {epoch + 1}/{NUM_EPOCHS}, Training Loss: {running_loss / len(train_loader)}, Training Accuracy: {epoch_accuracy}"
+            )
                 
-                val_loss, val_accuracy = self.validate()
-                self.logger.info(f"Validation loss: {val_loss}, Accuracy: {val_accuracy}")
+            val_loss, val_accuracy = self.validate()
+            self.logger.info(f"Validation loss: {val_loss}, Accuracy: {val_accuracy}")
                 
                 
-                self.performance_logger.log_epoch(
-                    epoch = epoch+1,
-                    epoch_loss=epoch_loss,
-                    epoch_accuracy=epoch_accuracy,
-                    val_loss=val_loss,
-                    val_accuracy=val_accuracy
-                    
-                )
+            self.performance_logger.log_epoch(
+                epoch = epoch+1,
+                epoch_loss=epoch_loss,
+                epoch_accuracy=epoch_accuracy,
+                val_loss=val_loss,
+                val_accuracy=val_accuracy
+                
+            )
                 
                 
             self.performance_logger.save_to_csv(f"{TRAINVAL_OUTPUT_DIR}/training_log.csv")

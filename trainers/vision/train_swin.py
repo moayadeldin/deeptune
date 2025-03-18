@@ -2,7 +2,7 @@ from src.vision.swin import adjustedSwin
 from src.vision.swin_peft import adjustedPeftSwin
 import importlib
 from utilities import save_cli_args, fixed_seed,split_save_load_dataset
-from trainers.trainer import Trainer
+from trainers.vision.trainer import Trainer
 import numpy as np
 import warnings
 import options

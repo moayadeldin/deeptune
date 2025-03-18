@@ -4,7 +4,7 @@ from utilities import transformations
 import torch
 from datasets.image_datasets import ParquetImageDataset
 import pandas as pd 
-from evaluators.evaluator import TestTrainer
+from evaluators.vision.evaluator import TestTrainer
 from utilities import save_cli_args
 import options
 

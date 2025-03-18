@@ -6,8 +6,17 @@ import torch.nn.functional as F
 
 class adjustedResNet(nn.Module):
 
-    def __init__(self,num_classes, added_layers, embedding_layer_size, freeze_backbone=False, weights=ResNet18_Weights.IMAGENET1K_V1,
+    def __init__(self,num_classes, added_layers=2, embedding_layer_size=1000, freeze_backbone=False, weights=ResNet18_Weights.IMAGENET1K_V1,
                  pretrained_resnet=torchvision.models.resnet18,fc1_input=512, task_type="cls",output_dim=1):
+        """
+        
+        Args:
+            num_classes (int) : Number of classes in your dataset.
+            added_layers (int) : Number of additional layers you want to add while finetuning your model
+            embedding_layer_size (int): If you chose added_layers to be 2, so this specifies the size of the intermediate layer in between
+        
+        
+        """
 
         super(adjustedResNet, self).__init__()
 
