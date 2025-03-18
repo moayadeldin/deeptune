@@ -11,6 +11,24 @@ class adjustedPeftSwin(nn.Module):
     def __init__(self,num_classes, added_layers, lora_attention_dimension, freeze_backbone=False, weights=Swin_T_Weights.IMAGENET1K_V1,
     pretrained_swin=torchvision.models.swin_t,in_features=768,task_type='cls',output_dim=1):
 
+        """
+        
+        Customised Swin class applying Parameter Efficient Fine Tuning with LoRA as part of DeepTune proposed Adjustments.
+        
+        Args:
+            num_classes (int) : Number of classes in your dataset.
+            added_layers (int) : Number of additional layers you want to add while finetuning your model
+            lora_attention_dimension (int): If you chose added_layers to be 2, so this specifies the size of the intermediate layer in between.
+            freeze_backbone (bool): Determine whether you want to apply transfer learning on the backbone weights or the whole model.
+            task_type (str): Determine whether you want to classification or regression.
+            pretrained_swin (torchvision.models): Determine which Swin model you want to use.
+            weights (Swin_Weights.IMAGENET1K_V1): Determine which Swin weights you want to use.
+            output_dim (int): The dimension of the output of regression model, default = 1.
+            
+            
+        
+        """
+        
         super(adjustedPeftSwin, self).__init__()
 
         self.model = pretrained_swin(weights)
@@ -27,6 +45,8 @@ class adjustedPeftSwin(nn.Module):
         self.model.head = nn.Identity()
         self.flatten = nn.Flatten()
         
+        
+        # Check if freeze_backbone true freeze the original model's weights otherwise update all weights.
         if self.freeze_backbone:
             print("Backbone Parameters are frozen!")
             for param in self.model.parameters():
@@ -35,6 +55,8 @@ class adjustedPeftSwin(nn.Module):
             for module in self.model.modules():
                 if isinstance(module, nn.BatchNorm2d):
                     module.eval()
+                    
+        # Add the additional layers according to prompt.
         
         if self.added_layers == 2:
             self.fc1 = nn.Linear(in_features,self.lora_attention_dimension)
@@ -52,11 +74,15 @@ class adjustedPeftSwin(nn.Module):
         else:
             self.fc1 = None
             
+        # Apply PEFT
+            
         self.peftmodel = self.applyPEFT(self.model)
 
     def applyPEFT(self,model):
         
         """
+        
+        Apply PEFT with LoRA on the customised model.
         
         In this implementation, the developer chose mainly to apply LoRA matricies to only three types of linear layers: proj, qkj, and head.
         
@@ -64,8 +90,15 @@ class adjustedPeftSwin(nn.Module):
         
         We may change according to the observations to determine which is better.
         
+        Arguments:
+            model (torchvision.models): The adjusted Swin model before applying PEFT On
+            
+        Returns:
+        
+            peft_model: PEFTed adjusted Swin
+        
         """
-
+        # target_modules is actually the parts of the network we have applied PEFT on
         target_modules = []
         
         for name, module in model.named_modules():
@@ -80,6 +113,7 @@ class adjustedPeftSwin(nn.Module):
         https://huggingface.co/docs/peft/v0.13.0/en/package_reference/lora#peft.LoraConfig
         """
         
+        # Determine the LoRA Configuration
         self.lora_config = LoraConfig(r=self.lora_attention_dimension, lora_alpha=16, lora_dropout=0.1, bias="none",target_modules=target_modules)
         print(self.lora_config)
 
@@ -87,6 +121,13 @@ class adjustedPeftSwin(nn.Module):
         return peft_model
 
     def forward(self, x,extract_embed=False):
+        
+        """
+        After applying PEFT, and according to the number of added_layers we apply the forward pass.
+        
+        Note: Unlike the transfer learning models versions without PEFT, if added_layers = 1 this wouldn't return the same embeddings as the pre-trained version because applying PEFT with LoRA has altered networks weights also.
+        """
+        
         x = self.peftmodel(x)
         x = self.flatten(x)  
 
@@ -109,8 +150,6 @@ class adjustedPeftSwin(nn.Module):
             
         elif self.added_layers == 1:
             x = self.fc1(x)
-            
-        # x = F.softmax(x, dim=1)
 
         return x
 

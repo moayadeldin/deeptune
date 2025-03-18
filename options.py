@@ -6,6 +6,8 @@ from datetime import datetime
 UNIQUE_ID = datetime.now().strftime("%Y%m%d_%H%M") # unique ID based on current date and time (YYYYMMDD_HHMM)
 DEVICE = torch.device("cuda" if torch.cuda.is_available() else "cpu")
 
+
+# The paths of the Parquet splits of the dataset we are saving/loading from
 TRAIN_DATASET_PATH = Path(__file__).parent / f'deeptune_results/train_split_{UNIQUE_ID}.parquet'
 VAL_DATASET_PATH = Path(__file__).parent / f'deeptune_results/val_split_{UNIQUE_ID}.parquet'
 TEST_DATASET_PATH = Path(__file__).parent / f'deeptune_results/test_split_{UNIQUE_ID}.parquet'

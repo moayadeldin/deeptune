@@ -8,6 +8,23 @@ class adjustedPEFTDenseNet(nn.Module):
     
     def __init__(self, num_classes, added_layers, lora_attention_dimension, freeze_backbone=False, model_to_load='densenet121',task_type='cls',output_dim=1):
         
+        """
+        
+        Customised DenseNet class applying Parameter Efficient Fine Tuning with LoRA as part of DeepTune proposed Adjustments.
+        
+        Args:
+            num_classes (int) : Number of classes in your dataset.
+            added_layers (int) : Number of additional layers you want to add while finetuning your model
+            lora_attention_dimension (int): If you chose added_layers to be 2, so this specifies the size of the intermediate layer in between.
+            freeze_backbone (bool): Determine whether you want to apply transfer learning on the backbone weights or the whole model.
+            task_type (str): Determine whether you want to classification or regression.
+            model_to_load (str): Determine which DenseNet pretrained weights version would you want to use.
+            output_dim (int): The dimension of the output of regression model, default = 1.
+            
+            
+        
+        """
+        
         super(adjustedPEFTDenseNet, self).__init__()
         
         self.model_to_load = model_to_load
@@ -23,11 +40,21 @@ class adjustedPEFTDenseNet(nn.Module):
         self.task_type = task_type
         self.output_dim = output_dim
         
+        
+        # remove the final connected layer by putting a placeholder
         self.model = torch.hub.load('pytorch/vision:v0.10.0', self.model_to_load, pretrained=True)
         in_features = self.model.classifier.in_features
         self.model.classifier = nn.Identity()
         self.flatten = nn.Flatten()
         
+        
+        # Check if freeze_backbone true freeze the original model's weights otherwise update all weights.
+        if self.freeze_backbone:
+            for param in self.model.parameters():
+                print('Backbone Parameters are frozen!')
+                param.requires_grad = False
+                
+        # Add the additional layers according to prompt.
         if self.added_layers == 2:
             self.fc1 = nn.Linear(in_features,self.lora_attention_dimension)
             
@@ -49,24 +76,40 @@ class adjustedPEFTDenseNet(nn.Module):
     
     def applyPEFT(self,model):
         
+        """
+        Apply PEFT with LoRA on the customised model.
+        
+        Arguments:
+            model (torchvision.models): The adjusted DenseNet model before applying PEFT On
+            
+        Returns:
+        
+            peft_model: PEFTed adjusted DenseNet
+        """
+        
+        # target_modules is actually the parts of the network we have applied PEFT on
         target_modules = []
+        # available_types are the networks that support PEFT optimization
         available_types = [
             nn.modules.conv.Conv2d,
             nn.modules.linear.Linear]
         
+        
+        # loop through the model and check what layers in it we may apply PEFT on and them to target_modules
         for n,m in model.named_modules():
             if type(m) in available_types:
                 target_modules.append(n)
         
-        # print('Target Modules', target_modules)
+        print('Target Modules', target_modules)
         
         """
         To get more insights on how the LoRA weights could affect the performance, please refer to the following documentation:
         https://huggingface.co/docs/peft/v0.13.0/en/package_reference/lora#peft.LoraConfig
         """
         
+        # Determine the LoRA Configuration
         self.lora_config = LoraConfig(r=self.lora_attention_dimension, lora_alpha=16, lora_dropout=0.1, bias="none",target_modules=target_modules)
-        # print(self.lora_config)
+        print(self.lora_config)
 
         peft_model = get_peft_model(model, self.lora_config)
         return peft_model
@@ -74,13 +117,9 @@ class adjustedPEFTDenseNet(nn.Module):
     def forward(self, x, extract_embed=False):
         
         """
-        Now what we want is:
+        After applying PEFT, and according to the number of added_layers we apply the forward pass.
         
-        - If added_layers = 0 or added_layers = 1, we want to return the raw features, which is basically before fc1 if self.added_layers = 1
-        
-        - If added_layers = 2, we want to return the embeddings after the first fully connected layer (before the second one for classes)
-        
-        The implementation below ensures the following paradigm.
+        Note: Unlike the transfer learning models versions without PEFT, if added_layers = 1 this wouldn't return the same embeddings as the pre-trained version because applying PEFT with LoRA has altered networks weights also.
         """
         
         x = self.peftmodel(x)
@@ -99,8 +138,6 @@ class adjustedPEFTDenseNet(nn.Module):
             
         elif self.added_layers == 1:
             x = self.fc1(x)
-            
-        # x = F.softmax(x, dim=1)
 
         return x
 
