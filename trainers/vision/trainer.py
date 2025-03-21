@@ -7,6 +7,9 @@ import logging
 from utilities import PerformanceLogger
 import options
 
+
+# Initialize the needed variables either from the CLI user sents or from the device.
+
 parser = options.parser
 args = parser.parse_args()
 
@@ -19,6 +22,22 @@ MODE = args.mode
 class Trainer:
 
     def __init__(self, model, train_loader, val_loader):
+        
+        """
+        Performs Training & Validation on the input image dataset.
+        
+        Args:
+        
+            model (PyTorch Model): The model we are loading from the src file, whether it is for transfer learning with PEFT Or without.
+            train_loader (torch.utils.data.DataLoader): The DataLoader for the training set.
+            val_loader (torch.utils.data.DataLoader): The DataLoader for the validation set.
+            
+        Attributes:
+        
+            criterion (torch.nn.Module): Loss function, Cross Entropy as we do classification.
+            performance_logger (PerformanceLogger): Logger instance for tracking training and validation progress.
+            logger (logging.Logger): Logger instance for tracking training progress.
+        """
         
         self.model = model
         self.model.to(DEVICE)
@@ -92,13 +111,18 @@ class Trainer:
 
                     # now we compute the average loss and accuracy for each epoch
                     epoch_accuracy = 100. * correct_predictions / total_predictions
+                    
                 # update tqdm progress bar
                 train_pbar.set_postfix({"loss": round(running_loss / (i+1),5)})
 
-
+            # update training loss
             epoch_loss = running_loss / len(self.train_loader)
             
             if MODE == 'cls':
+                
+                """
+                Here in Classification we have both loss and accuracy as metrics to track, so we will log both of them.
+                """
                 
                 self.logger.info(
                     f"Epoch {epoch + 1}/{NUM_EPOCHS}, Training Loss: {running_loss / len(self.train_loader)}, Training Accuracy: {epoch_accuracy}"
@@ -108,6 +132,9 @@ class Trainer:
                 self.logger.info(f"Validation loss: {val_loss}, Accuracy: {val_accuracy}")
             
             else:
+                """
+                Only loss is needed to be logged in regression mode.
+                """
                 
                 self.logger.info(
                     f"Epoch {epoch + 1}/{NUM_EPOCHS}, Training Loss: {running_loss / len(self.train_loader)}"
@@ -116,9 +143,6 @@ class Trainer:
                 val_loss = self.validate()    
             
             self.logger.info(f"Validation loss: {val_loss}")
-            
-            # to save the metrics we got
-            # if we use classification then we don't need to save accuracy, we will only save losses
             
             if MODE == 'cls':
                 
@@ -150,7 +174,7 @@ class Trainer:
         """
         The validation function is devoted for the validation set only, please consider the test function for test set.
         """
-        
+        # initialize the metrics for validation
         val_accuracy=0.0
         val_loss=0.0
         total,correct=0,0
@@ -165,6 +189,7 @@ class Trainer:
             
             for _, (input, labels) in val_pbar:
                 
+                # set the model to evaluation mode
                 self.model.eval()
                 
                 input, labels = input.to(DEVICE), labels.to(DEVICE)
@@ -194,6 +219,13 @@ class Trainer:
             
     
     def saveModel(self, path):
+        
+        """
+        We save the model to the path specified by the user.
+        
+        Args:
+            path (str): The path to save the model to.
+        """
 
         torch.save(self.model.state_dict(), path)
         self.logger.info(f"Model Saved to {path}")
