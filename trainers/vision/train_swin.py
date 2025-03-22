@@ -7,6 +7,8 @@ import numpy as np
 import warnings
 import options
 
+
+# Initialize the needed variables either from the CLI user sents or from the device.
 DEVICE = options.DEVICE
 parser = options.parser
 args = parser.parse_args()
@@ -27,6 +29,7 @@ FIXED_SEED = args.fixed_seed
 FREEZE_BACKBONE = args.freeze_backbone
 MODE = args.mode
 
+# If we want to apply fixed seed or randomly initialize the weights and dataset.
 if FIXED_SEED:
     SEED=42
     fixed_seed(SEED)
@@ -36,6 +39,7 @@ else:
     warnings.warn('This will set a random seed for different initialization affecting Deeptune, inclduing weights and datasets splits.', category=UserWarning)
     warnings.warn("This is liable to increase variability across consecutive runs of DeepTune.", category=UserWarning)
 
+# Fetch whether the transfer-learning with PEFT version or transfer-learning without
 def get_model():
 
     """
@@ -56,7 +60,8 @@ def get_model():
         model = importlib.import_module('src.vision.swin')
         args.model = 'Swin'
         return model.adjustedSwin
-    
+
+# load the dataset with appropriate paths
 TRAIN_DATASET_PATH = options.TRAIN_DATASET_PATH
 VAL_DATASET_PATH = options.VAL_DATASET_PATH
 TEST_DATASET_PATH = options.TEST_DATASET_PATH
@@ -81,19 +86,24 @@ train_loader, val_loader = split_save_load_dataset(
 
 if __name__ == "__main__":
     
+    # fetch the appropriate model
     choosed_model = get_model()
     
+    # pass the options from the args user are feeding as input
     model = choosed_model(NUM_CLASSES, ADDED_LAYERS, EMBED_SIZE, FREEZE_BACKBONE,task_type=MODE)
     
+    
+    # initialize trainer class
     trainer = Trainer(model, train_loader=train_loader, val_loader=val_loader)
     
     print('The Trainer class is loaded successfully.')
-    
+     # start training & validation
     trainer.train()
     trainer.validate()
     
     print('Saving the model and arguments is under way!')
     
+    # save model and arguments
     trainer.saveModel(path=f'{TRAINVAL_OUTPUT_DIR}/model_weights.pth')
     
     save_cli_args(args, TRAINVAL_OUTPUT_DIR, mode='train')

@@ -13,6 +13,7 @@ import torch.nn as nn
 import logging
 import options
 
+# Initialize the needed variables either from the CLI user sents or from the device.
 
 parser = options.parser
 DEVICE = options.DEVICE
@@ -36,12 +37,14 @@ else:
     model = CustomMultilingualBERT(NUM_CLASSES, ADDED_LAYERS, EMBED_SIZE,FREEZE_BACKBONE)
     args.model = 'Multilingual BERT'
     
-
+# Load the test dataset from its path
 df = pd.read_parquet(TEST_DATASET_PATH)
 
+# Load the model and tokenizer
 model,tokenizer = load_finetunedbert_model(ADJUSTED_BERT_MODEL_DIR)
 model = model.to(DEVICE)
 
+# Define the loss function, load the dataset
 criterion = nn.CrossEntropyLoss()
 logger = logging.getLogger()
 
@@ -57,6 +60,7 @@ test_loader = torch.utils.data.DataLoader(
 
 def test():
     
+    # initialize the metrics for validation
     test_accuracy=0.0
     test_loss=0.0
     total,correct=0,0
@@ -71,7 +75,7 @@ def test():
         
         for _, (text, labels) in test_pbar:
             labels = labels.to(DEVICE)
-            
+            # Initialize the tokenizer
             encoding = tokenizer(
             str(text),
             padding='max_length',
@@ -79,18 +83,20 @@ def test():
             max_length=512,
             return_tensors='pt'
             )
-            
+            # move the input to GPU 
             input_ids = encoding['input_ids'].to(DEVICE)
             attention_mask = encoding['attention_mask'].to(DEVICE)
             token_type_ids = encoding.get('token_type_ids')
             if token_type_ids is not None:
                 token_type_ids = token_type_ids.to(DEVICE)
             
+            # Apply forward pass and accumulate loss
             outputs = model(input_ids, attention_mask, token_type_ids)   
     
             loss = criterion(outputs,labels)
             test_loss += loss.item()
     
+            # Calculate accuracy
             probs = torch.softmax(outputs, 1)
             _, predicted = torch.max(probs, 1)
             
@@ -101,7 +107,8 @@ def test():
             all_probs.append(probs.cpu().numpy())
             all_predictions.append(predicted.cpu().numpy())
             all_labels.append(labels.cpu().numpy())
-            
+          
+    # Add the accuracy and loss to the metrics dictionary  
     test_loss = test_loss / len(test_loader)
     metrics_dict = {"loss": test_loss}
 
@@ -112,6 +119,7 @@ def test():
     all_predictions = np.concatenate(all_predictions, axis=0)
     all_labels = np.concatenate(all_labels, axis=0)
     
+    # Calculate classification report and AUROC (if applicable)
     report = classification_report(y_true=all_labels, y_pred=all_predictions, output_dict=True)
     metrics_dict.update(report)
     
@@ -127,6 +135,8 @@ def test():
     print(metrics_dict)
     
 if __name__ == "__main__":
+    
+    # Call the test function with saving CLI
     
     test()
     

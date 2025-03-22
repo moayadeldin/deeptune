@@ -8,6 +8,7 @@ from evaluators.vision.evaluator import TestTrainer
 from utilities import save_cli_args
 import options
 
+# Initialize the needed variables either from the CLI user sents or from the device.
 
 parser = options.parser
 DEVICE = options.DEVICE
@@ -31,6 +32,7 @@ else:
     MODEL = adjustedDenseNet(NUM_CLASSES, ADDED_LAYERS, EMBED_SIZE,task_type=MODE)
     args.model = 'DenseNet121'
 
+# Load the test dataset from its path and the testloader
 df = pd.read_parquet(TEST_DATASET_PATH)
 
 test_dataset = ParquetImageDataset(parquet_file=TEST_DATASET_PATH, transform=transformations)
@@ -44,6 +46,7 @@ test_loader = torch.utils.data.DataLoader(
   
 if __name__ == "__main__":
     
+    # Call the trainer class and save arguments
     test_trainer = TestTrainer(model=MODEL, batch_size=BATCH_SIZE,test_loader=test_loader)
     
     test_trainer.test(best_model_weights_path=MODEL_WEIGHTS)
