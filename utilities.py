@@ -14,7 +14,7 @@ from transformers import BertModel, BertTokenizer
 from src.nlp.multilingual_bert import CustomMultilingualBERT
 from sklearn.preprocessing import LabelEncoder
 
-# Kindly note that right now we pass the same transformations to ResNet and DenseNet, both trained on ImageNet
+# Kindly note that right now we pass the same transformations to ResNet, Swin and DenseNet, both trained on ImageNet
 transformations = torchvision.transforms.Compose([
     # torchvision.transforms.ToPILImage(), # as I upload raw images
 
@@ -33,6 +33,10 @@ transformations = torchvision.transforms.Compose([
 def fixed_seed(seed):
     """
     Set random seed for reproducibility.
+    
+    Args:
+    
+        seed (int): The seed value to set for all random number generators.
     """
     
     random.seed(seed)
@@ -64,8 +68,23 @@ def split_save_load_dataset(mode,type,input_dir, train_size, val_size, test_size
     
     """
     Split the dataset, save it as parquet file in the defined path, and return the dataloaders.
+    
+    Args:
+        mode (str): The mode of the dataset, either "train" or "test".
+        type (str): The type of the dataset, either "image" or "text".
+        input_dir (str): The path to the input dataset.
+        train_size (float): The size of the training dataset.
+        val_size (float): The size of the validation dataset.
+        test_size (float): The size of the test dataset.
+        train_dataset_path (str): The path to save the training dataset.
+        val_dataset_path (str): The path to save the validation dataset.
+        test_dataset_path (str): The path to save the test dataset.
+        seed (int): The seed value for reproducibility.
+        batch_size (int): The batch size for the dataloaders.
+        tokenizer (str): The tokenizer for ONLY text dataset.
     """
 
+    # Create a directory for deeptune results if not already there.
     if not os.path.exists('deeptune_results'):
 
         os.makedirs('deeptune_results',exist_ok=True)
@@ -78,6 +97,7 @@ def split_save_load_dataset(mode,type,input_dir, train_size, val_size, test_size
     
     # df = df[:100]
     
+    # Apply the splitting of the input and save them in the specified paths
     train_data, temp_data = train_test_split(df, test_size=(1 - train_size), random_state=seed)
     val_data, test_data = train_test_split(temp_data, test_size=(test_size / (val_size + test_size)), random_state=seed)
     
@@ -87,6 +107,8 @@ def split_save_load_dataset(mode,type,input_dir, train_size, val_size, test_size
 
     print("Data splits have been saved and overwritten if they existed.")
     
+    
+    # Here if the type is image, then we don't need tokenizer. We just convert the datasets to ParquetImageDataset class and return the dataloaders depending on the mode. If train then return the training and valiadtion, if test then return the test dataloader.
     if type == 'image':
         
         tokenizer = None
@@ -129,6 +151,8 @@ def split_save_load_dataset(mode,type,input_dir, train_size, val_size, test_size
         else:
             
             raise ValueError('Please choose the mode either "train" or "test".')
+        
+    # The same we did with the images we will do here with the text except we have to pass the tokenizer to the TextDataset class.
     
     if type == 'text':
         
@@ -162,6 +186,14 @@ def split_save_load_dataset(mode,type,input_dir, train_size, val_size, test_size
 
 
 def save_test_metrics(test_accuracy,output_dir):
+    """
+    Save the test accuracy to a text file.
+    
+    Args:
+        test_accuracy (float): The accuracy of the test set.
+        output_dir (str): The path to save the test
+    
+    """
 
     os.makedirs(output_dir,exist_ok=True)
     
@@ -173,79 +205,92 @@ def save_test_metrics(test_accuracy,output_dir):
 
 def save_cli_args(args,output_dir,mode):
     
-        os.makedirs(output_dir, exist_ok=True)
+    """
+    Save the CLI command line arguments to a text file.
     
-        if mode == 'train':
-            
-            args_dict = {
-            'model': args.model,
+    Args:
+        args (argparse.Namespace): The parsed arguments from the CLI.
+        output_dir (str): The path to save the CLI arguments.
+        mode (str): The mode of the CLI arguments, either "train" or "test".
+    """
+    
+    os.makedirs(output_dir, exist_ok=True)
+
+    if mode == 'train':
+        
+        args_dict = {
+        'model': args.model,
+        'num_classes': args.num_classes,
+        'num_epochs': args.num_epochs,
+        'batch_size': args.batch_size,
+        'learning_rate': args.learning_rate,
+        'added_layers': args.added_layers,
+        'embed_size': args.embed_size,
+        'input_dir': args.input_dir,
+        'train_size': args.train_size,
+        'val_size': args.val_size,
+        'test_size':args.test_size,
+        'use-peft': args.use_peft,
+        'fixed-seed': args.fixed_seed
+        }
+    
+    elif mode == 'test':
+        
+        args_dict = {
             'num_classes': args.num_classes,
-            'num_epochs': args.num_epochs,
-            'batch_size': args.batch_size,
-            'learning_rate': args.learning_rate,
+            'use_peft': args.use_peft,
             'added_layers': args.added_layers,
             'embed_size': args.embed_size,
+            'batch_size': args.batch_size,
             'input_dir': args.input_dir,
-            'train_size': args.train_size,
-            'val_size': args.val_size,
-            'test_size':args.test_size,
-            'use-peft': args.use_peft,
-            'fixed-seed': args.fixed_seed
-            }
+            'model_weights': args.model_weights
+        }
         
-        elif mode == 'test':
-            
-            args_dict = {
-                'num_classes': args.num_classes,
-                'use_peft': args.use_peft,
-                'added_layers': args.added_layers,
-                'embed_size': args.embed_size,
-                'batch_size': args.batch_size,
-                'input_dir': args.input_dir,
-                'model_weights': args.model_weights
-            }
-            
-        else:
-            raise ValueError('Please choose one of the following as mode ["train", "test"]')
-            
-        
-        # elif mode == 'embed':
-            
-        #     args_dict = {
-        #         'num_classes':args.num_classes,
-        #         'use_case':args.use_case,
-        #         'added_layers': args.added_layers,
-        #         'embed_size': args.embed_size,
-        #         'batch_size': args.batch_size,
-        #         'dataset_dir': args.dataset_dir,
-        #         'finetuned_model_pth': args.finetuned_model_pth
-                
-        #     }            
+    else:
+        raise ValueError('Please choose one of the following as mode ["train", "test"]')      
 
 
-        output_path = os.path.join(output_dir, 'cli_arguments.txt')
-        
-        with open(output_path, 'w') as f:
-            f.write("Command Line Arguments:\n")
-            f.write(json.dumps(args_dict, indent=4))
-            
+    output_path = os.path.join(output_dir, 'cli_arguments.txt')
+    
+    with open(output_path, 'w') as f:
+        f.write("Command Line Arguments:\n")
+        f.write(json.dumps(args_dict, indent=4))
+
+
+
 def print_trainable_parameters(model):
-        trainable_params = 0
-        all_param = 0
-        for _, param in model.named_parameters():
-            all_param += param.numel()
-            if param.requires_grad:
-                trainable_params += param.numel()
-        print(
-            f"trainable params: {trainable_params} || all params: {all_param} || trainable%: {100 * trainable_params / all_param:.2f}"
-        )
+    """
+    For PEFT Usage when we want to know what are the number of parameters to be tuned.
+    
+    Args:
+        model (Hugging Face model) : The model we apply PEFT to.
+    """
+    trainable_params = 0
+    all_param = 0
+    for _, param in model.named_parameters():
+        all_param += param.numel()
+        if param.requires_grad:
+            trainable_params += param.numel()
+    print(
+        f"trainable params: {trainable_params} || all params: {all_param} || trainable%: {100 * trainable_params / all_param:.2f}"
+    )
         
-def avg_pool(last_hidden_states: Tensor, attention_mask: Tensor) -> Tensor:
-    last_hidden = last_hidden_states.masked_fill(~attention_mask[..., None].bool(), 0.0)
-    return last_hidden.sum(dim=1) / attention_mask.sum(dim=1)[..., None]
+# def avg_pool(last_hidden_states, attention_mask):
+#     last_hidden = last_hidden_states.masked_fill(~attention_mask[..., None].bool(), 0.0)
+#     return last_hidden.sum(dim=1) / attention_mask.sum(dim=1)[..., None]
 
 
 def save_finetunedbertmodel(model,tokenizer,output_dir,model_config):
+    
+    """
+    Save the BERT model after we finetune it.
+    
+    Args:
+        model (CustomMultilingualBERT): The finetuned model.
+        tokenizer (BertTokenizer): The tokenizer used for the model.
+        output_dir (str): The path to save the model.
+        model_config (dict): The configuration of different adjustments the user had to the model (e.g, the number of added layers, the embedding layer size, the number of classes in nue dataset).
+    """
     
     
     if not os.path.exists(output_dir):
@@ -274,6 +319,9 @@ def load_finetunedbert_model(model_dir):
     
     """
     Load the model for inference. Here we unpack what we packed in the previous function.
+    
+    Args:
+        model_dir (str): The path to the saved model.
     """
     
     # load config
@@ -302,9 +350,20 @@ def load_finetunedbert_model(model_dir):
     
     return model, tokenizer
 
-""" The following class code is adopted from John's implementation of Siglip"""
+
+
+
+""" The following class code is adopted mainly from John's implementation of Siglip"""
 
 class PerformanceLogger:
+    
+     """
+    A class to log the performance of the model during training and validation.
+    
+    Attributes:
+        log_data (dict): The dictionary to store the logged data.
+        output_dir (str): The path to save the logged data
+     """
      
      def __init__(self,output_dir):
           
@@ -321,6 +380,10 @@ class PerformanceLogger:
           self.output_dir = output_dir
      
      def log_performance(self, epoch, epoch_loss, epoch_accuracy, val_loss, val_accuracy, test_loss, test_accuracy):
+         
+        """
+        Add the performance metrics to the log data dictionary that will be converted to CSV at the end. 
+        """
          
         self.log_data["epoch"].append(epoch)
         self.log_data["epoch_loss"].append(epoch_loss)

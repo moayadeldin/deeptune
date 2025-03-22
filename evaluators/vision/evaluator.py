@@ -8,6 +8,7 @@ import sys
 import logging
 import options
 
+# Initialize the needed variables either from the CLI user sents or from the device.
 parser = options.parser
 DEVICE = options.DEVICE
 TEST_OUTPUT_DIR = options.TEST_OUTPUT_DIR
@@ -17,6 +18,19 @@ MODE = args.mode
 test_loader = args.test_set_input_dir
 
 class TestTrainer:
+    
+    """
+    Performs Testing on the input image dataset.
+    
+    Attributes:
+    
+            model (PyTorch Model): The model we are loading from the src file, whether it is for transfer learning with PEFT Or without.
+            test_loader (torch.utils.data.DataLoader): The DataLoader for the test set.
+            batch_size (int): The batch size for the test set.
+            criterion (torch.nn.Module): Loss function, Cross Entropy as we do classification.
+            performance_logger (PerformanceLogger): Logger instance for tracking testing.
+            logger (logging.Logger): Logger instance for tracking test progress.
+    """
     
     def __init__(self, model, batch_size,test_loader):
         
@@ -36,6 +50,8 @@ class TestTrainer:
         
     def test(self, best_model_weights_path=None):
         
+        # Load the best model weights if they are provided
+        
         if best_model_weights_path is None:
             pass
         else:
@@ -43,7 +59,7 @@ class TestTrainer:
             print('Model into the path is loaded.')
             
         self.model.to(DEVICE)
-        
+        # Initialize the metrics for validation
         test_accuracy=0.0
         test_loss=0.0
         total,correct = 0,0
@@ -64,11 +80,14 @@ class TestTrainer:
                 else:
                     inputs,labels = inputs.to(DEVICE),labels.to(DEVICE)
                 
+                # Apply forward pass and accumulate loss
                 outputs = self.model(inputs)
                 
                 loss = self.criterion(outputs, labels)
                 test_loss += loss.item()
                 
+                
+                # If mode is classification then we need to calculate accuracy
                 if MODE == "cls":
                     probs = torch.softmax(outputs, 1)
                     _, predicted = torch.max(probs, 1)
@@ -81,6 +100,7 @@ class TestTrainer:
                     all_predictions.append(predicted.cpu().numpy())
                     all_labels.append(labels.cpu().numpy())
         
+        # Compute loss for both modes, if classification then we need to compute also the other metrics as accuracy, AUROC, and classification report.
         test_loss = test_loss / len(self.test_loader)
         metrics_dict = {"loss": test_loss}
         

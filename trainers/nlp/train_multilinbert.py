@@ -40,7 +40,7 @@ VAL_DATASET_PATH = options.VAL_DATASET_PATH
 TEST_DATASET_PATH = options.TEST_DATASET_PATH
 TRAINVAL_OUTPUT_DIR = options.TRAINVAL_OUTPUT_DIR
 
-# If we want to apply fixed seed or randomly initialize the weights.
+# If we want to apply fixed seed or randomly initialize the weights and dataset.
 if FIXED_SEED:
     SEED=42
     fixed_seed(SEED)

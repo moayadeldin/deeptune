@@ -11,10 +11,11 @@ import options
 import pandas as pd
 import torchvision
 
-
 """
 Note: If you chose to have the finetuned option with added layers = 1 without PEFT, it will have the same embeddings output as if pretrained. This is normal behavior and works as expected. Because in the pretrained option the last layer are actually mapping 768 inputs to 1000 outputs. For the finetuned option, it maps the same 768 inputs but to 8 outputs. The difference is in the output but input to the last layer is actually the same.
 """
+
+# Initialize the needed variables either from the CLI user sents or from the device.
 
 DEVICE = options.DEVICE
 parser = options.parser
@@ -29,7 +30,7 @@ ADDED_LAYERS = args.added_layers
 EMBED_SIZE = args.embed_size
 FREEZE_BACKBONE = args.freeze_backbone
 MODE = args.mode
-
+# Check which USE_CASE is used and based on this choose the model to get loaded. For example, if finetuned was the USE_CASE then the class call would be from the transfer-learning without PEFT version.
 if USE_CASE == 'peft':
     
     model = adjustedPeftSwin(NUM_CLASSES, ADDED_LAYERS, EMBED_SIZE, FREEZE_BACKBONE,task_type=MODE)
@@ -81,6 +82,7 @@ for p in adjusted_model.parameters(): # stop gradient calculations
 
 adjusted_model.cuda() # move the model to cuda
 
+# load the dataloader
 dataset = ParquetImageDataset(parquet_file=DATASET_DIR, transform=transformations)
 
 data_loader = torch.utils.data.DataLoader(
@@ -91,6 +93,10 @@ data_loader = torch.utils.data.DataLoader(
 )
 
 def extractEmbeddings():
+        
+    """
+    This function takes the dataloader input, extract the embeddings with the corresponding labels and return them at the end.
+    """
 
     extracted_labels = []
     extracted_embeddings = []
@@ -121,10 +127,13 @@ def extractEmbeddings():
 
 if __name__ == "__main__":
 
+    # run the function
     embeddings, labels = extractEmbeddings()
 
     print(f"The shape of the embeddings matrix in the dataset is{embeddings.shape}")
-
+    
+    # convert the embeddings to pd.DataFrame and merge the column of labels then return it
+    
     embeddings_df = pd.DataFrame(embeddings)
     labels_df = pd.DataFrame(labels, columns=["label"])
 

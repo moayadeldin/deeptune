@@ -15,6 +15,7 @@ from utilities import load_finetunedbert_model
 Please Note that that extracting embeddings from MultiLingualBERT is only supported through the finetuned or PEFT version. If you want to use original pre-tranied model please refer to the XLM RoBERTa in DeepTune.
 """
 
+# Initialize the needed variables either from the CLI user sents or from the device.
 
 DEVICE = options.DEVICE
 parser = options.parser
@@ -32,7 +33,8 @@ MODE = args.mode
 INPUT_DF_PATH = args.input_dir
 ADJUSTED_BERT_MODEL_DIR = args.adjusted_bert_dir
 
-    
+# Check which USE_CASE is used and based on this choose the model to get loaded. For example, if finetuned was the USE_CASE then the class call would be from the transfer-learning without PEFT version.
+
 if USE_CASE == 'finetuned':
     model = CustomMultilingualBERT(NUM_CLASSES,ADDED_LAYERS, EMBED_SIZE,FREEZE_BACKBONE)
     OUTPUT = f"deeptune_results/test_set_finetuned_MultilingualBERT_embeddings.parquet"
@@ -43,6 +45,7 @@ elif USE_CASE == 'peft':
 else:
     raise ValueError('There is no third option other than ["finetuned", "peft"]')
 
+# load the model, the tokenizer and the dataset.
 model,tokenizer = load_finetunedbert_model(ADJUSTED_BERT_MODEL_DIR)
 model = model.to(DEVICE)
 
@@ -55,6 +58,7 @@ data_loader = torch.utils.data.DataLoader(
     num_workers=0
 )
 
+# this is the wrapping function that calls the main function to extract the embeddings from the model.
 def run_embeddings():
     
     device = torch.device(DEVICE)
@@ -68,6 +72,14 @@ def get_nlp_embeddings(model,loader,device):
     
     """
     Extract embeddings from the Multilingual Adjusted BERT
+    
+    Args:
+    
+        model (HuggingFace Model): The HuggingFace Multinlingual BERT model.
+        
+        loader (torch.utils.data.DataLoader): The test dataloader.
+        
+        device (torch.device): The device to run the model on (CPU/GPU).
     """
     
     all_embeddings=[]
@@ -78,10 +90,13 @@ def get_nlp_embeddings(model,loader,device):
         
         for batch_dict,labels in tqdm(loader,total=len(loader),desc="Embedding Text"):
             
+            print("Starting Text embedding..")
+            print(f"Using device: {device}")
+            
             batch_dict = {key: val.to(device) for key, val in batch_dict.items()}
             labels = labels.to(device)
         
-
+            # Here we check if the added layers is 2 then we want to extract the embeddings from the intermediate additional layer. otherwise we extract the embeddings from the last layer directly.
             if ADDED_LAYERS ==2:
                 
                     bert_outputs = model.bert(
@@ -115,7 +130,7 @@ def get_nlp_embeddings(model,loader,device):
     embeddings = torch.cat(all_embeddings)
     labels = torch.cat(all_labels)
     
-    # Create DataFrame
+    # Create the dataframe stroing the embeddings and the labels.
     _, p = embeddings.shape
     cols = [f"embed{i:04d}" for i in range(p)]
     df_embed = pd.DataFrame(data=embeddings.numpy(), columns=cols)
