@@ -6,7 +6,8 @@ import torch
 import torch.nn as nn
 from typing import Tuple
 from transformers import BertModel, BertTokenizer
-
+from peft import LoraConfig, get_peft_model
+import torch.nn.functional as F
 
 # Routes of the BERT's model and tokenizer to load.
 ROOT = Path(__file__).parent.parent
@@ -15,7 +16,7 @@ BERT_MULTILINGUAL_TOKENIZER = ROOT / "downloaded_models/bert_multilingual_uncase
 BERT_MULTILINGUAL_MODEL = ROOT / "downloaded_models/bert_multilingual_uncased/model"
 
 
-class CustomMultilingualBERT(nn.Module):
+class CustomMultilingualPeftBERT(nn.Module):
     
     """
     Customised Multi lingual BERT class according to DeepTune proposed Adjustments.
@@ -30,14 +31,14 @@ class CustomMultilingualBERT(nn.Module):
     
     def __init__(self,num_classes,added_layers,embedding_layer,freeze_backbone=None):
         
-        super(CustomMultilingualBERT,self).__init__()
+        super(CustomMultilingualPeftBERT,self).__init__()
         
         self.num_classes = num_classes
         self.added_layers = added_layers
         self.freeze_backbone = freeze_backbone
         self.embedding_layer = embedding_layer
         
-        self.bert = BertModel.from_pretrained('bert-base-multilingual-uncased')
+        base_model = BertModel.from_pretrained('bert-base-multilingual-uncased')
         
         # Check if freeze_backbone true freeze the original model's weights otherwise update all weights.
         
@@ -46,7 +47,11 @@ class CustomMultilingualBERT(nn.Module):
             for param in self.bert.parameters():
                 param.requires_grad = False
             print('Backbone Parameters are freezed!')
-                
+        
+        
+        self.bert = self.applyPEFT(base_model)
+        
+        
         output_dim = self.bert.config.hidden_size
         
         # Add the additional layers according to prompt.
@@ -59,9 +64,26 @@ class CustomMultilingualBERT(nn.Module):
             
             self.additional = nn.Linear(output_dim,embedding_layer)
             self.classifier = nn.Linear(embedding_layer, num_classes)
-        
-        
-    def forward(self, input_ids, attention_mask, token_type_ids=None):
+            
+    def applyPEFT(self, model):
+        peft_config = LoraConfig(
+            inference_mode=False,
+            r=16,
+            lora_alpha=32,
+            lora_dropout=0.1,
+            target_modules=[
+                "query",
+                "key",
+                "value",
+                "dense",
+            ]
+        )
+        print("[INFO] Applying PEFT with config:", peft_config)
+        return get_peft_model(model, peft_config)
+
+    
+
+    def forward(self, input_ids, attention_mask, token_type_ids=None,extract_embed=False):
         
         """
         Applying the forward pass to the Custom MultiLingual BERT PEFT model.
@@ -85,43 +107,19 @@ class CustomMultilingualBERT(nn.Module):
         
         if self.added_layers == 1:
             # Directly feed the input to the final added layer.
-            logits = self.classifier(pooled_output)
-        elif self.added_layers == 2:
+            x = self.classifier(pooled_output)
+        
+        elif self.added_layers == 1 and extract_embed:
+            
+            return pooled_output
+        
+        if self.added_layers == 2:
             # Directly feed the input to intermediate layer and get the output from intermediate to the final added layer.
             additional = self.additional(pooled_output)
-            logits = self.classifier(additional)
-            
-                        
-        return logits
-
-
-def download_nlp_bert_ml_model() -> None:
-    """Download and save the BERT base multilingual uncased sentiment model locally."""
-    # Download the model
-    model = AutoModelForSequenceClassification.from_pretrained("nlptown/bert-base-multilingual-uncased-sentiment")
-    model.save_pretrained(BERT_MULTILINGUAL_MODEL)
-    print(f"Saved model to {BERT_MULTILINGUAL_MODEL}")
-
-    # Download the tokenizer
-    tokenizer = AutoTokenizer.from_pretrained("nlptown/bert-base-multilingual-uncased-sentiment")
-    tokenizer.save_pretrained(BERT_MULTILINGUAL_TOKENIZER)
-    print(f"Saved tokenizer to {BERT_MULTILINGUAL_TOKENIZER}")
-
-def load_nlp_bert_ml_model_offline() -> Tuple[AutoModelForSequenceClassification, AutoTokenizer]:
-    """Load the BERT multilingual uncased sentiment model from local storage."""
-    # If model not downloaded then download it
-    if not os.path.exists(BERT_MULTILINGUAL_MODEL):
-        print(f"Model folder not found at {BERT_MULTILINGUAL_MODEL}. Downloading now...")
-        download_nlp_bert_ml_model()
+            x = self.classifier(additional)
         
-    # If model not found then raise an error
-    if not os.path.exists(BERT_MULTILINGUAL_TOKENIZER):
-        raise FileNotFoundError(f"Tokenizer folder not found at {BERT_MULTILINGUAL_TOKENIZER}. Please run download_nlp_bert_ml_model() first.")
-    
-    # If model found then load it with the tokenizer
-    print(f"Loading model from: {BERT_MULTILINGUAL_MODEL}")
-    print(f"Loading tokenizer from: {BERT_MULTILINGUAL_TOKENIZER}")
-
-    model = AutoModelForSequenceClassification.from_pretrained(BERT_MULTILINGUAL_MODEL, local_files_only=True)
-    tokenizer = AutoTokenizer.from_pretrained(BERT_MULTILINGUAL_TOKENIZER, local_files_only=True)
-    return model, tokenizer
+        elif self.added_layers == 2 and extract_embed:
+            
+            x = self.additional(pooled_output)
+                        
+        return x

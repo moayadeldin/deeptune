@@ -12,7 +12,17 @@ from datasets.text_datasets import TextDataset
 import json
 from transformers import BertModel, BertTokenizer
 from src.nlp.multilingual_bert import CustomMultilingualBERT
+from src.nlp.multilingual_bert_peft import CustomMultilingualPeftBERT
 from sklearn.preprocessing import LabelEncoder
+import options
+
+# check if we need to use peft or not while loading the BERT model
+
+parser = options.parser
+args = parser.parse_args()
+
+USE_PEFT = args.use_peft
+USE_CASE = args.use_case
 
 # Kindly note that right now we pass the same transformations to ResNet, Swin and DenseNet, both trained on ImageNet
 transformations = torchvision.transforms.Compose([
@@ -95,7 +105,7 @@ def split_save_load_dataset(mode,type,input_dir, train_size, val_size, test_size
     
     # for testing purposes we may pock the first 10 rows
     
-    # df = df[:100]
+    df = df[:100]
     
     # Apply the splitting of the input and save them in the specified paths
     train_data, temp_data = train_test_split(df, test_size=(1 - train_size), random_state=seed)
@@ -339,12 +349,21 @@ def load_finetunedbert_model(model_dir):
 
     # now we create model with the same exact weights, tokenizer and configs
     
-    model = CustomMultilingualBERT(
-        num_classes= model_config["num_classes"],
-        added_layers=model_config['added_layers'],
-        embedding_layer=model_config['embedding_layer']
-    )
-    
+    if USE_PEFT or USE_CASE == 'peft':
+            
+        model = CustomMultilingualPeftBERT(
+            num_classes= model_config["num_classes"],
+            added_layers=model_config['added_layers'],
+            embedding_layer=model_config['embedding_layer']
+        )
+        
+    else:
+        model = CustomMultilingualBERT(
+            num_classes= model_config["num_classes"],
+            added_layers=model_config['added_layers'],
+            embedding_layer=model_config['embedding_layer']
+        )
+        
     model.load_state_dict(torch.load(os.path.join(model_dir, "model_weights.pth")))
     print(f"Loaded model weights from {os.path.join(model_dir, 'model_weights.pth')}")
     
