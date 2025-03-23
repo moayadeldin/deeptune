@@ -61,7 +61,7 @@ As a cutting-edge software library that has been specifically designed for use i
     <tr>
       <td>MultiLingual Base BERT</td>
       <td>✅</td>
-      <td>❌</td>
+      <td>✅</td>
       <td>✅</td>
       <td>Sentiment Analysis</td>
       <td>Text</td>
