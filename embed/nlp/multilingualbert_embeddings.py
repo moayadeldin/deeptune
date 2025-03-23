@@ -1,4 +1,5 @@
 from src.nlp.multilingual_bert import CustomMultilingualBERT
+from src.nlp.multilingual_bert_peft import CustomMultilingualPeftBERT
 from datasets.text_datasets import TextDataset
 from utilities import transformations
 import torch
@@ -33,15 +34,18 @@ MODE = args.mode
 INPUT_DF_PATH = args.input_dir
 ADJUSTED_BERT_MODEL_DIR = args.adjusted_bert_dir
 
+
 # Check which USE_CASE is used and based on this choose the model to get loaded. For example, if finetuned was the USE_CASE then the class call would be from the transfer-learning without PEFT version.
 
 if USE_CASE == 'finetuned':
-    model = CustomMultilingualBERT(NUM_CLASSES,ADDED_LAYERS, EMBED_SIZE,FREEZE_BACKBONE)
-    OUTPUT = f"deeptune_results/test_set_finetuned_MultilingualBERT_embeddings.parquet"
-    args.use_case = 'finetuned-MultiLingualBERT'
-
-elif USE_CASE == 'peft':
+    # model = CustomMultilingualBERT(NUM_CLASSES,ADDED_LAYERS, EMBED_SIZE,FREEZE_BACKBONE)
+    # OUTPUT = f"deeptune_results/test_set_finetuned_MultilingualBERT_embeddings.parquet"
+    # args.use_case = 'finetuned-MultiLingualBERT'
     pass
+elif USE_CASE == 'peft':
+    model = CustomMultilingualPeftBERT(NUM_CLASSES,ADDED_LAYERS, EMBED_SIZE,FREEZE_BACKBONE)
+    OUTPUT = f"deeptune_results/test_set_finetuned_MultilingualBERT_PEFT_embeddings.parquet"
+    args.use_case = 'finetuned-MultiLingualBERT'
 else:
     raise ValueError('There is no third option other than ["finetuned", "peft"]')
 

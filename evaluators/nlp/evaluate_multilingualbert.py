@@ -5,6 +5,7 @@ import pandas as pd
 from sklearn.metrics import classification_report, roc_auc_score
 from utilities import save_test_metrics
 from src.nlp.multilingual_bert import CustomMultilingualBERT
+from src.nlp.multilingual_bert_peft import CustomMultilingualPeftBERT
 from utilities import save_cli_args,load_finetunedbert_model
 import options
 from tqdm import tqdm
@@ -24,15 +25,13 @@ TEST_DATASET_PATH = args.test_set_input_dir
 BATCH_SIZE= args.batch_size
 NUM_CLASSES = args.num_classes
 USE_PEFT = args.use_peft
-MODEL_WEIGHTS = args.model_weights
 ADDED_LAYERS = args.added_layers
 EMBED_SIZE = args.embed_size
-MODE = args.mode
 ADJUSTED_BERT_MODEL_DIR = args.adjusted_bert_dir
 FREEZE_BACKBONE = args.freeze_backbone
 
 if USE_PEFT:
-    pass
+    model = CustomMultilingualPeftBERT(NUM_CLASSES,ADDED_LAYERS,EMBED_SIZE,FREEZE_BACKBONE)
 else:
     model = CustomMultilingualBERT(NUM_CLASSES, ADDED_LAYERS, EMBED_SIZE,FREEZE_BACKBONE)
     args.model = 'Multilingual BERT'
@@ -73,27 +72,26 @@ def test():
     
     with torch.no_grad():
         
-        for _, (text, labels) in test_pbar:
-            labels = labels.to(DEVICE)
-            # Initialize the tokenizer
-            encoding = tokenizer(
-            str(text),
-            padding='max_length',
-            truncation=True,
-            max_length=512,
-            return_tensors='pt'
-            )
-            # move the input to GPU 
+        # set the model to evaluation mode
+        model.eval()
+       
+        for batch_idx, (encoding, labels) in test_pbar:
+            
+            # move the input to GPU
             input_ids = encoding['input_ids'].to(DEVICE)
             attention_mask = encoding['attention_mask'].to(DEVICE)
-            token_type_ids = encoding.get('token_type_ids')
+            token_type_ids = encoding.get('token_type_ids', None)
+            
             if token_type_ids is not None:
                 token_type_ids = token_type_ids.to(DEVICE)
             
+            labels = labels.to(DEVICE)
+           
             # Apply forward pass and accumulate loss
-            outputs = model(input_ids, attention_mask, token_type_ids)   
-    
-            loss = criterion(outputs,labels)
+            outputs = model(input_ids, attention_mask, token_type_ids)  
+   
+            loss = criterion(outputs, labels)
+           
             test_loss += loss.item()
     
             # Calculate accuracy

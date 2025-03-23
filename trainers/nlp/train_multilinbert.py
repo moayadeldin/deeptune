@@ -1,4 +1,5 @@
 from src.nlp.multilingual_bert import CustomMultilingualBERT
+from src.nlp.multilingual_bert_peft import CustomMultilingualPeftBERT
 from src.nlp.multilingual_bert import load_nlp_bert_ml_model_offline
 import importlib
 from utilities import save_cli_args, fixed_seed,split_save_load_dataset,save_finetunedbertmodel
@@ -63,7 +64,9 @@ def get_model():
 
     if USE_PEFT:
         
-        pass
+        model = importlib.import_module('src.nlp.multilingual_bert_peft')
+        args.model = 'Multilingual BERT PEFT'
+        return model.CustomMultilingualPeftBERT
     else:
         model = importlib.import_module('src.nlp.multilingual_bert')
         args.model = 'Multilingual BERT'
