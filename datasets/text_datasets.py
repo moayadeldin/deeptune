@@ -26,7 +26,7 @@ class TextDataset(Dataset):
         self.data = pd.read_parquet(parquet_file)
         
         self.texts = self.data['text'].tolist()
-        self.labels = self.data['labels'].tolist()
+        self.labels = self.data['label'].tolist()
         self.tokenizer = tokenizer
         self.max_length = max_length
         

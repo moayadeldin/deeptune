@@ -34,13 +34,12 @@ MODE = args.mode
 INPUT_DF_PATH = args.input_dir
 ADJUSTED_BERT_MODEL_DIR = args.adjusted_bert_dir
 
-
 # Check which USE_CASE is used and based on this choose the model to get loaded. For example, if finetuned was the USE_CASE then the class call would be from the transfer-learning without PEFT version.
 
 if USE_CASE == 'finetuned':
-    # model = CustomMultilingualBERT(NUM_CLASSES,ADDED_LAYERS, EMBED_SIZE,FREEZE_BACKBONE)
-    # OUTPUT = f"deeptune_results/test_set_finetuned_MultilingualBERT_embeddings.parquet"
-    # args.use_case = 'finetuned-MultiLingualBERT'
+    model = CustomMultilingualBERT(NUM_CLASSES,ADDED_LAYERS, EMBED_SIZE,FREEZE_BACKBONE)
+    OUTPUT = f"deeptune_results/test_set_finetuned_MultilingualBERT_embeddings.parquet"
+    args.use_case = 'finetuned-MultiLingualBERT'
     pass
 elif USE_CASE == 'peft':
     model = CustomMultilingualPeftBERT(NUM_CLASSES,ADDED_LAYERS, EMBED_SIZE,FREEZE_BACKBONE)
@@ -50,7 +49,7 @@ else:
     raise ValueError('There is no third option other than ["finetuned", "peft"]')
 
 # load the model, the tokenizer and the dataset.
-model,tokenizer = load_finetunedbert_model(ADJUSTED_BERT_MODEL_DIR)
+_,tokenizer = load_finetunedbert_model(ADJUSTED_BERT_MODEL_DIR)
 model = model.to(DEVICE)
 
 text_dataset = TextDataset(INPUT_DF_PATH, tokenizer=tokenizer)
