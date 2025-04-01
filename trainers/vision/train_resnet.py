@@ -1,4 +1,4 @@
-from src.vision.resnet18 import adjustedResNet
+from vision.resnet import adjustedResNet
 from src.vision.resnet18_peft import adjustedPeftResNet
 import importlib
 from utilities import save_cli_args, fixed_seed,split_save_load_dataset
@@ -15,6 +15,7 @@ parser = options.parser
 args = parser.parse_args()
 
 INPUT_DIR = args.input_dir
+RESNET_VERSION = args.resnet_version
 BATCH_SIZE=args.batch_size
 LEARNING_RATE=args.learning_rate
 NUM_CLASSES = args.num_classes
@@ -52,12 +53,12 @@ def get_model():
     if USE_PEFT:
         
         model = importlib.import_module('src.vision.resnet18_peft')
-        args.model = 'PEFT-RESNET18'
+        args.model = 'PEFT-' + RESNET_VERSION
         return model.adjustedPeftResNet
 
     else:
-        model = importlib.import_module('src.vision.resnet18')
-        args.model = 'RESNET18'
+        model = importlib.import_module('src.vision.resnet')
+        args.model = RESNET_VERSION
         return model.adjustedResNet
 
 # load the dataset with appropriate paths
@@ -89,7 +90,7 @@ if __name__ == "__main__":
     choosed_model = get_model()
     
     # pass the options from the args user are feeding as input
-    model = choosed_model(NUM_CLASSES, ADDED_LAYERS, EMBED_SIZE, FREEZE_BACKBONE,task_type=MODE)
+    model = choosed_model(NUM_CLASSES,RESNET_VERSION, ADDED_LAYERS, EMBED_SIZE, FREEZE_BACKBONE,task_type=MODE)
     
     # initialize trainer class
     trainer = Trainer(model, train_loader=train_loader, val_loader=val_loader)
