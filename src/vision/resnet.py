@@ -1,15 +1,13 @@
 import torchvision
-from torchvision.models import ResNet18_Weights
+from torchvision.models import ResNet18_Weights,ResNet34_Weights,ResNet50_Weights,ResNet101_Weights,ResNet152_Weights
 import torch.nn as nn
 import torch.nn.functional as F
 
 
 class adjustedResNet(nn.Module):
 
-    def __init__(self,num_classes, added_layers=2, embedding_layer_size=1000, freeze_backbone=False, weights=ResNet18_Weights.IMAGENET1K_V1,
-                 pretrained_resnet=torchvision.models.resnet18,fc1_input=512, task_type="cls",output_dim=1):
+    def __init__(self,num_classes,resnet_version, added_layers=2, embedding_layer_size=1000, freeze_backbone=False, task_type="cls",output_dim=1):
         """
-        
         Customised ResNet class as part of DeepTune proposed Adjustments.
         
         Args:
@@ -23,8 +21,6 @@ class adjustedResNet(nn.Module):
             weights (ResNet_Weights.IMAGENET1K_V1): Determine which ResNet weights you want to use.
             output_dim (int): The dimension of the output of regression model, default = 1.
             
-            
-        
         """
 
         super(adjustedResNet, self).__init__()
@@ -32,12 +28,37 @@ class adjustedResNet(nn.Module):
         # Task must be regression or classification nothing else
         assert task_type in ["cls", "reg"], "task_type must be 'cls' or 'reg'"
 
-
-        self.model = pretrained_resnet(weights)
         self.num_classes = num_classes
         self.added_layers = added_layers
         self.embedding_layer_size = embedding_layer_size
         self.freeze_backbone = freeze_backbone
+        self.resnet_version = resnet_version
+        
+        if resnet_version == "resnet18":
+            weights = ResNet18_Weights.IMAGENET1K_V1
+            pretrained_resnet = torchvision.models.resnet18(weights=weights)
+            self.model = pretrained_resnet
+        elif resnet_version == "resnet34":
+            weights = ResNet34_Weights.IMAGENET1K_V1
+            pretrained_resnet = torchvision.models.resnet34(weights=weights)
+            self.model = pretrained_resnet
+        elif resnet_version == "resnet50":
+            weights = ResNet50_Weights.IMAGENET1K_V1
+            pretrained_resnet = torchvision.models.resnet50(weights=weights)
+            self.model = pretrained_resnet
+        elif resnet_version == "resnet101":
+            weights = ResNet101_Weights.IMAGENET1K_V1
+            pretrained_resnet = torchvision.models.resnet101(weights=weights)
+            self.model = pretrained_resnet
+        elif resnet_version == "resnet152":
+            weights = ResNet152_Weights.IMAGENET1K_V1
+            pretrained_resnet = torchvision.models.resnet152(weights=weights)
+            self.model = pretrained_resnet
+        else:
+            raise ValueError("Invalid resnet_version. Choose from 'resnet18', 'resnet34', 'resnet50', 'resnet101', or 'resnet152'.")
+        
+        # Get the input size of the last layer before we chop it
+        self.fc1_input = self.model.fc.in_features
         
         # Additional parameters for regression
         self.task_type = task_type
@@ -57,7 +78,7 @@ class adjustedResNet(nn.Module):
         # Add the additional layers according to prompt.
         
         if self.added_layers == 2:
-            self.fc1 = nn.Linear(fc1_input,self.embedding_layer_size)
+            self.fc1 = nn.Linear(self.fc1_input,self.embedding_layer_size)
             
             if self.task_type == 'cls':
                 self.fc2 = nn.Linear(self.embedding_layer_size, self.num_classes)
@@ -68,9 +89,9 @@ class adjustedResNet(nn.Module):
         elif self.added_layers == 1:
             
             if self.task_type == 'cls':
-                self.fc1 = nn.Linear(fc1_input, self.num_classes)
+                self.fc1 = nn.Linear(self.fc1_input, self.num_classes)
             else:
-                self.fc1 = nn.Linear(fc1_input,self.output_dim)
+                self.fc1 = nn.Linear(self.fc1_input,self.output_dim)
         else:
             self.fc1 = None
 

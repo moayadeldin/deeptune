@@ -1,4 +1,4 @@
-from src.vision.resnet18 import adjustedResNet
+from vision.resnet import adjustedResNet
 from src.vision.resnet18_peft import adjustedPeftResNet
 from utilities import transformations
 import torch
@@ -15,6 +15,7 @@ DEVICE = options.DEVICE
 TEST_OUTPUT_DIR = options.TEST_OUTPUT_DIR
 args = parser.parse_args()
 
+RESNET_VERSION = args.resnet_version
 TEST_DATASET_PATH = args.test_set_input_dir
 BATCH_SIZE= args.batch_size
 NUM_CLASSES = args.num_classes
@@ -27,11 +28,11 @@ MODE = args.mode
 if USE_PEFT:
     
     MODEL = adjustedPeftResNet(NUM_CLASSES, ADDED_LAYERS, lora_attention_dimension=EMBED_SIZE,task_type=MODE)
-    args.model = 'PEFT-RESNET18'
+    args.model = 'PEFT-' + RESNET_VERSION
     
 else:
-    MODEL = adjustedResNet(NUM_CLASSES, ADDED_LAYERS, EMBED_SIZE,task_type=MODE)
-    args.model = 'RESNET18'
+    MODEL = adjustedResNet(NUM_CLASSES,RESNET_VERSION, ADDED_LAYERS, EMBED_SIZE,task_type=MODE)
+    args.model = RESNET_VERSION
 
 
 # Load the test dataset from its path and testloader
