@@ -1,4 +1,4 @@
-from vision.resnet import adjustedResNet
+from src.vision.resnet import adjustedResNet
 from src.vision.resnet18_peft import adjustedPeftResNet
 from utilities import transformations
 import torch

@@ -1,4 +1,4 @@
-from vision.resnet import adjustedResNet
+from src.vision.resnet import adjustedResNet
 from src.vision.resnet18_peft import adjustedPeftResNet
 from datasets.image_datasets import ParquetImageDataset
 from utilities import transformations
@@ -8,7 +8,7 @@ from tqdm import tqdm
 import numpy as np
 import pandas as pd
 import torchvision
-from torchvision.models import ResNet18_Weights
+from torchvision.models import ResNet18_Weights,ResNet34_Weights,ResNet50_Weights,ResNet101_Weights,ResNet152_Weights
 import options
 """
 Note: If you chose to have the finetuned option with added layers = 1 without PEFT, it will have the same embeddings output as if pretrained. This is normal behavior and works as expected. Because in the pretrained option the last layer are actually mapping 512 inputs to 1000 outputs. For the finetuned option, it maps the same 512 inputs but to 8 outputs. The difference is in the output but input to the last layer is actually the same.
@@ -35,16 +35,28 @@ MODE = args.mode
 if USE_CASE == 'peft':
     
     model = adjustedPeftResNet(NUM_CLASSES,ADDED_LAYERS, EMBED_SIZE,FREEZE_BACKBONE,task_type=MODE)
-    TEST_OUTPUT = f'deeptune_results/test_set_peft_resnet18_embeddings_{MODE}.parquet'
+    TEST_OUTPUT = f'deeptune_results/test_set_peft_resnet_embeddings_{MODE}.parquet'
     args.use_case = 'PEFT-' + RESNET_VERSION
     
 elif USE_CASE == 'finetuned':
-    model = adjustedResNet(NUM_CLASSES,ADDED_LAYERS, EMBED_SIZE,FREEZE_BACKBONE,task_type=MODE)
-    TEST_OUTPUT = f"deeptune_results/test_set_finetuned_resnet18_embeddings_{MODE}.parquet"
+    model = adjustedResNet(NUM_CLASSES,RESNET_VERSION,ADDED_LAYERS, EMBED_SIZE,FREEZE_BACKBONE,task_type=MODE)
+    TEST_OUTPUT = f"deeptune_results/test_set_finetuned_resnet_embeddings_{MODE}.parquet"
     args.use_case = 'finetuned-' + RESNET_VERSION
 
 elif USE_CASE == 'pretrained':
-    model = torchvision.models.resnet18(weights=ResNet18_Weights.IMAGENET1K_V1)
+    if RESNET_VERSION == 'resnet18':    
+        model = torchvision.models.resnet18(weights=ResNet18_Weights.IMAGENET1K_V1)
+    elif RESNET_VERSION == 'resnet34':
+        model = torchvision.models.resnet34(weights=ResNet34_Weights.IMAGENET1K_V1)
+    elif RESNET_VERSION == 'resnet50':
+        model = torchvision.models.resnet50(weights=ResNet50_Weights.IMAGENET1K_V1)
+    elif RESNET_VERSION == 'resnet101':
+        model = torchvision.models.resnet101(weights=ResNet101_Weights.IMAGENET1K_V1)
+    elif RESNET_VERSION == 'resnet152':
+        model = torchvision.models.resnet152(weights=ResNet152_Weights.IMAGENET1K_V1)
+    else:
+        raise ValueError('The pretrained model should be one of the following: ["resnet18", "resnet34", "resnet50", "resnet101", "resnet152"]')
+    
     model.fc = nn.Identity()  # Remove classification layer to use as feature extractor
     TEST_OUTPUT = "deeptune_results/test_set_pretrained_resnet18_embeddings.parquet"
     args.use_case = 'pretrained-' + RESNET_VERSION
@@ -115,7 +127,6 @@ def extractEmbeddings():
         data = data.cuda()
         
         # If the added layers is one and we want to extract the same exact embedding features as if the added layers is zero we should handle this explicitly
-        
         if ADDED_LAYERS == 1 or ADDED_LAYERS == 2:
             embeddings = adjusted_model(data, extract_embed=True)
         else:
