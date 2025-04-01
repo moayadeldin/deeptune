@@ -42,7 +42,7 @@ parser.add_argument('--test_size', type=float, help='Mention the split ratio of 
 parser.add_argument('--test_set_input_dir', type=str, help='Directory containing test data.')
 
 # embedding settings
-parser.add_argument('--use_case', type=str, choices=['peft', 'finetuned'],help='The mode you want to set embeddings extractor with') 
+parser.add_argument('--use_case', type=str, choices=['peft', 'finetuned','pretrained'],help='The mode you want to set embeddings extractor with') 
 
 # bert evaluating settings
 parser.add_argument("--adjusted_bert_dir", type=str,help='Path to the adjusted saved weights of Finetuned BERT.')
