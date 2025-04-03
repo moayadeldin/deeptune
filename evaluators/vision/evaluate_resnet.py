@@ -1,5 +1,5 @@
 from src.vision.resnet import adjustedResNet
-from src.vision.resnet18_peft import adjustedPeftResNet
+from src.vision.resnet_peft import adjustedPeftResNet
 from utilities import transformations
 import torch
 from datasets.image_datasets import ParquetImageDataset
@@ -27,7 +27,7 @@ MODE = args.mode
 
 if USE_PEFT:
     
-    MODEL = adjustedPeftResNet(NUM_CLASSES, ADDED_LAYERS, lora_attention_dimension=EMBED_SIZE,task_type=MODE)
+    MODEL = adjustedPeftResNet(NUM_CLASSES,RESNET_VERSION, ADDED_LAYERS, lora_attention_dimension=EMBED_SIZE,task_type=MODE)
     args.model = 'PEFT-' + RESNET_VERSION
     
 else:

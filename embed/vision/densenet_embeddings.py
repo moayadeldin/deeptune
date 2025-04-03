@@ -1,4 +1,4 @@
-from src.vision.densenet121 import adjustedDenseNet
+from src.vision.densenet import adjustedDenseNet
 from src.vision.densenet121_peft import adjustedPEFTDenseNet
 from datasets.image_datasets import ParquetImageDataset
 from utilities import transformations
@@ -18,7 +18,7 @@ Please Note that that extracting embeddings from DenseNet is only supported thro
 DEVICE = options.DEVICE
 parser = options.parser
 args = parser.parse_args()
-
+DENSENET_VERSION = args.densenet_version
 USE_CASE = args.use_case
 DATASET_DIR = args.input_dir
 BATCH_SIZE = args.batch_size
@@ -31,12 +31,12 @@ MODE = args.mode
     
 # Check which USE_CASE is used and based on this choose the model to get loaded. For example, if finetuned was the USE_CASE then the class call would be from the transfer-learning without PEFT version.
 if USE_CASE == 'finetuned':
-    model = adjustedDenseNet(NUM_CLASSES,ADDED_LAYERS, EMBED_SIZE,FREEZE_BACKBONE,task_type=MODE)
+    model = adjustedDenseNet(NUM_CLASSES,DENSENET_VERSION,ADDED_LAYERS, EMBED_SIZE,FREEZE_BACKBONE,task_type=MODE)
     TEST_OUTPUT = f"deeptune_results/test_set_finetuned_DenseNet121_embeddings_{MODE}.parquet"
     args.use_case = 'finetuned-Densenet121'
 
 elif USE_CASE == 'peft':
-    model = adjustedPEFTDenseNet(NUM_CLASSES, ADDED_LAYERS, EMBED_SIZE, FREEZE_BACKBONE,task_type=MODE)
+    model = adjustedPEFTDenseNet(NUM_CLASSES, DENSENET_VERSION, ADDED_LAYERS, EMBED_SIZE, FREEZE_BACKBONE,task_type=MODE)
     TEST_OUTPUT = f"deeptune_results/test_set_peft_DenseNet121_embeddings_{MODE}.parquet"
 else:
     raise ValueError('There is no third option other than ["finetuned", "peft"]')

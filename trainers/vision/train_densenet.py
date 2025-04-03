@@ -1,4 +1,4 @@
-from src.vision.densenet121 import adjustedDenseNet
+from src.vision.densenet import adjustedDenseNet
 from src.vision.densenet121_peft import adjustedPEFTDenseNet
 import importlib
 from utilities import save_cli_args, fixed_seed,split_save_load_dataset
@@ -14,6 +14,7 @@ parser = options.parser
 args = parser.parse_args()
 
 INPUT_DIR = args.input_dir
+DENSENET_VERSION = args.densenet_version
 BATCH_SIZE=args.batch_size
 LEARNING_RATE=args.learning_rate
 NUM_CLASSES = args.num_classes
@@ -51,14 +52,13 @@ def get_model():
     
     else:
         
-        
         if USE_PEFT:
             model = importlib.import_module('src.vision.densenet121_peft')
-            args.model = 'PEFT-DenseNet121'
+            args.model = 'PEFT-' + DENSENET_VERSION
             return model.adjustedPEFTDenseNet
         else:
-            model = importlib.import_module('src.vision.densenet121')
-            args.model = 'DenseNet121'
+            model = importlib.import_module('src.vision.densenet')
+            args.model = DENSENET_VERSION
             return model.adjustedDenseNet
         
 # load the dataset with appropriate paths
@@ -90,7 +90,7 @@ if __name__ == "__main__":
     choosed_model = get_model()
     
     # pass the options from the args user are feeding as input
-    model = choosed_model(NUM_CLASSES, ADDED_LAYERS, EMBED_SIZE, FREEZE_BACKBONE,task_type=MODE)
+    model = choosed_model(NUM_CLASSES,DENSENET_VERSION, ADDED_LAYERS, EMBED_SIZE, FREEZE_BACKBONE,task_type=MODE)
     
     # initialize trainer class
     trainer = Trainer(model, train_loader=train_loader, val_loader=val_loader)

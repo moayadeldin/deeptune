@@ -5,8 +5,8 @@ import torch.nn.functional as F
 class adjustedDenseNet(nn.Module):
     
 
-    def __init__(self,num_classes, added_layers, embedding_layer_size, freeze_backbone=False,
-                 model_to_load='densenet121',task_type="cls",output_dim=1):
+    def __init__(self,num_classes,densenet_version, added_layers, embedding_layer_size, freeze_backbone=False,
+                 task_type="cls",output_dim=1):
         
         """
         
@@ -14,11 +14,11 @@ class adjustedDenseNet(nn.Module):
         
         Args:
             num_classes (int) : Number of classes in your dataset.
+            densenet_version (str): DenseNet of ResNet you want to use.
             added_layers (int) : Number of additional layers you want to add while finetuning your model
             lora_attention_dimension (int): If you chose added_layers to be 2, so this specifies the size of the intermediate layer in between.
             freeze_backbone (bool): Determine whether you want to apply transfer learning on the backbone weights or the whole model.
             task_type (str): Determine whether you want to classification or regression.
-            model_to_load (str): Determine which DenseNet pretrained weights version would you want to use.
             output_dim (int): The dimension of the output of regression model, default = 1.
             
             
@@ -30,11 +30,21 @@ class adjustedDenseNet(nn.Module):
         # Task must be regression or classification nothing else        
         assert task_type in ["cls", "reg"], "task_type must be 'cls' or 'reg'"
         
-        self.model_to_load = model_to_load
         self.num_classes = num_classes
         self.added_layers = added_layers
         self.embedding_layer_size = embedding_layer_size
         self.freeze_backbone = freeze_backbone
+        self.densenet_version = densenet_version
+        if densenet_version == "densenet121":
+            self.model_to_load = "densenet121"
+        elif densenet_version == "densenet161":
+            self.model_to_load = "densenet161"
+        elif densenet_version == "densenet169":
+            self.model_to_load = "densenet169"
+        elif densenet_version == "densenet201":
+            self.model_to_load = "densenet201"
+        else:
+            raise ValueError("Invalid densenet_version. Choose from 'densenet121', 'densenet161', 'densenet169', or 'densenet201'.")
         
         # remove the final connected layer by putting a placeholder
         self.model = torch.hub.load('pytorch/vision:v0.10.0', self.model_to_load, pretrained=True)
