@@ -1,5 +1,5 @@
 import torchvision
-from torchvision.models import ResNet18_Weights
+from torchvision.models import ResNet18_Weights,ResNet34_Weights,ResNet50_Weights,ResNet101_Weights,ResNet152_Weights
 import torchvision.models as models
 import torch.nn as nn
 import torch.nn.functional as F
@@ -8,8 +8,7 @@ from peft import LoraConfig, get_peft_model
 
 class adjustedPeftResNet(nn.Module):
 
-    def __init__(self,num_classes, added_layers, lora_attention_dimension, freeze_backbone=False, weights=ResNet18_Weights.IMAGENET1K_V1,
-                 pretrained_resnet=torchvision.models.resnet18,fc1_input=512,task_type="cls",output_dim=1):
+    def __init__(self,num_classes,resnet_version, added_layers, lora_attention_dimension, freeze_backbone=False,task_type="cls",output_dim=1):
         
         """
         
@@ -17,28 +16,52 @@ class adjustedPeftResNet(nn.Module):
         
         Args:
             num_classes (int) : Number of classes in your dataset.
+            resnet_version (str): Version of ResNet you want to use.
             added_layers (int) : Number of additional layers you want to add while finetuning your model
             lora_attention_dimension (int): If you chose added_layers to be 2, so this specifies the size of the intermediate layer in between.
             freeze_backbone (bool): Determine whether you want to apply transfer learning on the backbone weights or the whole model.
             task_type (str): Determine whether you want to classification or regression.
-            pretrained_resnet (torchvision.models): Determine which ResNet model you want to use.
-            weights (ResNet_Weights.IMAGENET1K_V1): Determine which ResNet weights you want to use.
             output_dim (int): The dimension of the output of regression model, default = 1.
-            
-            
         
         """
 
         super(adjustedPeftResNet, self).__init__()
 
-        self.model = pretrained_resnet(weights)
+        # Task must be regression or classification nothing else
+        assert task_type in ["cls", "reg"], "task_type must be 'cls' or 'reg'"
+        
         self.num_classes = num_classes
         self.added_layers = added_layers
         self.lora_attention_dimension = lora_attention_dimension
         self.freeze_backbone = freeze_backbone
+        self.resnet_version = resnet_version
+        
+        if resnet_version == "resnet18":
+            weights = ResNet18_Weights.IMAGENET1K_V1
+            pretrained_resnet = torchvision.models.resnet18(weights=weights)
+            self.model = pretrained_resnet
+        elif resnet_version == "resnet34":
+            weights = ResNet34_Weights.IMAGENET1K_V1
+            pretrained_resnet = torchvision.models.resnet34(weights=weights)
+            self.model = pretrained_resnet
+        elif resnet_version == "resnet50":
+            weights = ResNet50_Weights.IMAGENET1K_V1
+            pretrained_resnet = torchvision.models.resnet50(weights=weights)
+            self.model = pretrained_resnet
+        elif resnet_version == "resnet101":
+            weights = ResNet101_Weights.IMAGENET1K_V1
+            pretrained_resnet = torchvision.models.resnet101(weights=weights)
+            self.model = pretrained_resnet
+        elif resnet_version == "resnet152":
+            weights = ResNet152_Weights.IMAGENET1K_V1
+            pretrained_resnet = torchvision.models.resnet152(weights=weights)
+            self.model = pretrained_resnet
+        else:
+            raise ValueError("Invalid resnet_version. Choose from 'resnet18', 'resnet34', 'resnet50', 'resnet101', or 'resnet152'.")
+        
+        self.fc1_input = self.model.fc.in_features
         
         # Additional parameters for regression
-        
         self.task_type = task_type
         self.output_dim = output_dim
 
@@ -51,13 +74,13 @@ class adjustedPeftResNet(nn.Module):
         if self.freeze_backbone:
             
             for param in self.model.parameters():
-                print('Backbone Parameters are frozen!')
                 param.requires_grad = False
+            print('Backbone Parameters are frozen!')
                 
         # Add the additional layers according to prompt.
         
         if self.added_layers == 2:
-            self.fc1 = nn.Linear(fc1_input,self.lora_attention_dimension)
+            self.fc1 = nn.Linear(self.fc1_input,self.lora_attention_dimension)
             
             if self.task_type == "cls": 
                self.fc2 = nn.Linear(self.lora_attention_dimension, self.num_classes)
@@ -66,9 +89,9 @@ class adjustedPeftResNet(nn.Module):
         elif self.added_layers == 1:
             
             if self.task_type == "cls":
-                self.fc1 = nn.Linear(fc1_input, self.num_classes)
+                self.fc1 = nn.Linear(self.fc1_input, self.num_classes)
             else:
-                self.fc1 = nn.Linear(fc1_input, self.output_dim)
+                self.fc1 = nn.Linear(self.fc1_input, self.output_dim)
         else:
             self.fc1 = None
             

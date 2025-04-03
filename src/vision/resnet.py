@@ -12,13 +12,12 @@ class adjustedResNet(nn.Module):
         
         Args:
             num_classes (int) : Number of classes in your dataset.
+            resnet_version (str): Version of ResNet you want to use.
             added_layers (int) : Number of additional layers you want to add while finetuning your model
             embedding_layer_size (int): If you chose added_layers to be 2, so this specifies the size of the intermediate layer in between.
             freeze_backbone (bool): Determine whether you want to apply transfer learning on the backbone weights or the whole model.
             task_type (str): Determine whether you want to classification or regression.
             fc1_input (int): The size of the input of the last layer before we chop it.
-            pretrained_resnet (torchvision.models): Determine which ResNet model you want to use.
-            weights (ResNet_Weights.IMAGENET1K_V1): Determine which ResNet weights you want to use.
             output_dim (int): The dimension of the output of regression model, default = 1.
             
         """

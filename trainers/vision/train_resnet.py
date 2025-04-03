@@ -1,5 +1,5 @@
 from src.vision.resnet import adjustedResNet
-from src.vision.resnet18_peft import adjustedPeftResNet
+from src.vision.resnet_peft import adjustedPeftResNet
 import importlib
 from utilities import save_cli_args, fixed_seed,split_save_load_dataset
 from trainers.vision.trainer import Trainer
@@ -52,7 +52,7 @@ def get_model():
 
     if USE_PEFT:
         
-        model = importlib.import_module('src.vision.resnet18_peft')
+        model = importlib.import_module('src.vision.resnet_peft')
         args.model = 'PEFT-' + RESNET_VERSION
         return model.adjustedPeftResNet
 

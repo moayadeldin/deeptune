@@ -1,4 +1,4 @@
-from src.vision.densenet121 import adjustedDenseNet
+from src.vision.densenet import adjustedDenseNet
 from src.vision.densenet121_peft import adjustedPEFTDenseNet
 from utilities import transformations
 import torch
@@ -14,6 +14,7 @@ parser = options.parser
 DEVICE = options.DEVICE
 TEST_OUTPUT_DIR = options.TEST_OUTPUT_DIR
 args = parser.parse_args()
+DENSENET_VERSION = args.densenet_version
 
 TEST_DATASET_PATH = args.test_set_input_dir
 BATCH_SIZE= args.batch_size
@@ -25,12 +26,12 @@ EMBED_SIZE = args.embed_size
 MODE = args.mode
 
 if USE_PEFT:
-    MODEL = adjustedPEFTDenseNet(NUM_CLASSES, ADDED_LAYERS, lora_attention_dimension=EMBED_SIZE,task_type=MODE)
-    args.model = 'PEFT-DenseNet121'
+    MODEL = adjustedPEFTDenseNet(NUM_CLASSES,DENSENET_VERSION, ADDED_LAYERS, lora_attention_dimension=EMBED_SIZE,task_type=MODE)
+    args.model = 'PEFT-' + DENSENET_VERSION
     
 else:
-    MODEL = adjustedDenseNet(NUM_CLASSES, ADDED_LAYERS, EMBED_SIZE,task_type=MODE)
-    args.model = 'DenseNet121'
+    MODEL = adjustedDenseNet(NUM_CLASSES,DENSENET_VERSION, ADDED_LAYERS, EMBED_SIZE,task_type=MODE)
+    args.model = DENSENET_VERSION
 
 # Load the test dataset from its path and the testloader
 df = pd.read_parquet(TEST_DATASET_PATH)

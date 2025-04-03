@@ -1,5 +1,5 @@
 from src.vision.resnet import adjustedResNet
-from src.vision.resnet18_peft import adjustedPeftResNet
+from src.vision.resnet_peft import adjustedPeftResNet
 from datasets.image_datasets import ParquetImageDataset
 from utilities import transformations
 import torch
@@ -34,7 +34,7 @@ MODE = args.mode
 # Check which USE_CASE is used and based on this choose the model to get loaded. For example, if finetuned was the USE_CASE then the class call would be from the transfer-learning without PEFT version.
 if USE_CASE == 'peft':
     
-    model = adjustedPeftResNet(NUM_CLASSES,ADDED_LAYERS, EMBED_SIZE,FREEZE_BACKBONE,task_type=MODE)
+    model = adjustedPeftResNet(NUM_CLASSES,RESNET_VERSION,ADDED_LAYERS, EMBED_SIZE,FREEZE_BACKBONE,task_type=MODE)
     TEST_OUTPUT = f'deeptune_results/test_set_peft_resnet_embeddings_{MODE}.parquet'
     args.use_case = 'PEFT-' + RESNET_VERSION
     
