@@ -14,6 +14,7 @@ parser = options.parser
 args = parser.parse_args()
 
 INPUT_DIR = args.input_dir
+SWIN_VERSION = args.swin_version
 BATCH_SIZE=args.batch_size
 LEARNING_RATE=args.learning_rate
 NUM_CLASSES = args.num_classes
@@ -53,12 +54,12 @@ def get_model():
     if USE_PEFT:
         
         model = importlib.import_module('src.vision.swin_peft')
-        args.model = 'PEFT-Swin'
+        args.model = 'PEFT- ' + SWIN_VERSION
         return model.adjustedPeftSwin
 
     else:
         model = importlib.import_module('src.vision.swin')
-        args.model = 'Swin'
+        args.model = SWIN_VERSION
         return model.adjustedSwin
 
 # load the dataset with appropriate paths
@@ -90,8 +91,7 @@ if __name__ == "__main__":
     choosed_model = get_model()
     
     # pass the options from the args user are feeding as input
-    model = choosed_model(NUM_CLASSES, ADDED_LAYERS, EMBED_SIZE, FREEZE_BACKBONE,task_type=MODE)
-    
+    model = choosed_model(NUM_CLASSES,SWIN_VERSION, ADDED_LAYERS, EMBED_SIZE, FREEZE_BACKBONE,task_type=MODE)
     
     # initialize trainer class
     trainer = Trainer(model, train_loader=train_loader, val_loader=val_loader)

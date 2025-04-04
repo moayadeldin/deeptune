@@ -5,8 +5,7 @@ import torch.nn.functional as F
 
 class adjustedSwin(nn.Module):
     
-    def __init__(self,num_classes, added_layers, embedding_layer_size, freeze_backbone=False, weights=Swin_T_Weights.IMAGENET1K_V1,
-    pretrained_swin=torchvision.models.swin_t,in_features=768, task_type="cls",output_dim=1):
+    def __init__(self,num_classes,swin_version, added_layers, embedding_layer_size, freeze_backbone=False,task_type="cls",output_dim=1):
         
         """
         
@@ -14,13 +13,12 @@ class adjustedSwin(nn.Module):
         
         Args:
             num_classes (int) : Number of classes in your dataset.
+            swin_version (str): Version of Swin you want to use.
             added_layers (int) : Number of additional layers you want to add while finetuning your model
             embedding_layer_size (int): If you chose added_layers to be 2, so this specifies the size of the intermediate layer in between.
             freeze_backbone (bool): Determine whether you want to apply transfer learning on the backbone weights or the whole model.
             task_type (str): Determine whether you want to classification or regression.
             in_features (int): The size of the input of the last layer before we chop it.
-            pretrained_swin (torchvision.models): Determine which swin model you want to use.
-            weights (Swin_T_weights_IMAGENET1K_V1): Determine which Swin weights you want to use.
             output_dim (int): The dimension of the output of regression model, default = 1.
             
         
@@ -30,12 +28,29 @@ class adjustedSwin(nn.Module):
         
         # Task must be regression or classification nothing else
         assert task_type in ["cls", "reg"], "task_type must be 'cls' or 'reg'"
-        
-        self.model = pretrained_swin(weights=weights)
+
+        self.swin_version = swin_version
         self.num_classes = num_classes
         self.added_layers = added_layers
         self.embedding_layer_size = embedding_layer_size
         self.freeze_backbone = freeze_backbone
+
+        if swin_version == "swin_t":
+            weights = Swin_T_Weights.IMAGENET1K_V1
+            pretrained_swin = torchvision.models.swin_t(weights=weights)
+            self.model = pretrained_swin
+        elif swin_version == "swin_s":
+            weights = Swin_T_Weights.IMAGENET1K_V1
+            pretrained_swin = torchvision.models.swin_s(weights=weights)
+            self.model = pretrained_swin
+        elif swin_version == "swin_b":
+            weights = Swin_T_Weights.IMAGENET1K_V1
+            pretrained_swin = torchvision.models.swin_b(weights=weights)
+            self.model = pretrained_swin
+        else:
+            raise ValueError("Invalid swin_version. Choose from 'swin_t', 'swin_s', or 'swin_b'.")
+        # Get the input size of the last layer before we chop it
+        self.in_features = self.model.head.in_features
         
         
         # remove the final connected layer by putting a placeholder
@@ -56,7 +71,7 @@ class adjustedSwin(nn.Module):
         # Add the additional layers according to prompt.
         
         if self.added_layers == 2:
-            self.fc1 = nn.Linear(in_features,self.embedding_layer_size)
+            self.fc1 = nn.Linear(self.in_features,self.embedding_layer_size)
             
             if self.task_type == 'cls':
                 self.fc2 = nn.Linear(self.embedding_layer_size, self.num_classes)
@@ -67,9 +82,9 @@ class adjustedSwin(nn.Module):
         elif self.added_layers == 1:
             
             if self.task_type == 'cls':
-                self.fc1 = nn.Linear(in_features, self.num_classes)
+                self.fc1 = nn.Linear(self.in_features, self.num_classes)
             else:
-                self.fc1 = nn.Linear(in_features,self.output_dim)
+                self.fc1 = nn.Linear(self.in_features,self.output_dim)
         else:
             self.fc1 = None
             

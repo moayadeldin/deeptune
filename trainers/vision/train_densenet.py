@@ -1,5 +1,5 @@
 from src.vision.densenet import adjustedDenseNet
-from src.vision.densenet121_peft import adjustedPEFTDenseNet
+from src.vision.densenet_peft import adjustedPEFTDenseNet
 import importlib
 from utilities import save_cli_args, fixed_seed,split_save_load_dataset
 from trainers.vision.trainer import Trainer
@@ -53,7 +53,7 @@ def get_model():
     else:
         
         if USE_PEFT:
-            model = importlib.import_module('src.vision.densenet121_peft')
+            model = importlib.import_module('src.vision.densenet_peft')
             args.model = 'PEFT-' + DENSENET_VERSION
             return model.adjustedPEFTDenseNet
         else:

@@ -50,3 +50,4 @@ parser.add_argument("--adjusted_bert_dir", type=str,help='Path to the adjusted s
 # Models version
 parser.add_argument('--resnet_version', type=str, choices=['resnet18', 'resnet34', 'resnet50', 'resnet101', 'resnet152'], help='ResNet version to use.')
 parser.add_argument('--densenet_version', type=str, choices=['densenet121', 'densenet169', 'densenet201', 'densenet161'], help='DenseNet version to use.')
+parser.add_argument('--swin_version', type=str, choices=['swin_t', 'swin_s', 'swin_b'], help='Swin version to use.')

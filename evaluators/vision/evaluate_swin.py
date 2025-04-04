@@ -14,7 +14,7 @@ parser = options.parser
 DEVICE = options.DEVICE
 TEST_OUTPUT_DIR = options.TEST_OUTPUT_DIR
 args = parser.parse_args()
-
+SWIN_VERSION = args.swin_version
 TEST_DATASET_PATH = args.test_set_input_dir
 BATCH_SIZE= args.batch_size
 NUM_CLASSES = args.num_classes
@@ -27,11 +27,11 @@ MODE = args.mode
 
 if USE_PEFT:
     
-    MODEL = adjustedPeftSwin(NUM_CLASSES, ADDED_LAYERS, lora_attention_dimension=EMBED_SIZE,task_type=MODE)
-    args.model = 'PEFT-Swin'
+    MODEL = adjustedPeftSwin(NUM_CLASSES, SWIN_VERSION, ADDED_LAYERS, lora_attention_dimension=EMBED_SIZE,task_type=MODE)
+    args.model = 'PEFT- ' + SWIN_VERSION
 else:
-    MODEL = adjustedSwin(NUM_CLASSES, ADDED_LAYERS, EMBED_SIZE,task_type=MODE)
-    args.model = 'Swin'
+    MODEL = adjustedSwin(NUM_CLASSES, SWIN_VERSION, ADDED_LAYERS, EMBED_SIZE,task_type=MODE)
+    args.model = SWIN_VERSION
 
 # Load the test dataset from its path
 df = pd.read_parquet(TEST_DATASET_PATH)

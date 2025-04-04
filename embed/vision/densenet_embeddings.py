@@ -1,5 +1,5 @@
 from src.vision.densenet import adjustedDenseNet
-from src.vision.densenet121_peft import adjustedPEFTDenseNet
+from src.vision.densenet_peft import adjustedPEFTDenseNet
 from datasets.image_datasets import ParquetImageDataset
 from utilities import transformations
 import torch
@@ -20,7 +20,7 @@ parser = options.parser
 args = parser.parse_args()
 DENSENET_VERSION = args.densenet_version
 USE_CASE = args.use_case
-DATASET_DIR = args.input_dir
+INPUT_DIR = args.input_dir
 BATCH_SIZE = args.batch_size
 NUM_CLASSES = args.num_classes
 MODEL_PATH = args.model_weights
@@ -32,12 +32,13 @@ MODE = args.mode
 # Check which USE_CASE is used and based on this choose the model to get loaded. For example, if finetuned was the USE_CASE then the class call would be from the transfer-learning without PEFT version.
 if USE_CASE == 'finetuned':
     model = adjustedDenseNet(NUM_CLASSES,DENSENET_VERSION,ADDED_LAYERS, EMBED_SIZE,FREEZE_BACKBONE,task_type=MODE)
-    TEST_OUTPUT = f"deeptune_results/test_set_finetuned_DenseNet121_embeddings_{MODE}.parquet"
-    args.use_case = 'finetuned-Densenet121'
+    TEST_OUTPUT = f"deeptune_results/test_set_finetuned_DenseNet_embeddings_{MODE}.parquet"
+    args.use_case = 'finetuned- ' + DENSENET_VERSION
 
 elif USE_CASE == 'peft':
     model = adjustedPEFTDenseNet(NUM_CLASSES, DENSENET_VERSION, ADDED_LAYERS, EMBED_SIZE, FREEZE_BACKBONE,task_type=MODE)
-    TEST_OUTPUT = f"deeptune_results/test_set_peft_DenseNet121_embeddings_{MODE}.parquet"
+    TEST_OUTPUT = f"deeptune_results/test_set_peft_DenseNet_embeddings_{MODE}.parquet"
+    args.use_case = 'peft- ' + DENSENET_VERSION
 else:
     raise ValueError('There is no third option other than ["finetuned", "peft"]')
 
@@ -88,7 +89,7 @@ adjusted_model.cuda()
 
 # Load the dataloader
 
-dataset = ParquetImageDataset(parquet_file=DATASET_DIR, transform=transformations)
+dataset = ParquetImageDataset(parquet_file=INPUT_DIR, transform=transformations)
 
 data_loader = torch.utils.data.DataLoader(
     dataset,

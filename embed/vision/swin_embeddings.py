@@ -20,9 +20,9 @@ Note: If you chose to have the finetuned option with added layers = 1 without PE
 DEVICE = options.DEVICE
 parser = options.parser
 args = parser.parse_args()
-
+SWIN_VERSION = args.swin_version
 USE_CASE = args.use_case
-DATASET_DIR = args.input_dir
+INPUT_DIR = args.input_dir
 BATCH_SIZE = args.batch_size
 NUM_CLASSES = args.num_classes
 MODEL_PATH = args.model_weights
@@ -33,19 +33,26 @@ MODE = args.mode
 # Check which USE_CASE is used and based on this choose the model to get loaded. For example, if finetuned was the USE_CASE then the class call would be from the transfer-learning without PEFT version.
 if USE_CASE == 'peft':
     
-    model = adjustedPeftSwin(NUM_CLASSES, ADDED_LAYERS, EMBED_SIZE, FREEZE_BACKBONE,task_type=MODE)
-    TEST_OUTPUT = f"test_set_peft_swin_t_embeddings_{MODE}.parquet"
-    args.use_case = 'peft-Swin'
+    model = adjustedPeftSwin(NUM_CLASSES,SWIN_VERSION, ADDED_LAYERS, EMBED_SIZE, FREEZE_BACKBONE,task_type=MODE)
+    TEST_OUTPUT = f"test_set_peft_swin_embeddings_{MODE}.parquet"
+    args.use_case = 'peft- ' + SWIN_VERSION
 elif USE_CASE == 'finetuned':
-    model = adjustedSwin(NUM_CLASSES,ADDED_LAYERS, EMBED_SIZE,FREEZE_BACKBONE,task_type=MODE)
-    TEST_OUTPUT = f"test_set_finetuned_swin_t_embeddings_{MODE}.parquet"
-    args.use_case = 'finetuned-Swin'
+    model = adjustedSwin(NUM_CLASSES, SWIN_VERSION, ADDED_LAYERS, EMBED_SIZE,FREEZE_BACKBONE,task_type=MODE)
+    TEST_OUTPUT = f"test_set_finetuned_swin_embeddings_{MODE}.parquet"
+    args.use_case = 'finetuned- ' + SWIN_VERSION
 
 elif USE_CASE == 'pretrained':
-    model = torchvision.models.swin_t(weights=Swin_T_Weights.IMAGENET1K_V1)
+    if SWIN_VERSION == 'swin_t':
+        model = torchvision.models.swin_t(weights=Swin_T_Weights.IMAGENET1K_V1)
+    elif SWIN_VERSION == 'swin_s':
+        model = torchvision.models.swin_s(weights=Swin_T_Weights.IMAGENET1K_V1)
+    elif SWIN_VERSION == 'swin_b':
+        model = torchvision.models.swin_b(weights=Swin_T_Weights.IMAGENET1K_V1)
+    
+
     model.head = nn.Identity()  # Remove classification layer to use as feature extractor
     TEST_OUTPUT = f"test_set_pretrained_swin_t_embeddings_{MODE}.parquet"
-    args.use_case = 'pretrained-swin'
+    args.use_case = 'pretrained- ' + SWIN_VERSION
 else:
     raise ValueError('There is no fourth option other than ["finetuned", "peft", "pretrained"]')
 
@@ -83,7 +90,7 @@ for p in adjusted_model.parameters(): # stop gradient calculations
 adjusted_model.cuda() # move the model to cuda
 
 # load the dataloader
-dataset = ParquetImageDataset(parquet_file=DATASET_DIR, transform=transformations)
+dataset = ParquetImageDataset(parquet_file=INPUT_DIR, transform=transformations)
 
 data_loader = torch.utils.data.DataLoader(
     dataset,

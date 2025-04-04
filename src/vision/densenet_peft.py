@@ -6,7 +6,7 @@ from peft import LoraConfig, get_peft_model
 class adjustedPEFTDenseNet(nn.Module):
     
     
-    def __init__(self, num_classes, added_layers, lora_attention_dimension, freeze_backbone=False, model_to_load='densenet121',task_type='cls',output_dim=1):
+    def __init__(self, num_classes,densenet_version, added_layers, lora_attention_dimension, freeze_backbone=False, model_to_load='densenet121',task_type='cls',output_dim=1):
         
         """
         
@@ -14,11 +14,11 @@ class adjustedPEFTDenseNet(nn.Module):
         
         Args:
             num_classes (int) : Number of classes in your dataset.
+            densenet_version (str): Version of DenseNet you want to use.
             added_layers (int) : Number of additional layers you want to add while finetuning your model
             lora_attention_dimension (int): If you chose added_layers to be 2, so this specifies the size of the intermediate layer in between.
             freeze_backbone (bool): Determine whether you want to apply transfer learning on the backbone weights or the whole model.
             task_type (str): Determine whether you want to classification or regression.
-            model_to_load (str): Determine which DenseNet pretrained weights version would you want to use.
             output_dim (int): The dimension of the output of regression model, default = 1.
             
             
@@ -32,14 +32,18 @@ class adjustedPEFTDenseNet(nn.Module):
         self.added_layers = added_layers
         self.lora_attention_dimension = lora_attention_dimension
         self.freeze_backbone = freeze_backbone
-        
-        # remove the final connected layer by putting a placeholder
-        
-        # additional parameters for regression
-        
-        self.task_type = task_type
-        self.output_dim = output_dim
-        
+        self.densenet_version = densenet_version
+
+        if densenet_version == "densenet121":
+            self.model_to_load = "densenet121"
+        elif densenet_version == "densenet161":
+            self.model_to_load = "densenet161"
+        elif densenet_version == "densenet169":
+            self.model_to_load = "densenet169"
+        elif densenet_version == "densenet201":
+            self.model_to_load = "densenet201"
+        else:
+            raise ValueError("Invalid densenet_version. Choose from 'densenet121', 'densenet161', 'densenet169', or 'densenet201'.")
         
         # remove the final connected layer by putting a placeholder
         self.model = torch.hub.load('pytorch/vision:v0.10.0', self.model_to_load, pretrained=True)
@@ -47,12 +51,17 @@ class adjustedPEFTDenseNet(nn.Module):
         self.model.classifier = nn.Identity()
         self.flatten = nn.Flatten()
         
+        # additional parameters for regression
+        
+        self.task_type = task_type
+        self.output_dim = output_dim
+        
         
         # Check if freeze_backbone true freeze the original model's weights otherwise update all weights.
         if self.freeze_backbone:
             for param in self.model.parameters():
-                print('Backbone Parameters are frozen!')
                 param.requires_grad = False
+            print('Backbone Parameters are frozen!')
                 
         # Add the additional layers according to prompt.
         if self.added_layers == 2:

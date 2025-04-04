@@ -14,7 +14,7 @@ class adjustedDenseNet(nn.Module):
         
         Args:
             num_classes (int) : Number of classes in your dataset.
-            densenet_version (str): DenseNet of ResNet you want to use.
+            densenet_version (str): Version of DenseNet you want to use.
             added_layers (int) : Number of additional layers you want to add while finetuning your model
             lora_attention_dimension (int): If you chose added_layers to be 2, so this specifies the size of the intermediate layer in between.
             freeze_backbone (bool): Determine whether you want to apply transfer learning on the backbone weights or the whole model.

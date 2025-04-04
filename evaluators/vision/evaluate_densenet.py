@@ -1,5 +1,5 @@
 from src.vision.densenet import adjustedDenseNet
-from src.vision.densenet121_peft import adjustedPEFTDenseNet
+from src.vision.densenet_peft import adjustedPEFTDenseNet
 from utilities import transformations
 import torch
 from datasets.image_datasets import ParquetImageDataset
