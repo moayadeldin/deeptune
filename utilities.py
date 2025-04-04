@@ -105,7 +105,7 @@ def split_save_load_dataset(mode,type,input_dir, train_size, val_size, test_size
     
     # for testing purposes we may pock the first 10 rows
     
-    df = df[:10]
+    # df = df[:10]
     
     # Apply the splitting of the input and save them in the specified paths
     train_data, temp_data = train_test_split(df, test_size=(1 - train_size), random_state=seed)

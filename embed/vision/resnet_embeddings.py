@@ -22,7 +22,7 @@ args = parser.parse_args()
 
 RESNET_VERSION = args.resnet_version
 USE_CASE = args.use_case
-DATASET_DIR = args.input_dir
+INPUT_DIR = args.input_dir
 BATCH_SIZE = args.batch_size
 NUM_CLASSES = args.num_classes
 MODEL_PATH = args.model_weights
@@ -97,7 +97,7 @@ for p in adjusted_model.parameters(): # stop gradient calculations
 adjusted_model.cuda() # move the model to cuda
 
 # load the dataloader
-dataset = ParquetImageDataset(parquet_file=DATASET_DIR, transform=transformations)
+dataset = ParquetImageDataset(parquet_file=INPUT_DIR, transform=transformations)
 
 data_loader = torch.utils.data.DataLoader(
     dataset,
