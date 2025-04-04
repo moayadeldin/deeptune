@@ -51,3 +51,4 @@ parser.add_argument("--adjusted_bert_dir", type=str,help='Path to the adjusted s
 parser.add_argument('--resnet_version', type=str, choices=['resnet18', 'resnet34', 'resnet50', 'resnet101', 'resnet152'], help='ResNet version to use.')
 parser.add_argument('--densenet_version', type=str, choices=['densenet121', 'densenet169', 'densenet201', 'densenet161'], help='DenseNet version to use.')
 parser.add_argument('--swin_version', type=str, choices=['swin_t', 'swin_s', 'swin_b'], help='Swin version to use.')
+parser.add_argument('--efficientnet_version', type=str, choices=['efficientnet_b0', 'efficientnet_b1', 'efficientnet_b2', 'efficientnet_b3', 'efficientnet_b4', 'efficientnet_b5', 'efficientnet_b6', 'efficientnet_b7'], help='EfficientNet version to use.')

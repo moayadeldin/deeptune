@@ -1,5 +1,5 @@
-from src.vision.densenet import adjustedDenseNet
-from src.vision.densenet_peft import adjustedPeftDenseNet
+from src.vision.efficientnet import adjustedEfficientNet
+from src.vision.efficientnet_peft import adjustedPeftEfficientNet
 from utilities import transformations
 import torch
 from datasets.image_datasets import ParquetImageDataset
@@ -14,8 +14,7 @@ parser = options.parser
 DEVICE = options.DEVICE
 TEST_OUTPUT_DIR = options.TEST_OUTPUT_DIR
 args = parser.parse_args()
-DENSENET_VERSION = args.densenet_version
-
+EFFICIENTNET_VERSION = args.efficientnet_version
 TEST_DATASET_PATH = args.test_set_input_dir
 BATCH_SIZE= args.batch_size
 NUM_CLASSES = args.num_classes
@@ -26,14 +25,16 @@ EMBED_SIZE = args.embed_size
 MODE = args.mode
 
 if USE_PEFT:
-    MODEL = adjustedPeftDenseNet(NUM_CLASSES,DENSENET_VERSION, ADDED_LAYERS, lora_attention_dimension=EMBED_SIZE,task_type=MODE)
-    args.model = 'PEFT-' + DENSENET_VERSION
+    
+    MODEL = adjustedPeftEfficientNet(NUM_CLASSES,EFFICIENTNET_VERSION, ADDED_LAYERS, lora_attention_dimension=EMBED_SIZE,task_type=MODE)
+    args.model = 'PEFT-' + EFFICIENTNET_VERSION
     
 else:
-    MODEL = adjustedDenseNet(NUM_CLASSES,DENSENET_VERSION, ADDED_LAYERS, EMBED_SIZE,task_type=MODE)
-    args.model = DENSENET_VERSION
+    MODEL = adjustedEfficientNet(NUM_CLASSES,EFFICIENTNET_VERSION, ADDED_LAYERS, EMBED_SIZE,task_type=MODE)
+    args.model = EFFICIENTNET_VERSION
 
-# Load the test dataset from its path and the testloader
+
+# Load the test dataset from its path and testloader
 df = pd.read_parquet(TEST_DATASET_PATH)
 
 test_dataset = ParquetImageDataset(parquet_file=TEST_DATASET_PATH, transform=transformations)
@@ -47,7 +48,8 @@ test_loader = torch.utils.data.DataLoader(
   
 if __name__ == "__main__":
     
-    # Call the trainer class and save arguments
+     # Call the trainer class and save arguments.
+    
     test_trainer = TestTrainer(model=MODEL, batch_size=BATCH_SIZE,test_loader=test_loader)
     
     test_trainer.test(best_model_weights_path=MODEL_WEIGHTS)

@@ -1,5 +1,4 @@
-from src.vision.densenet import adjustedDenseNet
-from src.vision.densenet_peft import adjustedPeftDenseNet
+from src.vision.efficientnet import adjustedEfficientNet
 import importlib
 from utilities import save_cli_args, fixed_seed,split_save_load_dataset
 from trainers.vision.trainer import Trainer
@@ -14,7 +13,7 @@ parser = options.parser
 args = parser.parse_args()
 
 INPUT_DIR = args.input_dir
-DENSENET_VERSION = args.densenet_version
+EFFICIENTNET_VERSION = args.efficientnet_version
 BATCH_SIZE=args.batch_size
 LEARNING_RATE=args.learning_rate
 NUM_CLASSES = args.num_classes
@@ -30,7 +29,7 @@ FIXED_SEED = args.fixed_seed
 FREEZE_BACKBONE = args.freeze_backbone
 MODE = args.mode
 
-# If we want to apply fixed seed or randomly initialize the weights and dataset
+# If we want to apply fixed seed or randomly initialize the weights and dataset.
 if FIXED_SEED:
     SEED=42
     fixed_seed(SEED)
@@ -43,24 +42,23 @@ else:
 # Fetch whether the transfer-learning with PEFT version or transfer-learning without
 def get_model():
 
-    """Allows the user to choose from Adjusted DenseNet121 or PEFT-DenseNet121 versions.
+    """Allows the user to choose from Adjusted ResNet18 or PEFT-ResNet18 versions.
     """
-    
     if ADDED_LAYERS == 0:
         
         raise ValueError('As you apply one of transfer learning or PEFT, please choose 1 or 2 as your preferred number of added_layers.')
-    
+
+    if USE_PEFT:
+        
+        model = importlib.import_module('src.vision.efficientnet_peft')
+        args.model = 'PEFT-' + EFFICIENTNET_VERSION
+        return model.adjustedPeftEfficientNet
+
     else:
-        
-        if USE_PEFT:
-            model = importlib.import_module('src.vision.densenet_peft')
-            args.model = 'PEFT-' + DENSENET_VERSION
-            return model.adjustedPEFTDenseNet
-        else:
-            model = importlib.import_module('src.vision.densenet')
-            args.model = DENSENET_VERSION
-            return model.adjustedDenseNet
-        
+        model = importlib.import_module('src.vision.efficientnet')
+        args.model = EFFICIENTNET_VERSION
+        return model.adjustedEfficientNet
+    
 # load the dataset with appropriate paths
 TRAIN_DATASET_PATH = options.TRAIN_DATASET_PATH
 VAL_DATASET_PATH = options.VAL_DATASET_PATH
@@ -81,8 +79,7 @@ train_loader, val_loader = split_save_load_dataset(
     seed=SEED,
     batch_size=BATCH_SIZE,
     tokenizer=None
-)           
-
+)    
 
 if __name__ == "__main__":
     
@@ -90,7 +87,7 @@ if __name__ == "__main__":
     choosed_model = get_model()
     
     # pass the options from the args user are feeding as input
-    model = choosed_model(NUM_CLASSES,DENSENET_VERSION, ADDED_LAYERS, EMBED_SIZE, FREEZE_BACKBONE,task_type=MODE)
+    model = choosed_model(NUM_CLASSES,EFFICIENTNET_VERSION, ADDED_LAYERS, EMBED_SIZE, FREEZE_BACKBONE,task_type=MODE)
     
     # initialize trainer class
     trainer = Trainer(model, train_loader=train_loader, val_loader=val_loader)

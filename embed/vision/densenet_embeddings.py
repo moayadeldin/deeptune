@@ -1,5 +1,5 @@
 from src.vision.densenet import adjustedDenseNet
-from src.vision.densenet_peft import adjustedPEFTDenseNet
+from src.vision.densenet_peft import adjustedPeftDenseNet
 from datasets.image_datasets import ParquetImageDataset
 from utilities import transformations
 import torch
@@ -36,7 +36,7 @@ if USE_CASE == 'finetuned':
     args.use_case = 'finetuned- ' + DENSENET_VERSION
 
 elif USE_CASE == 'peft':
-    model = adjustedPEFTDenseNet(NUM_CLASSES, DENSENET_VERSION, ADDED_LAYERS, EMBED_SIZE, FREEZE_BACKBONE,task_type=MODE)
+    model = adjustedPeftDenseNet(NUM_CLASSES, DENSENET_VERSION, ADDED_LAYERS, EMBED_SIZE, FREEZE_BACKBONE,task_type=MODE)
     TEST_OUTPUT = f"deeptune_results/test_set_peft_DenseNet_embeddings_{MODE}.parquet"
     args.use_case = 'peft- ' + DENSENET_VERSION
 else:
