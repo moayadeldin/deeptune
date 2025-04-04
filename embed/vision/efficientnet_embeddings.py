@@ -1,5 +1,5 @@
-from src.vision.resnet import adjustedResNet
-from src.vision.resnet_peft import adjustedPeftResNet
+from src.vision.efficientnet import adjustedEfficientNet
+from src.vision.efficientnet_peft import adjustedPeftEfficientNet
 from datasets.image_datasets import ParquetImageDataset
 from utilities import transformations
 import torch
@@ -8,7 +8,6 @@ from tqdm import tqdm
 import numpy as np
 import pandas as pd
 import torchvision
-from torchvision.models import ResNet18_Weights,ResNet34_Weights,ResNet50_Weights,ResNet101_Weights,ResNet152_Weights
 import options
 """
 Note: If you chose to have the finetuned option with added layers = 1 without PEFT, it will have the same embeddings output as if pretrained. This is normal behavior and works as expected. Because in the pretrained option the last layer are actually mapping 512 inputs to 1000 outputs. For the finetuned option, it maps the same 512 inputs but to 8 outputs. The difference is in the output but input to the last layer is actually the same. This happens in case you have frozen the backbone weights during transfer-learning and only updated the last layer.
@@ -19,8 +18,7 @@ Note: If you chose to have the finetuned option with added layers = 1 without PE
 DEVICE = options.DEVICE
 parser = options.parser
 args = parser.parse_args()
-
-RESNET_VERSION = args.resnet_version
+EFFICIENTNET_VERSION = args.efficientnet_version
 USE_CASE = args.use_case
 INPUT_DIR = args.input_dir
 BATCH_SIZE = args.batch_size
@@ -34,32 +32,37 @@ MODE = args.mode
 # Check which USE_CASE is used and based on this choose the model to get loaded. For example, if finetuned was the USE_CASE then the class call would be from the transfer-learning without PEFT version.
 if USE_CASE == 'peft':
     
-    model = adjustedPeftResNet(NUM_CLASSES,RESNET_VERSION,ADDED_LAYERS, EMBED_SIZE,FREEZE_BACKBONE,task_type=MODE)
+    model = adjustedPeftEfficientNet(NUM_CLASSES,EFFICIENTNET_VERSION,ADDED_LAYERS, EMBED_SIZE,FREEZE_BACKBONE,task_type=MODE)
     TEST_OUTPUT = f'deeptune_results/test_set_peft_resnet_embeddings_{MODE}.parquet'
-    args.use_case = 'PEFT-' + RESNET_VERSION
+    args.use_case = 'PEFT- ' + EFFICIENTNET_VERSION
     
 elif USE_CASE == 'finetuned':
-    model = adjustedResNet(NUM_CLASSES,RESNET_VERSION,ADDED_LAYERS, EMBED_SIZE,FREEZE_BACKBONE,task_type=MODE)
-    TEST_OUTPUT = f"deeptune_results/test_set_finetuned_resnet_embeddings_{MODE}.parquet"
-    args.use_case = 'finetuned-' + RESNET_VERSION
+    model = adjustedEfficientNet(NUM_CLASSES,EFFICIENTNET_VERSION,ADDED_LAYERS, EMBED_SIZE,FREEZE_BACKBONE,task_type=MODE)
+    TEST_OUTPUT = f"deeptune_results/test_set_finetuned_efficientnet_embeddings_{MODE}.parquet"
+    args.use_case = 'finetuned-' + EFFICIENTNET_VERSION
 
 elif USE_CASE == 'pretrained':
-    if RESNET_VERSION == 'resnet18':    
-        model = torchvision.models.resnet18(weights=ResNet18_Weights.IMAGENET1K_V1)
-    elif RESNET_VERSION == 'resnet34':
-        model = torchvision.models.resnet34(weights=ResNet34_Weights.IMAGENET1K_V1)
-    elif RESNET_VERSION == 'resnet50':
-        model = torchvision.models.resnet50(weights=ResNet50_Weights.IMAGENET1K_V1)
-    elif RESNET_VERSION == 'resnet101':
-        model = torchvision.models.resnet101(weights=ResNet101_Weights.IMAGENET1K_V1)
-    elif RESNET_VERSION == 'resnet152':
-        model = torchvision.models.resnet152(weights=ResNet152_Weights.IMAGENET1K_V1)
+    if EFFICIENTNET_VERSION == "efficientnet_b0":
+            model = torchvision.models.efficientnet_b0(weights="DEFAULT")
+    elif EFFICIENTNET_VERSION == "efficientnet_b1":
+            model = torchvision.models.efficientnet_b1(weights="DEFAULT")
+    elif EFFICIENTNET_VERSION == "efficientnet_b2":
+            model = torchvision.models.efficientnet_b2(weights="DEFAULT")
+    elif EFFICIENTNET_VERSION == "efficientnet_b3":
+            model = torchvision.models.efficientnet_b3(weights="DEFAULT")
+    elif EFFICIENTNET_VERSION == "efficientnet_b4":
+            model = torchvision.models.efficientnet_b4(weights="DEFAULT")
+    elif EFFICIENTNET_VERSION == "efficientnet_b5":
+            model = torchvision.models.efficientnet_b5(weights="DEFAULT")
+    elif EFFICIENTNET_VERSION == "efficientnet_b6":
+            model = torchvision.models.efficientnet_b6(weights="DEFAULT")
+    elif EFFICIENTNET_VERSION == "efficientnet_b7":
+            model = torchvision.models.efficientnet_b7(weights="DEFAULT")
     else:
-        raise ValueError('The pretrained model should be one of the following: ["resnet18", "resnet34", "resnet50", "resnet101", "resnet152"]')
-    
-    model.fc = nn.Identity()  # Remove classification layer to use as feature extractor
+        raise ValueError('The pretrained model should be one of the following: ["efficientnet_b0", "efficientnet_b1", "efficientnet_b2", "efficientnet_b3", "efficientnet_b4", "efficientnet_b5", "efficientnet_b6", "efficientnet_b7"]')
+    model.classifier = nn.Identity()  # Remove classification layer to use as feature extractor
     TEST_OUTPUT = "deeptune_results/test_set_pretrained_resnet18_embeddings.parquet"
-    args.use_case = 'pretrained-' + RESNET_VERSION
+    args.use_case = 'pretrained-' + EFFICIENTNET_VERSION
 else:
     raise ValueError('There is no fourth option other than ["finetuned", "peft", "pretrained"]')
 

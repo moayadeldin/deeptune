@@ -12,7 +12,7 @@ import pandas as pd
 import torchvision
 
 """
-Note: If you chose to have the finetuned option with added layers = 1 without PEFT, it will have the same embeddings output as if pretrained. This is normal behavior and works as expected. Because in the pretrained option the last layer are actually mapping 768 inputs to 1000 outputs. For the finetuned option, it maps the same 768 inputs but to 8 outputs. The difference is in the output but input to the last layer is actually the same.
+Note: If you chose to have the finetuned option with added layers = 1 without PEFT, it will have the same embeddings output as if pretrained. This is normal behavior and works as expected. Because in the pretrained option the last layer are actually mapping 768 inputs to 1000 outputs. For the finetuned option, it maps the same 768 inputs but to 8 outputs. The difference is in the output but input to the last layer is actually the same. This happens in case you have frozen the backbone weights during transfer-learning and only updated the last layer.
 """
 
 # Initialize the needed variables either from the CLI user sents or from the device.
