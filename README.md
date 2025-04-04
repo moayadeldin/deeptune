@@ -12,8 +12,8 @@ As a cutting-edge software library that has been specifically designed for use i
 - Ability of fine-tuning SoTA NLP algorithms.
 - Providing PEFT with LoRA for Computer Vision algorithms implemented, enabling state-of-the-art models that typically require substantial computational resources to perform efficiently on lower-powered devices. This approach not only reduces computational overhead but also enhances performance
 - Ability of extracting meaningful feature embeddings representing your own dataset with SoTA algorithms for image and text classification tasks.
-
 ## Models DeepTune Supports Up to Date
+
 <table>
   <thead>
     <tr>
@@ -23,32 +23,27 @@ As a cutting-edge software library that has been specifically designed for use i
       <th>Support Embeddings Extraction?</th>
       <th>Task</th>
       <th>Modality</th>
+      <th>Supported Models</th>
     </tr>
   </thead>
   <tbody>
     <tr>
-      <td>ResNet18</td>
+      <td>ResNet</td>
       <td>✅</td>
       <td>✅</td>
       <td>✅</td>
       <td>Classification & Regression</td>
       <td>Image</td>
+      <td>ResNet18, ResNet34, ResNet50, ResNet101, ResNet152</td>
     </tr>
     <tr>
-      <td>Siglip</td>
-      <td>➖</td>
-      <td>➖</td>
-      <td>➖</td>
-      <td>Classification & Regression</td>
-      <td>Image</td>
-    </tr>
-    <tr>
-      <td>DenseNet121</td>
+      <td>DenseNet</td>
       <td>✅</td>
       <td>✅</td>
       <td>✅</td>
       <td>Classification & Regression</td>
       <td>Image</td>
+      <td>DenseNet121, DenseNet161, DenseNet169, DenseNet201</td>
     </tr>
     <tr>
       <td>Swin</td>
@@ -57,22 +52,35 @@ As a cutting-edge software library that has been specifically designed for use i
       <td>✅</td>
       <td>Classification & Regression</td>
       <td>Image</td>
+      <td>Swin_t, Swin_b, Swin_s</td>
     </tr>
     <tr>
-      <td>MultiLingual Base BERT</td>
+      <td>EfficientNet</td>
+      <td>✅</td>
+      <td>✅</td>
+      <td>✅</td>
+      <td>Classification & Regression</td>
+      <td>Image</td>
+      <td>EfficientNet-B0, B1, B2, B3, B4, B5, B6, B7</td>
+    </tr>
+    <tr>
+      <td>BERT</td>
       <td>✅</td>
       <td>✅</td>
       <td>✅</td>
       <td>Sentiment Analysis</td>
       <td>Text</td>
+      <td>bert-base-multilingual-cased</td>
     </tr>
     <tr>
-      <td>XLM-RoBERTa</td>
+      <td>RoBERTa</td>
       <td colspan="4" style="text-align:center; font-weight:bold; font-size:16px;">Only Supports Embedding Extraction</td>
       <td>Text</td>
+      <td>XLM-RoBERTa</td>
     </tr>
   </tbody>
 </table>
+
 
 
 
