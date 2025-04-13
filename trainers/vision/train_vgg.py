@@ -93,7 +93,7 @@ if __name__ == "__main__":
     model = choosed_model(NUM_CLASSES,VGGNET_VERSION, ADDED_LAYERS, EMBED_SIZE, FREEZE_BACKBONE,task_type=MODE)
     
     # initialize trainer class
-    trainer = Trainer(model, train_loader=train_loader, val_loader=val_loader)
+    trainer = Trainer(model, train_loader=train_loader, val_loader=val_loader, learning_rate=LEARNING_RATE, mode=MODE, num_epochs=NUM_EPOCHS, output_dir=TRAINVAL_OUTPUT_DIR)
     
     print('The Trainer class is loaded successfully.')
     
