@@ -93,7 +93,7 @@ if __name__ == "__main__":
     model = choosed_model(NUM_CLASSES,DENSENET_VERSION, ADDED_LAYERS, EMBED_SIZE, FREEZE_BACKBONE,task_type=MODE)
     
     # initialize trainer class
-    trainer = Trainer(model, train_loader=train_loader, val_loader=val_loader)
+    trainer = Trainer(model, train_loader=train_loader, val_loader=val_loader,learning_rate=LEARNING_RATE, num_epochs=NUM_EPOCHS, batch_size=BATCH_SIZE, device=DEVICE, check_val_every_n_epoch=CHECK_VAL_EVERY_N_EPOCH, mode=MODE)
     
     print('The Trainer class is loaded successfully.')
     

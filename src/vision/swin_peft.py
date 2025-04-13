@@ -1,5 +1,5 @@
 import torchvision
-from torchvision.models import Swin_T_Weights
+from torchvision.models import Swin_T_Weights,Swin_B_Weights,Swin_S_Weights
 import torchvision
 import torch.nn as nn
 import torch.nn.functional as F
@@ -8,7 +8,7 @@ from peft import LoraConfig, get_peft_model
 
 class adjustedPeftSwin(nn.Module):
 
-    def __init__(self,num_classes,swin_version, added_layers, lora_attention_dimension, freeze_backbone=False,task_type='cls',output_dim=1):
+    def __init__(self,num_classes,swin_version, added_layers=2, lora_attention_dimension=1000, freeze_backbone=False,task_type='cls',output_dim=1):
 
         """
         
@@ -40,11 +40,11 @@ class adjustedPeftSwin(nn.Module):
             pretrained_swin = torchvision.models.swin_t(weights=weights)
             self.model = pretrained_swin
         elif swin_version == "swin_s":
-            weights = Swin_T_Weights.IMAGENET1K_V1
+            weights = Swin_S_Weights.IMAGENET1K_V1
             pretrained_swin = torchvision.models.swin_s(weights=weights)
             self.model = pretrained_swin
         elif swin_version == "swin_b":
-            weights = Swin_T_Weights.IMAGENET1K_V1
+            weights = Swin_B_Weights.IMAGENET1K_V1
             pretrained_swin = torchvision.models.swin_b(weights=weights)
             self.model = pretrained_swin
         else:

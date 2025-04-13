@@ -14,14 +14,10 @@ parser = options.parser
 args = parser.parse_args()
 
 DEVICE = options.DEVICE
-TRAINVAL_OUTPUT_DIR = options.TRAINVAL_OUTPUT_DIR
-NUM_EPOCHS = args.num_epochs
-LEARNING_RATE = args.learning_rate
-MODE = args.mode
 
 class Trainer:
 
-    def __init__(self, model, train_loader, val_loader):
+    def __init__(self, model, train_loader, val_loader, learning_rate, mode, num_epochs, output_dir=options.TRAINVAL_OUTPUT_DIR):
         
         """
         Performs Training & Validation on the input image dataset.
@@ -31,6 +27,10 @@ class Trainer:
             model (PyTorch Model): The model we are loading from the src file, whether it is for transfer learning with PEFT Or without.
             train_loader (torch.utils.data.DataLoader): The DataLoader for the training set.
             val_loader (torch.utils.data.DataLoader): The DataLoader for the validation set.
+            learning_rate (float): The learning rate for the optimizer.
+            mode (str): The mode of the model, either classification or regression.
+            num_epochs (int): The number of epochs to train the model.
+            output_dir (str): The directory to save the training logs and model checkpoints.
             
         Attributes:
         
@@ -43,15 +43,18 @@ class Trainer:
         self.model.to(DEVICE)
         self.train_loader = train_loader
         self.val_loader = val_loader
+        self.mode = mode
+        self.num_epochs = num_epochs
+        self.learning_rate = learning_rate
+        self.output_dir = output_dir
         
-        
-        if MODE == 'cls':    
+        if self.mode == 'cls':    
             self.criterion = nn.CrossEntropyLoss()
         else: # then regression if not classification
             self.criterion = nn.MSELoss()
-        self.optimizer = optim.Adam(filter(lambda p: p.requires_grad, model.parameters()), lr=LEARNING_RATE)
+        self.optimizer = optim.Adam(filter(lambda p: p.requires_grad, model.parameters()), lr=self.learning_rate)
         
-        self.performance_logger = PerformanceLogger(f'{TRAINVAL_OUTPUT_DIR}')
+        self.performance_logger = PerformanceLogger(output_dir) if output_dir else None
 
         # logging info
         logging.basicConfig(stream=sys.stdout, level=logging.INFO, format="%(levelname)s | %(message)s")
@@ -59,7 +62,7 @@ class Trainer:
 
     def train(self):
 
-        for epoch in range(NUM_EPOCHS):
+        for epoch in range(self.num_epochs):
 
             self.model.train()
             
@@ -103,7 +106,7 @@ class Trainer:
                 # accumulate loss
                 running_loss += loss.item()
                 
-                if MODE == "cls":
+                if self.mode == "cls":
                 
                     # calculate accuracy
                     correct_predictions += torch.sum(torch.argmax(outputs,dim=1)==labels).item()
@@ -118,14 +121,14 @@ class Trainer:
             # update training loss
             epoch_loss = running_loss / len(self.train_loader)
             
-            if MODE == 'cls':
+            if self.mode == 'cls':
                 
                 """
                 Here in Classification we have both loss and accuracy as metrics to track, so we will log both of them.
                 """
                 
                 self.logger.info(
-                    f"Epoch {epoch + 1}/{NUM_EPOCHS}, Training Loss: {running_loss / len(self.train_loader)}, Training Accuracy: {epoch_accuracy}"
+                    f"Epoch {epoch + 1}/{self.num_epochs}, Training Loss: {running_loss / len(self.train_loader)}, Training Accuracy: {epoch_accuracy}"
                 )    
                 # Then we see how validation set works 
                 val_loss, val_accuracy = self.validate()
@@ -137,37 +140,39 @@ class Trainer:
                 """
                 
                 self.logger.info(
-                    f"Epoch {epoch + 1}/{NUM_EPOCHS}, Training Loss: {running_loss / len(self.train_loader)}"
+                    f"Epoch {epoch + 1}/{self.num_epochs}, Training Loss: {running_loss / len(self.train_loader)}"
                 )    
     
                 val_loss = self.validate()    
             
             self.logger.info(f"Validation loss: {val_loss}")
             
-            if MODE == 'cls':
-                
-                self.performance_logger.log_epoch(
-                    epoch = epoch+1,
-                    epoch_loss=epoch_loss,
-                    epoch_accuracy=epoch_accuracy,
-                    val_loss=val_loss,
-                    val_accuracy=val_accuracy,
+            if self.performance_logger:
+
+                if self.mode == 'cls':
                     
-                )
-         
-            else:
-                
-                self.performance_logger.log_epoch(
-                    epoch = epoch+1,
-                    epoch_loss=epoch_loss,
-                    val_loss=val_loss,
-                    epoch_accuracy='Regression: No Accuracy',
-                    val_accuracy = 'Regression: No Accuracy'
+                    self.performance_logger.log_epoch(
+                        epoch = epoch+1,
+                        epoch_loss=epoch_loss,
+                        epoch_accuracy=epoch_accuracy,
+                        val_loss=val_loss,
+                        val_accuracy=val_accuracy,
+                        
+                    )
+            
+                else:
                     
-                )    
-            
-            self.performance_logger.save_to_csv(f"{TRAINVAL_OUTPUT_DIR}/training_log.csv")
-            
+                    self.performance_logger.log_epoch(
+                        epoch = epoch+1,
+                        epoch_loss=epoch_loss,
+                        val_loss=val_loss,
+                        epoch_accuracy='Regression: No Accuracy',
+                        val_accuracy = 'Regression: No Accuracy'
+                        
+                    )    
+                
+                self.performance_logger.save_to_csv(f"{self.output_dir}/training_log.csv")
+                
         
     def validate(self):
         
@@ -209,7 +214,7 @@ class Trainer:
         
         # if mode regression then no need to return accuracy or compute it
         
-        if MODE == 'cls':
+        if self.mode == 'cls':
             val_accuracy = correct / total
             val_loss = val_loss / len(self.val_loader)
             return val_loss, val_accuracy
