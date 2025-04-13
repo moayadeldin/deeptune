@@ -64,6 +64,15 @@ As a cutting-edge software library that has been specifically designed for use i
       <td>EfficientNet-B0, B1, B2, B3, B4, B5, B6, B7</td>
     </tr>
     <tr>
+      <td>VGGNet</td>
+      <td>✅</td>
+      <td>✅</td>
+      <td>✅</td>
+      <td>Classification & Regression</td>
+      <td>Image</td>
+      <td>VGG11, VGG13, VGG16, VGG19</td>
+    </tr>
+    <tr>
       <td>BERT</td>
       <td>✅</td>
       <td>✅</td>
