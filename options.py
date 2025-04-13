@@ -24,7 +24,7 @@ parser.add_argument('--num_classes', type=int, help='The number of classes in yo
 parser.add_argument('--input_dir', type=str, help='Directory containing input data.')
 parser.add_argument('--use-peft', action='store_true', help='Include this flag to use PEFT-adapted model.')
 parser.add_argument('--freeze-backbone', action='store_true', help='Decide whether you want to freeze backbone or not.')
-parser.add_argument('--added_layers', type=int, choices=[0,1,2], help='Specify the number of layers you want to add.')
+parser.add_argument('--added_layers', type=int, choices=[1,2], help='Specify the number of layers you want to add.')
 parser.add_argument('--embed_size', type=int, help='Specify the size of the embeddings you would obtain through embedding layer.')
 parser.add_argument('--batch_size', type=int, help='Batch Size to feed your model.')
 parser.add_argument('--fixed-seed', action='store_true', help='Choose whether a seed is required or not.')
@@ -52,3 +52,4 @@ parser.add_argument('--resnet_version', type=str, choices=['resnet18', 'resnet34
 parser.add_argument('--densenet_version', type=str, choices=['densenet121', 'densenet169', 'densenet201', 'densenet161'], help='DenseNet version to use.')
 parser.add_argument('--swin_version', type=str, choices=['swin_t', 'swin_s', 'swin_b'], help='Swin version to use.')
 parser.add_argument('--efficientnet_version', type=str, choices=['efficientnet_b0', 'efficientnet_b1', 'efficientnet_b2', 'efficientnet_b3', 'efficientnet_b4', 'efficientnet_b5', 'efficientnet_b6', 'efficientnet_b7'], help='EfficientNet version to use.')
+parser.add_argument('--vgg_net_version', type=str, choices=['vgg11', 'vgg13', 'vgg16', 'vgg19'], help='VGGNet version to use.')
