@@ -1,6 +1,5 @@
-from torchvision.models import Swin_T_Weights
-from src.vision.swin import adjustedSwin
-from src.vision.swin_peft import adjustedPeftSwin
+from src.vision.vgg_peft import adjustedPeftVGGNet
+from src.vision.vgg import adjustedVGGNet
 from datasets.image_datasets import ParquetImageDataset
 from utilities import transformations
 import torch
@@ -11,16 +10,12 @@ import options
 import pandas as pd
 import torchvision
 
-"""
-Note: If you chose to have the finetuned option with added layers = 1 without PEFT, it will have the same embeddings output as if pretrained. This is normal behavior and works as expected. Because in the pretrained option the last layer are actually mapping 768 inputs to 1000 outputs. For the finetuned option, it maps the same 768 inputs but to 8 outputs. The difference is in the output but input to the last layer is actually the same. This happens in case you have frozen the backbone weights during transfer-learning and only updated the last layer.
-"""
-
 # Initialize the needed variables either from the CLI user sents or from the device.
 
 DEVICE = options.DEVICE
 parser = options.parser
 args = parser.parse_args()
-SWIN_VERSION = args.swin_version
+VGGNET_VERSION = args.vgg_net_version
 USE_CASE = args.use_case
 INPUT_DIR = args.input_dir
 BATCH_SIZE = args.batch_size
@@ -30,32 +25,34 @@ ADDED_LAYERS = args.added_layers
 EMBED_SIZE = args.embed_size
 FREEZE_BACKBONE = args.freeze_backbone
 MODE = args.mode
+
 # Check which USE_CASE is used and based on this choose the model to get loaded. For example, if finetuned was the USE_CASE then the class call would be from the transfer-learning without PEFT version.
 if USE_CASE == 'peft':
     
-    model = adjustedPeftSwin(NUM_CLASSES,SWIN_VERSION, ADDED_LAYERS, EMBED_SIZE, FREEZE_BACKBONE,task_type=MODE)
+    model = adjustedPeftVGGNet(NUM_CLASSES,VGGNET_VERSION, ADDED_LAYERS, EMBED_SIZE, FREEZE_BACKBONE,task_type=MODE)
     TEST_OUTPUT = f"test_set_peft_swin_embeddings_{MODE}.parquet"
-    args.use_case = 'peft- ' + SWIN_VERSION
+    args.use_case = 'peft- ' + VGGNET_VERSION
 elif USE_CASE == 'finetuned':
-    model = adjustedSwin(NUM_CLASSES, SWIN_VERSION, ADDED_LAYERS, EMBED_SIZE,FREEZE_BACKBONE,task_type=MODE)
+    model = adjustedVGGNet(NUM_CLASSES, VGGNET_VERSION, ADDED_LAYERS, EMBED_SIZE,FREEZE_BACKBONE,task_type=MODE)
     TEST_OUTPUT = f"test_set_finetuned_swin_embeddings_{MODE}.parquet"
-    args.use_case = 'finetuned- ' + SWIN_VERSION
+    args.use_case = 'finetuned- ' + VGGNET_VERSION
 
 elif USE_CASE == 'pretrained':
-    if SWIN_VERSION == 'swin_t':
-        model = torchvision.models.swin_t(weights=Swin_T_Weights.IMAGENET1K_V1)
-    elif SWIN_VERSION == 'swin_s':
-        model = torchvision.models.swin_s(weights=Swin_T_Weights.IMAGENET1K_V1)
-    elif SWIN_VERSION == 'swin_b':
-        model = torchvision.models.swin_b(weights=Swin_T_Weights.IMAGENET1K_V1)
+    if VGGNET_VERSION == 'vgg11':
+        model = torchvision.models.vgg11(weights="DEFAULT")
+    elif VGGNET_VERSION == 'vgg13':
+        model = torchvision.models.vgg13(weights="DEFAULT")
+    elif VGGNET_VERSION == 'vgg16':
+        model = torchvision.models.vgg16(weights="DEFAULT")
+    elif VGGNET_VERSION == 'vgg19':
+        model = torchvision.models.vgg19(weights="DEFAULT")
     
+    model.classifier[6] = nn.Identity()  # Remove classification layer to use as feature extractor
+    TEST_OUTPUT = f"test_set_pretrained_vgg_embeddings_{MODE}.parquet"
+    args.use_case = 'pretrained- ' + VGGNET_VERSION
 
-    model.head = nn.Identity()  # Remove classification layer to use as feature extractor
-    TEST_OUTPUT = f"test_set_pretrained_swin_embeddings_{MODE}.parquet"
-    args.use_case = 'pretrained- ' + SWIN_VERSION
 else:
     raise ValueError('There is no fourth option other than ["finetuned", "peft", "pretrained"]')
-
 
 # If the use case is peft or pretrained, and the added layers is 2, this means that we want to extract the weights of the embedding layer, otherwise the weights of the original model.
 if not USE_CASE == 'pretrained':
@@ -147,11 +144,3 @@ if __name__ == "__main__":
     combined_df = pd.concat([embeddings_df,labels_df],axis=1)
 
     combined_df.to_parquet(TEST_OUTPUT,index=False)
-
-
-
-
-
-
-
-    
