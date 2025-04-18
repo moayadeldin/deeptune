@@ -18,15 +18,17 @@ jobs:
     - name: Set up Python
       uses: actions/setup-python@v4
       with:
-        python-version: '3.10'
+        python-version: '3.8'
 
     - name: Install dependencies
       run: |
         python -m pip install --upgrade pip
         pip install -r requirements.txt
-        pip install pytest  # Ensure pytest is installed
+        pip install pytest
 
+    - name: Debug PATH
+      run: |
+        echo $PATH
     - name: Run tests
       run: |
-        export PYTHONPATH=$(pwd)
-        pytest tests/models
+        python -m pytest tests/models
