@@ -40,4 +40,4 @@ jobs:
       run: |
         pip show pytest  # Verify pytest is installed
         python -c "import sys; print(sys.executable)"
-        python -m pytest tests/models/test_simple.py -v
+        python -m pytest tests/models/test.py -v
