@@ -26,12 +26,3 @@ def test_vgg_peft_model_regression_mode_initialization():
     x = torch.randn(2, 3, 224, 224)
     out = model(x)
     assert out.shape == (2, 1), "Output should match regression output shape"
-
-
-
-# Run the tests
-test_vgg_model_initialization()
-test_vgg_peft_model_initialization()
-test_vgg_model_regression_mode_initialization()
-test_vgg_peft_model_regression_mode_initialization()
-print("All tests passed!")
