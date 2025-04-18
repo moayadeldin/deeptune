@@ -29,6 +29,13 @@ jobs:
     - name: Debug PATH
       run: |
         echo $PATH
+    
+    - name: Verify pytest installation
+      run: |
+        pip list | grep pytest
+        which python
+        python -c "import pytest; print(pytest.__file__)"
+        
     - name: Run tests
       run: |
         python -m pytest tests/models
