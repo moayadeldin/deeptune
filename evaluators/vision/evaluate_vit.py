@@ -1,5 +1,5 @@
-from src.vision.vgg import adjustedVGGNet
-from src.vision.vgg_peft import adjustedPeftVGGNet
+from src.vision.vit import adjustedViT
+from src.vision.vit_peft import adjustedViTPeft
 from utilities import transformations
 import torch
 from datasets.image_datasets import ParquetImageDataset
@@ -14,7 +14,7 @@ parser = options.parser
 DEVICE = options.DEVICE
 TEST_OUTPUT_DIR = options.TEST_OUTPUT_DIR
 args = parser.parse_args()
-VGGNET_VERSION = args.vgg_net_version
+VIT_VERSION = args.vit_version
 TEST_DATASET_PATH = args.test_set_input_dir
 BATCH_SIZE= args.batch_size
 NUM_CLASSES = args.num_classes
@@ -26,13 +26,13 @@ MODE = args.mode
 
 if USE_PEFT:
     
-    MODEL = adjustedPeftVGGNet(NUM_CLASSES,VGGNET_VERSION, ADDED_LAYERS, lora_attention_dimension=EMBED_SIZE,task_type=MODE)
-    args.model = 'PEFT-' + VGGNET_VERSION
+    MODEL = adjustedViTPeft(NUM_CLASSES,VIT_VERSION, ADDED_LAYERS, lora_attention_dimension=EMBED_SIZE,task_type=MODE)
+    args.model = 'PEFT-' + VIT_VERSION
+    pass
     
 else:
-    MODEL = adjustedVGGNet(NUM_CLASSES,VGGNET_VERSION, ADDED_LAYERS, EMBED_SIZE,task_type=MODE)
-    args.model = VGGNET_VERSION
-
+    MODEL = adjustedViT(NUM_CLASSES,VIT_VERSION, ADDED_LAYERS, EMBED_SIZE,task_type=MODE)
+    args.model = VIT_VERSION
 
 # Load the test dataset from its path and testloader
 df = pd.read_parquet(TEST_DATASET_PATH)

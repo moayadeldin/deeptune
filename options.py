@@ -53,3 +53,4 @@ parser.add_argument('--densenet_version', type=str, choices=['densenet121', 'den
 parser.add_argument('--swin_version', type=str, choices=['swin_t', 'swin_s', 'swin_b'], help='Swin version to use.')
 parser.add_argument('--efficientnet_version', type=str, choices=['efficientnet_b0', 'efficientnet_b1', 'efficientnet_b2', 'efficientnet_b3', 'efficientnet_b4', 'efficientnet_b5', 'efficientnet_b6', 'efficientnet_b7'], help='EfficientNet version to use.')
 parser.add_argument('--vgg_net_version', type=str, choices=['vgg11', 'vgg13', 'vgg16', 'vgg19'], help='VGGNet version to use.')
+parser.add_argument('--vit_version', type=str, choices=['vit_b_16', 'vit_b_32', 'vit_l_16', 'vit_l_32', 'vit_h_14'], help='ViT version to use.')

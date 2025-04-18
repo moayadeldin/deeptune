@@ -1,5 +1,5 @@
-from src.vision.vgg_peft import adjustedPeftVGGNet
-from src.vision.vgg import adjustedVGGNet
+from src.vision.vit import adjustedViT
+from src.vision.vit_peft import adjustedViTPeft
 from datasets.image_datasets import ParquetImageDataset
 from utilities import transformations
 import torch
@@ -15,7 +15,7 @@ import torchvision
 DEVICE = options.DEVICE
 parser = options.parser
 args = parser.parse_args()
-VGGNET_VERSION = args.vgg_net_version
+VIT_VERSION = args.vit_version
 USE_CASE = args.use_case
 INPUT_DIR = args.input_dir
 BATCH_SIZE = args.batch_size
@@ -29,27 +29,30 @@ MODE = args.mode
 # Check which USE_CASE is used and based on this choose the model to get loaded. For example, if finetuned was the USE_CASE then the class call would be from the transfer-learning without PEFT version.
 if USE_CASE == 'peft':
     
-    model = adjustedPeftVGGNet(NUM_CLASSES,VGGNET_VERSION, ADDED_LAYERS, EMBED_SIZE, FREEZE_BACKBONE,task_type=MODE)
-    TEST_OUTPUT = f"test_set_peft_vgg_embeddings_{MODE}.parquet"
-    args.use_case = 'peft- ' + VGGNET_VERSION
+    model = adjustedViTPeft(NUM_CLASSES,VIT_VERSION, ADDED_LAYERS, EMBED_SIZE, FREEZE_BACKBONE,task_type=MODE)
+    TEST_OUTPUT = f"test_set_peft_vit_embeddings_{MODE}.parquet"
+    args.use_case = 'peft- ' + VIT_VERSION
+    pass
 elif USE_CASE == 'finetuned':
-    model = adjustedVGGNet(NUM_CLASSES, VGGNET_VERSION, ADDED_LAYERS, EMBED_SIZE,FREEZE_BACKBONE,task_type=MODE)
-    TEST_OUTPUT = f"test_set_finetuned_vgg_embeddings_{MODE}.parquet"
-    args.use_case = 'finetuned- ' + VGGNET_VERSION
+    model = adjustedViT(NUM_CLASSES, VIT_VERSION, ADDED_LAYERS, EMBED_SIZE,FREEZE_BACKBONE,task_type=MODE)
+    TEST_OUTPUT = f"test_set_finetuned_vit_embeddings_{MODE}.parquet"
+    args.use_case = 'finetuned- ' + VIT_VERSION
 
 elif USE_CASE == 'pretrained':
-    if VGGNET_VERSION == 'vgg11':
-        model = torchvision.models.vgg11(weights="DEFAULT")
-    elif VGGNET_VERSION == 'vgg13':
-        model = torchvision.models.vgg13(weights="DEFAULT")
-    elif VGGNET_VERSION == 'vgg16':
-        model = torchvision.models.vgg16(weights="DEFAULT")
-    elif VGGNET_VERSION == 'vgg19':
-        model = torchvision.models.vgg19(weights="DEFAULT")
+    if VIT_VERSION == 'vit_b_16':
+        model = torchvision.models.vit_b_16(weights="DEFAULT")
+    elif VIT_VERSION == 'vit_b_32':
+        model = torchvision.models.vit_b_32(weights="DEFAULT")
+    elif VIT_VERSION == 'vit_l_16':
+        model = torchvision.models.vit_l_16(weights="DEFAULT")
+    elif VIT_VERSION == 'vit_l_32':
+        model = torchvision.models.vit_l_32(weights="DEFAULT")
+    elif VIT_VERSION == 'vit_h_14':
+        model = torchvision.models.vit_h_14(weights="DEFAULT")
     
-    model.classifier[6] = nn.Identity()  # Remove classification layer to use as feature extractor
-    TEST_OUTPUT = f"test_set_pretrained_vgg_embeddings_{MODE}.parquet"
-    args.use_case = 'pretrained- ' + VGGNET_VERSION
+    model.heads = nn.Identity()  # Remove classification layer to use as feature extractor
+    TEST_OUTPUT = f"test_set_pretrained_vit_embeddings_{MODE}.parquet"
+    args.use_case = 'pretrained- ' + VIT_VERSION
 
 else:
     raise ValueError('There is no fourth option other than ["finetuned", "peft", "pretrained"]')
@@ -64,6 +67,10 @@ def adjustModel(model):
     """The model is modified to be prepared for extracting feature embeddings rather than making predictions.
     """
 
+    if USE_CASE == 'pretrained':
+        model.eval()
+        return model
+    
     if ADDED_LAYERS == 1 or ADDED_LAYERS ==2:
         
         model.eval()
@@ -79,7 +86,7 @@ def adjustModel(model):
 
     return model
 
-adjusted_model = adjustModel(model=model)
+adjusted_model = adjustModel(model=model) 
 
 for p in adjusted_model.parameters(): # stop gradient calculations
     p.requires_grad = False
@@ -115,7 +122,7 @@ def extractEmbeddings():
         extracted_labels += new_labels
 
         data = data.cuda()
-
+        
         # If the added layers is one and we want to extract the same exact embedding features as if the added layers is zero we should handle this explicitly
         
         if ADDED_LAYERS == 1 or ADDED_LAYERS == 2:
