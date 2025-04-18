@@ -35,7 +35,9 @@ jobs:
         pip list | grep pytest
         which python
         python -c "import pytest; print(pytest.__file__)"
-        
+
     - name: Run tests
       run: |
-        python -m pytest tests/models
+        pip show pytest  # Verify pytest is installed
+        python -c "import sys; print(sys.executable)"
+        python -m pytest tests/models/test_simple.py -v
