@@ -4,15 +4,14 @@ import torch.nn as nn
 import torch.nn.functional as F
 from peft import LoraConfig, get_peft_model
 
-class adjustedPeftVGGNet(nn.Module):
-        
-        def __init__(self,num_classes,vgg_net_version, added_layers=2, lora_attention_dimension=1000, freeze_backbone=False, task_type="cls",output_dim=1):
+class adjustedViTPeft(nn.Module):
+        def __init__(self,num_classes,vit_version, added_layers=2, lora_attention_dimension=1000, freeze_backbone=False, task_type="cls",output_dim=1):
             """
-            Customised VGGNet class as part of DeepTune proposed Adjustments.
+            Customised ViT class as part of DeepTune proposed Adjustments.
             
             Args:
                 num_classes (int) : Number of classes in your dataset.
-                vgg_net_version (str): Version of VGG you want to use.
+                vit_version (str): Version of ViT you want to use.
                 added_layers (int) : Number of additional layers you want to add while finetuning your model
                 lora_attention_dimension (int): If you chose added_layers to be 2, so this specifies the size of the intermediate layer in between.
                 freeze_backbone (bool): Determine whether you want to apply transfer learning on the backbone weights or the whole model.
@@ -21,7 +20,7 @@ class adjustedPeftVGGNet(nn.Module):
                 
             """
 
-            super(adjustedPeftVGGNet, self).__init__()
+            super(adjustedViTPeft, self).__init__()
 
             # Task must be regression or classification nothing else
             assert task_type in ["cls", "reg"], "task_type must be 'cls' or 'reg'"
@@ -30,24 +29,26 @@ class adjustedPeftVGGNet(nn.Module):
             self.added_layers = added_layers
             self.lora_attention_dimension = lora_attention_dimension
             self.freeze_backbone = freeze_backbone
-            self.vgg_net_version = vgg_net_version
+            self.vit_version = vit_version
 
-            if vgg_net_version == "vgg11":
-                self.model = torchvision.models.vgg11(weights="DEFAULT")
-            elif vgg_net_version == "vgg13":
-                self.model = torchvision.models.vgg13(weights="DEFAULT")
-            elif vgg_net_version == "vgg16":
-                self.model = torchvision.models.vgg16(weights="DEFAULT")
-            elif vgg_net_version == "vgg19":
-                self.model = torchvision.models.vgg19(weights="DEFAULT")
+            if vit_version == "vit_b_16":
+                self.model = torchvision.models.vit_b_16(weights="DEFAULT")
+            elif vit_version == "vit_b_32":
+                self.model = torchvision.models.vit_b_32(weights="DEFAULT")
+            elif vit_version == "vit_l_16":
+                self.model = torchvision.models.vit_l_16(weights="DEFAULT")
+            elif vit_version == "vit_l_32":
+                self.model = torchvision.models.vit_l_32(weights="DEFAULT")
+            elif vit_version == "vit_h_14":
+                self.model = torchvision.models.vit_h_14(weights="DEFAULT")
             else:
-                raise ValueError("Invalid vgg_net_version. Choose from 'vgg11', 'vgg13', 'vgg16', or 'vgg19'.")
+                raise ValueError("Invalid vit_version. Choose from 'vit_b_16', 'vit_b_32', 'vit_l_16', 'vit_l_32' or 'vit_h_14'.")
             
             # Get the input size of the last layer before we chop it
-            self.fc1_input = self.model.classifier[0].in_features
+            self.fc1_input = self.model.heads.head.in_features
 
             # remove the final connected layer by putting a placeholder
-            self.model.classifier = nn.Identity()
+            self.model.heads.head = nn.Identity()
             self.flatten = nn.Flatten()
 
             # Additional parameters for regression
@@ -64,12 +65,12 @@ class adjustedPeftVGGNet(nn.Module):
             # Add the additional layers according to prompt.
             
             if self.added_layers == 2:
-                self.fc1 = nn.Linear(self.fc1_input,self.lora_attention_dimension)
+                self.fc1 = nn.Linear(self.fc1_input,self.embedding_layer_size)
                 
                 if self.task_type == 'cls':
-                    self.fc2 = nn.Linear(self.lora_attention_dimension, self.num_classes)
+                    self.fc2 = nn.Linear(self.embedding_layer_size, self.num_classes)
                 else:
-                    self.fc2 = nn.Linear(self.lora_attention_dimension, self.output_dim)
+                    self.fc2 = nn.Linear(self.embedding_layer_size, self.output_dim)
                     
                     
             elif self.added_layers == 1:
@@ -80,7 +81,7 @@ class adjustedPeftVGGNet(nn.Module):
                     self.fc1 = nn.Linear(self.fc1_input,self.output_dim)
             else:
                 self.fc1 = None
-            
+
             # Apply PEFT
             self.peftmodel = self.applyPEFT(self.model)
 
@@ -150,8 +151,3 @@ class adjustedPeftVGGNet(nn.Module):
                 x = self.fc1(x)
 
             return x
-
-
-                
-
-    

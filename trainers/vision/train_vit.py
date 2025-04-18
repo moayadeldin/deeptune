@@ -1,5 +1,5 @@
-from src.vision.vgg import adjustedVGGNet
-from src.vision.vgg_peft import adjustedPeftVGGNet
+from src.vision.vit import adjustedViT
+from src.vision.vit_peft import adjustedViTPeft
 import importlib
 from utilities import save_cli_args, fixed_seed,split_save_load_dataset
 from trainers.vision.trainer import Trainer
@@ -14,7 +14,7 @@ parser = options.parser
 args = parser.parse_args()
 
 INPUT_DIR = args.input_dir
-VGGNET_VERSION = args.vgg_net_version
+VIT_VERSION = args.vit_version
 BATCH_SIZE=args.batch_size
 LEARNING_RATE=args.learning_rate
 NUM_CLASSES = args.num_classes
@@ -51,14 +51,16 @@ def get_model():
 
     if USE_PEFT:
         
-        model = importlib.import_module('src.vision.vgg_peft')
-        args.model = 'PEFT-' + VGGNET_VERSION
-        return model.adjustedPeftVGGNet
+        model = importlib.import_module('src.vision.vit_peft')
+        args.model = 'PEFT-' + VIT_VERSION
+        return model.adjustedViTPeft
+
+        pass
 
     else:
-        model = importlib.import_module('src.vision.vgg')
-        args.model = VGGNET_VERSION
-        return model.adjustedVGGNet
+        model = importlib.import_module('src.vision.vit')
+        args.model = VIT_VERSION
+        return model.adjustedViT
     
 # load the dataset with appropriate paths
 TRAIN_DATASET_PATH = options.TRAIN_DATASET_PATH
@@ -80,7 +82,7 @@ train_loader, val_loader = split_save_load_dataset(
     seed=SEED,
     batch_size=BATCH_SIZE,
     tokenizer=None
-)    
+)
 
 if __name__ == "__main__":
     
@@ -88,7 +90,7 @@ if __name__ == "__main__":
     choosed_model = get_model()
     
     # pass the options from the args user are feeding as input
-    model = choosed_model(NUM_CLASSES,VGGNET_VERSION, ADDED_LAYERS, EMBED_SIZE, FREEZE_BACKBONE,task_type=MODE)
+    model = choosed_model(NUM_CLASSES,VIT_VERSION, ADDED_LAYERS, EMBED_SIZE, FREEZE_BACKBONE,task_type=MODE)
     
     # initialize trainer class
     trainer = Trainer(model, train_loader=train_loader, val_loader=val_loader, learning_rate=LEARNING_RATE, mode=MODE, num_epochs=NUM_EPOCHS, output_dir=TRAINVAL_OUTPUT_DIR)
