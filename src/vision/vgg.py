@@ -31,13 +31,13 @@ class adjustedVGGNet(nn.Module):
             self.vgg_net_version = vgg_net_version
 
             if vgg_net_version == "vgg11":
-                self.model = torchvision.models.vgg11(weights=None)
+                self.model = torchvision.models.vgg11(weights="DEFAULT")
             elif vgg_net_version == "vgg13":
-                self.model = torchvision.models.vgg13(weights=None)
+                self.model = torchvision.models.vgg13(weights="DEFAULT")
             elif vgg_net_version == "vgg16":
-                self.model = torchvision.models.vgg16(weights=None)
+                self.model = torchvision.models.vgg16(weights="DEFAULT")
             elif vgg_net_version == "vgg19":
-                self.model = torchvision.models.vgg19(weights=None)
+                self.model = torchvision.models.vgg19(weights="DEFAULT")
             else:
                 raise ValueError("Invalid vgg_net_version. Choose from 'vgg11', 'vgg13', 'vgg16', or 'vgg19'.")
             
