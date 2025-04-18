@@ -10,4 +10,4 @@ sentencepiece==0.2.0
 scikit-learn==1.6.1
 pandas==2.2.3
 pyarrow==19.0.0
-pytest
+pytest==7.4.0
