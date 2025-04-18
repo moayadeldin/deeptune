@@ -37,15 +37,15 @@ class adjustedPeftSwin(nn.Module):
 
         if swin_version == "swin_t":
             weights = Swin_T_Weights.IMAGENET1K_V1
-            pretrained_swin = torchvision.models.swin_t(weights=weights)
+            pretrained_swin = torchvision.models.swin_t(weights=None)
             self.model = pretrained_swin
         elif swin_version == "swin_s":
             weights = Swin_S_Weights.IMAGENET1K_V1
-            pretrained_swin = torchvision.models.swin_s(weights=weights)
+            pretrained_swin = torchvision.models.swin_s(weights=None)
             self.model = pretrained_swin
         elif swin_version == "swin_b":
             weights = Swin_B_Weights.IMAGENET1K_V1
-            pretrained_swin = torchvision.models.swin_b(weights=weights)
+            pretrained_swin = torchvision.models.swin_b(weights=None)
             self.model = pretrained_swin
         else:
             raise ValueError("Invalid swin_version. Choose from 'swin_t', 'swin_s', or 'swin_b'.")
