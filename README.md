@@ -1,5 +1,7 @@
 # DeepTune
 
+[![deeptune test](https://github.com/moayadeldin/deeptune-scratch/actions/workflows/test.yml/badge.svg?branch=master)](https://github.com/moayadeldin/deeptune-scratch/actions/workflows/test.yml)
+
 **DeepTune** is a full compatible library to automate Computer Vision and Natural Language Processing algorithms on diverse images and text datasets.
 
 As a cutting-edge software library that has been specifically designed for use in different Machine Learning Tasks, inclduing but not limited to image classification, transfer learning, and embedding extraction. 
