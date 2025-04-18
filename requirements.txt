@@ -4,10 +4,10 @@ Pillow==9.0.1
 torch==2.4.1
 torchvision==0.19.1
 tqdm==4.66.5
-numpy==1.26.4
+numpy
 peft==0.14.0
 sentencepiece==0.2.0
 scikit-learn==1.6.1
 pandas==2.2.3
 pyarrow==19.0.0
-pytest==7.4.0
+pytest
