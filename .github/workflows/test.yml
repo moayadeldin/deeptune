@@ -1,4 +1,4 @@
-name: Run DeepTune Tests
+name: deeptune test
 
 on:
   push:
