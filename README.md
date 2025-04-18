@@ -73,6 +73,15 @@ As a cutting-edge software library that has been specifically designed for use i
       <td>VGG11, VGG13, VGG16, VGG19</td>
     </tr>
     <tr>
+      <td>ViT</td>
+      <td>✅</td>
+      <td>✅</td>
+      <td>✅</td>
+      <td>Classification & Regression</td>
+      <td>Image</td>
+      <td>ViT_b_16, ViT_b_32, ViT_l_16, ViT_l_32, ViT_h_14</td>
+    </tr>
+    <tr>
       <td>BERT</td>
       <td>✅</td>
       <td>✅</td>
@@ -89,6 +98,7 @@ As a cutting-edge software library that has been specifically designed for use i
     </tr>
   </tbody>
 </table>
+
 
 
 
