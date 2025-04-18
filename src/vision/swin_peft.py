@@ -47,6 +47,9 @@ class adjustedPeftSwin(nn.Module):
             weights = Swin_B_Weights.IMAGENET1K_V1
             pretrained_swin = torchvision.models.swin_b(weights=weights)
             self.model = pretrained_swin
+        elif swin_version == "dummy": # This is for testing purposes only.
+            pretrained_swin = torchvision.models.swin_b(weights=None)
+            self.model = pretrained_swin
         else:
             raise ValueError("Invalid swin_version. Choose from 'swin_t', 'swin_s', or 'swin_b'.")
         

@@ -38,6 +38,8 @@ class adjustedVGGNet(nn.Module):
                 self.model = torchvision.models.vgg16(weights="DEFAULT")
             elif vgg_net_version == "vgg19":
                 self.model = torchvision.models.vgg19(weights="DEFAULT")
+            elif vgg_net_version == "dummy": # This is for testing purposes only.
+                self.model = torchvision.models.vgg19(weights=None)
             else:
                 raise ValueError("Invalid vgg_net_version. Choose from 'vgg11', 'vgg13', 'vgg16', or 'vgg19'.")
             
