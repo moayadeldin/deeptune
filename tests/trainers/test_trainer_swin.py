@@ -51,3 +51,8 @@ def test_trainer_peft_step_classification():
     
     assert isinstance(val_loss, float)
     assert 0 <= val_acc <= 1
+
+# Run the tests
+test_trainer_step_classification()
+test_trainer_peft_step_classification()
+print("All tests passed!")

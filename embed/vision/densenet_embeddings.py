@@ -1,7 +1,7 @@
 from src.vision.densenet import adjustedDenseNet
 from src.vision.densenet_peft import adjustedPeftDenseNet
 from datasets.image_datasets import ParquetImageDataset
-from utilities import transformations
+from utilities import transformations,get_args
 import torch
 import torch.nn as nn
 from tqdm import tqdm
@@ -17,7 +17,7 @@ Please Note that that extracting embeddings from DenseNet is only supported thro
 
 DEVICE = options.DEVICE
 parser = options.parser
-args = parser.parse_args()
+args = get_args()
 DENSENET_VERSION = args.densenet_version
 USE_CASE = args.use_case
 INPUT_DIR = args.input_dir

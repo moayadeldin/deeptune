@@ -6,7 +6,7 @@ from sklearn.metrics import classification_report, roc_auc_score
 from utilities import save_test_metrics
 from src.nlp.multilingual_bert import CustomMultilingualBERT
 from src.nlp.multilingual_bert_peft import CustomMultilingualPeftBERT
-from utilities import save_cli_args,load_finetunedbert_model
+from utilities import save_cli_args,load_finetunedbert_model,get_args
 import options
 from tqdm import tqdm
 import numpy as np
@@ -19,7 +19,7 @@ import options
 parser = options.parser
 DEVICE = options.DEVICE
 TEST_OUTPUT_DIR = options.TEST_OUTPUT_DIR
-args = parser.parse_args()
+args = get_args()
 
 TEST_DATASET_PATH = args.test_set_input_dir
 BATCH_SIZE= args.batch_size

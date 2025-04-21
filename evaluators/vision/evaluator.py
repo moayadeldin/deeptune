@@ -1,4 +1,4 @@
-from utilities import save_test_metrics
+from utilities import save_test_metrics,get_args
 from sklearn.metrics import classification_report, roc_auc_score
 import numpy as np
 import torch
@@ -8,11 +8,12 @@ import sys
 import logging
 import options
 
+
 # Initialize the needed variables either from the CLI user sents or from the device.
 parser = options.parser
 DEVICE = options.DEVICE
 TEST_OUTPUT_DIR = options.TEST_OUTPUT_DIR
-args = parser.parse_args()
+args = get_args()
 MODE = args.mode
 
 test_loader = args.test_set_input_dir

@@ -19,10 +19,14 @@ import options
 # check if we need to use peft or not while loading the BERT model
 
 parser = options.parser
-args = parser.parse_args()
+def get_args():
+    return parser.parse_args()
 
-USE_PEFT = args.use_peft
-USE_CASE = args.use_case
+def get_use_peft_and_use_case():
+    args = get_args()
+    return args.use_peft, args.use_case
+
+USE_PEFT, USE_CASE = get_use_peft_and_use_case()
 
 # Kindly note that right now we pass the same transformations to ResNet, Swin and DenseNet, both trained on ImageNet
 transformations = torchvision.transforms.Compose([

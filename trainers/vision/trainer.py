@@ -4,14 +4,14 @@ import torch.optim as optim
 from tqdm import tqdm
 import sys
 import logging
-from utilities import PerformanceLogger
+from utilities import PerformanceLogger,get_args
 import options
 
 
 # Initialize the needed variables either from the CLI user sents or from the device.
 
 parser = options.parser
-args = parser.parse_args()
+args = get_args()
 
 DEVICE = options.DEVICE
 
