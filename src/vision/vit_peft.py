@@ -67,12 +67,12 @@ class adjustedViTPeft(nn.Module):
             # Add the additional layers according to prompt.
             
             if self.added_layers == 2:
-                self.fc1 = nn.Linear(self.fc1_input,self.embedding_layer_size)
+                self.fc1 = nn.Linear(self.fc1_input,self.lora_attention_dimension)
                 
                 if self.task_type == 'cls':
-                    self.fc2 = nn.Linear(self.embedding_layer_size, self.num_classes)
+                    self.fc2 = nn.Linear(self.lora_attention_dimension, self.num_classes)
                 else:
-                    self.fc2 = nn.Linear(self.embedding_layer_size, self.output_dim)
+                    self.fc2 = nn.Linear(self.lora_attention_dimension, self.output_dim)
                     
                     
             elif self.added_layers == 1:
