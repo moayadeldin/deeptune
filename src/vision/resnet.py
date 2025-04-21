@@ -52,6 +52,8 @@ class adjustedResNet(nn.Module):
             weights = ResNet152_Weights.IMAGENET1K_V1
             pretrained_resnet = torchvision.models.resnet152(weights=weights)
             self.model = pretrained_resnet
+        elif resnet_version == "dummy": # This is for testing purposes only.
+            self.model = torchvision.models.resnet18(weights=None)
         else:
             raise ValueError("Invalid resnet_version. Choose from 'resnet18', 'resnet34', 'resnet50', 'resnet101', or 'resnet152'.")
         
