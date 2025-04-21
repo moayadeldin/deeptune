@@ -40,3 +40,4 @@ jobs:
       run: |
         pip show pytest
         python -m pytest tests/models/test_*.py --disable-warnings -v
+        python -m pytest tests/trainers/test_*.py --disable-warnings -v
