@@ -2,6 +2,7 @@ import torch
 import torch.nn as nn
 import torch.nn.functional as F
 from peft import LoraConfig, get_peft_model
+import torchvision.models as models
 
 class adjustedPeftDenseNet(nn.Module):
     
@@ -25,7 +26,7 @@ class adjustedPeftDenseNet(nn.Module):
         
         """
         
-        super(adjustedPEFTDenseNet, self).__init__()
+        super(adjustedPeftDenseNet, self).__init__()
         
         self.model_to_load = model_to_load
         self.num_classes = num_classes
@@ -36,17 +37,22 @@ class adjustedPeftDenseNet(nn.Module):
 
         if densenet_version == "densenet121":
             self.model_to_load = "densenet121"
+            self.model = torch.hub.load('pytorch/vision:v0.10.0', self.model_to_load, pretrained=True)
         elif densenet_version == "densenet161":
             self.model_to_load = "densenet161"
+            self.model = torch.hub.load('pytorch/vision:v0.10.0', self.model_to_load, pretrained=True)
         elif densenet_version == "densenet169":
             self.model_to_load = "densenet169"
+            self.model = torch.hub.load('pytorch/vision:v0.10.0', self.model_to_load, pretrained=True)
         elif densenet_version == "densenet201":
             self.model_to_load = "densenet201"
+            self.model = torch.hub.load('pytorch/vision:v0.10.0', self.model_to_load, pretrained=True)
+        elif densenet_version == "dummy": # This is for testing purposes only.
+            self.model = models.densenet121(weights=None)
         else:
             raise ValueError("Invalid densenet_version. Choose from 'densenet121', 'densenet161', 'densenet169', or 'densenet201'.")
         
         # remove the final connected layer by putting a placeholder
-        self.model = torch.hub.load('pytorch/vision:v0.10.0', self.model_to_load, pretrained=True)
         in_features = self.model.classifier.in_features
         self.model.classifier = nn.Identity()
         self.flatten = nn.Flatten()

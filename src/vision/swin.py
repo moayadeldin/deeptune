@@ -48,6 +48,8 @@ class adjustedSwin(nn.Module):
             pretrained_swin = torchvision.models.swin_b(weights=weights)
             self.model = pretrained_swin
         elif swin_version == "dummy": # This is for testing purposes only.
+            print("#########################################")
+            print("Initializing dummy Swin model WITHOUT pretrained weights.")
             pretrained_swin = torchvision.models.swin_b(weights=None)
             self.model = pretrained_swin
         else:

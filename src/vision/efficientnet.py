@@ -47,6 +47,8 @@ class adjustedEfficientNet(nn.Module):
             self.model = torchvision.models.efficientnet_b6(weights="DEFAULT")
         elif efficientnet_version == "efficientnet_b7":
             self.model = torchvision.models.efficientnet_b7(weights="DEFAULT")
+        elif efficientnet_version == "dummy": # This is for testing purposes only.
+            self.model = torchvision.models.efficientnet_b0(weights=None)
         else:
             raise ValueError("Invalid efficientnet_version. Choose from 'efficientnet_b0', 'efficientnet_b1', 'efficientnet_b2', 'efficientnet_b3', 'efficientnet_b4', 'efficientnet_b5', 'efficientnet_b6', or 'efficientnet_b7'.")
         

@@ -41,6 +41,8 @@ class adjustedViTPeft(nn.Module):
                 self.model = torchvision.models.vit_l_32(weights="DEFAULT")
             elif vit_version == "vit_h_14":
                 self.model = torchvision.models.vit_h_14(weights="DEFAULT")
+            elif vit_version == "dummy": # This is for testing purposes only.
+                self.model = torchvision.models.vit_h_14(weights=None)
             else:
                 raise ValueError("Invalid vit_version. Choose from 'vit_b_16', 'vit_b_32', 'vit_l_16', 'vit_l_32' or 'vit_h_14'.")
             
