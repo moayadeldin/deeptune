@@ -1,7 +1,7 @@
 from src.nlp.multilingual_bert import CustomMultilingualBERT
 from src.nlp.multilingual_bert_peft import CustomMultilingualPeftBERT
 from datasets.text_datasets import TextDataset
-from utilities import transformations
+from utilities import transformations,get_args
 import torch
 import torch.nn as nn
 from tqdm import tqdm
@@ -20,7 +20,7 @@ Please Note that that extracting embeddings from MultiLingualBERT is only suppor
 
 DEVICE = options.DEVICE
 parser = options.parser
-args = parser.parse_args()
+args = get_args()
 
 
 USE_CASE = args.use_case

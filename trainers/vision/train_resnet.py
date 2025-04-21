@@ -1,7 +1,7 @@
 from src.vision.resnet import adjustedResNet
 from src.vision.resnet_peft import adjustedPeftResNet
 import importlib
-from utilities import save_cli_args, fixed_seed,split_save_load_dataset
+from utilities import save_cli_args, fixed_seed,split_save_load_dataset,get_args
 from trainers.vision.trainer import Trainer
 import numpy as np
 import warnings
@@ -12,7 +12,7 @@ import options
 
 DEVICE = options.DEVICE
 parser = options.parser
-args = parser.parse_args()
+args = get_args()
 
 INPUT_DIR = args.input_dir
 RESNET_VERSION = args.resnet_version

@@ -5,7 +5,7 @@ import torch
 from datasets.image_datasets import ParquetImageDataset
 import pandas as pd 
 from evaluators.vision.evaluator import TestTrainer
-from utilities import save_cli_args
+from utilities import save_cli_args,get_args
 import options
 
 # Initialize the needed variables either from the CLI user sents or from the device.
@@ -13,7 +13,7 @@ import options
 parser = options.parser
 DEVICE = options.DEVICE
 TEST_OUTPUT_DIR = options.TEST_OUTPUT_DIR
-args = parser.parse_args()
+args = get_args()
 VIT_VERSION = args.vit_version
 TEST_DATASET_PATH = args.test_set_input_dir
 BATCH_SIZE= args.batch_size

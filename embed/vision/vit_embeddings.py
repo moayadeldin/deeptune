@@ -1,7 +1,7 @@
 from src.vision.vit import adjustedViT
 from src.vision.vit_peft import adjustedViTPeft
 from datasets.image_datasets import ParquetImageDataset
-from utilities import transformations
+from utilities import transformations,get_args
 import torch
 import torch.nn as nn
 from tqdm import tqdm
@@ -14,7 +14,7 @@ import torchvision
 
 DEVICE = options.DEVICE
 parser = options.parser
-args = parser.parse_args()
+args = get_args()
 VIT_VERSION = args.vit_version
 USE_CASE = args.use_case
 INPUT_DIR = args.input_dir

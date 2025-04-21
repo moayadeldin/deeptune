@@ -2,7 +2,7 @@ from torchvision.models import Swin_T_Weights
 from src.vision.swin import adjustedSwin
 from src.vision.swin_peft import adjustedPeftSwin
 from datasets.image_datasets import ParquetImageDataset
-from utilities import transformations
+from utilities import transformations,get_args
 import torch
 import torch.nn as nn
 from tqdm import tqdm
@@ -19,7 +19,7 @@ Note: If you chose to have the finetuned option with added layers = 1 without PE
 
 DEVICE = options.DEVICE
 parser = options.parser
-args = parser.parse_args()
+args = get_args()
 SWIN_VERSION = args.swin_version
 USE_CASE = args.use_case
 INPUT_DIR = args.input_dir

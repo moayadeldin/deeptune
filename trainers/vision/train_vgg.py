@@ -1,7 +1,7 @@
 from src.vision.vgg import adjustedVGGNet
 from src.vision.vgg_peft import adjustedPeftVGGNet
 import importlib
-from utilities import save_cli_args, fixed_seed,split_save_load_dataset
+from utilities import save_cli_args, fixed_seed,split_save_load_dataset,get_args
 from trainers.vision.trainer import Trainer
 import numpy as np
 import warnings
@@ -11,7 +11,7 @@ import options
 
 DEVICE = options.DEVICE
 parser = options.parser
-args = parser.parse_args()
+args = get_args()
 
 INPUT_DIR = args.input_dir
 VGGNET_VERSION = args.vgg_net_version

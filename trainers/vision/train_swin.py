@@ -1,7 +1,7 @@
 from src.vision.swin import adjustedSwin
 from src.vision.swin_peft import adjustedPeftSwin
 import importlib
-from utilities import save_cli_args, fixed_seed,split_save_load_dataset
+from utilities import save_cli_args, fixed_seed,split_save_load_dataset,get_args
 from trainers.vision.trainer import Trainer
 import numpy as np
 import warnings
@@ -11,7 +11,7 @@ import options
 # Initialize the needed variables either from the CLI user sents or from the device.
 DEVICE = options.DEVICE
 parser = options.parser
-args = parser.parse_args()
+args = get_args()
 
 INPUT_DIR = args.input_dir
 SWIN_VERSION = args.swin_version

@@ -1,7 +1,7 @@
 from src.vision.resnet import adjustedResNet
 from src.vision.resnet_peft import adjustedPeftResNet
 from datasets.image_datasets import ParquetImageDataset
-from utilities import transformations
+from utilities import transformations,get_args
 import torch
 import torch.nn as nn
 from tqdm import tqdm
@@ -18,7 +18,7 @@ Note: If you chose to have the finetuned option with added layers = 1 without PE
 
 DEVICE = options.DEVICE
 parser = options.parser
-args = parser.parse_args()
+args = get_args()
 
 RESNET_VERSION = args.resnet_version
 USE_CASE = args.use_case

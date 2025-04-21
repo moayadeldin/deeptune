@@ -1,7 +1,7 @@
 from src.vision.vgg_peft import adjustedPeftVGGNet
 from src.vision.vgg import adjustedVGGNet
 from datasets.image_datasets import ParquetImageDataset
-from utilities import transformations
+from utilities import transformations,get_args
 import torch
 import torch.nn as nn
 from tqdm import tqdm
@@ -14,7 +14,7 @@ import torchvision
 
 DEVICE = options.DEVICE
 parser = options.parser
-args = parser.parse_args()
+args = get_args()
 VGGNET_VERSION = args.vgg_net_version
 USE_CASE = args.use_case
 INPUT_DIR = args.input_dir

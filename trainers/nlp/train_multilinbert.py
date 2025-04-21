@@ -11,14 +11,14 @@ import torch
 import torch.optim as optim
 import options
 import logging
-from utilities import PerformanceLogger
+from utilities import PerformanceLogger,get_args
 import sys
 
 # Initialize the needed variables either from the CLI user sents or from the device.
 
 DEVICE = options.DEVICE
 parser = options.parser
-args = parser.parse_args()
+args = get_args()
 
 INPUT_DIR = args.input_dir
 BATCH_SIZE=args.batch_size
