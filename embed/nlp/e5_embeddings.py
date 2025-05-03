@@ -23,7 +23,7 @@ parser = options.parser
 args = parser.parse_args()
 
 DEVICE = torch.device("cuda" if torch.cuda.is_available() else "cpu")
-INPUT_DF_PATH = args.input_df_path
+INPUT_DF_PATH = args.input_dir
 OUTPUT = args.output
 
 # load the model, the tokenizer and the dataset.
