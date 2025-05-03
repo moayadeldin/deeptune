@@ -98,6 +98,12 @@ As a cutting-edge software library that has been specifically designed for use i
       <td>Text</td>
       <td>XLM-RoBERTa</td>
     </tr>
+    <tr>
+      <td>GPT</td>
+      <td colspan="4" style="text-align:center; font-weight:bold; font-size:16px;">Only Supports Embeddings Extraction</td>
+      <td>Text</td>
+      <td>GPT-2</td>
+    </tr>
   </tbody>
 </table>
 
