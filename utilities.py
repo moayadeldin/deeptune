@@ -6,6 +6,8 @@ from torch import Tensor
 import torch
 import random
 from sklearn.model_selection import train_test_split
+from transformers import GPT2Tokenizer, GPT2Model
+from src.nlp.gpt2 import AdjustedGPT2Model
 import numpy as np
 from datasets.image_datasets import ParquetImageDataset
 from datasets.text_datasets import TextDataset
@@ -109,7 +111,7 @@ def split_save_load_dataset(mode,type,input_dir, train_size, val_size, test_size
     
     # for testing purposes we may pock the first 10 rows
     
-    # df = df[:10]
+    df = df[:10]
     
     # Apply the splitting of the input and save them in the specified paths
     train_data, temp_data = train_test_split(df, test_size=(1 - train_size), random_state=seed)
@@ -372,6 +374,60 @@ def load_finetunedbert_model(model_dir):
     print(f"Loaded model weights from {os.path.join(model_dir, 'model_weights.pth')}")
     
     return model, tokenizer
+
+def save_finetuned_gpt2(model, tokenizer, output_dir, output_dim=1000):
+    """
+    Save the fine-tuned Adjusted GPT-2 model and tokenizer for later inference.
+    """
+    os.makedirs(output_dir, exist_ok=True)
+
+    # Save model weights
+    torch.save(model.state_dict(), os.path.join(output_dir, "model_weights.pth"))
+    print(f"Saved model weights to {os.path.join(output_dir, 'model_weights.pth')}")
+
+    # Save GPT-2 backbone separately
+    model.gpt2.save_pretrained(os.path.join(output_dir, "gpt2_model"))
+    tokenizer.save_pretrained(os.path.join(output_dir, "tokenizer"))
+    print(f"Saved GPT-2 backbone and tokenizer to {output_dir}")
+
+    # Save config for reproducibility
+    config = {
+        "output_dim": output_dim
+    }
+    with open(os.path.join(output_dir, "model_config.json"), "w") as f:
+        json.dump(config, f, indent=2)
+    print(f"Saved model config to {os.path.join(output_dir, 'model_config.json')}")
+
+def load_finetuned_gpt2(model_dir):
+    """
+    Load the fine-tuned Adjusted GPT-2 model with Conv1D head.
+
+    Args:
+        model_dir (str): Path to the directory containing the model files.
+
+    Returns:
+        model (AdjustedGPT2Model): The loaded model.
+        tokenizer (GPT2Tokenizer): The tokenizer used during training.
+    """
+    with open(os.path.join(model_dir, "model_config.json"), "r") as f:
+        model_config = json.load(f)
+
+    output_dim = model_config.get("output_dim", 1000)
+
+    # Load GPT-2 backbone and tokenizer
+    gpt_model = GPT2Model.from_pretrained(os.path.join(model_dir, "gpt2_model"))
+    tokenizer = GPT2Tokenizer.from_pretrained(os.path.join(model_dir, "tokenizer"))
+    tokenizer.pad_token = tokenizer.eos_token
+    print(f"Loaded GPT-2 model from {os.path.join(model_dir, 'gpt2_model')}")
+    print(f"Loaded tokenizer from {os.path.join(model_dir, 'tokenizer')}")
+
+    # Build full model
+    model = AdjustedGPT2Model(gpt_model=gpt_model, output_dim=output_dim)
+    model.load_state_dict(torch.load(os.path.join(model_dir, "model_weights.pth")))
+    print(f"Loaded model weights from {os.path.join(model_dir, 'model_weights.pth')}")
+
+    return model, tokenizer
+
 
 
 

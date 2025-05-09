@@ -1,5 +1,6 @@
 import torch 
-from src.nlp.gpt2 import download_gpt2_model, load_gpt2_model_offline
+from utilities import load_finetuned_gpt2
+from src.nlp.gpt2 import download_gpt2_model, load_gpt2_model_offline,AdjustedGPT2Model
 from argparse import ArgumentParser
 import options
 import pandas as pd
@@ -14,33 +15,19 @@ args = parser.parse_args()
 DEVICE = torch.device("cuda" if torch.cuda.is_available() else "cpu")
 BATCH_SIZE = args.batch_size
 INPUT_DF_PATH = args.input_dir
+ADJUSTED_GPT2_PATH = args.adjusted_gpt2_dir
 
 # load the model, the tokenizer and the dataset.
-model,tokenizer = load_gpt2_model_offline()
+gpt_model,_ = load_gpt2_model_offline()
+model,tokenizer = load_finetuned_gpt2(ADJUSTED_GPT2_PATH)
 tokenizer.pad_token = tokenizer.eos_token
 
 df = pd.read_parquet(INPUT_DF_PATH)
 
 texts = df['text'].tolist()
 labels = df['label'].tolist()
-
-class Mapping3DOutputTo2D(nn.Module):
     
-    def __init__(self, input_dim=256 * 768, output_dim=1000):
-        super(Mapping3DOutputTo2D, self).__init__()
-        self.model = nn.Sequential(
-            nn.Linear(input_dim, 4096),
-            nn.ReLU(),
-            nn.Linear(4096, 2048),
-            nn.ReLU(),
-            nn.Linear(2048, output_dim)
-        )
-
-    def forward(self, x):
-        x = x.view(x.size(0), -1)  # Flatten (B, 256, 768) -> (B, 196608)
-        return self.model(x)
-    
-mapping_model = Mapping3DOutputTo2D().to(DEVICE)
+adjusted_model = AdjustedGPT2Model(gpt_model=gpt_model).to(DEVICE)
 
 def run_embeddings():
     
@@ -53,42 +40,31 @@ def run_embeddings():
     print(f"Saved text embeddings to {OUTPUT}")
 
 def get_nlp_embeddings(model):
-    
     all_embeddings = []
     all_labels = []
 
     model.eval()
     with torch.no_grad():
         for i in tqdm(range(0, len(texts), BATCH_SIZE)):
-            
-            batch_texts = texts[i:i+BATCH_SIZE]
-            batch_labels = labels[i:i+BATCH_SIZE]
+            batch_texts = texts[i:i + BATCH_SIZE]
+            batch_labels = labels[i:i + BATCH_SIZE]
 
-            # get inputs including attention mask
             inputs = tokenizer(batch_texts, padding="max_length", max_length=256, truncation=True, return_tensors="pt")
             inputs = {k: v.to(DEVICE) for k, v in inputs.items()}
 
-            outputs = model(**inputs, output_hidden_states=True)
-            
-            # print(outputs.last_hidden_state.shape)
-            
-            # Mask padding tokens
-            
-            attention_mask = inputs['attention_mask']
-            hidden_states = outputs.last_hidden_state
-            expanded_mask = attention_mask.unsqueeze(-1).expand(hidden_states.size())
-            hidden_states = hidden_states * expanded_mask # remove the paddings
-            
-            mapped_embeddings = mapping_model(hidden_states)
-            # print(mapped_embeddings.shape)
+            # get sentence-level embeddings directly
+            outputs = model(**inputs)
+            mapped_embeddings = outputs
+
             all_embeddings.append(mapped_embeddings.cpu())
             all_labels.extend(batch_labels)
-            
+
     all_embeddings = torch.cat(all_embeddings, dim=0)
     embeddings_df = pd.DataFrame(all_embeddings.numpy())
-    embeddings_df['label'] = all_labels  # add label column
-    
+    embeddings_df['label'] = all_labels
+
     return embeddings_df
+
 
 # def getting_mean_embeds_without_padding_tokens(inputs, outputs):
     

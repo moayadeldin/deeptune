@@ -46,6 +46,7 @@ parser.add_argument('--use_case', type=str, choices=['peft', 'finetuned','pretra
 
 # bert evaluating settings
 parser.add_argument("--adjusted_bert_dir", type=str,help='Path to the adjusted saved weights of Finetuned BERT.')
+parser.add_argument("--adjusted_gpt2_dir", type=str,help='Path to the adjusted saved weights of Finetuned GPT-2.')
 
 # Models version
 parser.add_argument('--resnet_version', type=str, choices=['resnet18', 'resnet34', 'resnet50', 'resnet101', 'resnet152'], help='ResNet version to use.')
