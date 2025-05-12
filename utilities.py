@@ -111,7 +111,7 @@ def split_save_load_dataset(mode,type,input_dir, train_size, val_size, test_size
     
     # for testing purposes we may pock the first 10 rows
     
-    # df = df[:10]
+    df = df[:10]
     
     # Apply the splitting of the input and save them in the specified paths
     train_data, temp_data = train_test_split(df, test_size=(1 - train_size), random_state=seed)
@@ -218,6 +218,10 @@ def save_test_metrics(test_accuracy,output_dir):
     with open(output_path, 'w') as f:
         f.write("\nTest Accuracy:\n")
         f.write(f"{test_accuracy:.4f}\n")
+        
+def get_version():
+    with open("VERSION", "r") as f:
+        return f.read().strip()
 
 def save_cli_args(args,output_dir,mode):
     
@@ -231,6 +235,8 @@ def save_cli_args(args,output_dir,mode):
     """
     
     os.makedirs(output_dir, exist_ok=True)
+    
+    version = get_version()
 
     if mode == 'train':
         
@@ -247,7 +253,8 @@ def save_cli_args(args,output_dir,mode):
         'val_size': args.val_size,
         'test_size':args.test_size,
         'use-peft': args.use_peft,
-        'fixed-seed': args.fixed_seed
+        'fixed-seed': args.fixed_seed,
+        'version': version
         }
     
     elif mode == 'test':
@@ -259,7 +266,8 @@ def save_cli_args(args,output_dir,mode):
             'embed_size': args.embed_size,
             'batch_size': args.batch_size,
             'input_dir': args.input_dir,
-            'model_weights': args.model_weights
+            'model_weights': args.model_weights,
+            'version':version
         }
         
     else:
