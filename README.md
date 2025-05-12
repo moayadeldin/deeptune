@@ -84,6 +84,15 @@ As a cutting-edge software library that has been specifically designed for use i
       <td>ViT_b_16, ViT_b_32, ViT_l_16, ViT_l_32, ViT_h_14</td>
     </tr>
     <tr>
+      <td>GPT</td>
+      <td>✅</td>
+      <td>—</td>
+      <td>✅</td>
+      <td>Text Classification</td>
+      <td>Text</td>
+      <td>GPT-2</td>
+    </tr>
+    <tr>
       <td>BERT</td>
       <td>✅</td>
       <td>✅</td>
@@ -97,12 +106,6 @@ As a cutting-edge software library that has been specifically designed for use i
       <td colspan="4" style="text-align:center; font-weight:bold; font-size:16px;">Only Supports Embedding Extraction</td>
       <td>Text</td>
       <td>XLM-RoBERTa</td>
-    </tr>
-    <tr>
-      <td>GPT</td>
-      <td colspan="4" style="text-align:center; font-weight:bold; font-size:16px;">Only Supports Embeddings Extraction</td>
-      <td>Text</td>
-      <td>GPT-2</td>
     </tr>
   </tbody>
 </table>
