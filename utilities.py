@@ -509,6 +509,33 @@ class PerformanceLogger:
         
 
 
+import pandas as pd
+
+def add_datetime_column_to_predictions(
+    pred_df,
+    input_csv_path,
+    time_idx_col="time_idx",
+    datetime_col="date"
+):
+    """
+    Add a datetime column to the prediction DataFrame by mapping from the original input CSV.
+
+    Returns:
+        pred_df (DataFrame): DataFrame with a new datetime column added.
+    """
+    original_df = pd.read_csv(input_csv_path)
+
+    original_df[time_idx_col] = pd.to_datetime(original_df[time_idx_col])
+
+    original_df = original_df.sort_values(time_idx_col).reset_index(drop=True)
+    original_df["int_time_idx"] = original_df.index.astype(int)
+
+    time_idx_to_date = dict(zip(original_df["int_time_idx"], original_df[time_idx_col]))
+
+    pred_df[datetime_col] = pred_df[time_idx_col].map(time_idx_to_date)
+
+    return pred_df
+
     
      
 
