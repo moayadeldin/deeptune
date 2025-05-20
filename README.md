@@ -16,6 +16,7 @@ As a cutting-edge software library that has been specifically designed for use i
 - Ability of extracting meaningful feature embeddings representing your own dataset with SoTA algorithms for image and text classification tasks.
 ## Models DeepTune Supports Up to Date
 
+
 <table>
   <thead>
     <tr>
@@ -107,9 +108,14 @@ As a cutting-edge software library that has been specifically designed for use i
       <td>Text</td>
       <td>XLM-RoBERTa</td>
     </tr>
+    <tr>
+  <td>DeepAR</td>
+  <td colspan="4" style="text-align:center; font-weight:bold; font-size:16px;">Only Supports Time Series Datasets</td>
+  <td>Time Series</td>
+  <td>DeepAR</td>
+</tr>
   </tbody>
 </table>
-
 
 
 
