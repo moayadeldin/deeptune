@@ -11,6 +11,7 @@ embeddings_test_code.py
 test_densenet121_peft.py
 convert_images_to_bytes.py
 deeptune_results
+lightning_logs
 
 embed/vision/peft_siglip_embeddings.py
 src/vision/siglip_peft.py

@@ -58,3 +58,6 @@ parser.add_argument('--vit_version', type=str, choices=['vit_b_16', 'vit_b_32', 
 
 # timeseries models
 parser.add_argument('--target_column', type=str, help='Target column for time series forecasting.')
+parser.add_argument('--time_idx_column', type=str, help='Time index column for time series forecasting.')
+parser.add_argument('--max_encoder_length', type=int, help='How much history the model sees',default=60)
+parser.add_argument('--max_prediction_length', type=int, help='How many steps into the future it will predict.', default=20)
