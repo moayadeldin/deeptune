@@ -217,7 +217,7 @@ DeepTune
 - [2.1 Using DeepTune for Training](#21-using-deeptune-for-training)
 - [2.2 Using DeepTune for Evaluation](#22-using-deeptune-for-evaluation)
 - [2.3 Using DeepTune for Embeddings Extraction](#23-using-deeptune-for-embeddings-extraction)
-- [ [EXTRA] 2.4 Integration with df-analyze](#..)
+- [[EXTRA] 2.4 Integration with df-analyze](#extra-24-integration-with-df-analyze)
 
 
 
@@ -335,8 +335,9 @@ The following is the generic CLI structure of running DeepTune on images/text da
 
 `--freeze-backbone`: (Flag) Determines whether you want only to train the added new layers, or update the whole model parameters during training.
 
-**Note** :
+**Notes** :
 > The CLI command structure to training images and texts datasets models in DeepTune are the same in training, except for ``--<model>_version`` switch where you don't add it with text models. Moreover, the `--num_classes` isn't required as a switch when running GPT-2 model.
+> The regression mode isn't supported for text models.
 
 For example, suppose that we want to train our model with ResNet18, and apply transfer learning to update the whole model's weights, with 2 added layers, and an embedding layer of size 1000. Hence, we run the command as follows:
 
@@ -487,7 +488,6 @@ Hence, the generic CLI structure of running DeepTune for evalaution of text data
   --model_weights <str> \
   --added_layers <int> \
   --embed_size <int> \
-  --mode <cls_or_reg> \
   --adjusted_<bert/gpt2>_dir <str> \
   [--use-peft] \
   [--freeze-backbone]
@@ -556,7 +556,6 @@ The following is the generic CLI structure of running DeepTune for embeddings ex
   --model_weights <str> \
   --added_layers <int> \
   --embed_size <int> \
-  --mode <cls_or_reg> \
   --use_case <finetuned_or_pretrained_or_peft> \
   --adjusted_<bert/gpt2>_dir <str> \
   --use_case <finetuned_or_peft>
@@ -566,13 +565,32 @@ The following is the generic CLI structure of running DeepTune for embeddings ex
 
 **Notes:**
 > We recall the same note mentioned in Section 2.2 that **the switches `--added_layers` and `embed_size` for GPT-2 model are set by default as we tweaked the model architecture in order to be properly ready for training, so you don't have to set these to a specific input. Also, For the ``--adjusted_<bert/gpt2>_dir`` switch, we feed the whole output directory we got from running DeepTune for training (`output_directory_trainval_<yyyymmdd>_<hhmm>`)**.
+
 > Using text models for embeddings extraction directly with skipping Sections 2.1, and 2.2 (as we may do in images) isn't supported in DeepTune. If you want to extract the embeddings directly, you may use RoBERTa model. Moreover, this version of DeepTune doesn't yet support using peft case for GPT-2. The later part will be added in a future version of DeepTune.
 
 
 You will find the output in a format of Parquet file in the following path: `deeptune_results/test_set_<use_case>_<model>_embeddings_<mode>.parquet`.
 
+### [[EXTRA] 2.4 Integration with df-analyze]
 
+[df-analyze](https://github.com/stfxecutables/df-analyze) is a command-line tool developed in the same Medical Imaging Bioinformatics lab at St. Francis Xavier University for automating Machine Learning tasks on small to medium-sized tabular datasets (less than about 200 000 samples, and less than about 50 to 100 features) using Classical ML algorithms.
 
+If you want to further see how would your images/text dataset perform using Classical ML algorithms, it would be very difficult to achieve without having an intermediate representation of each sample. DeepTune provides you the way to get this intermediate representation using Embeddings Extraction as illustrated in Section 2.3, which allows you right now to run [df-analyze](https://github.com/stfxecutables/df-analyze)!
+
+After you successfully allocate your embeddings file, either after running DeepTune on image dataset or text one, you may install df-analyze —instructions on how to do that is found on the software repository link— and run the following command:
+
+```
+python df-analyze.py --df "path\test_set_<use_case>_<model>_embeddings_cls.parquet" --outdir = ./deeptune_results --mode=classify --target label --classifiers lgbm rf sgd knn lr mlp dummy --embed-select none linear lgbm
+```
+
+If you ran df-analyze for regression task on images, you may change the command to be as follows:
+```
+python df-analyze.py --df "path\test_set_<use_case>_<model>_embeddings_reg.parquet" --target label --mode=regress --regressors knn lgbm elastic lgbm sgd dummy mlp --feat-select wrap --outdir=./deeptune_results
+```
+
+**Notes:**
+> You may change the output directory in `--outdir` to be any folder.
+> Do not forget to change the `--df` switch value according to the path of the embeddings file.
 
 
 
