@@ -1,11 +1,14 @@
 import torch
 import torch.nn as nn
 import torch.optim as optim
-from tqdm import tqdm
+from tqdm.auto import tqdm
 import sys
 import logging
 from utilities import PerformanceLogger,get_args
 import options
+
+import functools
+print = functools.partial(print, flush=True)
 
 
 # Initialize the needed variables either from the CLI user sents or from the device.
