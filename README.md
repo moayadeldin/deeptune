@@ -365,6 +365,7 @@ If everything is set correctly, you should expect an output in the same format:
 
 **Notes**:
 > The way you initiate the calls (e.g, python trainers.vision.train_resnet.py, or python -m trainers.vision.train_resnet) may differ within different Operating Systems, what I am using in the format above for Windows 11 CMD. Do not forget to change the path for ``--input_dir`` as your dataset input path also.
+
 > For using PeFT just add the `--use-peft` switch to the previous command.
 
 
