@@ -217,7 +217,8 @@ DeepTune
 - [2.1 Using DeepTune for Training](#21-using-deeptune-for-training)
 - [2.2 Using DeepTune for Evaluation](#22-using-deeptune-for-evaluation)
 - [2.3 Using DeepTune for Embeddings Extraction](#23-using-deeptune-for-embeddings-extraction)
-- [[EXTRA] 2.4 Integration with df-analyze](#extra-24-integration-with-df-analyze)
+- [2.4 [EXTRA] Integration with df-analyze](#24-extra-integration-with-df-analyze)
+
 
 
 
@@ -571,7 +572,7 @@ The following is the generic CLI structure of running DeepTune for embeddings ex
 
 You will find the output in a format of Parquet file in the following path: `deeptune_results/test_set_<use_case>_<model>_embeddings_<mode>.parquet`.
 
-### [[EXTRA] 2.4 Integration with df-analyze]
+### 2.4 [EXTRA] Integration with df-analyze
 
 [df-analyze](https://github.com/stfxecutables/df-analyze) is a command-line tool developed in the same Medical Imaging Bioinformatics lab at St. Francis Xavier University for automating Machine Learning tasks on small to medium-sized tabular datasets (less than about 200 000 samples, and less than about 50 to 100 features) using Classical ML algorithms.
 
