@@ -290,7 +290,8 @@ DeepTune gives you also a wide flexible set of options to choose what you think 
 
 The following is the generic CLI structure of running DeepTune on images/text dataset stored in Parquet file as bytes format for training:
 
-``` python -m trainers.<vision/nlp>.train_<model> \
+```
+python -m trainers.<vision/nlp>.train_<model> \
   --input_dir <path_to_dataset> \
   --<model>_version <model_variant> \
   --batch_size <int> \
@@ -404,7 +405,8 @@ After using DeepTune to apply transfer learning on one of the models the package
 
 The following is the generic CLI structure of running DeepTune for evalaution of image datasets:
 
-``` python -m evaluators.vision.evaluate_<model> \
+```
+python -m evaluators.vision.evaluate_<model> \
   --input_dir <path_to_dataset> \
   --<model>_version <model_variant> \
   --batch_size <int> \
@@ -481,7 +483,8 @@ Notice that there are directories saving the update tokenizer, and model files. 
 
 Hence, the generic CLI structure of running DeepTune for evalaution of text datasets:
 
-``` python -m evaluators.nlp.evaluate_<model> \
+```
+python -m evaluators.nlp.evaluate_<model> \
   --input_dir <path_to_dataset> \
   --<model>_version <model_variant> \
   --batch_size <int> \
