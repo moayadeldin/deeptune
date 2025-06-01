@@ -30,11 +30,11 @@ MODE = args.mode
 if USE_CASE == 'peft':
     
     model = adjustedPeftVGGNet(NUM_CLASSES,VGGNET_VERSION, ADDED_LAYERS, EMBED_SIZE, FREEZE_BACKBONE,task_type=MODE)
-    TEST_OUTPUT = f"test_set_peft_vgg_embeddings_{MODE}.parquet"
+    TEST_OUTPUT = f"deeptune_results/test_set_peft_vgg_embeddings_{MODE}.parquet"
     args.use_case = 'peft- ' + VGGNET_VERSION
 elif USE_CASE == 'finetuned':
     model = adjustedVGGNet(NUM_CLASSES, VGGNET_VERSION, ADDED_LAYERS, EMBED_SIZE,FREEZE_BACKBONE,task_type=MODE)
-    TEST_OUTPUT = f"test_set_finetuned_vgg_embeddings_{MODE}.parquet"
+    TEST_OUTPUT = f"deeptune_results/test_set_finetuned_vgg_embeddings_{MODE}.parquet"
     args.use_case = 'finetuned- ' + VGGNET_VERSION
 
 elif USE_CASE == 'pretrained':
@@ -48,7 +48,7 @@ elif USE_CASE == 'pretrained':
         model = torchvision.models.vgg19(weights="DEFAULT")
     
     model.classifier[6] = nn.Identity()  # Remove classification layer to use as feature extractor
-    TEST_OUTPUT = f"test_set_pretrained_vgg_embeddings_{MODE}.parquet"
+    TEST_OUTPUT = f"deeptune_results/test_set_pretrained_vgg_embeddings_{MODE}.parquet"
     args.use_case = 'pretrained- ' + VGGNET_VERSION
 
 else:

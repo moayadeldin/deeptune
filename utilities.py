@@ -17,6 +17,7 @@ from src.nlp.multilingual_bert import CustomMultilingualBERT
 from src.nlp.multilingual_bert_peft import CustomMultilingualPeftBERT
 from sklearn.preprocessing import LabelEncoder
 import options
+from pytorch_lightning.callbacks import Callback
 
 # check if we need to use peft or not while loading the BERT model
 
@@ -200,6 +201,20 @@ def split_save_load_dataset(mode,type,input_dir, train_size, val_size, test_size
             
             raise ValueError('Please choose the mode either "train" or "test".')
 
+    if type == 'tabular':
+        
+        if mode == 'train':
+
+            return train_data, val_data, test_data
+        
+        elif mode == 'test':
+            
+            pass
+        
+        else:
+            
+            raise ValueError('Please choose the mode either "train" or "test".')
+
 
 def save_test_metrics(test_accuracy,output_dir):
     """
@@ -218,6 +233,9 @@ def save_test_metrics(test_accuracy,output_dir):
     with open(output_path, 'w') as f:
         f.write("\nTest Accuracy:\n")
         f.write(f"{test_accuracy:.4f}\n")
+        f.write("\n Version:\n")
+        f.write(f"{get_version()}\n")
+        f.write("\n\nThank you for using Deeptune!\n")
         
 def get_version():
     with open("VERSION", "r") as f:
@@ -268,6 +286,29 @@ def save_cli_args(args,output_dir,mode):
             'input_dir': args.input_dir,
             'model_weights': args.model_weights,
             'version':version
+        }
+
+    elif mode == 'tabular train':
+        args_dict = {
+        'model': 'gandalf',
+        'target_column': args.target_column,
+        'continuous_cols': args.continuous_cols,
+        'categorical_cols': args.categorical_cols,
+        'num_epochs': args.num_epochs,
+        'batch_size': args.batch_size,
+        'learning_rate': args.learning_rate,
+        'input_dir': args.input_dir,
+        'train_size': args.train_size,
+        'val_size': args.val_size,
+        'test_size':args.test_size,
+        'fixed-seed': args.fixed_seed,
+        'version': version
+        }
+
+    elif mode == 'tabular test':
+        args_dict = {
+            'test_set_input_dir': args.test_set_input_dir,
+            'model': 'gandalf',
         }
         
     else:
@@ -451,6 +492,11 @@ class PerformanceLogger:
         log_data (dict): The dictionary to store the logged data.
         output_dir (str): The path to save the logged data
      """
+
+     def _to_scalar(self, x):
+        if isinstance(x, torch.Tensor):
+            return x.detach().cpu().item()
+        return x
      
      def __init__(self,output_dir):
           
@@ -467,18 +513,18 @@ class PerformanceLogger:
           self.output_dir = output_dir
      
      def log_performance(self, epoch, epoch_loss, epoch_accuracy, val_loss, val_accuracy, test_loss, test_accuracy):
-         
         """
-        Add the performance metrics to the log data dictionary that will be converted to CSV at the end. 
+        Add the performance metrics to the log data dictionary that will be converted to CSV at the end.
         """
-         
-        self.log_data["epoch"].append(epoch)
-        self.log_data["epoch_loss"].append(epoch_loss)
-        self.log_data["epoch_accuracy"].append(epoch_accuracy)
-        self.log_data["val_loss"].append(val_loss)
-        self.log_data["val_accuracy"].append(val_accuracy)
-        self.log_data["test_loss"].append(test_loss)
-        self.log_data["test_accuracy"].append(test_accuracy)
+
+        self.log_data["epoch"].append(self._to_scalar(epoch))
+        self.log_data["epoch_loss"].append(self._to_scalar(epoch_loss))
+        self.log_data["epoch_accuracy"].append(self._to_scalar(epoch_accuracy))
+        self.log_data["val_loss"].append(self._to_scalar(val_loss))
+        self.log_data["val_accuracy"].append(self._to_scalar(val_accuracy))
+        self.log_data["test_loss"].append(self._to_scalar(test_loss))
+        self.log_data["test_accuracy"].append(self._to_scalar(test_accuracy))
+
             
      def log_epoch(self, epoch, epoch_loss, epoch_accuracy, val_loss, val_accuracy):
         """Log end-of-epoch metrics."""
@@ -508,8 +554,37 @@ class PerformanceLogger:
         print(f"Saved performance log to {file_path}")
         
 
+class PerformanceLoggerCallback(Callback):
 
-import pandas as pd
+    def __init__(self,performance_logger):
+
+        super().__init__()
+        self.performance_logger = performance_logger
+
+    def on_validation_end(self,trainer,pl_module):
+
+        epoch = trainer.current_epoch + 1
+
+        metrics = trainer.callback_metrics
+
+        # get losses and accuracy from metrics
+
+        print(metrics)
+
+        train_loss = metrics.get("train_loss",None) 
+        train_accuracy = metrics.get("train_accuracy",None)
+        val_loss = metrics.get("valid_loss",None)
+        val_accuracy = metrics.get("valid_accuracy",None)
+
+        print(f"[Epoch {epoch}] Train Loss: {train_loss}, Train Acc: {train_accuracy}, Val Loss: {val_loss}, Val Acc: {val_accuracy}")
+
+        self.performance_logger.log_epoch(
+            epoch=epoch,
+            epoch_loss=train_loss,
+            epoch_accuracy=train_accuracy,
+            val_loss=val_loss,
+            val_accuracy=val_accuracy,
+        )
 
 def add_datetime_column_to_predictions(
     pred_df,
