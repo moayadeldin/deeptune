@@ -34,11 +34,11 @@ MODE = args.mode
 if USE_CASE == 'peft':
     
     model = adjustedPeftSwin(NUM_CLASSES,SWIN_VERSION, ADDED_LAYERS, EMBED_SIZE, FREEZE_BACKBONE,task_type=MODE)
-    TEST_OUTPUT = f"test_set_peft_swin_embeddings_{MODE}.parquet"
+    TEST_OUTPUT = f"deeptune_results/test_set_peft_swin_embeddings_{MODE}.parquet"
     args.use_case = 'peft- ' + SWIN_VERSION
 elif USE_CASE == 'finetuned':
     model = adjustedSwin(NUM_CLASSES, SWIN_VERSION, ADDED_LAYERS, EMBED_SIZE,FREEZE_BACKBONE,task_type=MODE)
-    TEST_OUTPUT = f"test_set_finetuned_swin_embeddings_{MODE}.parquet"
+    TEST_OUTPUT = f"deeptune_results/test_set_finetuned_swin_embeddings_{MODE}.parquet"
     args.use_case = 'finetuned- ' + SWIN_VERSION
 
 elif USE_CASE == 'pretrained':
@@ -51,7 +51,7 @@ elif USE_CASE == 'pretrained':
     
 
     model.head = nn.Identity()  # Remove classification layer to use as feature extractor
-    TEST_OUTPUT = f"test_set_pretrained_swin_embeddings_{MODE}.parquet"
+    TEST_OUTPUT = f"deeptune_results/test_set_pretrained_swin_embeddings_{MODE}.parquet"
     args.use_case = 'pretrained- ' + SWIN_VERSION
 else:
     raise ValueError('There is no fourth option other than ["finetuned", "peft", "pretrained"]')

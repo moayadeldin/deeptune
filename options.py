@@ -61,3 +61,10 @@ parser.add_argument('--target_column', type=str, help='Target column for time se
 parser.add_argument('--time_idx_column', type=str, help='Time index column for time series forecasting.')
 parser.add_argument('--max_encoder_length', type=int, help='How much history the model sees',default=60)
 parser.add_argument('--max_prediction_length', type=int, help='How many steps into the future it will predict.', default=20)
+
+# GANDALF model
+parser.add_argument('--tabular_target_column', nargs='+', type=str, help='Target column for GANDALF')
+parser.add_argument('--continuous_cols', nargs='+', type=str, help='Continuous columns for GANDALF')
+parser.add_argument('--categorical_cols', nargs='+', type=str, help='Categorical columns for GANDALF')
+parser.add_argument('--gflu_stages', type=int, default=6, help='Number of GFLU stages for GANDALF')
+parser.add_argument('--type', type=str, choices=['classification', 'regression'], help='Task type for GANDALF')

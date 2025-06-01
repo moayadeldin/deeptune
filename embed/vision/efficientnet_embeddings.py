@@ -154,9 +154,8 @@ if __name__ == "__main__":
     labels_df = pd.DataFrame(labels, columns=["label"])
 
     combined_df = pd.concat([embeddings_df,labels_df],axis=1)
-
-    combined_df.to_parquet(TEST_OUTPUT,index=False)
-
+    combined_df.columns = combined_df.columns.map(str)
+    combined_df.to_parquet(TEST_OUTPUT, index=False)
 
 
 

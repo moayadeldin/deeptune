@@ -21,3 +21,5 @@ split_convert_images_to_bytes.py
 
 evaluators/vision/evaluate_peft_siglip.py
 trainers/vision/train_siglip.py
+.pt_tmp
+saved_models
