@@ -67,6 +67,7 @@ train_data, val_data, _ = split_save_load_dataset(
     tokenizer=None
 )    
 
+
 performance_logger = PerformanceLogger(TRAINVAL_OUTPUT_DIR)
 
 
@@ -99,6 +100,7 @@ tabular_model = TabularModel(
     trainer_config=trainer_config,
     verbose=True,
 )
+
 
 if __name__ == "__main__":
 

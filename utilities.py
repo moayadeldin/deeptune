@@ -107,12 +107,22 @@ def split_save_load_dataset(mode,type,input_dir, train_size, val_size, test_size
         os.makedirs('deeptune_results',exist_ok=True)
     
     df = pd.read_parquet(input_dir)
+
+    if type == 'tabular':
+        # Fill missing numeric columns with 0
+        num_cols = df.select_dtypes(include=["number"]).columns
+        df[num_cols] = df[num_cols].fillna(0)
+
+        # Fill missing object/category (string) columns with a placeholder
+        str_cols = df.select_dtypes(include=["object", "category"]).columns
+        df[str_cols] = df[str_cols].fillna("unknown")
+
     
     print('Dataset is loaded!')
     
     # for testing purposes we may pock the first 10 rows
     
-    # df = df[:10]
+    # df = df[:100]
     
     # Apply the splitting of the input and save them in the specified paths
     train_data, temp_data = train_test_split(df, test_size=(1 - train_size), random_state=seed)
