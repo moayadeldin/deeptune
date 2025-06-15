@@ -30,12 +30,12 @@ MODE = args.mode
 if USE_CASE == 'peft':
     
     model = adjustedViTPeft(NUM_CLASSES,VIT_VERSION, ADDED_LAYERS, EMBED_SIZE, FREEZE_BACKBONE,task_type=MODE)
-    TEST_OUTPUT = f"test_set_peft_vit_embeddings_{MODE}.parquet"
+    TEST_OUTPUT = f"deeptune_results/test_set_peft_vit_embeddings_{MODE}.parquet"
     args.use_case = 'peft- ' + VIT_VERSION
     pass
 elif USE_CASE == 'finetuned':
     model = adjustedViT(NUM_CLASSES, VIT_VERSION, ADDED_LAYERS, EMBED_SIZE,FREEZE_BACKBONE,task_type=MODE)
-    TEST_OUTPUT = f"test_set_finetuned_vit_embeddings_{MODE}.parquet"
+    TEST_OUTPUT = f"deeptune_results/test_set_finetuned_vit_embeddings_{MODE}.parquet"
     args.use_case = 'finetuned- ' + VIT_VERSION
 
 elif USE_CASE == 'pretrained':
