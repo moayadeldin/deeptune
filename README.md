@@ -116,13 +116,14 @@ As a cutting-edge software library that has been specifically designed for use i
       <td>Time Series</td>
       <td>DeepAR</td>
     </tr>
-    <tr>
-      <td>GANDALF</td>
-      <td colspan="3" style="text-align:center; font-weight:bold; font-size:16px;">Only Supports Tabular Data</td>
-      <td>Classification & Regression</td>
-      <td>Tabular</td>
-      <td>GANDALF</td>
-    </tr>
+<tr>
+  <td>GANDALF</td>
+  <td colspan="2" style="text-align:center; font-weight:bold; font-size:16px;">Only Supports Regular Training</td>
+  <td>✅</td>
+  <td>Classification & Regression</td>
+  <td>Tabular</td>
+  <td>GANDALF</td>
+</tr>
   </tbody>
 </table>
 
