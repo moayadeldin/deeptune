@@ -81,7 +81,7 @@ def fixed_seed(seed):
     print("torch.backends.cudnn.deterministic set to True.")
     
     
-def split_save_load_dataset(mode,type,input_dir, train_size, val_size, test_size, train_dataset_path,val_dataset_path, test_dataset_path, seed, batch_size,tokenizer):
+def split_save_load_dataset(mode,type,input_dir, train_size, val_size, test_size, train_dataset_path,val_dataset_path, test_dataset_path, seed, batch_size,tokenizer,siglip=False):
     
     """
     Split the dataset, save it as parquet file in the defined path, and return the dataloaders.
@@ -122,8 +122,9 @@ def split_save_load_dataset(mode,type,input_dir, train_size, val_size, test_size
     
     # for testing purposes we may pock the first 10 rows
     
-    # df = df[:100]
-    
+    df = df[:10]
+    print(f"The shape of the dataset is {df.shape}")
+
     # Apply the splitting of the input and save them in the specified paths
     train_data, temp_data = train_test_split(df, test_size=(1 - train_size), random_state=seed)
     val_data, test_data = train_test_split(temp_data, test_size=(test_size / (val_size + test_size)), random_state=seed)
@@ -135,16 +136,20 @@ def split_save_load_dataset(mode,type,input_dir, train_size, val_size, test_size
     print("Data splits have been saved and overwritten if they existed.")
     
     
-    # Here if the type is image, then we don't need tokenizer. We just convert the datasets to ParquetImageDataset class and return the dataloaders depending on the mode. If train then return the training and valiadtion, if test then return the test dataloader.
+    # Here if the type is image, then we don't need tokenizer (unless siglip). We just convert the datasets to ParquetImageDataset class and return the dataloaders depending on the mode. If train then return the training and valiadtion, if test then return the test dataloader.
     if type == 'image':
-        
-        tokenizer = None
         
         # The current datasets loaded as dataloaders
         if mode == 'train':    
-            
-            train_dataset = ParquetImageDataset(parquet_file=train_dataset_path, transform=transformations)
-            val_dataset = ParquetImageDataset(parquet_file=val_dataset_path, transform=transformations)
+
+            if siglip:    
+                train_dataset = ParquetImageDataset(parquet_file=train_dataset_path, transform=None, processor=tokenizer)
+                val_dataset = ParquetImageDataset(parquet_file=val_dataset_path, transform=None, processor=tokenizer)
+
+            else:
+                tokenizer = None
+                train_dataset = ParquetImageDataset(parquet_file=train_dataset_path, transform=transformations)
+                val_dataset = ParquetImageDataset(parquet_file=val_dataset_path, transform=transformations)
 
             train_loader = torch.utils.data.DataLoader(
                 train_dataset,
@@ -160,6 +165,8 @@ def split_save_load_dataset(mode,type,input_dir, train_size, val_size, test_size
             )
             
             return train_loader, val_loader
+        
+        
             
         elif mode == 'test':
             

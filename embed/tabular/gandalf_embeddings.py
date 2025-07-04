@@ -17,7 +17,6 @@ args = get_args()
 INPUT_DIR = args.input_dir
 BATCH_SIZE = args.batch_size
 MODEL_PATH = args.model_weights
-EMBED_SIZE = args.embed_size
 CONTINUOUS_COLS = args.continuous_cols
 CATEGORICAL_COLS = args.categorical_cols
 DEVICE = options.DEVICE
