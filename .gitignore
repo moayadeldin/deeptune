@@ -14,7 +14,6 @@ deeptune_results
 lightning_logs
 
 embed/vision/peft_siglip_embeddings.py
-src/vision/siglip_peft.py
 src/vision/siglip.py
 convert_images_to_bytes.py
 split_convert_images_to_bytes.py
