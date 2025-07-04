@@ -55,7 +55,7 @@ def get_model():
         if USE_PEFT:
             model = importlib.import_module('src.vision.densenet_peft')
             args.model = 'PEFT-' + DENSENET_VERSION
-            return model.adjustedPEFTDenseNet
+            return model.adjustedPeftDenseNet
         else:
             model = importlib.import_module('src.vision.densenet')
             args.model = DENSENET_VERSION
