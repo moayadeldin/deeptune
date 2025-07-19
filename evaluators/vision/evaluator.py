@@ -1,25 +1,17 @@
-from utilities import save_test_metrics,get_args
-from sklearn.metrics import classification_report, roc_auc_score
-import numpy as np
+import json
+import logging
+import sys
 import torch
 import torch.nn as nn
+
+from sklearn.metrics import classification_report, roc_auc_score
 from tqdm.auto import tqdm
-import sys
-import logging
-import options
 
+from options import DEVICE, TEST_OUTPUT_DIR
+from utilities import save_test_metrics
 
-# Initialize the needed variables either from the CLI user sents or from the device.
-parser = options.parser
-DEVICE = options.DEVICE
-TEST_OUTPUT_DIR = options.TEST_OUTPUT_DIR
-args = get_args()
-MODE = args.mode
-
-test_loader = args.test_set_input_dir
 
 class TestTrainer:
-    
     """
     Performs Testing on the input image dataset.
     
@@ -33,17 +25,29 @@ class TestTrainer:
             logger (logging.Logger): Logger instance for tracking test progress.
     """
     
-    def __init__(self, model, batch_size,test_loader):
-        
+    def __init__(
+        self,
+        model,
+        batch_size,
+        test_loader,
+        mode: str = 'cls',
+        output_dir=TEST_OUTPUT_DIR,
+        device=DEVICE
+    ):
         self.model = model
         self.batch_size = batch_size
         self.test_loader = test_loader
+        self.mode = mode
+
+        self.output_dir = output_dir
+
+        self.device = device
         
         # logging info
         logging.basicConfig(stream=sys.stdout, level=logging.INFO, format="%(levelname)s | %(message)s")
         self.logger = logging.getLogger()
         
-        if MODE == 'cls':    
+        if self.mode == 'cls':    
             self.criterion = nn.CrossEntropyLoss()
         else: # then regression if not classification
             self.criterion = nn.MSELoss()
@@ -59,7 +63,7 @@ class TestTrainer:
             self.model.load_state_dict(torch.load(best_model_weights_path))
             print('Model into the path is loaded.')
             
-        self.model.to(DEVICE)
+        self.model.to(self.device)
         # Initialize the metrics for validation
         test_accuracy=0.0
         test_loss=0.0
@@ -76,10 +80,10 @@ class TestTrainer:
                 
                 self.model.eval()
                 if isinstance(self.criterion, nn.MSELoss): # if regression then we must rehape the target tensor    
-                    inputs, labels = inputs.to(DEVICE), labels.to(DEVICE)
+                    inputs, labels = inputs.to(self.device), labels.to(self.device)
                     labels = labels.view(-1,1).float() # [batch_size,1]
                 else:
-                    inputs,labels = inputs.to(DEVICE),labels.to(DEVICE)
+                    inputs, labels = inputs.to(self.device),labels.to(self.device)
                 
                 # Apply forward pass and accumulate loss
                 outputs = self.model(inputs)
@@ -87,9 +91,8 @@ class TestTrainer:
                 loss = self.criterion(outputs, labels)
                 test_loss += loss.item()
                 
-                
                 # If mode is classification then we need to calculate accuracy
-                if MODE == "cls":
+                if self.mode == "cls":
                     probs = torch.softmax(outputs, 1)
                     _, predicted = torch.max(probs, 1)
                     
@@ -97,21 +100,24 @@ class TestTrainer:
                     correct += torch.sum(torch.argmax(outputs, dim=1) == labels).item()
                     
                     # Store classification outputs
-                    all_probs.append(probs.cpu().numpy())
-                    all_predictions.append(predicted.cpu().numpy())
-                    all_labels.append(labels.cpu().numpy())
+                    all_probs.append(probs)
+                    all_predictions.append(predicted)
+                    all_labels.append(labels)
         
         # Compute loss for both modes, if classification then we need to compute also the other metrics as accuracy, AUROC, and classification report.
         test_loss = test_loss / len(self.test_loader)
         metrics_dict = {"loss": test_loss}
         
-        if MODE == "cls":
+        if self.mode == "cls":
             test_accuracy = (correct / total) * 100
             metrics_dict["accuracy"] = test_accuracy
             
-            all_probs = np.concatenate(all_probs, axis=0)
-            all_predictions = np.concatenate(all_predictions, axis=0)
-            all_labels = np.concatenate(all_labels, axis=0)
+            # all_probs = np.concatenate(all_probs, axis=0)
+            # all_predictions = np.concatenate(all_predictions, axis=0)
+            # all_labels = np.concatenate(all_labels, axis=0)
+            all_probs = torch.cat(all_probs, dim=0).cpu().numpy()
+            all_predictions = torch.cat(all_predictions, dim=0).cpu().numpy()
+            all_labels = torch.cat(all_labels, dim=0).cpu().numpy()
             
             report = classification_report(y_true=all_labels, y_pred=all_predictions, output_dict=True)
             metrics_dict.update(report)
@@ -123,6 +129,9 @@ class TestTrainer:
             
             print(test_accuracy, test_loss)
             self.logger.info(f"Test accuracy: {test_accuracy}%")
-            save_test_metrics(test_accuracy=test_accuracy, output_dir=TEST_OUTPUT_DIR)
+            save_test_metrics(test_accuracy=test_accuracy, output_dir=self.output_dir)
+
+            with open(self.output_dir / "full_metrics.json", 'w') as f:
+                json.dump(metrics_dict, f, indent=4)
         
         print(metrics_dict)
