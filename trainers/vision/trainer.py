@@ -1,27 +1,30 @@
+from pathlib import Path
 import torch
 import torch.nn as nn
 import torch.optim as optim
+from torch.utils.data import DataLoader
 from tqdm.auto import tqdm
 import sys
 import logging
-from utilities import PerformanceLogger,get_args
-import options
+from utilities import PerformanceLogger
+from options import DEVICE, TRAINVAL_OUTPUT_DIR
 
 import functools
 print = functools.partial(print, flush=True)
 
 
-# Initialize the needed variables either from the CLI user sents or from the device.
-
-parser = options.parser
-args = get_args()
-
-DEVICE = options.DEVICE
-
 class Trainer:
 
-    def __init__(self, model, train_loader, val_loader, learning_rate, mode, num_epochs, output_dir=options.TRAINVAL_OUTPUT_DIR):
-        
+    def __init__(
+        self,
+        model: nn.Module,
+        train_loader: DataLoader,
+        val_loader: DataLoader,
+        learning_rate: float,
+        mode: str,
+        num_epochs: int,
+        output_dir: Path = TRAINVAL_OUTPUT_DIR
+    ):
         """
         Performs Training & Validation on the input image dataset.
         
@@ -55,7 +58,10 @@ class Trainer:
             self.criterion = nn.CrossEntropyLoss()
         else: # then regression if not classification
             self.criterion = nn.MSELoss()
-        self.optimizer = optim.Adam(filter(lambda p: p.requires_grad, model.parameters()), lr=self.learning_rate)
+        params = list(filter(lambda p: p.requires_grad, model.parameters()))
+        if not params:
+            raise ValueError("No trainable parameters found in the model!")
+        self.optimizer = optim.Adam(params, lr=self.learning_rate)
         
         self.performance_logger = PerformanceLogger(output_dir) if output_dir else None
 
