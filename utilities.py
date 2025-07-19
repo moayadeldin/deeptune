@@ -1,35 +1,37 @@
-import torchvision
-import os
 import json
-import pandas as pd
-from torch import Tensor
-import torch
-import random
-from sklearn.model_selection import train_test_split
-from transformers import GPT2Tokenizer, GPT2Model
-from src.nlp.gpt2 import AdjustedGPT2Model
 import numpy as np
+import os
+import pandas as pd
+import random
+import torch
+import torchvision
+
+from argparse import Namespace
+from pytorch_lightning.callbacks import Callback
+from sklearn.model_selection import train_test_split
+from sklearn.preprocessing import LabelEncoder
+from torch import Tensor
+from transformers import GPT2Tokenizer, GPT2Model
+from transformers import BertModel, BertTokenizer
+
+from src.nlp.gpt2 import AdjustedGPT2Model
 from datasets.image_datasets import ParquetImageDataset
 from datasets.text_datasets import TextDataset
-import json
-from transformers import BertModel, BertTokenizer
 from src.nlp.multilingual_bert import CustomMultilingualBERT
 from src.nlp.multilingual_bert_peft import CustomMultilingualPeftBERT
-from sklearn.preprocessing import LabelEncoder
-import options
-from pytorch_lightning.callbacks import Callback
+
+from options import make_parser
 
 # check if we need to use peft or not while loading the BERT model
 
-parser = options.parser
-def get_args():
+def get_args() -> Namespace:
+    parser = make_parser()
     return parser.parse_args()
 
 def get_use_peft_and_use_case():
     args = get_args()
     return args.use_peft, args.use_case
 
-USE_PEFT, USE_CASE = get_use_peft_and_use_case()
 
 # Kindly note that right now we pass the same transformations to ResNet, Swin and DenseNet, both trained on ImageNet
 transformations = torchvision.transforms.Compose([
@@ -44,7 +46,6 @@ transformations = torchvision.transforms.Compose([
         mean=[0.485, 0.456, 0.406],
         std=[0.229, 0.224, 0.225]
     )    
-
 ])
 
 def fixed_seed(seed):
@@ -120,9 +121,9 @@ def split_save_load_dataset(mode,type,input_dir, train_size, val_size, test_size
     
     print('Dataset is loaded!')
     
-    # for testing purposes we may pock the first 10 rows
-    
-    df = df[:10]
+    # # for testing purposes we may pock the first 10 rows
+    # df = df[:10]
+
     print(f"The shape of the dataset is {df.shape}")
 
     # Apply the splitting of the input and save them in the specified paths
@@ -143,13 +144,13 @@ def split_save_load_dataset(mode,type,input_dir, train_size, val_size, test_size
         if mode == 'train':    
 
             if siglip:    
-                train_dataset = ParquetImageDataset(parquet_file=train_dataset_path, transform=None, processor=tokenizer)
-                val_dataset = ParquetImageDataset(parquet_file=val_dataset_path, transform=None, processor=tokenizer)
+                train_dataset = ParquetImageDataset.from_parquet(parquet_file=train_dataset_path, transform=None, processor=tokenizer)
+                val_dataset = ParquetImageDataset.from_parquet(parquet_file=val_dataset_path, transform=None, processor=tokenizer)
 
             else:
                 tokenizer = None
-                train_dataset = ParquetImageDataset(parquet_file=train_dataset_path, transform=transformations)
-                val_dataset = ParquetImageDataset(parquet_file=val_dataset_path, transform=transformations)
+                train_dataset = ParquetImageDataset.from_parquet(parquet_file=train_dataset_path, transform=transformations)
+                val_dataset = ParquetImageDataset.from_parquet(parquet_file=val_dataset_path, transform=transformations)
 
             train_loader = torch.utils.data.DataLoader(
                 train_dataset,
@@ -170,7 +171,7 @@ def split_save_load_dataset(mode,type,input_dir, train_size, val_size, test_size
             
         elif mode == 'test':
             
-            # test_dataset = ParquetImageDataset(parquet_file=test_dataset_path, transform=transformations)
+            # test_dataset = ParquetImageDataset.from_parquet(parquet_file=test_dataset_path, transform=transformations)
 
             # test_loader = torch.utils.data.DataLoader(
             #     test_dataset,
@@ -405,6 +406,7 @@ def load_finetunedbert_model(model_dir):
     Args:
         model_dir (str): The path to the saved model.
     """
+    USE_PEFT, USE_CASE = get_use_peft_and_use_case()
     
     # load config
     with open(os.path.join(model_dir, "model_config.json"), "r") as f:

@@ -1,4 +1,5 @@
 import pandas as pd
+from pandas import DataFrame
 from torch.utils.data import Dataset
 from PIL import Image
 import io
@@ -17,12 +18,18 @@ class ParquetImageDataset(Dataset):
         labels (np.ndarray): The labels of corresponding image.
         
     """
-    def __init__(self, parquet_file, transform=None, processor=None):
-        self.data = pd.read_parquet(parquet_file)
+    def __init__(self, df: DataFrame, transform=None, processor=None):
+        self.data = df
         self.transform = transform
         self.processor = processor
         self.image_bytes = self.data['images'].values
-        self.labels = self.data['labels'].values
+        self.has_labels = 'labels' in df.columns
+        self.labels = self.data['labels'].values if self.has_labels else None
+    
+    @classmethod 
+    def from_parquet(cls, parquet_file, transform=None, processor=None) -> "ParquetImageDataset":
+        df = pd.read_parquet(parquet_file)
+        return cls(df, transform, processor)
 
     def __len__(self):
         
@@ -37,21 +44,21 @@ class ParquetImageDataset(Dataset):
         """
         img_bytes = self.image_bytes[idx]
         img = Image.open(io.BytesIO(img_bytes)).convert('RGB')
-        label = self.labels[idx]
+        label = torch.tensor(self.labels[idx], dtype=torch.long) if self.has_labels else None
 
         if self.processor is not None:
             processed = self.processor(
                 images=img,
                 return_tensors="pt",
-                padding=True
+                # padding=True
             )
             # Remove the extra batch dimension added by the processor
             pixel_values = processed["pixel_values"].squeeze(0)  # Important: squeeze here
-            return pixel_values, torch.tensor(label, dtype=torch.long)
+            return pixel_values, label
         else:
             if self.transform:
                 img = self.transform(img)
-            return img, torch.tensor(label, dtype=torch.long)
+            return img, label
         
     
     

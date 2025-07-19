@@ -38,7 +38,7 @@ df = pd.read_parquet(TEST_DATASET_PATH)
 
 # Load the testloader
 
-test_dataset = ParquetImageDataset(parquet_file=TEST_DATASET_PATH, transform=transformations)
+test_dataset = ParquetImageDataset.from_parquet(parquet_file=TEST_DATASET_PATH, transform=transformations)
 
 test_loader = torch.utils.data.DataLoader(
     test_dataset,

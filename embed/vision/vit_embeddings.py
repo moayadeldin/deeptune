@@ -94,7 +94,7 @@ for p in adjusted_model.parameters(): # stop gradient calculations
 adjusted_model.cuda() # move the model to cuda
 
 # load the dataloader
-dataset = ParquetImageDataset(parquet_file=INPUT_DIR, transform=transformations)
+dataset = ParquetImageDataset.from_parquet(parquet_file=INPUT_DIR, transform=transformations)
 
 data_loader = torch.utils.data.DataLoader(
     dataset,
