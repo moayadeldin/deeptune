@@ -1,153 +1,137 @@
-
-from utilities import save_cli_args
-from sklearn.metrics import classification_report, roc_auc_score, confusion_matrix
-import pyarrow.parquet as pq
-import torch
-from datasets.image_datasets import ParquetImageDataset
-import torch.nn as nn
-import torch.optim as optim
-from tqdm import tqdm
-from utilities import save_cli_args,get_args
-import sys
-from pathlib import Path
-import pandas as pd 
+import json
 import logging
-import numpy as np
-import options
-from src.vision.siglip import CustomSiglipModel, load_siglip_offline
-from src.vision.siglip_peft import CustomSigLIPWithPeft, load_peft_siglip_offline
+import sys
+import torch
+import torch.nn as nn
 
-DEVICE = torch.device("cuda" if torch.cuda.is_available() else "cpu")
-ROOT = Path(__file__).parent.parent
+from pathlib import Path
+from sklearn.metrics import classification_report, roc_auc_score, confusion_matrix
+from torch.amp import autocast
+from torch.utils.data import DataLoader
+from tqdm import tqdm
 
-parser = options.parser
-DEVICE = options.DEVICE
-TEST_OUTPUT_DIR = options.TEST_OUTPUT_DIR
-args = get_args()
+from datasets.image_datasets import ParquetImageDataset
+from options import UNIQUE_ID, DEVICE, NUM_WORKERS, PERSIST_WORK, PIN_MEM
+from src.vision.siglip import CustomSiglipModel, CustomSigLIPWithPeft, load_siglip_processor_offline, load_siglip_variant
+from utilities import get_args, save_test_metrics
 
-TEST_DATASET_PATH = args.test_set_input_dir
-BATCH_SIZE= args.batch_size
-NUM_CLASSES = args.num_classes
-USE_PEFT = args.use_peft
-MODEL_WEIGHTS = args.model_weights
-ADDED_LAYERS = args.added_layers
-EMBED_SIZE = args.embed_size
-MODE = args.mode
-FREEZE_BACKBONE = args.freeze_backbone
+from utils import save_cli_args, UseCase
 
 
-# with open("H:\Moayad\deeptune-scratch\deeptune_results\output_directory_trainval_20250701_1659\custom_siglip_config.json") as f:
-#     cfg = json.load(f)
-# model = CustomSiglipModel(
-#     base_model=base_model,
-#     added_layers=cfg["added_layers"],
-#     embedding_dim=cfg["embedding_dim"],
-#     num_classes=cfg["num_classes"]
-# )
-# model.load_state_dict(torch.load(MODEL_WEIGHTS, map_location=DEVICE))
+def evaluate_siglip(
+    test_dataset_path: Path,
+    model_weights: Path,
+    num_classes: int,
+    added_layers: int,
+    embed_size: int,
+    use_peft: bool,
+    batch_size: int,
+    device: torch.device,
+    outdir: Path,
+) -> None:
+    use_case = UseCase.PEFT if use_peft else UseCase.FINETUNED
+    model = load_siglip_variant(
+        use_case=use_case,
+        num_classes=num_classes,
+        added_layers=added_layers,
+        embed_size=embed_size,
+        freeze_backbone=False,  # no effect during inference
+        model_weights=model_weights,
+        device=device,
+    )
 
-if USE_PEFT:
+    processor = load_siglip_processor_offline()
+
+    test_dataset = ParquetImageDataset.from_parquet(parquet_file=test_dataset_path, processor=processor)
+
+    test_loader = DataLoader(
+        test_dataset,
+        batch_size=batch_size,
+        shuffle=False,
+        num_workers=NUM_WORKERS,
+        pin_memory=PIN_MEM,
+        persistent_workers=PERSIST_WORK,
+    )
+
+    test_trainer = TestTrainer(
+        model=model,
+        data_loader=test_loader,
+        output_dir=outdir,
+        device=device,
+        use_peft=use_peft,
+    )
     
-    base_model, PROCESSOR = load_peft_siglip_offline()
-    MODEL = CustomSigLIPWithPeft(
-         base_model=base_model,
-         added_layers=ADDED_LAYERS,
-         embedding_dim=EMBED_SIZE,
-         num_classes=NUM_CLASSES,
-         freeze_backbone=FREEZE_BACKBONE
-     )
-    
-    MODEL.load_state_dict(torch.load(MODEL_WEIGHTS, map_location=DEVICE))
-    args.model = 'PEFT-SIGLIP'
-    
-else:
-    base_model, PROCESSOR = load_siglip_offline()
-    MODEL = CustomSiglipModel(
-         base_model=base_model,
-         added_layers=ADDED_LAYERS,
-         embedding_dim=EMBED_SIZE,
-         num_classes=NUM_CLASSES,
-         freeze_backbone=FREEZE_BACKBONE
-     )
-    MODEL.load_state_dict(torch.load(MODEL_WEIGHTS, map_location=DEVICE))
-    args.model = 'SIGLIP'
+    test_trainer.test()
 
-# WE load the dataset, split it and save them in the current directory (for reproducibility) if they aren't already saved.
-df = pd.read_parquet(TEST_DATASET_PATH)
-
-test_dataset = ParquetImageDataset(parquet_file=TEST_DATASET_PATH, processor=PROCESSOR)
-
-test_loader = torch.utils.data.DataLoader(
-    test_dataset,
-    batch_size=BATCH_SIZE,
-    shuffle=False,
-    num_workers=0
-)
 
 class TestTrainer:
     
-    def __init__(self, model, batch_size):
+    def __init__(
+        self,
+        model: CustomSiglipModel | CustomSigLIPWithPeft,
+        data_loader: DataLoader,
+        output_dir: Path,
+        device: torch.device,
+        use_peft: bool,
+    ):
         
         self.model = model
-        self.batch_size = batch_size
+        self.model.to(device)
+
+        self.data_loader = data_loader
         
-        self.model.to(DEVICE)
+        self.output_dir = output_dir
+        self.device = device
+        self.use_peft = use_peft
         
-        # logging info
         logging.basicConfig(stream=sys.stdout, level=logging.INFO, format="%(levelname)s | %(message)s")
         self.logger = logging.getLogger()
         
         self.criterion = nn.CrossEntropyLoss()
-        
+    
     def test(self):
-        
         test_accuracy=0.0
         test_loss=0.0
         total, correct= 0,0
         
         test_pbar = tqdm(
-        enumerate(test_loader),
-        total=len(test_loader),
+            enumerate(self.data_loader),
+            total=len(self.data_loader),
         )
         
         all_labels=[]
         all_predictions=[]
         all_probs=[]
         
+        self.model.eval()
         with torch.no_grad():
-            for _, (image_pixels, labels) in test_pbar:
+            for _, (pixel_values, labels) in test_pbar:
                 
-                self.model.eval()
-                
-                image_pixels,labels = image_pixels.to(DEVICE), labels.to(DEVICE)
+                pixel_values, labels = pixel_values.to(self.device), labels.to(self.device)
 
-                logits = self.model({'pixel_values': image_pixels}) 
-                
+                with autocast(device_type=self.device.type):
+                    logits = self.model({"pixel_values": pixel_values})
+                    
                 probs = torch.softmax(logits, 1)
-                
                 _, predicted = torch.max(probs,1)
-
                 loss = self.criterion(logits, labels)
                 
                 test_loss += loss.item()
                 
-                # Store all probabilities, predictions, and labels to the CPU memory
-                all_probs.append(probs.cpu().numpy())
-                all_predictions.append(predicted.cpu().numpy())
-                all_labels.append(labels.cpu().numpy())
-                
-                                
+                all_probs.append(probs)
+                all_predictions.append(predicted)
+                all_labels.append(labels)
+                                 
                 total += labels.size(0)
                 correct += (predicted==labels).sum().item()
-                
-                
-        all_probs = np.concatenate(all_probs, axis=0)
-        all_predictions = np.concatenate(all_predictions, axis=0)
-        all_labels = np.concatenate(all_labels, axis=0)
+
+        # Store all probabilities, predictions, and labels to the CPU memory
+        all_probs = torch.cat(all_probs, dim=0).cpu().numpy()
+        all_predictions = torch.cat(all_predictions, dim=0).cpu().numpy()
+        all_labels = torch.cat(all_labels, dim=0).cpu().numpy()
         
         test_accuracy = correct / total
-        test_loss = test_loss / len(test_loader)
-        
+        test_loss = test_loss / len(self.data_loader)
         
         metrics_dict = {}
         
@@ -164,25 +148,79 @@ class TestTrainer:
         
         metrics_dict.update(report)
         
-        metrics_dict['confusion_matrix'] = confusion_matrix(all_labels, all_predictions)
+        metrics_dict['confusion_matrix'] = confusion_matrix(all_labels, all_predictions).tolist()
         
         try:
             metrics_dict['auroc'] = roc_auc_score(all_labels, all_probs, multi_class="ovr")
         except ValueError:
             metrics_dict['auroc'] = "AUROC not applicable for this setup"
             
-            
+        print(test_accuracy, test_loss)
+        self.logger.info(f"Test accuracy: {test_accuracy}%")
+        save_test_metrics(test_accuracy=test_accuracy, output_dir=self.output_dir)
 
-        print(test_accuracy,test_loss)
-        save_cli_args(args, TEST_OUTPUT_DIR,mode='test')
+        with open(self.output_dir / "full_metrics.json", 'w') as f:
+            json.dump(metrics_dict, f, indent=4)
         
-        print(metrics_dict)
         return metrics_dict
-    
+
+
 if __name__ == "__main__":
+    args = get_args()
+
+    TEST_DATASET_PATH = args.test_set_input_dir
+    BATCH_SIZE= args.batch_size
+    NUM_CLASSES = args.num_classes
+    MODEL_WEIGHTS = args.model_weights
+    ADDED_LAYERS = args.added_layers
+    EMBED_SIZE = args.embed_size
+    MODE = args.mode
+    USE_PEFT = args.use_peft
+    # FREEZE_BACKBONE = args.freeze_backbone
+
+    use_case = UseCase.PEFT if USE_PEFT else UseCase.FINETUNED
+    MODEL = load_siglip_variant(
+        use_case=use_case,
+        num_classes=NUM_CLASSES,
+        added_layers=ADDED_LAYERS,
+        embed_size=EMBED_SIZE,
+        freeze_backbone=False,  # no effect during inference
+        model_weights=None,
+        device=DEVICE,
+    )
     
-    test_trainer = TestTrainer(MODEL,BATCH_SIZE)
+    MODEL.load_state_dict(torch.load(MODEL_WEIGHTS, map_location=DEVICE))
+    
+    PROCESSOR = load_siglip_processor_offline()
+
+    MODEL_VERSION = "siglip_vision"
+    args.model = f"{"PEFT-" if USE_PEFT else ""}{MODEL_VERSION}"
+
+    EVAL_OUTPUT_DIR = Path(f"deeptune_results/eval_output_{MODEL_VERSION}_{MODE}_{UNIQUE_ID}")
+    EVAL_OUTPUT_DIR.mkdir(parents=True, exist_ok=True)
+
+    test_dataset = ParquetImageDataset.from_parquet(parquet_file=TEST_DATASET_PATH, processor=PROCESSOR)
+
+    test_loader = torch.utils.data.DataLoader(
+        test_dataset,
+        batch_size=BATCH_SIZE,
+        shuffle=False,
+        num_workers=4,
+        pin_memory=True,
+        persistent_workers=True,
+    )
+
+    test_trainer = TestTrainer(
+        model=MODEL,
+        data_loader=test_loader,
+        output_dir=EVAL_OUTPUT_DIR,
+        device=DEVICE,
+        use_peft=USE_PEFT,
+    )
     
     test_trainer.test()
-        
+
+    save_cli_args(args, EVAL_OUTPUT_DIR)
     
+    print('Test results saved successfully!')
+
