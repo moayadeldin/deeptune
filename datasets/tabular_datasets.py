@@ -5,6 +5,7 @@ from sklearn.preprocessing import OrdinalEncoder
 import numpy as np
 
 class TabularDataset(Dataset):
+    
     def __init__(self, df, cont_cols, cat_cols, label_col=None):
         self.label_col = label_col
 
