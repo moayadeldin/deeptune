@@ -23,7 +23,7 @@ from src.vision.vgg_peft import adjustedPeftVGGNet
 from src.vision.vit import adjustedViT
 from src.vision.vit_peft import adjustedViTPeft
 
-from utilities import fixed_seed
+from helpers import fixed_seed
 
 
 MODEL_CLS_MAP: dict[str, Type[nn.Module]] = {

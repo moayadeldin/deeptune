@@ -21,7 +21,7 @@ class DeepTuneVisionOptions:
         if run_type == RunType.TRAIN:
             self._add_training_args()
         if run_type in (RunType.EVAL, RunType.EMBED):
-            self._add_eval_args()
+            self._add_eval_embed_args()
 
         parsed_args = self.parser.parse_args(args)
 
@@ -40,9 +40,12 @@ class DeepTuneVisionOptions:
         if run_type == RunType.TRAIN:
             self.num_epochs: Optional[int] = parsed_args.num_epochs
             self.learning_rate: Optional[float] = parsed_args.learning_rate
+            self.train_df: Optional[Path] = parsed_args.train_df
+            self.val_df:Optional[Path] = parsed_args.val_df
 
         if run_type in (RunType.EVAL, RunType.EMBED):
-            self.df: Optional[Path] = parsed_args.df or self.input_dir / "test_split.parquet"
+            self.eval_df: Optional[Path] = parsed_args.eval_df or (self.input_dir / "test_split.parquet" if self.input_dir else None)
+            self.df: Optional[Path] = parsed_args.df
             self.model_weights: Optional[Path] = (
                 parsed_args.model_weights.resolve() if parsed_args.model_weights else None
             )
@@ -106,10 +109,13 @@ class DeepTuneVisionOptions:
         p = self.parser
         p.add_argument('--num_epochs', type=int, help='Number of epochs.')
         p.add_argument('--learning_rate', type=float, help='Learning rate.')
+        p.add_argument('--train_df', type=Path, help='PARQUET file containing train data.')
+        p.add_argument('--val_df', type=Path, help='PARQUET file containing validation data.')
 
-    def _add_eval_args(self):
+    def _add_eval_embed_args(self):
         p = self.parser
         p.add_argument('--df', type=Path, help='PARQUET file containing data.')
+        p.add_argument('--eval_df', type=Path, help='PARQUET file containing testing data.')
         p.add_argument('--model_weights', type=Path, help='Path to model weights.')
         p.add_argument(
             '--use_case',

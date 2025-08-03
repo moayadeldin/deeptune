@@ -7,6 +7,7 @@ from transformers import SiglipModel, SiglipProcessor
 from typing import Type
 
 from utils import UseCase
+import os
 
 
 ROOT = Path(__file__).parent.parent.parent
@@ -103,6 +104,7 @@ class CustomSigLIPWithPeft(CustomSiglipModel):
 
 
 def download_siglip() -> None:
+    print('Siglip is downloaded')
     model = SiglipModel.from_pretrained("google/siglip-so400m-patch14-384")
     model.save_pretrained(SIGLIP_MODEL)
     print(f"Saved model to {SIGLIP_MODEL}")
@@ -119,6 +121,13 @@ def load_siglip_offline() -> tuple[SiglipModel, SiglipProcessor]:
 
 
 def load_siglip_model_offline() -> SiglipModel:
+
+    if not os.path.exists(SIGLIP_MODEL):
+
+        print(f"Model is not downloaded, downloading now in the following path {SIGLIP_MODEL}...")
+
+        download_siglip()
+
     model = SiglipModel.from_pretrained(SIGLIP_MODEL, local_files_only=True)
     return model
 

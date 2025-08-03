@@ -1,7 +1,7 @@
 from pathlib import Path
 from torch.utils.data import DataLoader
 
-from utilities import transformations
+from helpers import transformations
 from trainers.vision.trainer import Trainer
 from options import UNIQUE_ID, DEVICE, NUM_WORKERS, PERSIST_WORK, PIN_MEM
 from datasets.image_datasets import ParquetImageDataset
@@ -12,9 +12,12 @@ from utils import get_model_cls, RunType
 
 def main():
     args = DeepTuneVisionOptions(RunType.TRAIN)
+    TRAIN_PATH: Path = args.train_df
+    VAL_PATH: Path = args.val_df
     DATA_DIR: Path = args.input_dir
     MODE = args.mode
     NUM_CLASSES = args.num_classes
+    OUT = args.out
 
     MODEL_VERSION = args.model_version
     MODEL_ARCHITECTURE = args.model_architecture
@@ -32,13 +35,14 @@ def main():
     if ADDED_LAYERS == 0:
         raise ValueError('As you apply one of transfer learning or PEFT, please choose 1 or 2 as your preferred number of added_layers.')
 
-    TRAIN_DATASET_PATH = DATA_DIR / "train_split.parquet"
-    VAL_DATASET_PATH = DATA_DIR / "val_split.parquet"
+    TRAIN_DATASET_PATH = TRAIN_PATH or ( DATA_DIR / "train_split.parquet" )
+    VAL_DATASET_PATH = VAL_PATH or ( DATA_DIR / "val_split.parquet" )
 
-    TRAINVAL_OUTPUT_DIR = Path(f"deeptune_results/train_output_{MODEL_STR}_{UNIQUE_ID}")
+    TRAINVAL_OUTPUT_DIR = (OUT / f"trainval_output_{MODEL_STR}_{UNIQUE_ID}") if OUT else Path(f"deeptune_results/trainval_output_{MODEL_STR}_{MODE}_{UNIQUE_ID}")
+
 
     if MODEL_ARCHITECTURE.lower() == "siglip" and MODEL_VERSION == "siglip":
-        from trainers.vision.train_siglip import train_siglip
+        from trainers.vision.custom_train_siglip_handler import train_siglip
         train_siglip(
             num_classes=NUM_CLASSES,
             added_layers=ADDED_LAYERS,
