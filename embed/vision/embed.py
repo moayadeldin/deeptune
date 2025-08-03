@@ -15,8 +15,8 @@ from torchvision.models import Swin_T_Weights
 
 from datasets.image_datasets import ParquetImageDataset
 from options import UNIQUE_ID, DEVICE, NUM_WORKERS, PERSIST_WORK, PIN_MEM
-from embed.vision.siglip_embeddings import embed_with_siglip
-from utilities import transformations
+from embed.vision.custom_embed_siglip_handler import embed_with_siglip
+from helpers import transformations
 
 from cli import DeepTuneVisionOptions
 from utils import MODEL_CLS_MAP, PEFT_MODEL_CLS_MAP, RunType
@@ -27,21 +27,19 @@ def main():
     DF_PATH: Path = args.df
     MODE = args.mode
     NUM_CLASSES = args.num_classes
+    OUT = args.out
 
     MODEL_VERSION = args.model_version
     MODEL_ARCHITECTURE = args.model_architecture
     MODEL_STR = args.model
 
     MODEL_PATH = args.model_weights
-    USE_CASE = args.use_case
+    USE_CASE = args.use_case.value
     ADDED_LAYERS = args.added_layers
     EMBED_SIZE = args.embed_size
     
     BATCH_SIZE = args.batch_size
-
-    RESULTS_DIR = Path(__file__).parent.parent.parent / "deeptune_results"
-    # EMBED_OUTPUT = args.out or RESULTS_DIR / f"embed_output_{USE_CASE}_{MODEL_VERSION}_{MODE}_{UNIQUE_ID}"
-    EMBED_OUTPUT = RESULTS_DIR / f"embed_output_{MODEL_STR}_{MODE}_{UNIQUE_ID}"
+    EMBED_OUTPUT = (OUT / f"embed_output_{MODEL_STR}_{UNIQUE_ID}") if OUT else Path(f"deeptune_results/embed_output_{MODEL_STR}_{MODE}_{UNIQUE_ID}")
     EMBED_OUTPUT.mkdir(parents=True, exist_ok=True)
 
     EMBED_FILE = EMBED_OUTPUT / f"{MODEL_STR}_{MODE}_embeddings.parquet"
@@ -94,8 +92,9 @@ def load_vision_model(
     added_layers: int = None,
     freeze_backbone: bool = True,
     mode: str = 'cls',
-    model_path: Path | str = None,
+    model_path = None,
 ) -> nn.Module:
+    
     if model_architecture == "densenet":
 
         if use_case not in ('peft', 'finetuned'):

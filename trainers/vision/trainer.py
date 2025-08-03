@@ -6,7 +6,7 @@ from torch.utils.data import DataLoader
 from tqdm.auto import tqdm
 import sys
 import logging
-from utilities import PerformanceLogger
+from helpers import PerformanceLogger
 from options import DEVICE, TRAINVAL_OUTPUT_DIR
 
 import functools

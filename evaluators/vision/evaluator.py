@@ -8,7 +8,6 @@ from sklearn.metrics import classification_report, roc_auc_score
 from tqdm.auto import tqdm
 
 from options import DEVICE, TEST_OUTPUT_DIR
-from utilities import save_test_metrics
 
 
 class TestTrainer:
@@ -129,7 +128,6 @@ class TestTrainer:
             
             print(test_accuracy, test_loss)
             self.logger.info(f"Test accuracy: {test_accuracy}%")
-            save_test_metrics(test_accuracy=test_accuracy, output_dir=self.output_dir)
 
             with open(self.output_dir / "full_metrics.json", 'w') as f:
                 json.dump(metrics_dict, f, indent=4)
