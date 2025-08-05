@@ -57,7 +57,7 @@ class DeepTuneVisionOptions:
         self.use_peft: bool = parsed_args.use_peft
         
         self.model = self._parse_model_str(run_type)
-        self.model_architecture = get_model_architecture(self.model_version)
+        self.model_architecture = ( get_model_architecture(self.model_version) ) if self.model_version else 'not_provided'
         set_seed(self.fixed_seed)
     
     def to_dict(self) -> dict:

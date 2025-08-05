@@ -7,7 +7,7 @@ from options import UNIQUE_ID, DEVICE, NUM_WORKERS, PERSIST_WORK, PIN_MEM
 from datasets.image_datasets import ParquetImageDataset
 
 from cli import DeepTuneVisionOptions
-from utils import get_model_cls, RunType
+from utils import get_model_cls, RunType,set_seed
 
 
 def main():
@@ -31,6 +31,10 @@ def main():
     BATCH_SIZE = args.batch_size
     NUM_EPOCHS = args.num_epochs
     LEARNING_RATE = args.learning_rate
+    FIXED_SEED = args.fixed_seed
+
+    if FIXED_SEED:
+        set_seed(FIXED_SEED)
 
     if ADDED_LAYERS == 0:
         raise ValueError('As you apply one of transfer learning or PEFT, please choose 1 or 2 as your preferred number of added_layers.')

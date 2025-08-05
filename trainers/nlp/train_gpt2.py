@@ -1,92 +1,94 @@
 from src.nlp.multilingual_bert import CustomMultilingualBERT
 from src.nlp.multilingual_bert_peft import CustomMultilingualPeftBERT
-from src.nlp.multilingual_bert import load_nlp_bert_ml_model_offline
-import importlib
 from src.nlp.gpt2 import load_gpt2_model_offline
-from utilities import save_cli_args, fixed_seed,split_save_load_dataset,save_finetuned_gpt2
-import numpy as np
-import warnings
+from helpers import save_finetuned_gpt2
 from tqdm import tqdm
 import torch.nn as nn
 import torch
 import torch.optim as optim
 import options
 import logging
-from utilities import PerformanceLogger,get_args
+from helpers import PerformanceLogger,get_args
 import sys
 from src.nlp.gpt2 import AdjustedGPT2Model
 
+from cli import DeepTuneVisionOptions
+from pathlib import Path
+from options import UNIQUE_ID, DEVICE, NUM_WORKERS, PERSIST_WORK, PIN_MEM
+from utils import get_model_cls,RunType,set_seed
+from datasets.text_datasets import TextDataset
+
 # Initialize the needed variables either from the CLI user sents or from the device.
 
-DEVICE = options.DEVICE
-parser = options.parser
-args = get_args()
 
-INPUT_DIR = args.input_dir
-BATCH_SIZE=args.batch_size
-LEARNING_RATE=args.learning_rate
-NUM_EPOCHS = args.num_epochs
-TRAIN_SIZE = args.train_size
-VAL_SIZE = args.val_size
-TEST_SIZE = args.test_size
-CHECK_VAL_EVERY_N_EPOCH = 1
-USE_PEFT = args.use_peft
-FIXED_SEED = args.fixed_seed
-FREEZE_BACKBONE = args.freeze_backbone
+def main():
+
+    args = DeepTuneVisionOptions(RunType.TRAIN)
+    TRAIN_PATH: Path = args.train_df
+    VAL_PATH: Path = args.val_df
+    DATA_DIR: Path = args.input_dir
+    MODE = args.mode
+    OUT = args.out
+    MODEL_STR = 'GPT2'
+    FREEZE_BACKBONE = args.freeze_backbone
+    USE_PEFT = args.use_peft # GPT2 doesn't support PEFT YET
+    FIXED_SEED = args.fixed_seed
     
-TRAIN_DATASET_PATH = options.TRAIN_DATASET_PATH
-VAL_DATASET_PATH = options.VAL_DATASET_PATH
-TEST_DATASET_PATH = options.TEST_DATASET_PATH
-TRAINVAL_OUTPUT_DIR = options.TRAINVAL_OUTPUT_DIR
+    BATCH_SIZE = args.batch_size
+    NUM_EPOCHS = args.num_epochs
+    LEARNING_RATE = args.learning_rate
 
-# If we want to apply fixed seed or randomly initialize the weights and dataset.
-if FIXED_SEED:
-    SEED=42
-    fixed_seed(SEED)
-else:
-    SEED = np.random.randint(low=0, high=1000)
-    fixed_seed(SEED)
-    warnings.warn('This will set a random seed for different initialization affecting Deeptune, inclduing weights and datasets splits.', category=UserWarning)
-    warnings.warn("This is liable to increase variability across consecutive runs of DeepTune.", category=UserWarning)
+    if FIXED_SEED:
+        set_seed(FIXED_SEED)
+
+    TRAIN_DATASET_PATH = TRAIN_PATH or ( DATA_DIR / "train_split.parquet" )
+    VAL_DATASET_PATH = VAL_PATH or ( DATA_DIR / "val_split.parquet" )
+
+    TRAINVAL_OUTPUT_DIR = (OUT / f"trainval_output_{MODEL_STR}_{UNIQUE_ID}") if OUT else Path(f"deeptune_results/trainval_output_{MODEL_STR}_{MODE}_{UNIQUE_ID}")
 
 
-gpt_model,tokenizer = load_gpt2_model_offline()
-tokenizer.pad_token = tokenizer.eos_token
-# Fetch whether the transfer-learning with PEFT version or transfer-learning without
-def get_model():
-
-    """
-    Allows the user to choose from Adjusted Fine-tuned version of model or PEFT-tuned version.
-    """
+    gpt_model,tokenizer = load_gpt2_model_offline()
+    tokenizer.pad_token = tokenizer.eos_token
 
     if USE_PEFT:
         pass
     else:
         adjusted_model = AdjustedGPT2Model(gpt_model=gpt_model,freeze_backbone=FREEZE_BACKBONE)
-        return adjusted_model
-
-
-train_loader, val_loader = split_save_load_dataset(
     
-    mode='train',
-    type='text',
-    input_dir= INPUT_DIR,
-    train_size = TRAIN_SIZE,
-    val_size = VAL_SIZE,
-    test_size = TEST_SIZE,
-    train_dataset_path=TRAIN_DATASET_PATH,
-    val_dataset_path=VAL_DATASET_PATH,
-    test_dataset_path=TEST_DATASET_PATH,
-    seed=SEED,
-    batch_size=BATCH_SIZE,
-    tokenizer=tokenizer
-)
+
+    train_dataset = TextDataset(parquet_file=TRAIN_DATASET_PATH, tokenizer=tokenizer, max_length=512)
+    val_dataset = TextDataset(parquet_file=VAL_DATASET_PATH, tokenizer=tokenizer, max_length=512)
+            
+    train_loader = torch.utils.data.DataLoader(
+            train_dataset,
+            batch_size=BATCH_SIZE,
+            shuffle=True,
+            num_workers=0
+        )
+    val_loader = torch.utils.data.DataLoader(
+            val_dataset,
+            batch_size=BATCH_SIZE,
+            shuffle=False,
+            num_workers=0
+        )
+    
+    
+    model_trainer = GPTrainer(adjusted_model,tokenizer, LEARNING_RATE, TRAINVAL_OUTPUT_DIR,NUM_EPOCHS,train_loader,val_loader)
+
+    model_trainer.train()
+
+    save_finetuned_gpt2(adjusted_model,tokenizer,output_dir=TRAINVAL_OUTPUT_DIR)
+    args.save_args(TRAINVAL_OUTPUT_DIR)
+    
+    
+
 
 # Here we construct the trainer of Multlingual BERT
 
 class GPTrainer:
+
     
-    def __init__(self,model,tokenizer):
+    def __init__(self,model,tokenizer,learning_rate, outdir, num_epochs, train_loader,val_loader):
         
         """
         Performs Training & Validation on the input text dataset.
@@ -107,16 +109,20 @@ class GPTrainer:
         self.model = model
         self.model.to(DEVICE)
         self.criterion = nn.CrossEntropyLoss()
-        self.optimizer = optim.Adam(model.parameters(), lr=LEARNING_RATE)
+        self.optimizer = optim.Adam(model.parameters(), lr=learning_rate)
         self.tokenizer = tokenizer
+        self.num_epochs = num_epochs
+        self.train_loader = train_loader
+        self.val_loader = val_loader
+        self.outdir = outdir
         
         logging.basicConfig(stream=sys.stdout, level=logging.INFO, format="%(levelname)s | %(message)s")
         self.logger = logging.getLogger()
         
-        self.performance_logger = PerformanceLogger(f'{TRAINVAL_OUTPUT_DIR}')
+        self.performance_logger = PerformanceLogger(f'{outdir}')
         
     def train(self):
-        for epoch in range(NUM_EPOCHS):
+        for epoch in range(self.num_epochs):
             self.model.train()
 
             running_loss = 0.0
@@ -124,9 +130,9 @@ class GPTrainer:
             total_predictions = 0
 
             train_pbar = tqdm(
-                enumerate(train_loader),
-                total=len(train_loader),
-                desc=f"Epoch {epoch+1}/{NUM_EPOCHS}"
+                enumerate(self.train_loader),
+                total=len(self.train_loader),
+                desc=f"Epoch {epoch+1}/{self.num_epochs}"
             )
 
             for batch_idx, (encoding, labels) in train_pbar:
@@ -152,10 +158,10 @@ class GPTrainer:
                     'acc': 100. * correct_predictions / total_predictions
                 })
 
-            epoch_loss = running_loss / len(train_loader)
+            epoch_loss = running_loss / len(self.train_loader)
             epoch_accuracy = 100. * correct_predictions / total_predictions
 
-            self.logger.info(f"Epoch {epoch + 1}/{NUM_EPOCHS}, Training Loss: {epoch_loss:.4f}, Training Accuracy: {epoch_accuracy:.2f}%")
+            self.logger.info(f"Epoch {epoch + 1}/{self.num_epochs}, Training Loss: {epoch_loss:.4f}, Training Accuracy: {epoch_accuracy:.2f}%")
 
             val_loss, val_accuracy = self.validate()
             self.logger.info(f"Validation loss: {val_loss:.4f}, Accuracy: {val_accuracy:.2f}%")
@@ -168,7 +174,7 @@ class GPTrainer:
                 val_accuracy=val_accuracy
             )
 
-            self.performance_logger.save_to_csv(f"{TRAINVAL_OUTPUT_DIR}/training_log.csv")
+            self.performance_logger.save_to_csv(f"{self.outdir}/training_log.csv")
 
     def validate(self):
         self.model.eval()
@@ -178,8 +184,8 @@ class GPTrainer:
         total = 0
 
         val_pbar = tqdm(
-            enumerate(val_loader),
-            total=len(val_loader),
+            enumerate(self.val_loader),
+            total=len(self.val_loader),
             desc="Validation"
         )
 
@@ -197,27 +203,14 @@ class GPTrainer:
                 total += labels.size(0)
                 correct += (predicted == labels).sum().item()
 
-        avg_val_loss = val_loss / len(val_loader)
+        avg_val_loss = val_loss / len(self.val_loader)
         val_accuracy = correct / total
 
         return avg_val_loss, val_accuracy
     
 if __name__ == '__main__':
-    
-    
-    # fetch the appropriate model
-    model = get_model()
-    
-    # initialize trainer class
-    model_trainer = GPTrainer(model,tokenizer)
-    
-    # start training
-    model_trainer.train()
-    
-    # saving the model after training
-    save_finetuned_gpt2(model,tokenizer,output_dir=TRAINVAL_OUTPUT_DIR)
-    
-    print('Finetuned GPT2 Model Saved.')
+
+    main()
 
                 
                 

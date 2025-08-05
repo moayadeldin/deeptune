@@ -1,49 +1,58 @@
 import torch 
-from utilities import load_finetuned_gpt2
+from helpers import load_finetuned_gpt2
 from src.nlp.gpt2 import download_gpt2_model, load_gpt2_model_offline,AdjustedGPT2Model
 from argparse import ArgumentParser
 import options
 import pandas as pd
 from tqdm import tqdm
 import torch.nn as nn
+from pathlib import Path
+from options import UNIQUE_ID, DEVICE, NUM_WORKERS, PERSIST_WORK, PIN_MEM
+from embed.vision.custom_embed_siglip_handler import embed_with_siglip
+from cli import DeepTuneVisionOptions
+from utils import MODEL_CLS_MAP, PEFT_MODEL_CLS_MAP, RunType
 
-parser = ArgumentParser(description="Extract Embeddings using GPT2 model")
-OUTPUT = f"deeptune_results/test_set_pretrained_GPT2_embeddings.parquet"
-parser = options.parser
-args = parser.parse_args()
+def main():
 
-DEVICE = torch.device("cuda" if torch.cuda.is_available() else "cpu")
-BATCH_SIZE = args.batch_size
-INPUT_DF_PATH = args.input_dir
-ADJUSTED_GPT2_PATH = args.adjusted_gpt2_dir
+    args = DeepTuneVisionOptions(RunType.EMBED)
 
-# load the model, the tokenizer and the dataset.
-gpt_model,_ = load_gpt2_model_offline()
-model,tokenizer = load_finetuned_gpt2(ADJUSTED_GPT2_PATH)
-tokenizer.pad_token = tokenizer.eos_token
+    DF_PATH = args.df
+    MODE = args.mode
+    OUT = args.out
 
-df = pd.read_parquet(INPUT_DF_PATH)
+    MODEL_STR = 'GPT2'
 
-texts = df['text'].tolist()
-labels = df['label'].tolist()
+    MODEL_PATH = args.model_weights
+    # USE_CASE = args.use_case.value
+
+    BATCH_SIZE = args.batch_size
+    EMBED_OUTPUT = (OUT / f"embed_output_{MODEL_STR}_{UNIQUE_ID}") if OUT else Path(f"deeptune_results/embed_output_{MODEL_STR}_{MODE}_{UNIQUE_ID}")
+    EMBED_OUTPUT.mkdir(parents=True, exist_ok=True)
+
+    EMBED_FILE = EMBED_OUTPUT / f"{MODEL_STR}_{MODE}_embeddings.parquet"
+
+    # load the model, the tokenizer and the dataset.
+    gpt_model,_ = load_gpt2_model_offline()
+    _,tokenizer = load_finetuned_gpt2(MODEL_PATH)
+    tokenizer.pad_token = tokenizer.eos_token
+
+    df = pd.read_parquet(DF_PATH)
+
+    texts = df['text'].tolist()
+    labels = df['label'].tolist()
     
-adjusted_model = AdjustedGPT2Model(gpt_model=gpt_model).to(DEVICE)
-
-def run_embeddings():
-    
+    adjusted_model = AdjustedGPT2Model(gpt_model=gpt_model).to(DEVICE)
+        
     device = torch.device(DEVICE)
-    model.to(device)
+    adjusted_model.to(device)
     
-    df = get_nlp_embeddings(model)
-    
-    df.to_parquet(OUTPUT)
-    print(f"Saved text embeddings to {OUTPUT}")
+    df.to_parquet(EMBED_FILE, index=False)
+    print(f"Saved text embeddings to {OUT}")
 
-def get_nlp_embeddings(model):
     all_embeddings = []
     all_labels = []
 
-    model.eval()
+    adjusted_model.eval()
     with torch.no_grad():
         for i in tqdm(range(0, len(texts), BATCH_SIZE)):
             batch_texts = texts[i:i + BATCH_SIZE]
@@ -53,7 +62,7 @@ def get_nlp_embeddings(model):
             inputs = {k: v.to(DEVICE) for k, v in inputs.items()}
 
             # get sentence-level embeddings directly
-            outputs = model(**inputs)
+            outputs = adjusted_model(**inputs)
             mapped_embeddings = outputs
 
             all_embeddings.append(mapped_embeddings.cpu())
@@ -62,8 +71,6 @@ def get_nlp_embeddings(model):
     all_embeddings = torch.cat(all_embeddings, dim=0)
     embeddings_df = pd.DataFrame(all_embeddings.numpy())
     embeddings_df['label'] = all_labels
-
-    return embeddings_df
 
 
 # def getting_mean_embeds_without_padding_tokens(inputs, outputs):
@@ -98,7 +105,7 @@ def get_nlp_embeddings(model):
 
 if __name__ == "__main__":
     
-    run_embeddings()
+    main()
 
 
 
