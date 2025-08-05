@@ -3,9 +3,8 @@ import torch
 from datasets.text_datasets import TextDataset
 import pandas as pd 
 from sklearn.metrics import classification_report, roc_auc_score
-from utilities import save_test_metrics
 from src.nlp.gpt2 import AdjustedGPT2Model,load_gpt2_model_offline
-from utilities import save_cli_args,load_finetunedbert_model,get_args,load_finetuned_gpt2
+from helpers import load_finetuned_gpt2
 import options
 from tqdm import tqdm
 import numpy as np
@@ -13,47 +12,52 @@ import torch.nn as nn
 import logging
 import options
 
-# Initialize the needed variables either from the CLI user sents or from the device.
+from cli import DeepTuneVisionOptions
+from pathlib import Path
+from options import UNIQUE_ID, DEVICE, NUM_WORKERS, PERSIST_WORK, PIN_MEM
+from utils import get_model_cls,RunType,set_seed
+from datasets.text_datasets import TextDataset
 
-parser = options.parser
-DEVICE = options.DEVICE
-TEST_OUTPUT_DIR = options.TEST_OUTPUT_DIR
-args = get_args()
+def main():
 
-TEST_DATASET_PATH = args.test_set_input_dir
-BATCH_SIZE= args.batch_size
-USE_PEFT = args.use_peft
-ADJUSTED_GPT2_MODEL_DIR = args.adjusted_gpt2_dir
-FREEZE_BACKBONE = args.freeze_backbone
+    args = DeepTuneVisionOptions(RunType.EVAL)
 
-if USE_PEFT:
-    pass
-else:
-    gpt2_model,_ = load_gpt2_model_offline()
-    model =AdjustedGPT2Model(gpt_model=gpt2_model, freeze_backbone=FREEZE_BACKBONE)
-    args.model = 'Adjusted GPT-2 model.'
+    TEST_PATH = args.eval_df
+    OUT = args.out
+    MODEL_STR = 'GPT2'
+    MODE = args.mode
+    FREEZE_BACKBONE = args.freeze_backbone
+    USE_PEFT = args.use_peft
+
+    BATCH_SIZE = args.batch_size
     
-# Load the test dataset from its path
-df = pd.read_parquet(TEST_DATASET_PATH)
+    MODEL_WEIGHTS = args.model_weights
+    FREEZE_BACKBONE = args.freeze_backbone
 
-model,tokenizer = load_finetuned_gpt2(ADJUSTED_GPT2_MODEL_DIR)
-model = model.to(DEVICE)
+    TEST_OUTPUT_DIR = (OUT / f"test_output_{MODEL_STR}_{UNIQUE_ID}") if OUT else Path(f"deeptune_results/test_output_{MODEL_STR}_{MODE}_{UNIQUE_ID}")
 
-# Define the loss function, load the dataset
-criterion = nn.CrossEntropyLoss()
-logger = logging.getLogger()
+    if USE_PEFT:
+        pass
+    else:
+        gpt2_model,tokenizer = load_gpt2_model_offline()
+        model =AdjustedGPT2Model(gpt_model=gpt2_model, freeze_backbone=FREEZE_BACKBONE)
+    
+    model,tokenizer = load_finetuned_gpt2(MODEL_WEIGHTS)
 
-test_dataset = TextDataset(parquet_file=TEST_DATASET_PATH, tokenizer=tokenizer)
-
-test_loader = torch.utils.data.DataLoader(
+    model.to(device=DEVICE)
+        
+    test_dataset = TextDataset(parquet_file=TEST_PATH, tokenizer=tokenizer)
+    test_loader = torch.utils.data.DataLoader(
     test_dataset,
     batch_size=BATCH_SIZE,
     shuffle=False,
     num_workers=0
-)
+    )
 
 
-def test():
+    criterion = nn.CrossEntropyLoss()
+    logger = logging.getLogger()
+
     # initialize metrics
     test_accuracy = 0.0
     test_loss = 0.0
@@ -67,7 +71,7 @@ def test():
 
     model.eval()
     with torch.no_grad():
-        for batch_idx, (encoding, labels) in test_pbar:
+        for _, (encoding, labels) in test_pbar:
             input_ids = encoding['input_ids'].to(DEVICE)
             attention_mask = encoding['attention_mask'].to(DEVICE)
             labels = labels.to(DEVICE)
@@ -109,12 +113,9 @@ def test():
 
     print(test_accuracy, test_loss)
     logger.info(f"Test accuracy: {test_accuracy:.2f}%")
-    save_test_metrics(test_accuracy=test_accuracy, output_dir=TEST_OUTPUT_DIR)
-
     print(metrics_dict)
+    args.save_args(TEST_OUTPUT_DIR)
 
     
 if __name__ == "__main__":
-    test()
-    save_cli_args(args, TEST_OUTPUT_DIR, mode='test')
-    print('Test results saved successfully!')
+    main()
