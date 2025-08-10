@@ -21,5 +21,3 @@ evaluators/vision/evaluate_peft_siglip.py
 .pt_tmp
 saved_models
 notes.txt
-embed\nlp\e5_embeddings.py
-src\nlp\E5_roberta.py
