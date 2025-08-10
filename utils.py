@@ -70,6 +70,7 @@ class RunType(Enum):
     TRAIN = "training"
     EVAL = "evalulation"
     EMBED = "embedding"
+    GANDALF = "gandalf"
 
 
 def get_model_cls(model_architecture: str, use_peft: bool = False) -> Type[nn.Module]:

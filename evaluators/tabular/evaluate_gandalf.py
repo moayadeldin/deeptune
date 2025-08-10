@@ -1,25 +1,35 @@
-from utilities import save_cli_args,get_args,save_test_metrics
 import options
 from pytorch_tabular import TabularModel
 import pandas as pd
+import json
+from cli import DeepTuneVisionOptions
+from pathlib import Path
+from options import UNIQUE_ID, DEVICE, NUM_WORKERS, PERSIST_WORK, PIN_MEM
+from utils import get_model_cls,RunType,set_seed
 
-parser = options.parser
-DEVICE = options.DEVICE
-TEST_OUTPUT_DIR = options.TEST_OUTPUT_DIR
-args = get_args()
 
+def main():
 
-TEST_DATASET_PATH = args.test_set_input_dir
-MODEL_WEIGHTS = args.model_weights
+    args = DeepTuneVisionOptions(RunType.EVAL)
 
-test = pd.read_parquet(TEST_DATASET_PATH)
+    TEST_PATH = args.eval_df
+    MODEL_WEIGHTS = args.model_weights
+    OUT = args.out
+    MODEL_STR = 'GANDALF'
+    
+    TEST_OUTPUT_DIR = (OUT / f"test_output_{MODEL_STR}_{UNIQUE_ID}") if OUT else Path(f"deeptune_results/test_output_{MODEL_STR}_{UNIQUE_ID}")
+
+    test = pd.read_parquet(TEST_PATH)
+
+    loaded_model = TabularModel.load_model(MODEL_WEIGHTS)
+    result = loaded_model.evaluate(test)
+    print(result)
+    print(f'Test Accuracy iS ', result[0]['test_accuracy'])
+    args.save_args(TEST_OUTPUT_DIR)
+    with open(TEST_OUTPUT_DIR / "full_metrics.json", 'w') as f:
+        json.dump(result, f, indent=4)
 
 
 if __name__ == "__main__":
     
-    loaded_model = TabularModel.load_model(MODEL_WEIGHTS)
-    result = loaded_model.evaluate(test)
-    print(result)
-    print(f'Test Accuracy is result', result[0]['test_accuracy'])
-    save_cli_args(args, TEST_OUTPUT_DIR, mode='tabular test')
-    save_test_metrics(float(result[0]['test_loss']), TEST_OUTPUT_DIR)
+    main()
