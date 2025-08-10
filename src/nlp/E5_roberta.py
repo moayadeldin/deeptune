@@ -10,7 +10,7 @@ from transformers.models.xlm_roberta.tokenization_xlm_roberta_fast import (
     XLMRobertaTokenizerFast,
 )
 
-# Routes of the BERT's model and tokenizer to load.
+# Routes of the BERT's model and tokenizer to load
 ROOT = Path(__file__).parent.parent
 
 INTFLOAT_MULTILINGUAL_TOKENIZER = (
