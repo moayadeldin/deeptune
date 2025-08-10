@@ -2,7 +2,7 @@ from src.nlp.multilingual_bert import CustomMultilingualBERT
 from src.nlp.multilingual_bert_peft import CustomMultilingualPeftBERT
 from src.nlp.multilingual_bert import load_nlp_bert_ml_model_offline
 import importlib
-from utilities import save_cli_args, fixed_seed,split_save_load_dataset,save_finetunedbertmodel
+from helpers import save_finetunedbertmodel
 import numpy as np
 import warnings
 from tqdm import tqdm
@@ -11,91 +11,91 @@ import torch
 import torch.optim as optim
 import options
 import logging
-from utilities import PerformanceLogger,get_args
+from helpers import PerformanceLogger
 import sys
+
+from cli import DeepTuneVisionOptions
+from pathlib import Path
+from options import UNIQUE_ID, DEVICE, NUM_WORKERS, PERSIST_WORK, PIN_MEM
+from utils import get_model_cls,RunType,set_seed
+from datasets.text_datasets import TextDataset
 
 # Initialize the needed variables either from the CLI user sents or from the device.
 
-DEVICE = options.DEVICE
-parser = options.parser
-args = get_args()
+def main():
 
-INPUT_DIR = args.input_dir
-BATCH_SIZE=args.batch_size
-LEARNING_RATE=args.learning_rate
-NUM_CLASSES = args.num_classes
-NUM_EPOCHS = args.num_epochs
-TRAIN_SIZE = args.train_size
-VAL_SIZE = args.val_size
-TEST_SIZE = args.test_size
-CHECK_VAL_EVERY_N_EPOCH = 1
-USE_PEFT = args.use_peft
-ADDED_LAYERS = args.added_layers
-EMBED_SIZE = args.embed_size
-FIXED_SEED = args.fixed_seed
-FREEZE_BACKBONE = args.freeze_backbone
-
+    args = DeepTuneVisionOptions(RunType.TRAIN)
+    TRAIN_PATH: Path = args.train_df
+    VAL_PATH: Path = args.val_df
+    DATA_DIR: Path = args.input_dir
+    MODE = args.mode
+    OUT = args.out
+    FREEZE_BACKBONE = args.freeze_backbone
+    USE_PEFT = args.use_peft
+    MODEL_STR = 'PEFT-BERT' if USE_PEFT else 'BERT'
+    FIXED_SEED = args.fixed_seed
     
-TRAIN_DATASET_PATH = options.TRAIN_DATASET_PATH
-VAL_DATASET_PATH = options.VAL_DATASET_PATH
-TEST_DATASET_PATH = options.TEST_DATASET_PATH
-TRAINVAL_OUTPUT_DIR = options.TRAINVAL_OUTPUT_DIR
-
-# If we want to apply fixed seed or randomly initialize the weights and dataset.
-if FIXED_SEED:
-    SEED=42
-    fixed_seed(SEED)
-else:
-    SEED = np.random.randint(low=0, high=1000)
-    fixed_seed(SEED)
-    warnings.warn('This will set a random seed for different initialization affecting Deeptune, inclduing weights and datasets splits.', category=UserWarning)
-    warnings.warn("This is liable to increase variability across consecutive runs of DeepTune.", category=UserWarning)
-
-
-# Fetch whether the transfer-learning with PEFT version or transfer-learning without
-def get_model():
-
-    """
-    Allows the user to choose from Adjusted ResNet18 or PEFT-ResNet18 versions.
-    """
-    if ADDED_LAYERS == 0:
-        
-        raise ValueError('As you apply one of transfer learning or PEFT, please choose 1 or 2 as your preferred number of added_layers.')
-
-    if USE_PEFT:
-        
-        model = importlib.import_module('src.nlp.multilingual_bert_peft')
-        args.model = 'Multilingual BERT PEFT'
-        return model.CustomMultilingualPeftBERT
-    else:
-        model = importlib.import_module('src.nlp.multilingual_bert')
-        args.model = 'Multilingual BERT'
-        return model.CustomMultilingualBERT
+    BATCH_SIZE = args.batch_size
+    NUM_EPOCHS = args.num_epochs
+    LEARNING_RATE = args.learning_rate
+    ADDED_LAYERS = args.added_layers
+    NUM_CLASSES = args.num_classes
+    EMBED_SIZE = args.embed_size
     
-# load the tokenizer, the dataloaders
+    if FIXED_SEED:
+        set_seed(FIXED_SEED)
 
-_,tokenizer = load_nlp_bert_ml_model_offline()
+    TRAIN_DATASET_PATH = TRAIN_PATH or ( DATA_DIR / "train_split.parquet" )
+    VAL_DATASET_PATH = VAL_PATH or ( DATA_DIR / "val_split.parquet" )
 
-train_loader, val_loader = split_save_load_dataset(
+    TRAINVAL_OUTPUT_DIR = (OUT / f"trainval_output_{MODEL_STR}_{UNIQUE_ID}") if OUT else Path(f"deeptune_results/trainval_output_{MODEL_STR}_{MODE}_{UNIQUE_ID}")
     
-    mode='train',
-    type='text',
-    input_dir= INPUT_DIR,
-    train_size = TRAIN_SIZE,
-    val_size = VAL_SIZE,
-    test_size = TEST_SIZE,
-    train_dataset_path=TRAIN_DATASET_PATH,
-    val_dataset_path=VAL_DATASET_PATH,
-    test_dataset_path=TEST_DATASET_PATH,
-    seed=SEED,
-    batch_size=BATCH_SIZE,
-    tokenizer=tokenizer
-)
+    # load the tokenizer, the dataloaders
+
+    choosed_model = get_model(added_layers=ADDED_LAYERS, use_peft=USE_PEFT, args=args)
+
+    model = choosed_model(NUM_CLASSES, ADDED_LAYERS, EMBED_SIZE, FREEZE_BACKBONE)
+
+    _,tokenizer = load_nlp_bert_ml_model_offline()
+
+    model.to(device=DEVICE)
+
+    train_dataset = TextDataset(parquet_file=TRAIN_DATASET_PATH, tokenizer=tokenizer, max_length=512)
+    val_dataset = TextDataset(parquet_file=VAL_DATASET_PATH, tokenizer=tokenizer, max_length=512)
+            
+    train_loader = torch.utils.data.DataLoader(
+            train_dataset,
+            batch_size=BATCH_SIZE,
+            shuffle=True,
+            num_workers=0
+        )
+    val_loader = torch.utils.data.DataLoader(
+            val_dataset,
+            batch_size=BATCH_SIZE,
+            shuffle=False,
+            num_workers=0
+        )
+    
+    model_trainer = BERTrainer(model,tokenizer,LEARNING_RATE,NUM_EPOCHS,train_loader, val_loader,TRAINVAL_OUTPUT_DIR)
+
+    model_trainer.train()
+
+    model_config = {
+        "num_classes":NUM_CLASSES,
+        "added_layers":ADDED_LAYERS,
+        "embedding_layer": EMBED_SIZE
+    }
+
+    save_finetunedbertmodel(model,tokenizer,output_dir=TRAINVAL_OUTPUT_DIR,model_config=model_config)
+    args.save_args(TRAINVAL_OUTPUT_DIR)
+
+
+
 
 # Here we construct the trainer of Multlingual BERT
 
 class BERTrainer:
-    def __init__(self,model,tokenizer):
+    def __init__(self,model,tokenizer, learning_rate,num_epochs,train_loader,val_loader, trainval_output_dir):
         
         """
         Performs Training & Validation on the input text dataset.
@@ -111,24 +111,27 @@ class BERTrainer:
             optimizer (torch.optim.Optimizer): Adam optimizer for updating the model weights during training.
             logger (logging.Logger): Logger instance for tracking training progress.
         """
-        
-        
+        self.train_loader = train_loader
+        self.val_loader = val_loader
+        self.learning_rate = learning_rate
+        self.num_epochs = num_epochs
+        self.trainval_output_dir = trainval_output_dir
         self.model = model
         self.model.to(DEVICE)
         self.criterion = nn.CrossEntropyLoss()
-        self.optimizer = optim.Adam(model.parameters(), lr=LEARNING_RATE)
+        self.optimizer = optim.Adam(model.parameters(), lr=self.learning_rate)
         self.tokenizer = tokenizer
         
         logging.basicConfig(stream=sys.stdout, level=logging.INFO, format="%(levelname)s | %(message)s")
         self.logger = logging.getLogger()
         
-        self.performance_logger = PerformanceLogger(f'{TRAINVAL_OUTPUT_DIR}')
+        self.performance_logger = PerformanceLogger(f'{self.trainval_output_dir}')
         
         
 
     def train(self):
         
-        for epoch in range(NUM_EPOCHS):
+        for epoch in range(self.num_epochs):
             
             # set the model to training mode
             self.model.train()
@@ -140,12 +143,13 @@ class BERTrainer:
             
             # initlaize progress bar
             train_pbar = tqdm(
-                enumerate(train_loader),
-                total=len(train_loader)
+                self.train_loader,
+                total = len(self.train_loader),
+                desc=f"Epoch {epoch+1}/{self.num_epochs}"
             )
             
             # iterate over the training dataset
-            for batch_idx, (encoding,labels) in train_pbar:
+            for batch_idx, (encoding,labels) in enumerate(train_pbar):
                 
                 # move the input to GPU 
                 input_ids = encoding['input_ids'].to(DEVICE)
@@ -182,13 +186,13 @@ class BERTrainer:
                         'loss': running_loss / (batch_idx + 1)
                     })
                 
-                epoch_loss = running_loss / len(train_loader)
+                epoch_loss = running_loss / len(self.train_loader)
                 epoch_accuracy = 100. * correct_predictions / total_predictions
                         
                         
             # update the logger
             self.logger.info(
-                f"Epoch {epoch + 1}/{NUM_EPOCHS}, Training Loss: {running_loss / len(train_loader)}, Training Accuracy: {epoch_accuracy}"
+                f"Epoch {epoch + 1}/{self.num_epochs}, Training Loss: {running_loss / len(self.train_loader)}, Training Accuracy: {epoch_accuracy}"
             )
             
             # apply validation after each epoch on training set
@@ -207,7 +211,7 @@ class BERTrainer:
             )
                 
                 
-            self.performance_logger.save_to_csv(f"{TRAINVAL_OUTPUT_DIR}/training_log.csv")
+            self.performance_logger.save_to_csv(f"{self.trainval_output_dir}/training_log.csv")
             
     def validate(self):
         
@@ -219,8 +223,8 @@ class BERTrainer:
         
         
         val_pbar = tqdm(
-            enumerate(val_loader),
-            total=len(val_loader)
+            enumerate(self.val_loader),
+            total=len(self.val_loader)
         )
         
         with torch.no_grad():
@@ -254,36 +258,28 @@ class BERTrainer:
                 correct += (predicted==labels).sum().item()
                 
         val_accuracy = correct / total
-        val_loss = val_loss / len(val_loader)
+        val_loss = val_loss / len(self.val_loader)
         return val_loss, val_accuracy
                 
+def get_model(added_layers,use_peft,args):
+
+    """
+    Allows the user to choose from Adjusted ResNet18 or PEFT-ResNet18 versions.
+    """
+    if added_layers == 0:
         
+        raise ValueError('As you apply one of transfer learning or PEFT, please choose 1 or 2 as your preferred number of added_layers.')
+
+    if use_peft:
+        
+        model = importlib.import_module('src.nlp.multilingual_bert_peft')
+        args.model = 'Multilingual BERT PEFT'
+        return model.CustomMultilingualPeftBERT
+    else:
+        model = importlib.import_module('src.nlp.multilingual_bert')
+        args.model = 'Multilingual BERT'
+        return model.CustomMultilingualBERT
             
 if __name__ == '__main__':
-    
-    
-    # fetch the appropriate model
-    choosed_model = get_model()
-    
-    # pass the options from the args user are feeding as input
-    model = choosed_model(NUM_CLASSES, ADDED_LAYERS, EMBED_SIZE, FREEZE_BACKBONE)
-    
-    # initialize trainer class
-    model_trainer = BERTrainer(model,tokenizer)
-    
-    # start training
-    model_trainer.train()
-    
-    # saving the model after training
-    
-    model_config = {
-        "num_classes":NUM_CLASSES,
-        "added_layers":ADDED_LAYERS,
-        "embedding_layer": EMBED_SIZE
-    }
-    
-    
-    # save the finetuned model
-    save_finetunedbertmodel(model,tokenizer,output_dir=TRAINVAL_OUTPUT_DIR,model_config=model_config)
-    
-    print('Finetuned BERT Model Saved.')
+
+    main()

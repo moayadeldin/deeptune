@@ -131,5 +131,7 @@ class TestTrainer:
 
             with open(self.output_dir / "full_metrics.json", 'w') as f:
                 json.dump(metrics_dict, f, indent=4)
+
+                
         
         print(metrics_dict)

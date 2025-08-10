@@ -22,6 +22,8 @@ class DeepTuneVisionOptions:
             self._add_training_args()
         if run_type in (RunType.EVAL, RunType.EMBED):
             self._add_eval_embed_args()
+        if run_type == (RunType.GANDALF):
+            self._add_gandalf_args()
 
         parsed_args = self.parser.parse_args(args)
 
@@ -42,6 +44,21 @@ class DeepTuneVisionOptions:
             self.learning_rate: Optional[float] = parsed_args.learning_rate
             self.train_df: Optional[Path] = parsed_args.train_df
             self.val_df:Optional[Path] = parsed_args.val_df
+
+        if run_type == RunType.GANDALF:
+            self.num_epochs: Optional[int] = parsed_args.num_epochs
+            self.learning_rate: Optional[float] = parsed_args.learning_rate
+            self.train_df: Optional[Path] = parsed_args.train_df
+            self.val_df:Optional[Path] = parsed_args.val_df
+            self.tabular_target_column = parsed_args.tabular_target_column
+            self.continuous_cols = parsed_args.continuous_cols
+            self.categorical_cols = parsed_args.categorical_cols
+            self.gflu_stages = parsed_args.gflu_stages
+            self.type = parsed_args.type
+            self.model_weights: Optional[Path] = (
+                parsed_args.model_weights.resolve() if parsed_args.model_weights else None
+            )
+            self.eval_df: Optional[Path] = parsed_args.eval_df or (self.input_dir / "test_split.parquet" if self.input_dir else None)
 
         if run_type in (RunType.EVAL, RunType.EMBED):
             self.eval_df: Optional[Path] = parsed_args.eval_df or (self.input_dir / "test_split.parquet" if self.input_dir else None)
@@ -134,9 +151,26 @@ class DeepTuneVisionOptions:
             """
         )
 
+    def _add_gandalf_args(self):
+
+        p = self.parser
+        p.add_argument('--tabular_target_column', nargs='+', type=str, help='Target column for GANDALF')
+        p.add_argument('--continuous_cols', nargs='+', help='List of continuous column names for GANDALF')
+        p.add_argument('--categorical_cols', nargs='+', help='List of categorical column names for GANDALF')
+        p.add_argument('--gflu_stages', type=int, default=6, help='Number of GFLU stages for GANDALF')
+        p.add_argument('--type', type=str, choices=['classification', 'regression'], help='Task type for GANDALF')
+        p.add_argument('--num_epochs', type=int, help='Number of epochs.')
+        p.add_argument('--learning_rate', type=float, help='Learning rate.')
+        p.add_argument('--train_df', type=Path, help='PARQUET file containing train data.')
+        p.add_argument('--val_df', type=Path, help='PARQUET file containing validation data.')
+        p.add_argument('--eval_df', type=Path, help='PARQUET file containing testing data.')
+        p.add_argument('--model_weights', type=Path, help='Path to model weights.')
+
     def _parse_model_str(self, mode: RunType) -> str:
         if mode == RunType.TRAIN or mode == RunType.EVAL:
             prefix_str = "PEFT" if self.use_peft else "FINETUNED"
+        elif mode == RunType.GANDALF:
+            prefix_str = "GANDALF"
         else:
             prefix_str = self.use_case.value.upper()
 

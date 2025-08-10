@@ -9,108 +9,113 @@ import numpy as np
 import warnings
 import options
 import os
-from utilities import fixed_seed,get_args,split_save_load_dataset,save_cli_args,PerformanceLogger,PerformanceLoggerCallback
+from helpers import PerformanceLogger,PerformanceLoggerCallback
+from pathlib import Path
+
+from options import UNIQUE_ID, DEVICE, NUM_WORKERS, PERSIST_WORK, PIN_MEM
+from embed.vision.custom_embed_siglip_handler import embed_with_siglip
+from cli import DeepTuneVisionOptions
+from utils import MODEL_CLS_MAP, PEFT_MODEL_CLS_MAP, RunType,set_seed
+import pandas as pd
+
 
 os.environ['TORCH_FORCE_NO_WEIGHTS_ONLY_LOAD'] = '1' # disabling weights-only loading error
 
-DEVICE = options.DEVICE
-parser = options.parser
-args = get_args()
 
-INPUT_DIR = args.input_dir
-BATCH_SIZE=args.batch_size
-LEARNING_RATE=args.learning_rate
-NUM_EPOCHS = args.num_epochs
-TRAIN_SIZE = args.train_size
-VAL_SIZE = args.val_size
-TEST_SIZE = args.test_size
-FIXED_SEED = args.fixed_seed
-TYPE = args.type
+def main():
 
 
-# GANDALF Specific Args
-TARGET = args.tabular_target_column
-CONTINUOUS_COLS = args.continuous_cols
-CATEGORICAL_COLS = args.categorical_cols
-GFLU_STAGES = args.gflu_stages
-
-# load the dataset with appropriate paths
-TRAIN_DATASET_PATH = options.TRAIN_DATASET_PATH
-VAL_DATASET_PATH = options.VAL_DATASET_PATH
-TEST_DATASET_PATH = options.TEST_DATASET_PATH
-TRAINVAL_OUTPUT_DIR = options.TRAINVAL_OUTPUT_DIR
-
-# If we want to apply fixed seed or randomly initialize the weights and dataset.
-if FIXED_SEED:
-    SEED=42
-    fixed_seed(SEED)
-else:
-    SEED = np.random.randint(low=0, high=1000)
-    fixed_seed(SEED)
-    warnings.warn('This will set a random seed for different initialization affecting Deeptune, inclduing weights and datasets splits.', category=UserWarning)
-    warnings.warn("This is liable to increase variability across consecutive runs of DeepTune.", category=UserWarning)
+    args = DeepTuneVisionOptions(RunType.GANDALF)
+    TRAIN_PATH: Path = args.train_df
+    VAL_PATH: Path = args.val_df
+    DATA_DIR: Path = args.input_dir
+    TYPE = args.type
+    OUT = args.out
+    MODEL_STR = 'GANDALF'
+    DATA_DIR = args.input_dir
+    BATCH_SIZE=args.batch_size
+    LEARNING_RATE=args.learning_rate
+    NUM_EPOCHS = args.num_epochs
+    FIXED_SEED = args.fixed_seed
 
 
-train_data, val_data, _ = split_save_load_dataset(
+    # GANDALF Specific Args
+    TARGET = args.tabular_target_column
+    CONTINUOUS_COLS = args.continuous_cols
+    CATEGORICAL_COLS = args.categorical_cols
+    GFLU_STAGES = args.gflu_stages
+
     
-    mode='train',
-    type='tabular',
-    input_dir= INPUT_DIR,
-    train_size = TRAIN_SIZE,
-    val_size = VAL_SIZE,
-    test_size = TEST_SIZE,
-    train_dataset_path=TRAIN_DATASET_PATH,
-    val_dataset_path=VAL_DATASET_PATH,
-    test_dataset_path=TEST_DATASET_PATH,
-    seed=SEED,
-    batch_size=BATCH_SIZE,
-    tokenizer=None
-)    
+
+    
+    if FIXED_SEED:
+        set_seed(FIXED_SEED)
+
+    
+    TRAIN_DATASET_PATH = TRAIN_PATH or ( DATA_DIR / "train_split.parquet" )
+    VAL_DATASET_PATH = VAL_PATH or ( DATA_DIR / "val_split.parquet" )
+
+    train_dataset = pd.read_parquet(TRAIN_DATASET_PATH)
+    val_dataset = pd.read_parquet(VAL_DATASET_PATH)
+
+    # We do some preprocessing for both datasets filling the missing numeric columns with zero and fill missing columns with place holder of unknown.
+
+    num_cols_train = train_dataset.select_dtypes(include=["number"]).columns
+    train_dataset[num_cols_train] = train_dataset[num_cols_train].fillna(0)
+
+    num_cols_val = val_dataset.select_dtypes(include=["number"]).columns
+    val_dataset[num_cols_val] = val_dataset[num_cols_val].fillna(0)
+
+    train_str_cols = train_dataset.select_dtypes(include=["object", "category"]).columns
+    train_dataset[train_str_cols] = train_dataset[train_str_cols].fillna("unknown")
+
+    TRAINVAL_OUTPUT_DIR = (OUT / f"trainval_output_{MODEL_STR}_{UNIQUE_ID}") if OUT else Path(f"deeptune_results/trainval_output_{MODEL_STR}_{TYPE}_{UNIQUE_ID}")
+
+    performance_logger = PerformanceLogger(TRAINVAL_OUTPUT_DIR)
 
 
-performance_logger = PerformanceLogger(TRAINVAL_OUTPUT_DIR)
+    data_config = DataConfig(
+        target=TARGET,
+        continuous_cols=CONTINUOUS_COLS,
+        categorical_cols=CATEGORICAL_COLS,
+    )
 
+    optimizer_config = OptimizerConfig()
 
-data_config = DataConfig(
-    target=TARGET,
-    continuous_cols=CONTINUOUS_COLS,
-    categorical_cols=CATEGORICAL_COLS,
-)
+    trainer_config = TrainerConfig(
+        batch_size=BATCH_SIZE,
+        max_epochs=NUM_EPOCHS,
+    )
 
-optimizer_config = OptimizerConfig()
+    model_config = GANDALF(
+        data_config=data_config,
+        optimizer_config=optimizer_config,
+        trainer_config=trainer_config,
+        task=TYPE,
+        gflu_stages=GFLU_STAGES,
+        learning_rate=LEARNING_RATE,
+    )
 
-trainer_config = TrainerConfig(
-    batch_size=BATCH_SIZE,
-    max_epochs=NUM_EPOCHS,
-)
-
-model_config = GANDALF(
-    data_config=data_config,
-    optimizer_config=optimizer_config,
-    trainer_config=trainer_config,
-    task=TYPE,
-    gflu_stages=GFLU_STAGES,
-    learning_rate=LEARNING_RATE,
-)
-
-tabular_model = TabularModel(
-    data_config=data_config,
-    model_config=model_config,
-    optimizer_config=optimizer_config,
-    trainer_config=trainer_config,
-    verbose=True,
-)
-
-
-if __name__ == "__main__":
-
+    tabular_model = TabularModel(
+        data_config=data_config,
+        model_config=model_config,
+        optimizer_config=optimizer_config,
+        trainer_config=trainer_config,
+        verbose=True,
+    )
 
     callback = PerformanceLoggerCallback(
         performance_logger=performance_logger,
     )    
 
-    tabular_model.fit(train=train_data, validation=val_data,callbacks=[callback])
+    tabular_model.fit(train=train_dataset, validation=val_dataset,callbacks=[callback])
     tabular_model.save_model(TRAINVAL_OUTPUT_DIR/"GANDALF_model")
     print(f"Model saved to {TRAINVAL_OUTPUT_DIR}")
-    save_cli_args(args, TRAINVAL_OUTPUT_DIR, mode='tabular train')
     performance_logger.save_to_csv(f"{TRAINVAL_OUTPUT_DIR}/training_log.csv")
+    args.save_args(TRAINVAL_OUTPUT_DIR)
+
+
+if __name__ == "__main__":
+
+
+    main()

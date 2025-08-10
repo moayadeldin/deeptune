@@ -17,7 +17,6 @@ def main():
     args = DeepTuneVisionOptions(RunType.EMBED)
 
     DF_PATH = args.df
-    MODE = args.mode
     OUT = args.out
 
     MODEL_STR = 'GPT2'
@@ -26,10 +25,10 @@ def main():
     # USE_CASE = args.use_case.value
 
     BATCH_SIZE = args.batch_size
-    EMBED_OUTPUT = (OUT / f"embed_output_{MODEL_STR}_{UNIQUE_ID}") if OUT else Path(f"deeptune_results/embed_output_{MODEL_STR}_{MODE}_{UNIQUE_ID}")
+    EMBED_OUTPUT = (OUT / f"embed_output_{MODEL_STR}_{UNIQUE_ID}") if OUT else Path(f"deeptune_results/embed_output_{MODEL_STR}_{UNIQUE_ID}")
     EMBED_OUTPUT.mkdir(parents=True, exist_ok=True)
 
-    EMBED_FILE = EMBED_OUTPUT / f"{MODEL_STR}_{MODE}_embeddings.parquet"
+    EMBED_FILE = EMBED_OUTPUT / f"{MODEL_STR}_embeddings.parquet"
 
     # load the model, the tokenizer and the dataset.
     gpt_model,_ = load_gpt2_model_offline()

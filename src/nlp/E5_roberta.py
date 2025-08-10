@@ -57,4 +57,3 @@ def load_nlp_intfloat_ml_model_offline() -> (
         ),
     )
     return model, tokenizer
-

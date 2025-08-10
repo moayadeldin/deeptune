@@ -15,19 +15,6 @@ from src.nlp.gpt2 import AdjustedGPT2Model
 from src.nlp.multilingual_bert import CustomMultilingualBERT
 from src.nlp.multilingual_bert_peft import CustomMultilingualPeftBERT
 
-from options import make_parser
-
-# check if we need to use peft or not while loading the BERT model
-
-def get_args() -> Namespace:
-    parser = make_parser()
-    return parser.parse_args()
-
-def get_use_peft_and_use_case():
-    args = get_args()
-    return args.use_peft, args.use_case
-
-
 # Kindly note that right now we pass the same transformations to ResNet, Swin and DenseNet, both trained on ImageNet
 transformations = torchvision.transforms.Compose([
     # torchvision.transforms.ToPILImage(), # as I upload raw images
@@ -111,49 +98,47 @@ def save_finetunedbertmodel(model,tokenizer,output_dir,model_config):
     print(f"Model configuration saved to {os.path.join(output_dir, 'model_config.json')}")
     
 
-def load_finetunedbert_model(model_dir):
-    
+
+def load_finetunedbert_model(model_dir, use_peft=None, use_case=None):
     """
     Load the model for inference. Here we unpack what we packed in the previous function.
     
     Args:
         model_dir (str): The path to the saved model.
     """
-    USE_PEFT, USE_CASE = get_use_peft_and_use_case()
-    
-    # load config
-    with open(os.path.join(model_dir, "model_config.json"), "r") as f:
+
+    cfg_path = os.path.join(model_dir, "model_config.json")
+    with open(cfg_path, "r") as f:
         model_config = json.load(f)
-        
-        
-    # load model
+
+    if use_peft is None:
+        use_peft = bool(model_config.get("use_peft", False))
+    if use_case is None:
+        use_case = model_config.get("use_case", "finetuned")
+
     bert_model = BertModel.from_pretrained(os.path.join(model_dir, "bert_model"))
     print(f"Loaded BERT model from {os.path.join(model_dir, 'bert_model')}")
-    
-    # load tokenizer
+
     tokenizer = BertTokenizer.from_pretrained(os.path.join(model_dir, "tokenizer"))
     print(f"Loaded tokenizer from {os.path.join(model_dir, 'tokenizer')}")
 
-    # now we create model with the same exact weights, tokenizer and configs
-    
-    if USE_PEFT or USE_CASE == 'peft':
-            
+    if use_peft or use_case == "peft":
         model = CustomMultilingualPeftBERT(
-            num_classes= model_config["num_classes"],
-            added_layers=model_config['added_layers'],
-            embedding_layer=model_config['embedding_layer']
+            num_classes=model_config["num_classes"],
+            added_layers=model_config["added_layers"],
+            embedding_layer=model_config["embedding_layer"]
         )
-        
     else:
         model = CustomMultilingualBERT(
-            num_classes= model_config["num_classes"],
-            added_layers=model_config['added_layers'],
-            embedding_layer=model_config['embedding_layer']
+            num_classes=model_config["num_classes"],
+            added_layers=model_config["added_layers"],
+            embedding_layer=model_config["embedding_layer"]
         )
-        
-    model.load_state_dict(torch.load(os.path.join(model_dir, "model_weights.pth")))
-    print(f"Loaded model weights from {os.path.join(model_dir, 'model_weights.pth')}")
-    
+
+    weights_path = os.path.join(model_dir, "model_weights.pth")
+    model.load_state_dict(torch.load(weights_path, map_location="cpu"))
+    print(f"Loaded model weights from {weights_path}")
+
     return model, tokenizer
 
 def save_finetuned_gpt2(model, tokenizer, output_dir, output_dim=1000):
@@ -341,5 +326,37 @@ def add_datetime_column_to_predictions(
     return pred_df
 
     
-     
 
+def save_finetunedbertmodel(model,tokenizer,output_dir,model_config):
+    
+    """
+    Save the BERT model after we finetune it.
+    
+    Args:
+        model (CustomMultilingualBERT): The finetuned model.
+        tokenizer (BertTokenizer): The tokenizer used for the model.
+        output_dir (str): The path to save the model.
+        model_config (dict): The configuration of different adjustments the user had to the model (e.g, the number of added layers, the embedding layer size, the number of classes in nue dataset).
+    """
+    
+    
+    if not os.path.exists(output_dir):
+        os.makedirs(output_dir)
+        
+        
+    # save model state dic
+    torch.save(model.state_dict(), os.path.join(output_dir,'model_weights.pth'))
+    print(f"Model weights saved to {os.path.join(output_dir, 'model_weights.pth')}")
+    
+    # save underlying BERT model
+    model.bert.save_pretrained(os.path.join(output_dir, "bert_model"))
+    print(f"BERT model saved to {os.path.join(output_dir, 'bert_model')}")
+    
+    # save tokenizer
+    tokenizer.save_pretrained(os.path.join(output_dir, "tokenizer"))
+    print(f"Tokenizer saved to {os.path.join(output_dir, 'tokenizer')}")
+    
+    # save model's layers
+    with open(os.path.join(output_dir, "model_config.json"), "w") as f:
+        json.dump(model_config, f)
+    print(f"Model configuration saved to {os.path.join(output_dir, 'model_config.json')}")

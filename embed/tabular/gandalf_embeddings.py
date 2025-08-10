@@ -1,6 +1,5 @@
 import torch.nn as nn
 import options
-from utilities import transformations,get_args
 import pandas as pd
 from torch.utils.data import DataLoader
 from datasets.tabular_datasets import TabularDataset
@@ -10,30 +9,33 @@ from pytorch_tabular import TabularModel
 import torch
 
 
-DEVICE = options.DEVICE
-parser = options.parser
-args = get_args()
+from cli import DeepTuneVisionOptions
+from pathlib import Path
+from options import UNIQUE_ID, DEVICE, NUM_WORKERS, PERSIST_WORK, PIN_MEM
+from utils import get_model_cls,RunType,set_seed
+from datasets.text_datasets import TextDataset
+def main():
 
-INPUT_DIR = args.input_dir
-BATCH_SIZE = args.batch_size
-MODEL_PATH = args.model_weights
-CONTINUOUS_COLS = args.continuous_cols
-CATEGORICAL_COLS = args.categorical_cols
-DEVICE = options.DEVICE
-TYPE = args.type
-TARGET_COLUMN = args.tabular_target_column
-TEST_OUTPUT = f"deeptune_results/test_set_gandalf_embeddings_{TYPE}.parquet"
+    args = DeepTuneVisionOptions(RunType.GANDALF)
 
+    TEST_PATH = args.eval_df
+    OUT = args.out
+    MODEL_STR = 'GANDALF'
+    BATCH_SIZE = args.batch_size
+    MODEL_WEIGHTS = args.model_weights
+    CONTINUOUS_COLS = args.continuous_cols
+    CATEGORICAL_COLS = args.categorical_cols
+    DEVICE = options.DEVICE
+    TARGET_COLUMN = args.tabular_target_column
+    TEST_OUTPUT_DIR = (OUT / f"test_output_{MODEL_STR}_{UNIQUE_ID}") if OUT else Path(f"deeptune_results/test_output_{MODEL_STR}_{UNIQUE_ID}")
 
-df = pd.read_parquet(INPUT_DIR)
-dataset = TabularDataset(df, CONTINUOUS_COLS, CATEGORICAL_COLS, label_col=TARGET_COLUMN)
-data_loader = DataLoader(dataset, batch_size=128, shuffle=False)
+    df = pd.read_parquet(TEST_PATH)
 
-model = TabularModel.load_model(MODEL_PATH)
-model.model = model.model.to(DEVICE)
+    dataset = TabularDataset(df, CONTINUOUS_COLS, CATEGORICAL_COLS, label_col=TARGET_COLUMN)
+    data_loader = DataLoader(dataset, batch_size=BATCH_SIZE, shuffle=False)
 
-
-def extractEmbeddings():
+    model = TabularModel.load_model(MODEL_WEIGHTS)
+    model.model = model.model.to(DEVICE)
     extracted_embeddings = []
     extracted_labels = []
 
@@ -53,20 +55,14 @@ def extractEmbeddings():
         extracted_embeddings.append(embeddings.detach().cpu().numpy())
 
     extracted_embeddings = np.vstack(extracted_embeddings)
-    return extracted_embeddings, extracted_labels
 
-if __name__ == "__main__":
-
-    # run the function
-    embeddings, labels = extractEmbeddings()
-
-    print(f"The shape of the embeddings matrix in the dataset is {embeddings.shape}")
-    
-    # convert the embeddings to pd.DataFrame and merge the column of labels then return it
-
-    embeddings_df = pd.DataFrame(embeddings)
+    embeddings_df = pd.DataFrame(embeddings.cpu().numpy())
     labels_df = pd.DataFrame(labels, columns=["label"])
 
     combined_df = pd.concat([embeddings_df,labels_df],axis=1)
 
-    combined_df.to_parquet(TEST_OUTPUT,index=False)
+    combined_df.to_parquet(TEST_OUTPUT_DIR,index=False)
+
+if __name__ == "__main__":
+    
+    main()

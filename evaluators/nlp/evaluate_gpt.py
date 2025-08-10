@@ -10,6 +10,7 @@ from tqdm import tqdm
 import numpy as np
 import torch.nn as nn
 import logging
+import json
 import options
 
 from cli import DeepTuneVisionOptions
@@ -115,6 +116,9 @@ def main():
     logger.info(f"Test accuracy: {test_accuracy:.2f}%")
     print(metrics_dict)
     args.save_args(TEST_OUTPUT_DIR)
+
+    with open(TEST_OUTPUT_DIR / "full_metrics.json", 'w') as f:
+        json.dump(metrics_dict, f, indent=4)
 
     
 if __name__ == "__main__":
