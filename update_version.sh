@@ -9,5 +9,5 @@ if [ -z "$VERSION" ]; then
 fi
 
 # Write to VERSION file
-echo "$VERSION" > VERSION
+echo "$VERSION" > deeptune/VERSION
 echo "VERSION file updated to $VERSION"
