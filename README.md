@@ -304,7 +304,7 @@ python -m trainers.vision.train \
 For example, suppose that we want to train our model with ResNet18, and apply transfer learning to update the whole model's weights, and an embedding layer of size 1000. Hence, we run the command as follows:
 
 ```
-!python -m trainers.vision.train --train_df <path_to_train_df> --val_df <path_to_val_df> --model_version resnet18 --batch_size 4 --num_classes 2 --num_epochs 10 --learning_rate 0.0001 --added_layers 2 --embed_size 1000 --mode cls --fixed-seed
+!python -m trainers.vision.train --train_df <path_to_train_df> --val_df <path_to_val_df> --model_version resnet18 --batch_size 4 --num_classes 2 --num_epochs 10 --learning_rate 0.0001 --added_layers 2 --embed_size 1000 --out <path_to_out_directory> --mode cls --fixed-seed
 ```
 
 If everything is set correctly, you should expect an output in the same format:
@@ -329,10 +329,16 @@ If everything is set correctly, you should expect an output in the same format:
 
 > For using PeFT just add the `--use-peft` switch to the previous command.
 
-#### Texts
+#### Text
 
 Since DeepTune currently supports only two models for text classification, the way they are called in the CLI differs from that of image models. Apart from this, the CLI structure remains largely the same:
 
+```
+!python -m trainers.nlp.[train_multilinbert/train_gpt2] --train_df <path_to_train_df> --val_df <path_to_val_df> --model_version resnet18 --batch_size 4 --num_classes 2 --num_epochs 10 --learning_rate 0.0001 --added_layers 2 --embed_size 1000 --mode cls --fixed-seed
+```
+
+**Note**: 
+> GPT2 model does not support PeFT right now in DeepTune.
 
 After training completes, you may find the results in the directory specified with the `--out` directory. Alternatively, DeepTune will create an output directory named  `deeptune_results` (if it does not already exist). Inside this directory, the results are organized in a subfolder using the following naming convention: `trainval_output_<FINETUNED/PEFT>_<model_version>_<mode>_<yyyymmdd_hhmm>` with the following output:
 
