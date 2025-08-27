@@ -16,7 +16,7 @@ As a cutting-edge software library that has been specifically designed for use i
 - Providing PEFT with LoRA support for Computer Vision algorithms implemented, enabling state-of-the-art models that typically require substantial computational resources to perform efficiently on lower-powered devices. This approach not only reduces computational overhead but also enhances performance.
 - Extracting meaningful feature embeddings with SoTA algorithms for image and text classification tasks.
 
-## Models DeepTune Supports Up to Date
+## Models DeepTune Supports (Up to Date)
 
 
 <table>
@@ -39,7 +39,7 @@ As a cutting-edge software library that has been specifically designed for use i
       <td>✅</td>
       <td>Classification & Regression</td>
       <td>Image</td>
-      <td>ResNet18, ResNet34, ResNet50, ResNet101, ResNet152</td>
+      <td>'resnet18', 'resnet34', 'resnet50', 'resnet101', or 'resnet152'</td>
     </tr>
     <tr>
       <td>DenseNet</td>
@@ -48,7 +48,7 @@ As a cutting-edge software library that has been specifically designed for use i
       <td>✅</td>
       <td>Classification & Regression</td>
       <td>Image</td>
-      <td>DenseNet121, DenseNet161, DenseNet169, DenseNet201</td>
+      <td>'densenet121', 'densenet161', 'densenet169', or 'densenet201'</td>
     </tr>
     <tr>
       <td>Swin</td>
@@ -57,7 +57,7 @@ As a cutting-edge software library that has been specifically designed for use i
       <td>✅</td>
       <td>Classification & Regression</td>
       <td>Image</td>
-      <td>Swin_t, Swin_b, Swin_s</td>
+      <td>'swin_t', 'swin_s', or 'swin_b'</td>
     </tr>
     <tr>
       <td>EfficientNet</td>
@@ -66,7 +66,7 @@ As a cutting-edge software library that has been specifically designed for use i
       <td>✅</td>
       <td>Classification & Regression</td>
       <td>Image</td>
-      <td>EfficientNet-B0, B1, B2, B3, B4, B5, B6, B7</td>
+      <td>'efficientnet_b0', 'efficientnet_b1', 'efficientnet_b2', 'efficientnet_b3', 'efficientnet_b4', 'efficientnet_b5', 'efficientnet_b6', or 'efficientnet_b7'</td>
     </tr>
     <tr>
       <td>VGGNet</td>
@@ -75,7 +75,7 @@ As a cutting-edge software library that has been specifically designed for use i
       <td>✅</td>
       <td>Classification & Regression</td>
       <td>Image</td>
-      <td>VGG11, VGG13, VGG16, VGG19</td>
+      <td>'vgg11', 'vgg13', 'vgg16', or 'vgg19'</td>
     </tr>
     <tr>
       <td>ViT</td>
@@ -84,7 +84,16 @@ As a cutting-edge software library that has been specifically designed for use i
       <td>✅</td>
       <td>Classification & Regression</td>
       <td>Image</td>
-      <td>ViT_b_16, ViT_b_32, ViT_l_16, ViT_l_32, ViT_h_14</td>
+      <td>'vit_b_16', 'vit_b_32', 'vit_l_16', 'vit_l_32' or 'vit_h_14'</td>
+    </tr>
+      <tr>
+      <td>SiGLip</td>
+      <td>✅</td>
+      <td>✅</td>
+      <td>✅</td>
+      <td>Classification & Regression</td>
+      <td>Image</td>
+      <td>siglip</td>
     </tr>
     <tr>
       <td>GPT</td>
@@ -105,12 +114,6 @@ As a cutting-edge software library that has been specifically designed for use i
       <td>bert-base-multilingual-cased</td>
     </tr>
     <tr>
-      <td>RoBERTa</td>
-      <td colspan="4" style="text-align:center; font-weight:bold; font-size:16px;">Only Supports Embedding Extraction</td>
-      <td>Text</td>
-      <td>XLM-RoBERTa</td>
-    </tr>
-    <tr>
       <td>DeepAR</td>
       <td colspan="4" style="text-align:center; font-weight:bold; font-size:16px;">Only Supports Time Series Datasets</td>
       <td>Time Series</td>
@@ -127,93 +130,6 @@ As a cutting-edge software library that has been specifically designed for use i
   </tbody>
 </table>
 
-
-## DeepTune Structure
-
-```plaintext
-DeepTune
-├── datasets
-│   ├── __init__.py
-│   ├── image_dataset.py
-│   └── text_dataset.py
-├── embed
-│   ├── nlp
-│   │   ├── es_embeddings.py
-│   │   └── multilingualbart_embeddings.py
-│   │   └── gpt2_embeddings.py
-│   └── vision
-│       ├── densenet_embeddings.py
-│       ├── efficientnet_embeddings.py
-│       ├── resnet_embeddings.py
-│       └── swin_embeddings.py
-│       └── vgg_embeddings.py
-│       └── vit_embeddings.py
-├── evaluator
-│   ├── nlp
-│   │   └── evaluate_multilingualbert.py
-│   │   └── evaluate_gpt.py
-│   └── vision
-│       ├── evaluate_densenet.py
-│       ├── evaluate_efficientnet.py
-│       ├── evaluate_resnet.py
-│       ├── evaluate_swin.py
-│       ├── evaluate_vgg.py
-│       ├── evaluate_vit.py
-│       └── evaluator.py
-├── src
-│   ├── nlp
-│   │   ├── E5_roberta.py
-│   │   ├── multilingual_bert.py
-│   │   └── multilingual_bert_peft.py
-│   │   └── gpt2.py
-│   └── vision
-│       ├── densenet.py
-│       ├── densenet_peft.py
-│       ├── efficientnet.py
-│       ├── efficientnet_peft.py
-│       ├── resnet.py
-│       ├── resnet_peft.py
-│       ├── swin.py
-│       └── swin_peft.py
-│       ├── vgg.py
-│       └── vgg_peft.py
-│       ├── vit.py
-│       └── vit_peft.py
-├── trainers
-│   ├── nlp
-│   │   └── train_multilingualbert.py
-│   │   └── train_gpt2.py
-│   └── vision
-│       ├── train_densenet.py
-│       ├── train_efficientnet.py
-│       ├── train_resnet.py
-│       └── train_swin.py
-│       └── train_vit.py
-│       └── train_vgg.py
-│       └── trainer.py
-├── timeseries
-│   ├── deepAR.py
-├── tests
-│   ├── models
-│   │   ├── test_densenet.py
-│   │   ├── test_efficientnet.py
-│   │   ├── test_resnet.py
-│   │   ├── test_swin.py
-│   │   ├── test_vgg.py
-│   │   ├── test_vit.py
-├── .github
-│   ├── workflows
-│   │   ├── test.yml
-├── options.py
-├── requirements.txt
-└── utilities.py
-└── .gitignore
-└── update_version.sh
-└── VERSION
-└── README.md
-```
-
-
 ## 📘 User Guide
 
 ### 1 Installation & Preface
@@ -223,6 +139,7 @@ DeepTune
 - [1.3 Preface](#13-preface)
 
 ### 2. Getting Started: Your First DeepTune Run
+- [2.0 Splitting Your Dataset](#20-splitting-your-dataset)
 - [2.1 Using DeepTune for Training](#21-using-deeptune-for-training)
 - [2.2 Using DeepTune for Evaluation](#22-using-deeptune-for-evaluation)
 - [2.3 Using DeepTune for Embeddings Extraction](#23-using-deeptune-for-embeddings-extraction)
@@ -285,42 +202,82 @@ DeepTune gives you also a wide flexible set of options to choose what you think 
 
 > 1. DeepTune also provides support for DeepAR model for time series datasets, but it is only available now for training and testing.
 
-> 2. DeepTune also supports RoBERTa model for text datasets. However, it is only available for embeddings extraction.
+> 2. Pre-released version of DeepTune currently doesn't support PEFT for GPT-2.
 
-> 3. Pre-released version of DeepTune currently doesn't support PEFT for GPT-2.
-
-> 4. Kindly note that DeepTune for images and texts only accepts Parquet files as an input (Time Series datasets are given as CSVs). The parquet file expected is actually containing two columns, If we work with images, then the two columns are [`images`, `labels`] pair. **Images must be in Bytes Format for efficient representation, and labels must be numerically encoded** If we work with text, then the two columns are [`text`, `label`] pair. For text, **Label column must be numerically encoded also.**
+> 3. Kindly note that DeepTune for images and texts only accepts Parquet files as an input (Time Series datasets are given as CSVs). The parquet file expected is actually containing two columns, If we work with images, then the two columns are [`images`, `labels`] pair. **Images must be in Bytes Format for efficient representation, and labels must be numerically encoded** If we work with text, then the two columns are [`text`, `label`] pair. For text, **Label column must be numerically encoded also.**
 
 ## Getting Started: Your First DeepTune Run
 
-### 2.1 Using DeepTune for Training
+### 2.0 Splitting Your Dataset
 
-#### Images & Texts
+We assume that your dataset formatted as Parquet File will need to be splitted into train/val/test splits as you are going to conduct different experiments with different models using DeepTune. 
 
-The following is the generic CLI structure of running DeepTune on images/text dataset stored in Parquet file as bytes format for training:
+The following is the generic CLI structure to split the dataset:
+```
+python -m split_dataset \
+  --df <path_to_df> \
+  --train_size <float> \
+  --val_size <float> \
+  --test_size <float> \
+  --out <path> \
+  --[fixed-seed] 
+```
+
+`` --df <str>`` : Path to dataset to split (must be parquet file).
+
+``--train_size <float>``: Percentage of the training dataset w.r.t the whole data.
+
+``--val_size <float>``: Percentage of the validation dataset w.r.t the whole data.
+
+``--test_size <float>``: Percentage of the testing dataset w.r.t the whole data.
+
+``--out <output_path``: Path to the directory where you want to save the results.
+
+``--fixed-seed``: (Flag) Ensures that a fixed random seed is set for reproducibility.
+
+**Note** :
+> It is important to use the `--fixed-seed` flag to regenerate the same train/val/test splits everytime you run the above command.
+
+The output will be stored in the directory specified with the `--out` argument, using the following naming format: ``data_splits_<yyyymmdd_hhmm>`` with the splits inside as follows, which we will use further for training and evaluation:
 
 ```
-python -m trainers.<vision/nlp>.train_<model> \
-  --input_dir <path_to_dataset> \
-  --<model>_version <model_variant> \
+output_directory
+├── data_splits_<yyyymmdd_hhmm>
+    └── cli_arguments.json
+    └── train_split.parquet
+    └── test_split.parquet
+    └── val_split.parquet
+```
+
+### 2.1 Using DeepTune for Training
+
+#### Images
+
+The following is the generic CLI structure of running DeepTune on images dataset stored in Parquet file as bytes format for training:
+
+```
+python -m trainers.vision.train \
+  --train_df <path_to_train_df> \
+  --val_df <path_to_val_df> \
+  --model_version <model_variant> \
   --batch_size <int> \
   --num_classes <int> \
   --num_epochs <int> \
   --learning_rate <float> \
-  --train_size <float> \
-  --val_size <float> \
-  --test_size <float> \
   --added_layers <int> \
   --embed_size <int> \
+  --out <output_path>
   [--fixed-seed] \
   --mode <cls_or_reg> \
   [--use-peft] \
   [--freeze-backbone]
 ```
 
-`` --input_dir <str>`` : Path to your input dataset (must be parquet file).
+`` --train_df <str>`` : Path to your train set (must be parquet file).
 
-``--<model>_version <model_variant>`` : The model to use with its respective version. (Only for Images Datasets, you don't use this flag with text datasets)
+`` --val_df <str>`` : Path to your validation dataset (must be parquet file).
+
+``--<model>_version <model_variant>`` : The model to use with its respective version architecture. You may use the model versions as in [Table](#models-deeptune-supports-up-to-date) above.
 
 ``-- batch_size <int>`` : Number of samples per batch.
 
@@ -330,13 +287,11 @@ python -m trainers.<vision/nlp>.train_<model> \
 
 ``-- learning_rate <float>``: Learning rate.
 
-``--train_size <float>``: Percentage of the training dataset w.r.t the whole data.
-
-``--val_size <float>``: Percentage of the validation dataset w.r.t the whole data.
-
-``--test_size <float>``: Percentage of the testing dataset w.r.t the whole data.
-
 ``--added_layers <int>``: Number of added layers on the top of the model for transfer learning either with using PeFT or not. Only 1 and 2 are supported for now.
+
+``--embed_size <int>``: Size of the intermediate embedding layer in case you choose to put 2 added layers on top of the tuned model.
+
+``--out <output_path``: Path to the directory where you want to save the results.
 
 ``--fixed-seed``: (Flag) Ensures that a fixed random seed is set for reproducibility.
 
@@ -346,14 +301,10 @@ python -m trainers.<vision/nlp>.train_<model> \
 
 `--freeze-backbone`: (Flag) Determines whether you want only to train the added new layers, or update the whole model parameters during training.
 
-**Notes** :
-> The CLI command structure to training images and texts datasets models in DeepTune are the same in training, except for ``--<model>_version`` switch where you don't add it with text models. Moreover, the `--num_classes` isn't required as a switch when running GPT-2 model.
-> The regression mode isn't supported for text models.
-
-For example, suppose that we want to train our model with ResNet18, and apply transfer learning to update the whole model's weights, with 2 added layers, and an embedding layer of size 1000. Hence, we run the command as follows:
+For example, suppose that we want to train our model with ResNet18, and apply transfer learning to update the whole model's weights, and an embedding layer of size 1000. Hence, we run the command as follows:
 
 ```
-!python -m trainers.vision.train_resnet --num_classes 8 --resnet_version resnet18 --num_epochs 10 --added_layers 2 --embed_size 1000 --batch_size 16 --learning_rate 0.0001 --train_size 0.8 --val_size 0.1 --test_size 0.1 --input_dir "path/dataset.parquet" --fixed-seed --mode cls
+!python -m trainers.vision.train --train_df <path_to_train_df> --val_df <path_to_val_df> --model_version resnet18 --batch_size 4 --num_classes 2 --num_epochs 10 --learning_rate 0.0001 --added_layers 2 --embed_size 1000 --mode cls --fixed-seed
 ```
 
 If everything is set correctly, you should expect an output in the same format:
@@ -378,30 +329,25 @@ If everything is set correctly, you should expect an output in the same format:
 
 > For using PeFT just add the `--use-peft` switch to the previous command.
 
+#### Texts
+
+Since DeepTune currently supports only two models for text classification, the way they are called in the CLI differs from that of image models. Apart from this, the CLI structure remains largely the same:
 
 
-After training is done, you will find that the output directory folder `deeptune_results` was initiated in your DeepTune path. Inside this folder, you will find the following outputs:
+After training completes, you may find the results in the directory specified with the `--out` directory. Alternatively, DeepTune will create an output directory named  `deeptune_results` (if it does not already exist). Inside this directory, the results are organized in a subfolder using the following naming convention: `trainval_output_<FINETUNED/PEFT>_<model_version>_<mode>_<yyyymmdd_hhmm>` with the following output:
 
-```plaintext
+```
 deeptune_results
-├── train_split_<yyyymmdd>_<hhmm>.parquet
-├── test_split_<yyyymmdd>_<hhmm>.parquet
-├── val_split_<yyyymmdd>_<hhmm>.parquet
-├── output_directory_trainval_<yyyymmdd>_<hhmm>
-    └── cli_arguments.txt
+├── trainval_output_<FINETUNED/PEFT>_<model_version>_<mode>_<yyyymmdd_hhmm>
+    └── cli_arguments.json
     └── model_weights.pth
     └── training_log.csv
 ```
+**Description of Output files:**
 
-Description of Output files:
-  - ``train/test/val_split.parquet files``: Store the training, testing, and validation dataset splits with timestamps corresponding to the time the run were initiated.
-  -  ``output_directory_trainval_<yyyymmdd>_<hhmm>`` folder:
-      - `cli_arguments.txt`: Indicating the CLI arguments you entered to run DeepTune, with the DeepTune version you are running.
-      - `model_weights.pth`: The finetuned model weights (which will be used further for testing)
-      - `training_log.csv`: A Performance Logger that reports the training and validation accuracies and errors during each epoch of training.
-        
-**Note**:
-> The first three parquet files in ``deeptune_results`` are the splits that were produced from the dataset you have fed to DeepTune to work on, notice that everytime you run DeepTune with ``fixed-seed`` flag it should produce the same exact splits.
+- `cli_arguments.json`: Records the CLI arguments you entered to run DeepTune, along with the DeepTune version.
+- `model_weights.pth`: The fine-tuned model weights (used later for testing).
+- `training_log.csv`: A performance log reporting training and validation accuracies and errors for each epoch.
 
 
 ### 2.2 Using DeepTune for Evaluation
@@ -454,7 +400,7 @@ Test results saved successfully!
 
 After evaluation is done, you will find that the output directory folder `deeptune_results` was initiated in your DeepTune path. Inside this folder, you will find the following output directory:
 
-```plaintext
+```
 deeptune_results
 ├── output_directory_test_<yyyymmdd>_<hhmm>
     └── cli_arguments.txt
@@ -474,7 +420,7 @@ In DeepTune, the text SoTA models save the weights of both the models, and the t
 
 The output directory from applying transfer learning on BERT or GPT-2 using DeepTune is as follows:
 
-```plaintext
+```
 deeptune_results
 ├── train_split_<yyyymmdd>_<hhmm>.parquet
 ├── test_split_<yyyymmdd>_<hhmm>.parquet
