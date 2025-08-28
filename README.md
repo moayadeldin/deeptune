@@ -343,7 +343,7 @@ Since DeepTune currently supports only two models for text classification, the w
 After training completes, you may find the results in the directory specified with the `--out` directory. Alternatively, DeepTune will create an output directory named  `deeptune_results` (if it does not already exist). Inside this directory, the results are organized in a subfolder using the following naming convention: `trainval_output_<FINETUNED/PEFT>_<model_version>_<mode>_<yyyymmdd_hhmm>` with the following output:
 
 ```
-deeptune_results
+output_directory
 ├── trainval_output_<FINETUNED/PEFT>_<model_version>_<mode>_<yyyymmdd_hhmm>
     └── cli_arguments.json
     └── model_weights.pth
@@ -355,35 +355,35 @@ deeptune_results
 - `model_weights.pth`: The fine-tuned model weights (used later for testing).
 - `training_log.csv`: A performance log reporting training and validation accuracies and errors for each epoch.
 
+**Note**: 
+> The text directory in the output will be named as follows: `trainval_output_<BERT/GPT2>_<yyyymmdd_hhmm>`
+
 
 ### 2.2 Using DeepTune for Evaluation
 
 Evaluating your model on a separete holdout dataset (which we refer to as testing) here is referred to as evaluation. The reason is to simply not confuse the terms as testing in DeepTune documentation context also refers to testing the model functionality (e.g, writing test cases).
-
-### Images
 
 After using DeepTune to apply transfer learning on one of the models the package support, now we need to evaluate the performance of the tuned model for images.
 
 The following is the generic CLI structure of running DeepTune for evalaution of image datasets:
 
 ```
-python -m evaluators.vision.evaluate_<model> \
-  --input_dir <path_to_dataset> \
+python -m evaluators.vision.evaluate \
+  --eval_df <path_to_dataset> \
   --<model>_version <model_variant> \
   --batch_size <int> \
   --num_classes <int> \
   --num_epochs <int> \
-  --test_set_input_dir <str> \
   --model_weights <str> \
   --added_layers <int> \
   --embed_size <int> \
   --mode <cls_or_reg> \
+  --out <output_path> \
   [--use-peft] \
   [--freeze-backbone]
 ```
 
-
-`` --test_set_input_dir <str>`` : Path to your test dataset. It should be the `test_split_<yyyymmdd>_<hhmm>.parquet` you got from the previous DeepTune for training run.
+`` --eval_df <str>`` : Path to your test dataset. It should be the `test_split_<yyyymmdd>_<hhmm>.parquet` you got from the previous DeepTune for splitting data run.
 
 `` --model_weights <str>`` : Path to your model's weights. It should be `model_weights.pth` you got from the previous DeepTune for training run.
 
@@ -401,26 +401,23 @@ Model into the path is loaded.
 INFO | Test accuracy: 98.18713450292398%
 {'loss': 0.05557631243869067, 'accuracy': 0.9818713450292398, '0': {'precision': 1.0, 'recall': 0.967479674796748, 'f1-score': 0.9834710743801653, 'support': 123.0}, '1': {'precision': 0.9931740614334471, 'recall': 1.0, 'f1-score': 0.9965753424657534, 'support': 291.0}, '2': {'precision': 1.0, 'recall': 0.967741935483871, 'f1-score': 0.9836065573770492, 'support': 155.0}, '3': {'precision': 0.9397163120567376, 'recall': 0.9706959706959707, 'f1-score': 0.954954954954955, 'support': 273.0}, '4': {'precision': 0.9847328244274809, 'recall': 1.0, 'f1-score': 0.9923076923076923, 'support': 129.0}, '5': {'precision': 0.9934640522875817, 'recall': 0.9440993788819876, 'f1-score': 0.9681528662420382, 'support': 161.0}, '6': {'precision': 0.9730538922155688, 'recall': 0.9878419452887538, 'f1-score': 0.9803921568627451, 'support': 329.0}, '7': {'precision': 1.0, 'recall': 0.9959839357429718, 'f1-score': 0.9979879275653923, 'support': 249.0}, 'macro avg': {'precision': 0.985517642802602, 'recall': 0.979230355111288, 'f1-score': 0.9821810715194739, 'support': 1710.0}, 'weighted avg': {'precision': 0.9822626797526258, 'recall': 0.9818713450292398, 'f1-score': 0.981906668565337, 'support': 1710.0}, 'auroc': 0.9997672516861436}
 Test results saved successfully!
-
 ```
 
-After evaluation is done, you will find that the output directory folder `deeptune_results` was initiated in your DeepTune path. Inside this folder, you will find the following output directory:
+After evaluation is done, you may find the results in the directory specified with the `--out` directory or `deeptune_results` was initiated in your DeepTune path. Inside this folder, you will find the following output directory:
 
 ```
 deeptune_results
-├── output_directory_test_<yyyymmdd>_<hhmm>
-    └── cli_arguments.txt
-    └── test_accuracy.txt
+├── eval_output_FINETUNED/PEFT-<model_version>_<yyyymmdd>_<hhmm>
+    └── cli_arguments.json
+    └── full_metrics.json
 ```
 
 Description of Output files:
   -  ``output_directory_test_<yyyymmdd>_<hhmm>`` folder:
-      - `cli_arguments.txt`: Indicating the CLI arguments you entered to run DeepTune, with the DeepTune version you are running.
-      - `test_accuracy.txt`: The test accuracy you achieved while using the model.
+      - `cli_arguments.json`: Indicating the CLI arguments you entered to run DeepTune, with the DeepTune version you are running.
+      - `full_metrics.json`: The full metrics as appeared to you in the CLI while using the model.
    
 ### Text
-
-The process of applying DeepTune for evaluation for Text models it supports (GPT-2 and BERT) is the same in everything except for the CLI argument structure, where there is some changes it is important to highlight in a separate subsection.
 
 In DeepTune, the text SoTA models save the weights of both the models, and the tokenizers. The tokenizer role is to split sentences into smaller units (we call them tokens) that can be more easily assigned meaning. On the other hand, the model is responsible for handling the part of interpreting these tokens.
 
@@ -428,10 +425,7 @@ The output directory from applying transfer learning on BERT or GPT-2 using Deep
 
 ```
 deeptune_results
-├── train_split_<yyyymmdd>_<hhmm>.parquet
-├── test_split_<yyyymmdd>_<hhmm>.parquet
-├── val_split_<yyyymmdd>_<hhmm>.parquet
-└── output_directory_trainval_<yyyymmdd>_<hhmm>
+└── trainval_output_<BERT/GPT2>_<yyyymmdd_hhmm>
     ├── tokenizer
       └── ..
     ├── model
@@ -445,21 +439,22 @@ Notice that there are directories saving the update tokenizer, and model files. 
 Hence, the generic CLI structure of running DeepTune for evalaution of text datasets:
 
 ```
-python -m evaluators.nlp.evaluate_<model> \
-  --input_dir <path_to_dataset> \
+python -m evaluators.nlp.evaluate_<multilingualbert/gpt> \
+  --eval_df <path_to_dataset> \
   --<model>_version <model_variant> \
   --batch_size <int> \
   --num_classes <int> \
-  --input_dir <str> \
+  --num_epochs <int> \
   --model_weights <str> \
   --added_layers <int> \
   --embed_size <int> \
-  --adjusted_<bert/gpt2>_dir <str> \
+  --mode <cls_or_reg> \
+  --out <output_path> \
   [--use-peft] \
   [--freeze-backbone]
 ```
 
-For the ``--adjusted_<bert/gpt2>_dir`` switch, we feed the whole output directory we got from running DeepTune for training (`output_directory_trainval_<yyyymmdd>_<hhmm>`)
+For the ``--model_weights`` switch, we feed the whole output directory we got from running DeepTune for training (`trainval_output_<BERT/GPT2>_<yyyymmdd_hhmm>`)
 
 **Note:**
 > For GPT-2 model, **the switches `--added_layers` and `embed_size` are set by default as we tweaked the model architecture in order to be properly ready for training, so you don't have to set these to a specific input.** More details to follow in further phase of writing the documentation.
