@@ -7,7 +7,7 @@ import torch.nn as nn
 from sklearn.metrics import classification_report, roc_auc_score
 from tqdm.auto import tqdm
 
-from options import DEVICE, TEST_OUTPUT_DIR
+from options import DEVICE
 
 
 class TestTrainer:
@@ -29,8 +29,8 @@ class TestTrainer:
         model,
         batch_size,
         test_loader,
-        mode: str = 'cls',
-        output_dir=TEST_OUTPUT_DIR,
+        mode,
+        output_dir,
         device=DEVICE
     ):
         self.model = model
@@ -132,6 +132,6 @@ class TestTrainer:
             with open(self.output_dir / "full_metrics.json", 'w') as f:
                 json.dump(metrics_dict, f, indent=4)
 
-                
+
         
         print(metrics_dict)

@@ -67,7 +67,8 @@ def main() -> None:
         batch_size=BATCH_SIZE,
         test_loader=test_loader,
         output_dir=EVAL_OUTPUT_DIR,
-        device=DEVICE
+        device=DEVICE,
+        mode=MODE
     )
     
     test_trainer.test(best_model_weights_path=MODEL_WEIGHTS)
