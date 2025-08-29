@@ -113,12 +113,6 @@ As a cutting-edge software library that has been specifically designed for use i
       <td>Text</td>
       <td>bert-base-multilingual-cased</td>
     </tr>
-    <tr>
-      <td>DeepAR</td>
-      <td colspan="4" style="text-align:center; font-weight:bold; font-size:16px;">Only Supports Time Series Datasets</td>
-      <td>Time Series</td>
-      <td>DeepAR</td>
-    </tr>
 <tr>
   <td>GANDALF</td>
   <td colspan="2" style="text-align:center; font-weight:bold; font-size:16px;">Only Supports Regular Training</td>
