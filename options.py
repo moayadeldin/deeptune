@@ -25,3 +25,11 @@ CPU_COUNT: int = cpu_count()
 NUM_WORKERS: int = min(8, CPU_COUNT // 2) if DEVICE.type != "cpu" else 0
 PERSIST_WORK: bool = NUM_WORKERS > 0
 PIN_MEM: bool = DEVICE.type == "cuda"
+
+# The paths of the Parquet splits of the dataset we are saving/loading from
+TRAIN_DATASET_PATH = Path(__file__).parent / f'deeptune_results/train_split_{UNIQUE_ID}.parquet'
+VAL_DATASET_PATH = Path(__file__).parent / f'deeptune_results/val_split_{UNIQUE_ID}.parquet'
+TEST_DATASET_PATH = Path(__file__).parent / f'deeptune_results/test_split_{UNIQUE_ID}.parquet'
+
+TRAINVAL_OUTPUT_DIR = Path(__file__).parent / f'deeptune_results/output_directory_trainval_{UNIQUE_ID}'
+TEST_OUTPUT_DIR = Path(__file__).parent / f'deeptune_results/output_directory_test_{UNIQUE_ID}'

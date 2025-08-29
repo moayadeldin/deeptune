@@ -470,11 +470,16 @@ After using DeepTune to apply transfer learning on one of the models the package
 
 The following is the generic CLI structure of running DeepTune for embeddings extraction of image datasets:
 
-``` python -m embed.vision.<model>_embeddings \
-  --<model>_version <model_variant> \
+
+python -m embed.vision.embed --df "H:\john-pull-request\data_splits_20250803_1252\test_split.parquet" --mode cls --num_classes 2 --out "H:\john-pull-request" --model_version siglip --model_weights "H:\deeptune-beta\deeptune_results\train_output_PEFT-siglip_20250725_2223\custom_siglip_model.pt" --use_case peft --added_layers 2 --embed_size 1000 --batch_size 4
+
+
+``` python -m embed.vision.embed \
+  --df <path_to_df> \
   --batch_size <int> \
   --num_classes <int> \
-  --input_dir <str> \
+  --out <path> \
+  --model_version <str> \
   --model_weights <str> \
   --added_layers <int> \
   --embed_size <int> \
@@ -494,7 +499,6 @@ The `--use_case` switch specifies on which use case you want to use DeepTune for
 
 If everything is set correctly, and evaluation is done, you should expect an output in the same format:
 
-
 ```
 100%|█████████████████████████████████████████████████████| 107/107 [00:09<00:00, 10.76it/s]
 The shape of the embeddings matrix in the dataset is (1710, 1000)
@@ -510,16 +514,17 @@ The process of Embeddings Extraction with text datasets would actually be the sa
 
 The following is the generic CLI structure of running DeepTune for embeddings extraction of text datasets:
 
-``` python -m embed.nlp.<model>_embeddings \
+
+python -m embed.nlp.gpt2_embeddings --df "H:\Moayad\deeptune-scratch\deeptune_results\DATASETS_PARQUET\data_splits_20250803_2007\test_split.parquet" --mode cls --out "H:\john-pull-request" --batch_size 8 --model_weights "H:\john-pull-request\trainval_output_GPT2_20250803_2319"
+
+``` python -m embed.nlp.<gpt2/multilingualbert>_embeddings \
   --batch_size <int> \
   --num_classes <int> \
-  --input_dir <str> \
+  --df <path_to_df> \
   --model_weights <str> \
   --added_layers <int> \
   --embed_size <int> \
   --use_case <finetuned_or_pretrained_or_peft> \
-  --adjusted_<bert/gpt2>_dir <str> \
-  --use_case <finetuned_or_peft>
   [--use-peft] \
   [--freeze-backbone]
 ```
@@ -530,7 +535,14 @@ The following is the generic CLI structure of running DeepTune for embeddings ex
 > Using text models for embeddings extraction directly with skipping Sections 2.1, and 2.2 (as we may do in images) isn't supported in DeepTune. If you want to extract the embeddings directly, you may use RoBERTa model. Moreover, this version of DeepTune doesn't yet support using peft case for GPT-2. The later part will be added in a future version of DeepTune.
 
 
-You will find the output in a format of Parquet file in the following path: `deeptune_results/test_set_<use_case>_<model>_embeddings_<mode>.parquet`.
+You will find the output directory in the following format format in the specified output path: `embed_output_<PRETRAINED/FINETUNED/PEFT>_<model_version>_<mode>_<yyyymmdd_hhmm>`.
+
+```
+deeptune_results
+├── embed_output_<PRETRAINED/FINETUNED/PEFT>_<model_version>_<mode>_<yyyymmdd_hhmm>
+    └── cli_arguments.json
+    └── full_metrics.json
+```
 
 ### 2.4 [EXTRA] Integration with df-analyze
 
@@ -572,6 +584,6 @@ If you find this repository helpful, please cite it as follows:
   author = {Moayadeldin Hussain, John Kendall, Jacob Levman},
   title = {DeepTune: Cutting-edge library to automate Computer Vision and Natural Language Processing algorithms.},
   year = {2025},
-  url = {https://github.com/moayadeldin/deeptune-scratch},
+  url = {https://github.com/moayadeldin/deeptune-beta},
   version = {1.0.0}
 }

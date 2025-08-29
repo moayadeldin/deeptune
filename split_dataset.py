@@ -86,7 +86,7 @@ def make_parser() -> ArgumentParser:
         help='Mention the split ratio of the Test Dataset'
     )
     parser.add_argument(
-        "--fixed_seed",
+        "--fixed-seed",
         action="store_true",
         help="Use fixed seed for randomisation of data splits. If omitted, a random seed is used."
     )
