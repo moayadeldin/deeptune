@@ -299,12 +299,12 @@ class EmbeddingModel:
         extracted_labels = []
         extracted_embeddings = []
 
-        torch.cuda.empty_cache()
         self.model.eval()
+        self.model = self.model.to(DEVICE)
 
         with torch.no_grad():
             for data, labels in tqdm(data_loader):
-                data = data.cuda()
+                data = data.to(DEVICE)
             
                 # If the added layers is one and we want to extract the same exact embedding features as if the added layers is zero we should handle this explicitly
                 if self.added_layers == 1 or (self.added_layers == 2 and self.model_name != "densenet"):
