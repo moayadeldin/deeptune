@@ -367,7 +367,6 @@ python -m evaluators.vision.evaluate \
   --<model>_version <model_variant> \
   --batch_size <int> \
   --num_classes <int> \
-  --num_epochs <int> \
   --model_weights <str> \
   --added_layers <int> \
   --embed_size <int> \
@@ -464,11 +463,8 @@ After using DeepTune to apply transfer learning on one of the models the package
 
 The following is the generic CLI structure of running DeepTune for embeddings extraction of image datasets:
 
-
-python -m embed.vision.embed --df "H:\john-pull-request\data_splits_20250803_1252\test_split.parquet" --mode cls --num_classes 2 --out "H:\john-pull-request" --model_version siglip --model_weights "H:\deeptune-beta\deeptune_results\train_output_PEFT-siglip_20250725_2223\custom_siglip_model.pt" --use_case peft --added_layers 2 --embed_size 1000 --batch_size 4
-
-
-``` python -m embed.vision.embed \
+``` 
+python -m embed.vision.embed \
   --df <path_to_df> \
   --batch_size <int> \
   --num_classes <int> \
@@ -479,8 +475,6 @@ python -m embed.vision.embed --df "H:\john-pull-request\data_splits_20250803_125
   --embed_size <int> \
   --mode <cls_or_reg> \
   --use_case <finetuned_or_pretrained_or_peft> \
-  [--use-peft] \
-  [--freeze-backbone]
 ```
 
 The `--use_case` switch specifies on which use case you want to use DeepTune for:
@@ -509,9 +503,8 @@ The process of Embeddings Extraction with text datasets would actually be the sa
 The following is the generic CLI structure of running DeepTune for embeddings extraction of text datasets:
 
 
-python -m embed.nlp.gpt2_embeddings --df "H:\Moayad\deeptune-scratch\deeptune_results\DATASETS_PARQUET\data_splits_20250803_2007\test_split.parquet" --mode cls --out "H:\john-pull-request" --batch_size 8 --model_weights "H:\john-pull-request\trainval_output_GPT2_20250803_2319"
-
-``` python -m embed.nlp.<gpt2/multilingualbert>_embeddings \
+``` 
+python -m embed.nlp.<gpt2/multilingualbert>_embeddings \
   --batch_size <int> \
   --num_classes <int> \
   --df <path_to_df> \
@@ -519,8 +512,6 @@ python -m embed.nlp.gpt2_embeddings --df "H:\Moayad\deeptune-scratch\deeptune_re
   --added_layers <int> \
   --embed_size <int> \
   --use_case <finetuned_or_pretrained_or_peft> \
-  [--use-peft] \
-  [--freeze-backbone]
 ```
 
 **Notes:**
