@@ -39,7 +39,6 @@ def main():
     test_dataset_path = split_dir / f"test_split.parquet"
     
     df = pd.read_parquet(DF_PATH)
-    # df = df[:10]
     split_dir.mkdir(parents=True, exist_ok=True)
 
     train_data: DataFrame
