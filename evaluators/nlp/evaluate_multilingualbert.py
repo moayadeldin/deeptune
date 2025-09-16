@@ -14,8 +14,8 @@ import torch.nn as nn
 import json
 import logging
 import options
-
-
+import time
+from utils import save_process_times
 from cli import DeepTuneVisionOptions
 from pathlib import Path
 from options import UNIQUE_ID, DEVICE, NUM_WORKERS, PERSIST_WORK, PIN_MEM
@@ -72,6 +72,7 @@ def main():
     all_predictions = []
     all_probs = []
 
+    start_time = time.time()
     model.eval()
     with torch.no_grad():
         for _, (encoding, labels) in test_pbar:
@@ -130,6 +131,10 @@ def main():
 
     with open(TEST_OUTPUT_DIR / "full_metrics.json", 'w') as f:
         json.dump(metrics_dict, f, indent=4)
+        
+    end_time = time.time()
+    total_time = end_time - start_time
+    save_process_times(epoch_times=1, total_duration=total_time, outdir=TEST_OUTPUT_DIR, process="evaluation")
 
     
 if __name__ == "__main__":

@@ -136,3 +136,20 @@ def set_seed(use_fixed_seed: bool) -> None:
         fixed_seed(SEED)
         warnings.warn('This will set a random seed for different initialization affecting Deeptune, inclduing weights and datasets splits.', category=UserWarning)
         warnings.warn("This is liable to increase variability across consecutive runs of DeepTune.", category=UserWarning)
+        
+def save_process_times(epoch_times, total_duration, outdir,process):
+    """
+    Save all epoch durations and total duration to a JSON file.
+
+    Parameters:
+    - epoch_times: list of dicts, each with 'epoch' and 'duration_seconds'
+    - total_duration: float, total training time in seconds
+    - outdir: Path object or string representing output directory
+    """
+    results = {
+        "epochs": epoch_times,
+        "total_duration_seconds": total_duration
+    }
+    out_path = Path(outdir) / f"{process}_details.json"
+    with open(out_path, "w") as f:
+        json.dump(results, f, indent=4)

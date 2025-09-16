@@ -9,12 +9,12 @@ import options
 import pandas as pd
 from pathlib import Path
 from helpers import load_finetunedbert_model
-
+import time
 from pathlib import Path
 from options import UNIQUE_ID, DEVICE, NUM_WORKERS, PERSIST_WORK, PIN_MEM
 from embed.vision.custom_embed_siglip_handler import embed_with_siglip
 from cli import DeepTuneVisionOptions
-from utils import MODEL_CLS_MAP, PEFT_MODEL_CLS_MAP, RunType
+from utils import MODEL_CLS_MAP, PEFT_MODEL_CLS_MAP, RunType, save_process_times
 
 
 """
@@ -57,6 +57,8 @@ def main():
     else:
         raise ValueError('There is no third option other than ["finetuned", "peft"]')
 
+    start_time = time.time()
+    
     # load the model, the tokenizer and the dataset.
     _,tokenizer = load_finetunedbert_model(MODEL_WEIGHTS)
     model = model.to(DEVICE)
@@ -107,6 +109,10 @@ def main():
     cols = [f"embed{i:04d}" for i in range(p)]
     df_embed = pd.DataFrame(all_embeddings.numpy(), columns=cols)
     df_embed["target"] = np.array(all_labels)
+    
+    end_time = time.time()
+    total_time = end_time - start_time
+    save_process_times(epoch_times=1, total_duration=total_time, outdir=EMBED_OUTPUT, process="embedding")
     
     return df_embed
             

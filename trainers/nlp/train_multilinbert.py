@@ -13,6 +13,8 @@ import options
 import logging
 from helpers import PerformanceLogger
 import sys
+import time
+from utils import save_process_times
 
 from cli import DeepTuneVisionOptions
 from pathlib import Path
@@ -131,10 +133,15 @@ class BERTrainer:
 
     def train(self):
         
+        total_time = 0
+        epoch_times = []
+        
         for epoch in range(self.num_epochs):
             
             # set the model to training mode
             self.model.train()
+            
+            epoch_start = time.time()
             
             # initialize metrics tracking values for training
             running_loss = 0.0
@@ -188,8 +195,14 @@ class BERTrainer:
                 
                 epoch_loss = running_loss / len(self.train_loader)
                 epoch_accuracy = 100. * correct_predictions / total_predictions
-                        
-                        
+                
+                epoch_end = time.time()
+                epoch_duration = epoch_end - epoch_start
+                total_time += epoch_duration
+
+            # record the time taken for the current epoch
+            epoch_times.append({"epoch": epoch + 1, "duration_seconds": epoch_duration})
+
             # update the logger
             self.logger.info(
                 f"Epoch {epoch + 1}/{self.num_epochs}, Training Loss: {running_loss / len(self.train_loader)}, Training Accuracy: {epoch_accuracy}"
@@ -212,6 +225,9 @@ class BERTrainer:
                 
                 
             self.performance_logger.save_to_csv(f"{self.trainval_output_dir}/training_log.csv")
+    
+        # record the total training time at the end
+        save_process_times(epoch_times, total_time, self.trainval_output_dir,"training")
             
     def validate(self):
         

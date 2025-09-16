@@ -10,7 +10,8 @@ from datasets.image_datasets import ParquetImageDataset
 from options import DEVICE, UNIQUE_ID, NUM_WORKERS, PERSIST_WORK, PIN_MEM
 from src.vision.siglip import CustomSiglipModel, CustomSigLIPWithPeft, load_siglip_processor_offline, load_siglip_variant
 
-from utils import UseCase
+from utils import UseCase,save_process_times
+import time
 
 
 def embed_with_siglip(
@@ -47,8 +48,12 @@ def embed_with_siglip(
         persistent_workers=PERSIST_WORK
     )
     
-    df = get_vision_embeddings(model, loader, device)
+    start_time = time.time()
     
+    df = get_vision_embeddings(model, loader, device)
+    end_time = time.time()
+    total_time = end_time - start_time
+    save_process_times(epoch_times=1, total_duration=total_time, outdir=output, process="embedding")
     df.to_parquet(output, index=False)
     print(f"Saved image embeddings to {output}.")
 

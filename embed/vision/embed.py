@@ -17,9 +17,9 @@ from datasets.image_datasets import ParquetImageDataset
 from options import UNIQUE_ID, DEVICE, NUM_WORKERS, PERSIST_WORK, PIN_MEM
 from embed.vision.custom_embed_siglip_handler import embed_with_siglip
 from helpers import transformations
-
+import time
 from cli import DeepTuneVisionOptions
-from utils import MODEL_CLS_MAP, PEFT_MODEL_CLS_MAP, RunType
+from utils import MODEL_CLS_MAP, PEFT_MODEL_CLS_MAP, RunType,save_process_times
 
 
 def main():
@@ -69,6 +69,8 @@ def main():
         mode=MODE,
         model_path=MODEL_PATH,
     )
+    
+    start_time = time.time()
 
     adjusted_model = adjust_vision_model(model, MODEL_ARCHITECTURE, USE_CASE, ADDED_LAYERS)
 
@@ -79,6 +81,10 @@ def main():
     combined_df = embedding_model(df, BATCH_SIZE)
 
     combined_df.to_parquet(EMBED_FILE, index=False)
+    
+    end_time = time.time()
+    total_time = end_time - start_time
+    save_process_times(epoch_times=1, total_duration=total_time, outdir=EMBED_OUTPUT,process="embedding")
 
     args.save_args(EMBED_OUTPUT)
 
@@ -268,6 +274,7 @@ class EmbeddingModel:
         return self._extract_embeddings(data_loader)
 
     def _extract_embeddings(self, data_loader: DataLoader) -> DataFrame:
+        
         self.model.to(self.device)
 
         embeddings, labels = self._extract_embeddings_labels(data_loader)

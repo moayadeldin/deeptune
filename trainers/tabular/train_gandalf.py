@@ -1,3 +1,4 @@
+import time
 from src.tabular.gandalf import GANDALF
 from pytorch_tabular.config import (
     DataConfig,
@@ -11,7 +12,7 @@ import options
 import os
 from helpers import PerformanceLogger,PerformanceLoggerCallback
 from pathlib import Path
-
+from utils import save_process_times
 from options import UNIQUE_ID, DEVICE, NUM_WORKERS, PERSIST_WORK, PIN_MEM
 from embed.vision.custom_embed_siglip_handler import embed_with_siglip
 from cli import DeepTuneVisionOptions
@@ -82,6 +83,7 @@ def main():
 
     optimizer_config = OptimizerConfig()
 
+    start_time = time.time()
     trainer_config = TrainerConfig(
         batch_size=BATCH_SIZE,
         max_epochs=NUM_EPOCHS,
@@ -109,6 +111,9 @@ def main():
     )    
 
     tabular_model.fit(train=train_dataset, validation=val_dataset,callbacks=[callback])
+    end_time = time.time()
+    total_time = end_time - start_time
+    save_process_times(epoch_times="For GANDALF we only track total time", total_duration=total_time, outdir=TRAINVAL_OUTPUT_DIR, process="training")
     tabular_model.save_model(TRAINVAL_OUTPUT_DIR/"GANDALF_model")
     print(f"Model saved to {TRAINVAL_OUTPUT_DIR}")
     performance_logger.save_to_csv(f"{TRAINVAL_OUTPUT_DIR}/training_log.csv")

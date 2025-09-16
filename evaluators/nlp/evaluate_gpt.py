@@ -12,11 +12,12 @@ import torch.nn as nn
 import logging
 import json
 import options
-
+import time
 from cli import DeepTuneVisionOptions
 from pathlib import Path
 from options import UNIQUE_ID, DEVICE, NUM_WORKERS, PERSIST_WORK, PIN_MEM
 from utils import get_model_cls,RunType,set_seed
+from utils import save_process_times
 from datasets.text_datasets import TextDataset
 
 def main():
@@ -70,8 +71,10 @@ def main():
     all_predictions = []
     all_probs = []
 
+    start_time = time.time()
     model.eval()
     with torch.no_grad():
+    
         for _, (encoding, labels) in test_pbar:
             input_ids = encoding['input_ids'].to(DEVICE)
             attention_mask = encoding['attention_mask'].to(DEVICE)
@@ -119,6 +122,10 @@ def main():
 
     with open(TEST_OUTPUT_DIR / "full_metrics.json", 'w') as f:
         json.dump(metrics_dict, f, indent=4)
+        
+    end_time = time.time()
+    total_time = end_time - start_time
+    save_process_times(epoch_times=1, total_duration=total_time, outdir=TEST_OUTPUT_DIR, process="evaluation")
 
     
 if __name__ == "__main__":

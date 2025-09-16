@@ -7,7 +7,7 @@ import torch
 import torch.nn as nn
 import torch.optim as optim
 import warnings
-
+import time
 from pathlib import Path
 from torch.amp import autocast, GradScaler
 from torch.utils.data import DataLoader
@@ -23,7 +23,7 @@ from src.vision.siglip import (
 )
 from helpers import PerformanceLogger
 
-from utils import UseCase
+from utils import UseCase, save_process_times
 
 
 def train_siglip(
@@ -125,7 +125,11 @@ class SiglipTrainer:
     
     def train(self):
         
+        epoch_times = []
+        total_time = 0
         for epoch in range(self.num_epochs):
+            
+            start_time = time.time()
             self.model.train()
             """
             The following arguments are as follows:
@@ -176,6 +180,13 @@ class SiglipTrainer:
             # now we compute average loss and accuracy for each epoch
             epoch_loss = running_loss / len(self.train_loader)
             epoch_accuracy = 100. * correct_predictions / total_predictions
+            
+            epoch_end = time.time()
+            epoch_duration = epoch_end - start_time
+            total_time += epoch_duration
+
+            # record the time taken for the current epoch
+            epoch_times.append({"epoch": epoch + 1, "duration_seconds": epoch_duration})
                     
             self.logger.info(
                 f"Epoch {epoch + 1}/{self.num_epochs}, Training Loss: {running_loss / len(self.train_loader)}, Training Accuracy: {epoch_accuracy}"
@@ -206,6 +217,8 @@ class SiglipTrainer:
         }
         with open(self.outdir / "custom_siglip_config.json", "w") as f:
             json.dump(config, f)
+            
+        save_process_times(epoch_times, total_time, self.output_dir,"training")
                     
     def validate(self):
         """
