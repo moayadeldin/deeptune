@@ -8,7 +8,8 @@ import sys
 import logging
 from helpers import PerformanceLogger
 from options import DEVICE, TRAINVAL_OUTPUT_DIR
-
+import time
+from utils import save_process_times
 import functools
 print = functools.partial(print, flush=True)
 
@@ -70,10 +71,14 @@ class Trainer:
         self.logger = logging.getLogger()
 
     def train(self):
-
+                    
+        total_time = 0
+        epoch_times = []
         for epoch in range(self.num_epochs):
 
             self.model.train()
+            epoch_start = time.time()
+            
             
             """
             The following arguments are as follows:
@@ -126,10 +131,16 @@ class Trainer:
                     
                 # update tqdm progress bar
                 train_pbar.set_postfix({"loss": round(running_loss / (i+1),5)})
-
             # update training loss
             epoch_loss = running_loss / len(self.train_loader)
             
+            epoch_end = time.time()
+            epoch_duration = epoch_end - epoch_start
+            total_time += epoch_duration
+
+            # record the time taken for the current epoch
+            epoch_times.append({"epoch": epoch + 1, "duration_seconds": epoch_duration})
+        
             if self.mode == 'cls':
                 
                 """
@@ -155,7 +166,6 @@ class Trainer:
                 val_loss = self.validate()    
             
             self.logger.info(f"Validation loss: {val_loss}")
-            
             if self.performance_logger:
 
                 if self.mode == 'cls':
@@ -181,7 +191,8 @@ class Trainer:
                     )    
                 
                 self.performance_logger.save_to_csv(f"{self.output_dir}/training_log.csv")
-                
+        # record the total training time at the end
+        save_process_times(epoch_times, total_time, self.output_dir,"training")
         
     def validate(self):
         

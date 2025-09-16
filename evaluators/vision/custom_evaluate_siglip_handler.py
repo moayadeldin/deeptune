@@ -9,12 +9,12 @@ from sklearn.metrics import classification_report, roc_auc_score, confusion_matr
 from torch.amp import autocast
 from torch.utils.data import DataLoader
 from tqdm import tqdm
-
+import time
 from datasets.image_datasets import ParquetImageDataset
 from options import UNIQUE_ID, DEVICE, NUM_WORKERS, PERSIST_WORK, PIN_MEM
 from src.vision.siglip import CustomSiglipModel, CustomSigLIPWithPeft, load_siglip_processor_offline, load_siglip_variant
 
-from utils import save_cli_args, UseCase
+from utils import save_cli_args, UseCase, save_process_times
 
 
 def evaluate_siglip(
@@ -87,6 +87,8 @@ class TestTrainer:
         self.logger = logging.getLogger()
         
         self.criterion = nn.CrossEntropyLoss()
+        
+    
     
     def test(self):
         test_accuracy=0.0
@@ -101,7 +103,7 @@ class TestTrainer:
         all_labels=[]
         all_predictions=[]
         all_probs=[]
-        
+        start_time = time.time()
         self.model.eval()
         with torch.no_grad():
             for _, (pixel_values, labels) in test_pbar:
@@ -159,5 +161,9 @@ class TestTrainer:
 
         with open(self.output_dir / "full_metrics.json", 'w') as f:
             json.dump(metrics_dict, f, indent=4)
+            
+        end_time = time.time()
+        total_time = end_time - start_time
+        save_process_times(epoch_times=1, total_duration=total_time, outdir=self.output_dir, process="evaluation")
         
         return metrics_dict

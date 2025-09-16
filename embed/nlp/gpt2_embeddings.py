@@ -10,7 +10,8 @@ from pathlib import Path
 from options import UNIQUE_ID, DEVICE, NUM_WORKERS, PERSIST_WORK, PIN_MEM
 from embed.vision.custom_embed_siglip_handler import embed_with_siglip
 from cli import DeepTuneVisionOptions
-from utils import MODEL_CLS_MAP, PEFT_MODEL_CLS_MAP, RunType
+from utils import MODEL_CLS_MAP, PEFT_MODEL_CLS_MAP, RunType,save_process_times
+import time
 
 def main():
 
@@ -29,6 +30,8 @@ def main():
     EMBED_OUTPUT.mkdir(parents=True, exist_ok=True)
 
     EMBED_FILE = EMBED_OUTPUT / f"{MODEL_STR}_embeddings.parquet"
+    
+    start_time = time.time()
 
     # load the model, the tokenizer and the dataset.
     gpt_model,_ = load_gpt2_model_offline()
@@ -70,6 +73,10 @@ def main():
     all_embeddings = torch.cat(all_embeddings, dim=0)
     embeddings_df = pd.DataFrame(all_embeddings.numpy())
     embeddings_df['label'] = all_labels
+    
+    end_time = time.time()
+    total_time = end_time - start_time
+    save_process_times(epoch_times=1, total_duration=total_time, outdir=EMBED_OUTPUT, process="embedding")
 
 
 # def getting_mean_embeds_without_padding_tokens(inputs, outputs):

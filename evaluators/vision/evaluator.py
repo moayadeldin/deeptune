@@ -3,9 +3,10 @@ import logging
 import sys
 import torch
 import torch.nn as nn
-
+from utils import save_process_times
 from sklearn.metrics import classification_report, roc_auc_score
 from tqdm.auto import tqdm
+import time
 
 from options import DEVICE
 
@@ -53,6 +54,8 @@ class TestTrainer:
         
         
     def test(self, best_model_weights_path=None):
+        
+        start_time = time.time()
         
         # Load the best model weights if they are provided
         
@@ -131,6 +134,11 @@ class TestTrainer:
 
             with open(self.output_dir / "full_metrics.json", 'w') as f:
                 json.dump(metrics_dict, f, indent=4)
+                
+            
+        end_time = time.time()
+        total_time = end_time - start_time
+        save_process_times(epoch_times=1, total_duration=total_time, outdir=self.output_dir, process="evaluation")
 
 
         

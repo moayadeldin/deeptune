@@ -7,12 +7,12 @@ from tqdm import tqdm
 import numpy as np
 from pytorch_tabular import TabularModel
 import torch
-
+import time
 
 from cli import DeepTuneVisionOptions
 from pathlib import Path
 from options import UNIQUE_ID, DEVICE, NUM_WORKERS, PERSIST_WORK, PIN_MEM
-from utils import get_model_cls,RunType,set_seed
+from utils import get_model_cls,RunType,set_seed,save_process_times
 from datasets.text_datasets import TextDataset
 def main():
 
@@ -38,6 +38,8 @@ def main():
     model.model = model.model.to(DEVICE)
     extracted_embeddings = []
     extracted_labels = []
+    
+    start_time = time.time()
 
     for (x_cont, x_cat), labels in tqdm(data_loader):
         new_labels = labels.numpy().tolist()
@@ -62,6 +64,10 @@ def main():
     combined_df = pd.concat([embeddings_df,labels_df],axis=1)
 
     combined_df.to_parquet(TEST_OUTPUT_DIR,index=False)
+    
+    end_time = time.time()
+    total_time = end_time - start_time
+    save_process_times(epoch_times=1, total_duration=total_time, outdir=TEST_OUTPUT_DIR, process="embedding")
 
 if __name__ == "__main__":
     

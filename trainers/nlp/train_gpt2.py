@@ -11,8 +11,9 @@ import logging
 from helpers import PerformanceLogger,get_args
 import sys
 from src.nlp.gpt2 import AdjustedGPT2Model
-
+import time
 from cli import DeepTuneVisionOptions
+from utils import save_process_times
 from pathlib import Path
 from options import UNIQUE_ID, DEVICE, NUM_WORKERS, PERSIST_WORK, PIN_MEM
 from utils import get_model_cls,RunType,set_seed
@@ -122,7 +123,14 @@ class GPTrainer:
         self.performance_logger = PerformanceLogger(f'{outdir}')
         
     def train(self):
+        
+        total_time = 0
+        epoch_times = []
+        
         for epoch in range(self.num_epochs):
+            
+            start_time = time.time()
+            
             self.model.train()
 
             running_loss = 0.0
@@ -160,6 +168,14 @@ class GPTrainer:
 
             epoch_loss = running_loss / len(self.train_loader)
             epoch_accuracy = 100. * correct_predictions / total_predictions
+            
+                        
+            epoch_end = time.time()
+            epoch_duration = epoch_end - start_time
+            total_time += epoch_duration
+
+            # record the time taken for the current epoch
+            epoch_times.append({"epoch": epoch + 1, "duration_seconds": epoch_duration})
 
             self.logger.info(f"Epoch {epoch + 1}/{self.num_epochs}, Training Loss: {epoch_loss:.4f}, Training Accuracy: {epoch_accuracy:.2f}%")
 
@@ -175,6 +191,8 @@ class GPTrainer:
             )
 
             self.performance_logger.save_to_csv(f"{self.outdir}/training_log.csv")
+        # record the total training time at the end
+        save_process_times(epoch_times, total_time, self.trainval_output_dir,"training")
 
     def validate(self):
         self.model.eval()
