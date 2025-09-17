@@ -42,14 +42,13 @@ def main():
 
     texts = df['text'].tolist()
     labels = df['label'].tolist()
+
+    others = df.drop(columns=['text','label'], errors='ignore')
     
     adjusted_model = AdjustedGPT2Model(gpt_model=gpt_model).to(DEVICE)
         
     device = torch.device(DEVICE)
     adjusted_model.to(device)
-    
-    df.to_parquet(EMBED_FILE, index=False)
-    print(f"Saved text embeddings to {OUT}")
 
     all_embeddings = []
     all_labels = []
@@ -73,11 +72,17 @@ def main():
     all_embeddings = torch.cat(all_embeddings, dim=0)
     embeddings_df = pd.DataFrame(all_embeddings.numpy())
     embeddings_df['label'] = all_labels
-    
+    embeddings_df = embeddings_df.reset_index(drop=True)
+    others = others.reset_index(drop=True)
+    embeddings_df = pd.concat([embeddings_df, others], axis=1)
     end_time = time.time()
     total_time = end_time - start_time
     save_process_times(epoch_times=1, total_duration=total_time, outdir=EMBED_OUTPUT, process="embedding")
 
+    
+    embeddings_df.to_parquet(EMBED_FILE, index=False)
+    print(f"Saved text embeddings to {OUT}")
+    
 
 # def getting_mean_embeds_without_padding_tokens(inputs, outputs):
     

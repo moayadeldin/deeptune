@@ -156,7 +156,7 @@ class BERTrainer:
             )
             
             # iterate over the training dataset
-            for batch_idx, (encoding,labels) in enumerate(train_pbar):
+            for batch_idx, (encoding,labels, _) in enumerate(train_pbar):
                 
                 # move the input to GPU 
                 input_ids = encoding['input_ids'].to(DEVICE)
@@ -245,7 +245,7 @@ class BERTrainer:
         
         with torch.no_grad():
             
-            for _, (encoding,labels) in val_pbar:
+            for _, (encoding,labels, _) in val_pbar:
                 
                 # set the model to evaluation mode
                 self.model.eval()

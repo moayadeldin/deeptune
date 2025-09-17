@@ -39,6 +39,7 @@ def main():
     test_dataset_path = split_dir / f"test_split.parquet"
     
     df = pd.read_parquet(DF_PATH)
+    # df = df[:10]
     split_dir.mkdir(parents=True, exist_ok=True)
 
     train_data: DataFrame
@@ -47,6 +48,11 @@ def main():
 
     train_data, temp_data = train_test_split(df, train_size=TRAIN_SIZE, random_state=SEED)
     val_data, test_data = train_test_split(temp_data, test_size=(TEST_SIZE / (VAL_SIZE + TEST_SIZE)), random_state=SEED)
+
+
+    for part in (train_data,val_data,test_data):
+        part["indices"] = part.index
+        part.reset_index(drop=True, inplace=True)
 
     train_data.to_parquet(train_dataset_path, index=False)
     val_data.to_parquet(val_dataset_path, index=False)

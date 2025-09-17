@@ -44,7 +44,7 @@ def main():
     EMBED_OUTPUT = (OUT / f"embed_output_{MODEL_STR}_{UNIQUE_ID}") if OUT else Path(f"deeptune_results/embed_output_{MODEL_STR}_{UNIQUE_ID}")
     EMBED_OUTPUT.mkdir(parents=True, exist_ok=True)
 
-    EMBED_FILE = EMBED_OUTPUT / f"{MODEL_STR}_{MODE}_embeddings.parquet"
+    EMBED_FILE = EMBED_OUTPUT / f"{MODEL_STR}_{USE_CASE}_embeddings.parquet"
     print(USE_CASE)
 
     if USE_CASE == 'finetuned':
@@ -67,9 +67,8 @@ def main():
 
     texts = df['text'].tolist()
     labels = df['label'].tolist()
-    
-    df.to_parquet(EMBED_FILE, index=False)
-    print(f"Saved text embeddings to {OUT}")
+
+    others = df.drop(columns=['text','label'],errors='ignore')
 
 
     all_embeddings=[]
@@ -108,8 +107,15 @@ def main():
     p = all_embeddings.shape[1]
     cols = [f"embed{i:04d}" for i in range(p)]
     df_embed = pd.DataFrame(all_embeddings.numpy(), columns=cols)
-    df_embed["target"] = np.array(all_labels)
-    
+    df_embed["label"] = np.array(all_labels)
+    df_embed = df_embed.reset_index(drop=True)
+    others = others.reset_index(drop=True)
+    df_embed = pd.concat([df_embed, others], axis=1)
+
+    df_embed.to_parquet(EMBED_FILE, index=False)
+    print(f"Saved text embeddings to {OUT}")
+
+
     end_time = time.time()
     total_time = end_time - start_time
     save_process_times(epoch_times=1, total_duration=total_time, outdir=EMBED_OUTPUT, process="embedding")

@@ -78,7 +78,7 @@ class TestTrainer:
         all_probs=[]
 
         with torch.no_grad():
-            for _, (inputs, labels) in test_pbar:
+            for i, (inputs, labels,*_) in test_pbar:
                 
                 self.model.eval()
                 if isinstance(self.criterion, nn.MSELoss): # if regression then we must rehape the target tensor    

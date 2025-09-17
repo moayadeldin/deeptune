@@ -147,7 +147,7 @@ class SiglipTrainer:
                 total=len(self.train_loader),
             )
 
-            for batch_idx, (pixel_values, labels) in train_pbar:
+            for batch_idx, (pixel_values, labels, _) in train_pbar:
                 # make sure the inputs and labels on GPU
                 pixel_values = pixel_values.to(self.device)
                 labels = labels.to(self.device)
@@ -218,7 +218,7 @@ class SiglipTrainer:
         with open(self.outdir / "custom_siglip_config.json", "w") as f:
             json.dump(config, f)
             
-        save_process_times(epoch_times, total_time, self.output_dir,"training")
+        save_process_times(epoch_times, total_time, self.outdir,"training")
                     
     def validate(self):
         """
@@ -235,7 +235,7 @@ class SiglipTrainer:
         self.model.eval()
         
         with torch.no_grad():
-            for _, (pixel_values, labels) in val_pbar:
+            for _, (pixel_values, labels,_) in val_pbar:
                 
                 
                 pixel_values,labels = pixel_values.to(self.device), labels.to(self.device)

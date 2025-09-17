@@ -21,6 +21,7 @@ def embed_with_siglip(
     added_layers: int,
     embed_size: int,
     use_case: str,
+    outdir: Path,
     output: Path,
     device: torch.device
 ):
@@ -53,7 +54,7 @@ def embed_with_siglip(
     df = get_vision_embeddings(model, loader, device)
     end_time = time.time()
     total_time = end_time - start_time
-    save_process_times(epoch_times=1, total_duration=total_time, outdir=output, process="embedding")
+    save_process_times(epoch_times=1, total_duration=total_time, outdir=outdir, process="embedding")
     df.to_parquet(output, index=False)
     print(f"Saved image embeddings to {output}.")
 
@@ -71,13 +72,16 @@ def get_vision_embeddings(
    
     all_embeddings = []
     all_labels = []
+    all_other_cols = []
    
     with torch.no_grad():
-        for pixel_values, label in tqdm(
+        for batch in tqdm(
             loader,
             total=len(loader),
             desc="Embedding images"
         ):
+            
+            pixel_values, label, *extras = batch
             pixel_values = pixel_values.to(device)
 
             with autocast(device_type=device.type):
@@ -85,6 +89,16 @@ def get_vision_embeddings(
             
             all_embeddings.append(image_embeddings.cpu())
             all_labels.append(label.item())
+
+            if extras:
+                dict_extras = extras[0]
+                batch_size = len(loader)
+                for idx in range(batch_size):
+                    sample_extras = {k: v[idx].item() if hasattr(v, 'item') else v[idx]
+                            for k, v in dict_extras.items()}
+                    all_other_cols.append(sample_extras)
+
+            
    
     embeddings = torch.cat(all_embeddings)
     

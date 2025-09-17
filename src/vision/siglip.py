@@ -179,6 +179,8 @@ def load_siglip_variant(
     if model_weights is not None:
         print(f"Loading model weights from {model_weights} onto device {device}.")
         model.load_state_dict(torch.load(model_weights, map_location=device))
+    else:
+        raise Warning('You did not load the fine-tuned weights for siglip. This will lead to use weights of the base model instead. ')
     
     return model
 
