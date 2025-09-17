@@ -39,12 +39,15 @@ class ParquetImageDataset(Dataset):
         return len(self.image_bytes)
 
     def __getitem__(self, idx):
+
+        row = self.data.iloc[idx]
         """
         Loads and processes the image and label at a given index idx.
         """
-        img_bytes = self.image_bytes[idx]
+        img_bytes = row['images']
         img = Image.open(io.BytesIO(img_bytes)).convert('RGB')
-        label = torch.tensor(self.labels[idx], dtype=torch.long) if self.has_labels else None
+        label = torch.tensor(row['labels'], dtype=torch.long) if self.has_labels else None
+        extras = row.drop(labels=['images', 'labels'], errors='ignore').to_dict()
 
         if self.processor is not None:
             processed = self.processor(
@@ -54,11 +57,17 @@ class ParquetImageDataset(Dataset):
             )
             # Remove the extra batch dimension added by the processor
             pixel_values = processed["pixel_values"].squeeze(0)  # Important: squeeze here
-            return pixel_values, label
+            if extras:
+                return pixel_values, label,extras
+            else:
+                return pixel_values, label
         else:
             if self.transform:
                 img = self.transform(img)
-            return img, label
+            if extras:
+                return img, label, extras
+            else:
+                return img,label
         
     
     

@@ -52,6 +52,7 @@ def main():
             added_layers=ADDED_LAYERS,
             embed_size=EMBED_SIZE,
             use_case=USE_CASE,
+            outdir=EMBED_OUTPUT,
             output=EMBED_FILE,
             device=DEVICE,
         )
@@ -277,7 +278,7 @@ class EmbeddingModel:
         
         self.model.to(self.device)
 
-        embeddings, labels = self._extract_embeddings_labels(data_loader)
+        embeddings, labels, extracted_other_cols = self._extract_embeddings_labels(data_loader)
 
         print(f"The shape of the embeddings matrix in the dataset is {embeddings.shape}")
 
@@ -287,8 +288,14 @@ class EmbeddingModel:
             return embeddings_df
 
         labels_df = pd.DataFrame(labels, columns=["label"])
+        other_cols_df = pd.DataFrame(extracted_other_cols) if extracted_other_cols else None
 
-        combined_df = pd.concat([embeddings_df, labels_df], axis=1)
+        if other_cols_df is not None:
+             combined_df = pd.concat([embeddings_df, labels_df, other_cols_df], axis=1)
+
+        else:
+             combined_df = pd.concat([embeddings_df, labels_df], axis=1)
+             
         return combined_df
 
     def _extract_embeddings_labels(self, data_loader: DataLoader) -> tuple[np.ndarray, list]:
@@ -305,12 +312,14 @@ class EmbeddingModel:
         """
         extracted_labels = []
         extracted_embeddings = []
+        extracted_other_cols = []
 
         self.model.eval()
         self.model = self.model.to(DEVICE)
 
         with torch.no_grad():
-            for data, labels in tqdm(data_loader):
+            for batch in tqdm(data_loader):
+                data, labels, *extras = batch
                 data = data.to(DEVICE)
             
                 # If the added layers is one and we want to extract the same exact embedding features as if the added layers is zero we should handle this explicitly
@@ -323,11 +332,20 @@ class EmbeddingModel:
 
                 if labels is not None:
                     extracted_labels += labels.numpy().tolist()
+                if extras:
+                    # extras is a list of dicts, take the first dict element
+                    dict_extras = extras[0]  
+                    batch_size = len(data)
+                    for idx in range(batch_size):
+                        sample_extras = {k: v[idx].item() if hasattr(v, 'item') else v[idx]
+                                    for k, v in dict_extras.items()}
+                        extracted_other_cols.append(sample_extras)
 
         extracted_embeddings = np.vstack(extracted_embeddings)
         labels_array = extracted_labels if len(extracted_labels) > 0 else None
-        return extracted_embeddings, labels_array
+        return extracted_embeddings, labels_array, extracted_other_cols
 
 
 if __name__ == "__main__":
+
     main()

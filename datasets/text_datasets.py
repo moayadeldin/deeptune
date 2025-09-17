@@ -40,13 +40,16 @@ class TextDataset(Dataset):
         return len(self.texts)
     
     def __getitem__(self, idx):
+
+        row = self.data.iloc[idx]
         
         """
         Loads and processes the image and label at a given index idx.
         """
         
-        text = self.texts[idx]
-        label = self.labels[idx]
+        text = row['text']
+        label = row['label']
+        extras = row.drop(labels=['text','label'],errors='ignore').to_dict()
         
         encoding = self.tokenizer(
             text,
@@ -58,6 +61,8 @@ class TextDataset(Dataset):
         
         encoding = {key: val.squeeze(0) for key, val in encoding.items()}
         
-        
-        return encoding, torch.tensor(label, dtype=torch.long)
+        if extras:
+            return encoding, torch.tensor(label, dtype=torch.long), extras
+        else:
+            return encoding, torch.tensor(label, dtype=torch.long)
     

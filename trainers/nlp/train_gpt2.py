@@ -8,7 +8,7 @@ import torch
 import torch.optim as optim
 import options
 import logging
-from helpers import PerformanceLogger,get_args
+from helpers import PerformanceLogger
 import sys
 from src.nlp.gpt2 import AdjustedGPT2Model
 import time
@@ -143,7 +143,7 @@ class GPTrainer:
                 desc=f"Epoch {epoch+1}/{self.num_epochs}"
             )
 
-            for batch_idx, (encoding, labels) in train_pbar:
+            for batch_idx, (encoding, labels, _) in train_pbar:
                 input_ids = encoding['input_ids'].to(DEVICE)
                 attention_mask = encoding['attention_mask'].to(DEVICE)
                 labels = labels.to(DEVICE)
@@ -192,7 +192,7 @@ class GPTrainer:
 
             self.performance_logger.save_to_csv(f"{self.outdir}/training_log.csv")
         # record the total training time at the end
-        save_process_times(epoch_times, total_time, self.trainval_output_dir,"training")
+        save_process_times(epoch_times, total_time, self.outdir,"training")
 
     def validate(self):
         self.model.eval()
@@ -208,7 +208,7 @@ class GPTrainer:
         )
 
         with torch.no_grad():
-            for _, (encoding, labels) in val_pbar:
+            for _, (encoding, labels, _) in val_pbar:
                 input_ids = encoding['input_ids'].to(DEVICE)
                 attention_mask = encoding['attention_mask'].to(DEVICE)
                 labels = labels.to(DEVICE)

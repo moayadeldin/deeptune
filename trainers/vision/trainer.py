@@ -93,7 +93,7 @@ class Trainer:
             total_predictions=0
             train_pbar = tqdm(enumerate(self.train_loader), total=len(self.train_loader))
 
-            for i, (inputs, labels) in train_pbar:
+            for i, (inputs, labels,*_) in train_pbar:
                 
                 # make sure the inputs and labels on GPU
                 
@@ -212,7 +212,7 @@ class Trainer:
         
         with torch.no_grad():
             
-            for _, (input, labels) in val_pbar:
+            for i, (input, labels,*_) in val_pbar:
                 
                 # set the model to evaluation mode
                 self.model.eval()

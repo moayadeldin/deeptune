@@ -106,7 +106,7 @@ class TestTrainer:
         start_time = time.time()
         self.model.eval()
         with torch.no_grad():
-            for _, (pixel_values, labels) in test_pbar:
+            for _, (pixel_values, labels, _) in test_pbar:
                 
                 pixel_values, labels = pixel_values.to(self.device), labels.to(self.device)
 
