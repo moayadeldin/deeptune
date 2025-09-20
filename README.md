@@ -343,6 +343,7 @@ Since DeepTune currently supports only two models for text classification, the w
 
 **Notes**: 
 > GPT2 model does not support PeFT right now in DeepTune.
+
 > There is no need to specify the `--added_layers` and `--embed_size` switches with using GPT2 as they are already statically fixed due to implementation constraints.
 
 #### Tabular
@@ -350,10 +351,6 @@ Since DeepTune currently supports only two models for text classification, the w
 Currently, DeepTune offers only support for GANDALF (Gated Adaptive Network for Deep Automated Learning of Features) model to provide predictions on your own tabular data. You can read more about GANDALF through the paper [here](https://arxiv.org/abs/2207.08548).
 
 The generic CLI workflow for applying GANDALF in DeepTune requires specifying certain columns before training can begin, which is mainly determining the continuous columns in your dataset and the categorical columns as an input.
-
-The following is the generic CLI structure of running DeepTune for training using GANDALF on tabular data:
-python -m trainers.tabular.train_gandalf --input_dir "H:\Moayad\tabular_data.parquet" --batch_size 1024 --learning_rate 0.0001 --num_epochs 1 --train_size 0.8 --val_size 0.1 --test_size 0.1 --fixed-seed --type classification --tabular_target_column Cover_Type --continuous_cols Elevation Aspect Slope Horizontal_Distance_To_Hydrology Vertical_Distance_To_Hydrology Horizontal_Distance_To_Roadways Hillshade_9am Hillshade_Noon Hillshade_3pm Horizontal_Distance_To_Fire_Points --categorical_cols Wilderness_Area Soil_Type --gflu_stages 6
-
 
 ```
 python -m trainers.tabular.train_gandalf \
@@ -372,6 +369,7 @@ python -m trainers.tabular.train_gandalf \
 
 **Notes**: 
 > Currently, GANDALF implementation does not support transfer learning in the way we commonly applied to images or text above. Instead, it follows the standard training scheme, starting from scratch.
+
 > ``--gflu_stages`` is a hyperparameter related to internal GANDALF working, according to the documentation on [PyTorch Tabular](https://pytorch-tabular.readthedocs.io/en/latest/apidocs_model/#pytorch_tabular.models.GANDALFConfig), it is the number of layers in the feature abstraction layer. The documentation defaults to 6 and we advise the same.
 
 
@@ -390,8 +388,9 @@ output_directory
 - `model_weights.pth`: The fine-tuned model weights (used later for testing).
 - `training_log.csv`: A performance log reporting training and validation accuracies and errors for each epoch.
 
-**Note**: 
+**Notes**: 
 > For text GPT2 and BERT models, instead of the `model_weights.pth` file, you may find a whole subdirectory containing the different weights files.
+
 > For GANDALF, the directory will be named as `trainval_output_<GANDALF>_<mode>_<yyyymmdd_hhmm>` with the weights stored in `GANDALF_model` subdirectory. 
 
 ### 2.2 Using DeepTune for Evaluation
@@ -423,6 +422,7 @@ python -m evaluators.vision.evaluate \
 
 **Notes**:
 > If you used one of the switches `--freeze_backone` or `--use_peft` or both in the previous run, you should use them while doing your evaluation here again.
+
 > You feed the evaluator here the same `--added_layers` and `--embed_size` you used for your previous training run of DeepTune. Otherwise, a mismatch error will occur.
 
 If everything is set correctly, and evaluation is done, you should expect an output in the same format:
