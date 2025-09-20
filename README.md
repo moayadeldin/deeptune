@@ -334,7 +334,37 @@ Since DeepTune currently supports only two models for text classification, the w
 **Note**: 
 > GPT2 model does not support PeFT right now in DeepTune.
 
-After training completes, you may find the results in the directory specified with the `--out` directory. Alternatively, DeepTune will create an output directory named  `deeptune_results` (if it does not already exist). Inside this directory, the results are organized in a subfolder using the following naming convention: `trainval_output_<FINETUNED/PEFT>_<model_version>_<mode>_<yyyymmdd_hhmm>` with the following output:
+#### Tabular
+
+Currently, DeepTune offers only support for GANDALF (Gated Adaptive Network for Deep Automated Learning of Features) model to provide predictions on your own tabular data. You can read more about GANDALF through the paper [here](https://arxiv.org/abs/2207.08548).
+
+The generic CLI workflow for applying GANDALF in DeepTune requires specifying certain columns before training can begin, which is mainly determining the continuous columns in your dataset and the categorical columns as an input.
+
+The following is the generic CLI structure of running DeepTune for training using GANDALF on tabular data:
+python -m trainers.tabular.train_gandalf --input_dir "H:\Moayad\tabular_data.parquet" --batch_size 1024 --learning_rate 0.0001 --num_epochs 1 --train_size 0.8 --val_size 0.1 --test_size 0.1 --fixed-seed --type classification --tabular_target_column Cover_Type --continuous_cols Elevation Aspect Slope Horizontal_Distance_To_Hydrology Vertical_Distance_To_Hydrology Horizontal_Distance_To_Roadways Hillshade_9am Hillshade_Noon Hillshade_3pm Horizontal_Distance_To_Fire_Points --categorical_cols Wilderness_Area Soil_Type --gflu_stages 6
+
+
+```
+python -m trainers.tabular.train_gandalf \
+  --train_df <path_to_train_df> \
+  --val_df <path_to_val_df> \
+  --batch_size <int> \
+  --num_epochs <int> \
+  --learning_rate <float> \
+  --out <output_path>
+  [--fixed-seed] \
+  --mode <classification_or_regression> \
+  --categorical_cols \
+  --continuous_cols \
+  --gflu_stages
+```
+
+**Notes**: 
+> Currently, GANDALF implementation does not support transfer learning in the way we commonly applied to images or text above. Instead, it follows the standard training scheme, starting from scratch.
+> ``--gflu_stages`` is a hyperparameter related to internal GANDALF working, according to the documentation on [PyTorch Tabular](https://pytorch-tabular.readthedocs.io/en/latest/apidocs_model/#pytorch_tabular.models.GANDALFConfig), it is the number of layers in the feature abstraction layer. The documentation defaults to 6 and we advise the same.
+
+
+After training completes, you may find the results in the directory specified with the `--out` directory. Alternatively, DeepTune will create an output directory named  `deeptune_results` (if it does not already exist). Inside this directory, the results are organized in a subfolder using the following naming convention: `trainval_output_<FINETUNED/PEFT>_<model_version>_<mode>_<yyyymmdd_hhmm>` or ( `trainval_output_<BERT/GPT2>_<yyyymmdd_hhmm>` for text) with the following output:
 
 ```
 output_directory
@@ -350,8 +380,8 @@ output_directory
 - `training_log.csv`: A performance log reporting training and validation accuracies and errors for each epoch.
 
 **Note**: 
-> The text directory in the output will be named as follows: `trainval_output_<BERT/GPT2>_<yyyymmdd_hhmm>`
-
+> For text GPT2 and BERT models, instead of the `model_weights.pth` file, you may find a whole subdirectory containing the different weights files.
+> For GANDALF, the directory will be named as `trainval_output_<GANDALF>_<mode>_<yyyymmdd_hhmm>` with the weights stored in `GANDALF_model` subdirectory. 
 
 ### 2.2 Using DeepTune for Evaluation
 
@@ -380,7 +410,7 @@ python -m evaluators.vision.evaluate \
 
 `` --model_weights <str>`` : Path to your model's weights. It should be `model_weights.pth` you got from the previous DeepTune for training run.
 
-**Note**:
+**Notes**:
 > If you used one of the switches `--freeze_backone` or `--use_peft` or both in the previous run, you should use them while doing your evaluation here again.
 > You feed the evaluator here the same `--added_layers` and `--embed_size` you used for your previous training run of DeepTune. Otherwise, a mismatch error will occur.
 
@@ -452,8 +482,21 @@ For the ``--model_weights`` switch, we feed the whole output directory we got fr
 **Note:**
 > For GPT-2 model, **the switches `--added_layers` and `embed_size` are set by default as we tweaked the model architecture in order to be properly ready for training, so you don't have to set these to a specific input.** More details to follow in further phase of writing the documentation.
 
-### 2.3 Using DeepTune for Embeddings Extraction
 
+### Tabular
+
+The generic CLI structure of running DeepTune for evalaution of text datasets using GANDALF is:
+```
+python -m evaluators.tabular.evaluate_gandalf \
+--eval_df <path_to_dataset> \
+--model_weights <str>
+--out <str>
+```
+
+**Note**:
+> You feed the path to ``GANDALF_model`` subdirectory that you obtained after training as a parameter to ``--model_weights``.
+
+### 2.3 Using DeepTune for Embeddings Extraction
 
 After we trained and evaluated our model, now we need to apply embeddings extraction used our fine-tuned model. Whatever you choose to apply embeddings extraction on is the user's/researcher's choice. However, as we integrate our framework with [df-analyze](https://github.com/stfxecutables/df-analyze) as we show in the next subsection, we choose to apply that for the test set we evaluated our model on.
 
@@ -528,6 +571,9 @@ deeptune_results
     └── cli_arguments.json
     └── full_metrics.json
 ```
+
+**Note**:
+> GANDALF does not support Embeddings Extraction feature, as the tabular features are already represented properly for being processed by classical machine learning approaches.
 
 ### 2.4 [EXTRA] Integration with df-analyze
 
