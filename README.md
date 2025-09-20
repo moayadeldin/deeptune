@@ -328,11 +328,22 @@ If everything is set correctly, you should expect an output in the same format:
 Since DeepTune currently supports only two models for text classification, the way they are called in the CLI differs from that of image models. Apart from this, the CLI structure remains largely the same:
 
 ```
-!python -m trainers.nlp.[train_multilinbert/train_gpt2] --train_df <path_to_train_df> --val_df <path_to_val_df> --model_version resnet18 --batch_size 4 --num_classes 2 --num_epochs 10 --learning_rate 0.0001 --added_layers 2 --embed_size 1000 --mode cls --fixed-seed
+!python -m trainers.nlp.[train_multilinbert/train_gpt2] \
+ --train_df <path_to_train_df> \
+ --val_df <path_to_val_df> \
+--batch_size <int> \
+--num_classes <int> \
+--num_epochs <int> \
+--learning_rate <float> \
+--added_layers <int> \
+--embed_size <int> \ 
+[--fixed-seed]
+[--freeze_backbone]
 ```
 
-**Note**: 
+**Notes**: 
 > GPT2 model does not support PeFT right now in DeepTune.
+> There is no need to specify the `--added_layers` and `--embed_size` switches with using GPT2 as they are already statically fixed due to implementation constraints.
 
 #### Tabular
 
