@@ -626,6 +626,6 @@ If you find this repository helpful, please cite it as follows:
   author = {Moayadeldin Hussain, John Kendall, Jacob Levman},
   title = {DeepTune: Cutting-edge library to automate Computer Vision and Natural Language Processing algorithms.},
   year = {2025},
-  url = {https://github.com/moayadeldin/deeptune-beta},
+  url = {https://github.com/moayadeldin/deeptune},
   version = {1.0.0}
 }
