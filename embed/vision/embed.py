@@ -236,9 +236,9 @@ def adjust_vision_model(model: nn.Module, model_architecture: str, use_case: str
         modules = list(model.children())[:-1]
 
         # unpacking the layers in modules and now it contains the entire model minus the last one.
-        model = nn.Sequential(*modules)
+        model = nn.Sequential(*modules, nn.Flatten(1))
 
-    model.eval()
+        model.eval()
    
     return model
 
