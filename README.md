@@ -571,7 +571,7 @@ python -m embed.nlp.<gpt2/multilingualbert>_embeddings \
 **Notes:**
 > We recall the same note mentioned in Section 2.2 that **the switches `--added_layers` and `embed_size` for GPT-2 model are set by default as we tweaked the model architecture in order to be properly ready for training, so you don't have to set these to a specific input. Also, For the ``--adjusted_<bert/gpt2>_dir`` switch, we feed the whole output directory we got from running DeepTune for training (`output_directory_trainval_<yyyymmdd>_<hhmm>`)**.
 
-> Using text models for embeddings extraction directly with skipping Sections 2.1, and 2.2 (as we may do in images) isn't supported in DeepTune. If you want to extract the embeddings directly, you may use RoBERTa model. Moreover, this version of DeepTune doesn't yet support using peft case for GPT-2. The later part will be added in a future version of DeepTune.
+> This version of DeepTune doesn't yet support using peft case for GPT-2. The later part will be added in a future version of DeepTune.
 
 
 You will find the output directory in the following format format in the specified output path: `embed_output_<PRETRAINED/FINETUNED/PEFT>_<model_version>_<mode>_<yyyymmdd_hhmm>`.

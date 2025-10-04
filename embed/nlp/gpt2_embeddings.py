@@ -20,22 +20,25 @@ def main():
     DF_PATH = args.df
     OUT = args.out
 
-    MODEL_STR = 'GPT2'
+    USE_CASE = args.use_case.value
+    
+    if USE_CASE == 'pretrained':
+        MODEL_STR = 'pretrained_BERT'
+    elif USE_CASE == 'finetuned':
+        MODEL_STR = 'FINETUNED_BERT'
+    else:
+        raise ValueError('There is no third option other than ["finetuned", "pretrained"] For GPT2 in Deeptune (For now)')
 
     MODEL_PATH = args.model_weights
-    # USE_CASE = args.use_case.value
 
     BATCH_SIZE = args.batch_size
-    EMBED_OUTPUT = (OUT / f"embed_output_{MODEL_STR}_{UNIQUE_ID}") if OUT else Path(f"deeptune_results/embed_output_{MODEL_STR}_{UNIQUE_ID}")
-    EMBED_OUTPUT.mkdir(parents=True, exist_ok=True)
-
-    EMBED_FILE = EMBED_OUTPUT / f"{MODEL_STR}_embeddings.parquet"
     
-    start_time = time.time()
-
     # load the model, the tokenizer and the dataset.
     gpt_model,_ = load_gpt2_model_offline()
-    _,tokenizer = load_finetuned_gpt2(MODEL_PATH)
+    if USE_CASE == 'finetuned':
+        _,tokenizer = load_finetuned_gpt2(MODEL_PATH)
+    elif USE_CASE == 'pretrained':
+        gpt_model,tokenizer = load_gpt2_model_offline()
     tokenizer.pad_token = tokenizer.eos_token
 
     df = pd.read_parquet(DF_PATH)
@@ -44,8 +47,19 @@ def main():
     labels = df['label'].tolist()
 
     others = df.drop(columns=['text','label'], errors='ignore')
+
+    if USE_CASE == 'finetuned':
+        adjusted_model = AdjustedGPT2Model(gpt_model=gpt_model).to(DEVICE)
+    elif USE_CASE == 'pretrained':
+        adjusted_model = AdjustedGPT2Model(gpt_model=gpt_model, pretrained=True).to(DEVICE)
     
-    adjusted_model = AdjustedGPT2Model(gpt_model=gpt_model).to(DEVICE)
+
+    EMBED_OUTPUT = (OUT / f"embed_output_{MODEL_STR}_{UNIQUE_ID}") if OUT else Path(f"deeptune_results/embed_output_{MODEL_STR}_{UNIQUE_ID}")
+    EMBED_OUTPUT.mkdir(parents=True, exist_ok=True)
+
+    EMBED_FILE = EMBED_OUTPUT / f"{MODEL_STR}_embeddings.parquet"
+    
+    start_time = time.time()
         
     device = torch.device(DEVICE)
     adjusted_model.to(device)
