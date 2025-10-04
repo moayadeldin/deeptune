@@ -41,10 +41,11 @@ def load_gpt2_model_offline():
     return model, tokenizer
 
 class AdjustedGPT2Model(nn.Module):
-    def __init__(self, gpt_model, freeze_backbone=None, output_dim=1000):
+    def __init__(self, gpt_model, freeze_backbone=None, output_dim=1000, pretrained=False):
         super(AdjustedGPT2Model, self).__init__()
         self.gpt2 = gpt_model
         self.output_dim = output_dim
+        self.pretrained = pretrained
 
         if freeze_backbone:
             for param in self.gpt2.parameters():
@@ -61,10 +62,18 @@ class AdjustedGPT2Model(nn.Module):
 
     def forward(self, input_ids, attention_mask):
         outputs = self.gpt2(input_ids=input_ids, attention_mask=attention_mask)
+
         last_hidden = outputs.last_hidden_state  # (B, T, 768)
+        if self.pretrained:
+
+            mask = attention_mask.unsqueeze(-1).to(dtype=last_hidden.dtype, device=last_hidden.device)  # (B, T, 1)
+            lengths = mask.sum(dim=1).clamp(min=1e-6)  # (B, 1)
+            x = (last_hidden * mask).sum(dim=1) / lengths  # (B, H)
+            return x
+        
         x = last_hidden.transpose(1, 2)
 
-        return self.conv_head(x)  # (B, output_dim)
+        return x  # (B, output_dim)
 
 
 

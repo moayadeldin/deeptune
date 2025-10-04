@@ -1,4 +1,4 @@
-from src.nlp.multilingual_bert import CustomMultilingualBERT
+from src.nlp.multilingual_bert import CustomMultilingualBERT,load_nlp_bert_ml_model_offline
 from src.nlp.multilingual_bert_peft import CustomMultilingualPeftBERT
 from datasets.text_datasets import TextDataset
 import torch
@@ -35,7 +35,12 @@ def main():
     FREEZE_BACKBONE = args.freeze_backbone
     MODEL_WEIGHTS = args.model_weights
 
-    MODEL_STR = 'PEFT-BERT' if USE_CASE == 'peft' else 'BERT'
+    if USE_CASE == 'peft':
+        MODEL_STR = 'PEFT_BERT'
+    elif USE_CASE == 'finetuned':
+        MODEL_STR = 'FINETUNED_BERT'
+    else:
+        MODEL_STR = 'PRETRAINED_BERT'
 
     MODEL_WEIGHTS = args.model_weights
     # USE_CASE = args.use_case.value
@@ -54,13 +59,19 @@ def main():
     elif USE_CASE == 'peft':
         model = CustomMultilingualPeftBERT(NUM_CLASSES,ADDED_LAYERS, EMBED_SIZE,FREEZE_BACKBONE)
         args.use_case = 'finetuned-MultiLingualBERT'
+
+    elif USE_CASE == 'pretrained':
+        model = CustomMultilingualBERT(NUM_CLASSES,ADDED_LAYERS, EMBED_SIZE,FREEZE_BACKBONE,pretrained=True)
     else:
-        raise ValueError('There is no third option other than ["finetuned", "peft"]')
+        raise ValueError('There is no fourth option other than ["finetuned", "peft", "pretrained"]')
 
     start_time = time.time()
     
     # load the model, the tokenizer and the dataset.
-    _,tokenizer = load_finetunedbert_model(MODEL_WEIGHTS)
+    if USE_CASE == 'pretrained':
+        _, tokenizer = load_nlp_bert_ml_model_offline()
+    else:
+        _,tokenizer = load_finetunedbert_model(MODEL_WEIGHTS)
     model = model.to(DEVICE)
 
     df = pd.read_parquet(DF_PATH)

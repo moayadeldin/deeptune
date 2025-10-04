@@ -28,7 +28,7 @@ class CustomMultilingualBERT(nn.Module):
         
     """
     
-    def __init__(self,num_classes,added_layers,embedding_layer,freeze_backbone=None):
+    def __init__(self,num_classes,added_layers,embedding_layer,freeze_backbone=None, pretrained=False):
         
         super(CustomMultilingualBERT,self).__init__()
         
@@ -36,7 +36,7 @@ class CustomMultilingualBERT(nn.Module):
         self.added_layers = added_layers
         self.freeze_backbone = freeze_backbone
         self.embedding_layer = embedding_layer
-        
+        self.pretrained = pretrained
         self.bert = BertModel.from_pretrained('bert-base-multilingual-uncased')
         
         # Check if freeze_backbone true freeze the original model's weights otherwise update all weights.
@@ -82,6 +82,10 @@ class CustomMultilingualBERT(nn.Module):
         )
         
         pooled_output = outputs.pooler_output
+
+        if self.pretrained:
+
+            return pooled_output
         
         if self.added_layers == 1:
             # Directly feed the input to the final added layer.

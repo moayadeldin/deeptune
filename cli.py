@@ -133,7 +133,7 @@ class DeepTuneVisionOptions:
         p = self.parser
         p.add_argument('--df', type=Path, help='PARQUET file containing data.')
         p.add_argument('--eval_df', type=Path, help='PARQUET file containing testing data.')
-        p.add_argument('--model_weights', type=Path, help='Path to model weights.')
+        p.add_argument('--model_weights', required=False, type=Path, help='Path to model weights.')
         p.add_argument(
             '--use_case',
             type=UseCase.parse,
