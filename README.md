@@ -198,13 +198,13 @@ DeepTune gives you also a wide flexible set of options to choose what you think 
 
 > 2. Pre-released version of DeepTune currently doesn't support PEFT for GPT-2.
 
-> 3. Kindly note that DeepTune for images and texts only accepts Parquet files as an input (Time Series datasets are given as CSVs). The parquet file expected is actually containing two columns, If we work with images, then the two columns are [`images`, `labels`] pair. **Images must be in Bytes Format for efficient representation, and labels must be numerically encoded** If we work with text, then the two columns are [`text`, `label`] pair. For text, **Label column must be numerically encoded also.**
+> 3. Kindly note that DeepTune for images and texts only accepts Parquet files as an input (Time Series datasets are given as CSVs). The parquet file expected is actually containing two columns, If we work with images, then the two columns are [`images`, `labels`] pair. **Images must be in Bytes Format for efficient representation, and labels must be numerically encoded**. If we work with text, then the two columns are [`text`, `label`] pair. For text, **Label column must be numerically encoded also.**
 
 ## Getting Started: Your First DeepTune Run
 
 ### 2.0 Splitting Your Dataset
 
-We assume that your dataset formatted as Parquet File will need to be splitted into train/val/test splits as you are going to conduct different experiments with different models using DeepTune. 
+We assume that your dataset formatted as Parquet File will need to be splitted into train/val/test splits as you are going to conduct different experiments with different models using DeepTune. Given that DeepTune expects the labels to be numerically encoded, the `split_dataset` function automatically by default encodes your label column. If you want to disable this functionality, use the `--disable-numerical-encoding` option. 
 
 The following is the generic CLI structure to split the dataset:
 ```
@@ -214,7 +214,8 @@ python -m split_dataset \
   --val_size <float> \
   --test_size <float> \
   --out <path> \
-  --[fixed-seed] 
+  --[fixed-seed] \
+  --[disable-numerical-encoding]
 ```
 
 `` --df <str>`` : Path to dataset to split (must be parquet file).
@@ -228,6 +229,8 @@ python -m split_dataset \
 ``--out <output_path``: Path to the directory where you want to save the results.
 
 ``--fixed-seed``: (Flag) Ensures that a fixed random seed is set for reproducibility.
+
+``--disable-numerical-encoding``: (Flag) Ensures that the default numerical label encoding is disabled for providing the splits.
 
 **Note** :
 > It is important to use the `--fixed-seed` flag to regenerate the same train/val/test splits everytime you run the above command.
