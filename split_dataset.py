@@ -5,7 +5,7 @@ from argparse import ArgumentParser, RawTextHelpFormatter
 from datetime import datetime
 from pandas import DataFrame
 from pathlib import Path
-
+from sklearn.preprocessing import LabelEncoder
 from sklearn.model_selection import train_test_split
 
 from utils import save_cli_args
@@ -29,6 +29,7 @@ def main():
         raise AssertionError(f"The sum of the requested split proportions is {size}, but it must be equal to 1.")
 
     FIXED_SEED = args.fixed_seed
+    DISABLE_NUMERICAL_ENCODING = args.disable_numerical_encoding
     SEED: int = 42 if FIXED_SEED else np.random.randint(low=0, high=1_000)
 
     OUT_DIR: Path = args.out
@@ -39,6 +40,16 @@ def main():
     test_dataset_path = split_dir / f"test_split.parquet"
     
     df = pd.read_parquet(DF_PATH)
+
+    ### NOTE THAT THE LABELS FOR DEEPTUNE MUST BE NUMERICALLY ENCODED ###
+
+    if not DISABLE_NUMERICAL_ENCODING:
+        CLASS_NAMES = df['labels']
+        le = LabelEncoder()
+        le.fit(CLASS_NAMES)
+        df['labels'] = le.transform(df['labels'])
+
+
     # df = df[:10]
     split_dir.mkdir(parents=True, exist_ok=True)
 
@@ -100,6 +111,11 @@ def make_parser() -> ArgumentParser:
         type=Path,
         required=True,
         help="Location and name of the directory to save the three dataset splits."
+    )
+    parser.add_argument(
+        "--disable-numerical-encoding",
+        action="store_true",
+        help="Disable the automatic numerical encoding of the labels' column."
     )
 
     return parser
