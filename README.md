@@ -198,7 +198,7 @@ DeepTune gives you also a wide flexible set of options to choose what you think 
 
 > 2. Pre-released version of DeepTune currently doesn't support PEFT for GPT-2.
 
-> 3. Kindly note that DeepTune for images and texts only accepts Parquet files as an input (Time Series datasets are given as CSVs). The parquet file expected is actually containing two columns, If we work with images, then the two columns are [`images`, `labels`] pair. **Images must be in Bytes Format for efficient representation, and labels must be numerically encoded**. If we work with text, then the two columns are [`text`, `label`] pair. For text, **Label column must be numerically encoded also.**
+> 3. Kindly note that DeepTune for images and texts only accepts Parquet files as an input (Time Series datasets are given as CSVs). The parquet file expected is actually containing two columns, If we work with images, then the two columns are [`images`, `labels`] pair. **Images must be in Bytes Format for efficient representation, and labels must be numerically encoded**. If we work with text, then the two columns are [`text`, `labels`] pair. For text, **label column must be numerically encoded also.**
 
 ## Getting Started: Your First DeepTune Run
 
@@ -245,6 +245,9 @@ output_directory
     └── test_split.parquet
     └── val_split.parquet
 ```
+
+**Note** :
+> For the `test_split.parquet` file, we have included an additional indices column that maps the entry of each test sample to the original dataset, making it easier to track where they are located in `--df` file.
 
 ### 2.1 Using DeepTune for Training
 
@@ -478,14 +481,11 @@ Hence, the generic CLI structure of running DeepTune for evalaution of text data
 ```
 python -m evaluators.nlp.evaluate_<multilingualbert/gpt> \
   --eval_df <path_to_dataset> \
-  --<model>_version <model_variant> \
   --batch_size <int> \
   --num_classes <int> \
-  --num_epochs <int> \
   --model_weights <str> \
   --added_layers <int> \
   --embed_size <int> \
-  --mode <cls_or_reg> \
   --out <output_path> \
   [--use-peft] \
   [--freeze-backbone]

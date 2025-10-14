@@ -90,14 +90,13 @@ class CustomMultilingualBERT(nn.Module):
         if self.added_layers == 1:
             # Directly feed the input to the final added layer.
             logits = self.classifier(pooled_output)
+            return logits
         elif self.added_layers == 2:
             # Directly feed the input to intermediate layer and get the output from intermediate to the final added layer.
             additional = self.additional(pooled_output)
             logits = self.classifier(additional)
+            return logits
             
-                        
-        return logits
-
 
 def download_nlp_bert_ml_model() -> None:
     """Download and save the BERT base multilingual uncased sentiment model locally."""

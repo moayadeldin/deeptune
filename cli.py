@@ -111,7 +111,7 @@ class DeepTuneVisionOptions:
         p.add_argument('--mode', type=str, choices=['reg','cls'], help='Mode: Classification or Regression')
         p.add_argument('--num_classes', type=int, help='Number of classes if the task is regression.')
 
-        p.add_argument('--out', type=Path, help='Destination directory name for results.')
+        p.add_argument('--out', type=Path, required=True, help='Destination directory name for results.')
 
         # Model args
         p.add_argument('--model_version', type=str, help='Model version to use.')

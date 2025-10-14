@@ -143,7 +143,7 @@ class GPTrainer:
                 desc=f"Epoch {epoch+1}/{self.num_epochs}"
             )
 
-            for batch_idx, (encoding, labels, _) in train_pbar:
+            for batch_idx, (encoding, labels, *_) in train_pbar:
                 input_ids = encoding['input_ids'].to(DEVICE)
                 attention_mask = encoding['attention_mask'].to(DEVICE)
                 labels = labels.to(DEVICE)
@@ -208,7 +208,7 @@ class GPTrainer:
         )
 
         with torch.no_grad():
-            for _, (encoding, labels, _) in val_pbar:
+            for _, (encoding, labels, *_) in val_pbar:
                 input_ids = encoding['input_ids'].to(DEVICE)
                 attention_mask = encoding['attention_mask'].to(DEVICE)
                 labels = labels.to(DEVICE)

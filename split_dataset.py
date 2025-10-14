@@ -59,10 +59,10 @@ def main():
 
     train_data, temp_data = train_test_split(df, train_size=TRAIN_SIZE, random_state=SEED)
     val_data, test_data = train_test_split(temp_data, test_size=(TEST_SIZE / (VAL_SIZE + TEST_SIZE)), random_state=SEED)
-
+    
+    test_data["indices"] = test_data.index
 
     for part in (train_data,val_data,test_data):
-        part["indices"] = part.index
         part.reset_index(drop=True, inplace=True)
 
     train_data.to_parquet(train_dataset_path, index=False)
