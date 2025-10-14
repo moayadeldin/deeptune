@@ -44,9 +44,9 @@ def main():
     df = pd.read_parquet(DF_PATH)
 
     texts = df['text'].tolist()
-    labels = df['label'].tolist()
+    labels = df['labels'].tolist()
 
-    others = df.drop(columns=['text','label'], errors='ignore')
+    others = df.drop(columns=['text','labels'], errors='ignore')
 
     if USE_CASE == 'finetuned':
         adjusted_model = AdjustedGPT2Model(gpt_model=gpt_model).to(DEVICE)
@@ -85,7 +85,7 @@ def main():
 
     all_embeddings = torch.cat(all_embeddings, dim=0)
     embeddings_df = pd.DataFrame(all_embeddings.numpy())
-    embeddings_df['label'] = all_labels
+    embeddings_df['labels'] = all_labels
     embeddings_df = embeddings_df.reset_index(drop=True)
     others = others.reset_index(drop=True)
     embeddings_df = pd.concat([embeddings_df, others], axis=1)

@@ -26,7 +26,6 @@ def main():
     args = DeepTuneVisionOptions(RunType.EMBED)
 
     DF_PATH = args.df
-    MODE = args.mode
     OUT = args.out
     USE_CASE = args.use_case.value
     NUM_CLASSES = args.num_classes
@@ -50,7 +49,6 @@ def main():
     EMBED_OUTPUT.mkdir(parents=True, exist_ok=True)
 
     EMBED_FILE = EMBED_OUTPUT / f"{MODEL_STR}_{USE_CASE}_embeddings.parquet"
-    print(USE_CASE)
 
     if USE_CASE == 'finetuned':
         model = CustomMultilingualBERT(NUM_CLASSES,ADDED_LAYERS, EMBED_SIZE,FREEZE_BACKBONE)
@@ -77,9 +75,9 @@ def main():
     df = pd.read_parquet(DF_PATH)
 
     texts = df['text'].tolist()
-    labels = df['label'].tolist()
+    labels = df['labels'].tolist()
 
-    others = df.drop(columns=['text','label'],errors='ignore')
+    others = df.drop(columns=['text','labels'],errors='ignore')
 
 
     all_embeddings=[]
@@ -118,7 +116,7 @@ def main():
     p = all_embeddings.shape[1]
     cols = [f"embed{i:04d}" for i in range(p)]
     df_embed = pd.DataFrame(all_embeddings.numpy(), columns=cols)
-    df_embed["label"] = np.array(all_labels)
+    df_embed["labels"] = np.array(all_labels)
     df_embed = df_embed.reset_index(drop=True)
     others = others.reset_index(drop=True)
     df_embed = pd.concat([df_embed, others], axis=1)

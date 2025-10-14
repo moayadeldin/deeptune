@@ -73,10 +73,8 @@ class AdjustedGPT2Model(nn.Module):
         
         x = last_hidden.transpose(1, 2)
 
-        return x  # (B, output_dim)
-
-
-
+        return self.conv_head(x)  # (B, output_dim)
+        
 
 
 

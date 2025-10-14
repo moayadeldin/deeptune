@@ -75,7 +75,7 @@ def main():
     start_time = time.time()
     model.eval()
     with torch.no_grad():
-        for _, (encoding, labels, _) in test_pbar:
+        for _, (encoding, labels, *_) in test_pbar:
             input_ids = encoding['input_ids'].to(DEVICE)
             attention_mask = encoding['attention_mask'].to(DEVICE)
             token_type_ids = encoding.get('token_type_ids', None)
