@@ -71,6 +71,7 @@ class RunType(Enum):
     EVAL = "evalulation"
     EMBED = "embedding"
     GANDALF = "gandalf"
+    OTHER = 'other'
 
 
 def get_model_cls(model_architecture: str, use_peft: bool = False) -> Type[nn.Module]:
@@ -134,7 +135,7 @@ def set_seed(use_fixed_seed: bool) -> None:
     else:
         SEED = np.random.randint(low=0, high=1_000)
         fixed_seed(SEED)
-        warnings.warn('This will set a random seed for different initialization affecting Deeptune, inclduing weights and datasets splits.', category=UserWarning)
+        warnings.warn('This will set a random seed for different initialization affecting Deeptune, inclduing weights and datasets splits. You are safe to neglect this warning if you are using Deeptune for purposes other than training or generating data splits', category=UserWarning)
         warnings.warn("This is liable to increase variability across consecutive runs of DeepTune.", category=UserWarning)
         
 def save_process_times(epoch_times, total_duration, outdir,process):
