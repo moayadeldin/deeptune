@@ -8,6 +8,7 @@ import pandas as pd
 import numpy as np
 from cli import DeepTuneVisionOptions
 from utils import RunType
+from pathlib import Path
 from options import UNIQUE_ID
 
 def main():
@@ -29,7 +30,7 @@ def main():
     
     print(f'There are {len(result)} records in intersection between both dataframes!')
     
-    result.to_parquet(OUT / f"intersection_{UNIQUE_ID}")
+    result.to_parquet(OUT / f"intersection_{UNIQUE_ID}.parquet") if OUT else Path(f"intersection_{UNIQUE_ID}.parquet")
     
 if __name__ == "__main__":
 
