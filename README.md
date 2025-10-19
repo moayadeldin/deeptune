@@ -202,13 +202,14 @@ DeepTune gives you also a wide flexible set of options to choose what you think 
 
 ## Getting Started: Your First DeepTune Run
 
-### 2.0 Splitting Your Dataset
+### 2.0 Handling Your Dataset Splits
+#### Splitting Your Dataset
 
 We assume that your dataset formatted as Parquet File will need to be splitted into train/val/test splits as you are going to conduct different experiments with different models using DeepTune. Given that DeepTune expects the labels to be numerically encoded, the `split_dataset` function automatically by default encodes your label column. If you want to disable this functionality, use the `--disable-numerical-encoding` option. 
 
 The following is the generic CLI structure to split the dataset:
 ```
-python -m split_dataset \
+python -m handlers.split_dataset \
   --df <path_to_df> \
   --train_size <float> \
   --val_size <float> \
@@ -248,6 +249,26 @@ output_directory
 
 **Note** :
 > For the `test_split.parquet` file, we have included an additional indices column that maps the entry of each test sample to the original dataset, making it easier to track where they are located in `--df` file.
+
+#### Getting the intersection between two datasets
+
+This feature is mainly implemented to be integrated with [df-analyze](https://github.com/stfxecutables/df-analyze), where [df-analyze](https://github.com/stfxecutables/df-analyze) relies by default on 40\% of the input dataset as the test set. Since the AutoML framework uses Deeptune’s embeddings for df-analyze ( As shown in Section 2.3, and 2.4), it is sometimes necessary to extract the intersection between the two dataframes.
+
+In order to achieve this, we use the following command: 
+
+```
+python -m handlers.get_intersection \
+  --df_parquet_path <path_to_df> \
+  --df_csv_path <path_to_df> \
+  --out <path>
+```
+`` --df_parquet_path <path_to_df>`` : Path to first dataset as parquet file (usually Deeptune's embeddings extracted)
+
+``--df_csv_path <path_to_df>``: Path to second dataset as csv file (usually the subset 40% obtained df-analyze).
+
+``--out <output_path``: Path to the directory where you want to save the results.
+
+The output will be stored in the directory specified with the `--out` argument, using the following naming format: `intersection_<yyyymmdd_hhmm>`.
 
 ### 2.1 Using DeepTune for Training
 

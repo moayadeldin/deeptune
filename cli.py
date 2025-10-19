@@ -24,6 +24,8 @@ class DeepTuneVisionOptions:
             self._add_eval_embed_args()
         if run_type == (RunType.GANDALF):
             self._add_gandalf_args()
+        if run_type == (RunType.OTHER):
+            self._add_other_args()
 
         parsed_args = self.parser.parse_args(args)
 
@@ -44,6 +46,10 @@ class DeepTuneVisionOptions:
             self.learning_rate: Optional[float] = parsed_args.learning_rate
             self.train_df: Optional[Path] = parsed_args.train_df
             self.val_df:Optional[Path] = parsed_args.val_df
+            
+        if run_type == RunType.OTHER:
+            self.df_parquet_path: Optional[Path] = parsed_args.df_parquet_path
+            self.df_csv_path:Optional[Path] = parsed_args.df_csv_path
 
         if run_type == RunType.GANDALF:
             self.num_epochs: Optional[int] = parsed_args.num_epochs
@@ -165,12 +171,20 @@ class DeepTuneVisionOptions:
         p.add_argument('--val_df', type=Path, help='PARQUET file containing validation data.')
         p.add_argument('--eval_df', type=Path, help='PARQUET file containing testing data.')
         p.add_argument('--model_weights', type=Path, help='Path to model weights.')
+        
+    def _add_other_args(self):
+        p = self.parser
+        p.add_argument('--df_parquet_path', type=str, help='First dataframe to feed for getting intersection')
+        p.add_argument('--df_csv_path', type=str, help='Second dataframe to feed for getting intersection')
+        
 
     def _parse_model_str(self, mode: RunType) -> str:
         if mode == RunType.TRAIN or mode == RunType.EVAL:
             prefix_str = "PEFT" if self.use_peft else "FINETUNED"
         elif mode == RunType.GANDALF:
             prefix_str = "GANDALF"
+        elif mode == RunType.OTHER:
+            prefix_str = None
         else:
             prefix_str = self.use_case.value.upper()
 
