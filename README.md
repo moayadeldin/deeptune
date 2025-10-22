@@ -1,22 +1,22 @@
-# DeepTune
+# *DeepTune*
 
 [![deeptune tests](https://github.com/moayadeldin/deeptune-scratch/actions/workflows/test.yml/badge.svg)](https://github.com/moayadeldin/deeptune-scratch/actions/workflows/test.yml)
 
-**DeepTune** is a full compatible library to automate Computer Vision and Natural Language Processing algorithms on diverse images and text datasets.
+***DeepTune*** is a full compatible library to automate Computer Vision and Natural Language Processing algorithms on diverse images and text datasets.
 
 As a cutting-edge software library that has been specifically designed for use in different Machine Learning Tasks, inclduing but not limited to image classification, transfer learning, and embedding extraction. 
 
-**DeepTune** is currently going under the process of extensive testing, and offers multiple features including ability to apply transfer learning via fine-tuning for advanced state-of-the-art (SoTA) classification algorithms for images, and texts, including Parameter Efficient Fine-Tuning with LoRA, and latent feature extraction as embedding vectors. This offers a massive assistance for users to take full advantage of what their case studies may offer with simple commands.
+***DeepTune*** is currently going under the process of extensive testing, and offers multiple features including ability to apply transfer learning via fine-tuning for advanced state-of-the-art (SoTA) classification algorithms for images, and texts, including Parameter Efficient Fine-Tuning with LoRA, and latent feature extraction as embedding vectors. This offers a massive assistance for users to take full advantage of what their case studies may offer with few simple commands.
 
 ## Features
 
 - Fine-tuning SoTA Computer Vision algorithms for Image Classification.
 - Fine-tuning SoTA NLP algorithms.
-- Fine-tuning SoTA Time Series algorithms (currently under maintenance, to be re-released in the near future).
+- Fine-tuning SoTA Time Series algorithms (temporarily disabled; scheduled for re-release soon.).
 - Providing PEFT with LoRA support for Computer Vision algorithms implemented, enabling state-of-the-art models that typically require substantial computational resources to perform efficiently on lower-powered devices. This approach not only reduces computational overhead but also enhances performance.
 - Extracting meaningful feature embeddings with SoTA algorithms for image and text classification tasks.
-
-## Models DeepTune Supports (Up to Date)
+  
+## Models *DeepTune* Supports (Up to Date)
 
 
 <table>
@@ -132,11 +132,11 @@ As a cutting-edge software library that has been specifically designed for use i
 - [1.2 Linux and Windows](#12-linux-and-windows)
 - [1.3 Preface](#13-preface)
 
-### 2. Getting Started: Your First DeepTune Run
+### 2. Getting Started: Your First *DeepTune* Run
 - [2.0 Splitting Your Dataset](#20-splitting-your-dataset)
-- [2.1 Using DeepTune for Training](#21-using-deeptune-for-training)
-- [2.2 Using DeepTune for Evaluation](#22-using-deeptune-for-evaluation)
-- [2.3 Using DeepTune for Embeddings Extraction](#23-using-deeptune-for-embeddings-extraction)
+- [2.1 Using *DeepTune* for Training](#21-using-deeptune-for-training)
+- [2.2 Using *DeepTune* for Evaluation](#22-using-deeptune-for-evaluation)
+- [2.3 Using *DeepTune* for Embeddings Extraction](#23-using-deeptune-for-embeddings-extraction)
 - [2.4 [EXTRA] Integration with df-analyze](#24-extra-integration-with-df-analyze)
 
 
@@ -152,7 +152,7 @@ Kindly note that you have to install PyTorch version that matches your CUDA and 
 
 ### 1.2 Linux and Windows
 
-Although the most of development cycle we have been using Windoes 11, DeepTune is expected function properly on Ubuntu 20.04 also.
+Although the most of development cycle we have been using Windoes 11, *DeepTune* is expected function properly on Ubuntu 20.04 also.
 
 #### Creating Virtual Environment (Recommended)
 
@@ -168,43 +168,43 @@ $ conda activate deeptune
 
 #### Install dependencies
 
-To use DeepTune properly, you need to install the package dependencies:
+To use *DeepTune* properly, you need to install the package dependencies:
 
 ```
 $ pip install -r requirements.txt
 ```
 
 ### 1.3 Preface
-**Now as you installed the required packages needed for DeepTune, and just before running your First DeepTune program, you may read this preface to get more engaged on what exactly to expect from the program.**
+**Now as you installed the required packages needed for *DeepTune*, and just before running your First *DeepTune* program, you may read this preface to get more engaged on what exactly to expect from the program.**
 
 
-DeepTune is a cutting-edge software maintained to make usage of state-of-the-art algorithms for images and text datasets one step easier!
+*DeepTune* is a cutting-edge software maintained to make usage of state-of-the-art algorithms for images and text datasets one step easier!
 
-DeepTune currently supports finetuning 6 different state-of-the-art image classification models to fine-tune your dataset with: ResNet, DenseNet, Swin, EfficientNet, VGGNet, and ViT for images, with BERT, and GPT-2 for images. More details of the supported variants is found in the documentation's Supported Models table.
+*DeepTune* currently supports finetuning 6 different state-of-the-art image classification models to fine-tune your dataset with: ResNet, DenseNet, Swin, EfficientNet, VGGNet, and ViT for images, with BERT, and GPT-2 for images. More details of the supported variants is found in the documentation's Supported Models table.
 
-DeepTune gives you also a wide flexible set of options to choose what you think would suit your case the best. The options are as follows:
+*DeepTune* gives you also a wide flexible set of options to choose what you think would suit your case the best. The options are as follows:
 
-- Transfer Learning Mode: DeepTune currently supports applying transfer learning with Parameter Efficient Fine-tuning (PeFT) or without PeFT.
+- Transfer Learning Mode: *DeepTune* currently supports applying partial fine-tuning or full fine-tuning. Only the added layers are updated during partial fine-tuning, while the rest of the model remains frozen. For full fine-tuning, the weights update is applied across the whole architecture.
 
-- Adjustable Additional Layer Choices: Fine-tuning is commonly applied in Deep Learning by adding one or more layer(s) on the top of the fine-tuned model. DeepTune gives you the choice of adding one, or two layers on the top of the model. Moreover, for the last layer size (also referred to as Embedding Layer) this is specified by the user choice as a CLI argument.
+- Supporting Parameter Efficient Fine-tuning (PeFT): PeFT techniques are usually referred in the literature as they are capable of providing performance improvements while being resource-efficient. In *DeepTune*, PeFT is supported for full fine-tuning.
 
-- Task Type: DeepTune provides initial support for converting classification-based models to work for regression.
+- Adjustable Additional Layer Choices: Fine-tuning is commonly applied in Deep Learning by adding one or more layer(s) on the top of the fine-tuned model. *DeepTune* gives you the choice of adding one, or two layers on the top of the model. Moreover, for the last layer size (also referred to as Embedding Layer) this is specified by the user choice as a CLI argument.
 
-- Embeddings Extraction: DeepTune provides a wide support for extracting embeddings for your dataset for all of the models mentioned above. This application is extremely useful if you want to get a meaningful representation of your own dataset to utilize further (e.g, projecting in 2D and see how they correlate, provide them to classical ML approach, etc.)
+- Task Type: *DeepTune* provides initial support for converting classification-based models to work for regression.
+
+- Embeddings Extraction: *DeepTune* provides a wide support for extracting embeddings for your dataset for all of the models mentioned above. This application is extremely useful if you want to get a meaningful representation of your own dataset to utilize further (e.g, projecting in 2D and see how they correlate, provide them to classical ML approach, etc.)
 
 **Notes:**
 
-> 1. DeepTune also provides support for DeepAR model for time series datasets, but it is only available now for training and testing.
+> 1. Pre-released version of *DeepTune* currently doesn't support PEFT for GPT-2.
 
-> 2. Pre-released version of DeepTune currently doesn't support PEFT for GPT-2.
+> 2. Kindly note that *DeepTune* for images and texts only accepts Parquet files as an input (Time Series datasets are given as CSVs). The parquet file expected is actually containing two columns, If we work with images, then the two columns are [`images`, `labels`] pair. **Images must be in Bytes Format for efficient representation, and labels must be numerically encoded**. If we work with text, then the two columns are [`text`, `labels`] pair. For text, **label column must be numerically encoded also.**
 
-> 3. Kindly note that DeepTune for images and texts only accepts Parquet files as an input (Time Series datasets are given as CSVs). The parquet file expected is actually containing two columns, If we work with images, then the two columns are [`images`, `labels`] pair. **Images must be in Bytes Format for efficient representation, and labels must be numerically encoded**. If we work with text, then the two columns are [`text`, `labels`] pair. For text, **label column must be numerically encoded also.**
-
-## Getting Started: Your First DeepTune Run
+## Getting Started: Your First *DeepTune* Run
 
 ### 2.0 Splitting Your Dataset
 
-We assume that your dataset formatted as Parquet File will need to be splitted into train/val/test splits as you are going to conduct different experiments with different models using DeepTune. Given that DeepTune expects the labels to be numerically encoded, the `split_dataset` function automatically by default encodes your label column. If you want to disable this functionality, use the `--disable-numerical-encoding` option. 
+We assume that your dataset formatted as Parquet File will need to be splitted into train/val/test splits as you are going to conduct different experiments with different models using *DeepTune*. Given that *DeepTune* expects the labels to be numerically encoded, the `split_dataset` function automatically by default encodes your label column. If you want to disable this functionality, use the `--disable-numerical-encoding` option. 
 
 The following is the generic CLI structure to split the dataset:
 ```
@@ -251,7 +251,7 @@ output_directory
 
 #### Getting the intersection between two datasets
 
-This feature is mainly implemented to be integrated with [df-analyze](https://github.com/stfxecutables/df-analyze), where [df-analyze](https://github.com/stfxecutables/df-analyze) relies by default on 40\% of the input dataset as the test set. Since the AutoML framework uses Deeptune’s embeddings for [df-analyze](https://github.com/stfxecutables/df-analyze) (As shown in Sections 2.3, and 2.4), it is sometimes necessary to extract the intersection between the two dataframes.
+This feature is mainly implemented to be integrated with [df-analyze](https://github.com/stfxecutables/df-analyze), where [df-analyze](https://github.com/stfxecutables/df-analyze) relies by default on 40\% of the input dataset as the test set. Since the AutoML framework uses *DeepTune*’s embeddings for [df-analyze](https://github.com/stfxecutables/df-analyze) (As shown in Sections 2.3, and 2.4), it is sometimes necessary to extract the intersection between the two dataframes.
 
 In order to achieve this, we use the following command: 
 
@@ -261,7 +261,7 @@ python -m handlers.get_intersection \
   --df_csv_path <path_to_df> \
   --out <path>
 ```
-`` --df_parquet_path <path_to_df>`` : Path to first dataset as parquet file (usually Deeptune's embeddings extracted)
+`` --df_parquet_path <path_to_df>`` : Path to first dataset as parquet file (usually *DeepTune*'s embeddings extracted)
 
 ``--df_csv_path <path_to_df>``: Path to second dataset as csv file (usually the subset 40% obtained df-analyze).
 
@@ -269,11 +269,11 @@ python -m handlers.get_intersection \
 
 The output will be stored in the directory specified with the `--out` argument, using the following naming format: `intersection_<yyyymmdd_hhmm>`.
 
-### 2.1 Using DeepTune for Training
+### 2.1 Using *DeepTune* for Training
 
 #### Images
 
-The following is the generic CLI structure of running DeepTune on images dataset stored in Parquet file as bytes format for training:
+The following is the generic CLI structure of running *DeepTune* on images dataset stored in Parquet file as bytes format for training:
 
 ```
 python -m trainers.vision.train \
@@ -351,7 +351,7 @@ If everything is set correctly, you should expect an output in the same format:
 
 #### Text
 
-Since DeepTune currently supports only two models for text classification, the way they are called in the CLI differs from that of image models. Apart from this, the CLI structure remains largely the same:
+Since *DeepTune* currently supports only two models for text classification, the way they are called in the CLI differs from that of image models. Apart from this, the CLI structure remains largely the same:
 
 ```
 python -m trainers.nlp.[train_multilinbert/train_gpt2] \
@@ -368,15 +368,15 @@ python -m trainers.nlp.[train_multilinbert/train_gpt2] \
 ```
 
 **Notes**: 
-> GPT2 model does not support PeFT right now in DeepTune.
+> GPT2 model does not support PeFT right now in *DeepTune*.
 
 > There is no need to specify the `--added_layers` and `--embed_size` switches with using GPT2 as they are already statically fixed due to implementation constraints.
 
 #### Tabular
 
-Currently, DeepTune offers only support for GANDALF (Gated Adaptive Network for Deep Automated Learning of Features) model to provide predictions on your own tabular data. You can read more about GANDALF through the paper [here](https://arxiv.org/abs/2207.08548).
+Currently, *DeepTune* offers only support for GANDALF (Gated Adaptive Network for Deep Automated Learning of Features) model to provide predictions on your own tabular data. You can read more about GANDALF through the paper [here](https://arxiv.org/abs/2207.08548).
 
-The generic CLI workflow for applying GANDALF in DeepTune requires specifying certain columns before training can begin, which is mainly determining the continuous columns in your dataset and the categorical columns as an input.
+The generic CLI workflow for applying GANDALF in *DeepTune* requires specifying certain columns before training can begin, which is mainly determining the continuous columns in your dataset and the categorical columns as an input.
 
 ```
 python -m trainers.tabular.train_gandalf \
@@ -399,7 +399,7 @@ python -m trainers.tabular.train_gandalf \
 > ``--gflu_stages`` is a hyperparameter related to internal GANDALF working, according to the documentation on [PyTorch Tabular](https://pytorch-tabular.readthedocs.io/en/latest/apidocs_model/#pytorch_tabular.models.GANDALFConfig), it is the number of layers in the feature abstraction layer. The documentation defaults to 6 and we advise the same.
 
 
-After training completes, you may find the results in the directory specified with the `--out` directory. Alternatively, DeepTune will create an output directory named  `deeptune_results` (if it does not already exist). Inside this directory, the results are organized in a subfolder using the following naming convention: `trainval_output_<FINETUNED/PEFT>_<model_version>_<mode>_<yyyymmdd_hhmm>` or ( `trainval_output_<BERT/GPT2>_<yyyymmdd_hhmm>` for text) with the following output:
+After training completes, you may find the results in the directory specified with the `--out` directory. Alternatively, *DeepTune* will create an output directory named  `deeptune_results` (if it does not already exist). Inside this directory, the results are organized in a subfolder using the following naming convention: `trainval_output_<FINETUNED/PEFT>_<model_version>_<mode>_<yyyymmdd_hhmm>` or ( `trainval_output_<BERT/GPT2>_<yyyymmdd_hhmm>` for text) with the following output:
 
 ```
 output_directory
@@ -410,7 +410,7 @@ output_directory
 ```
 **Description of Output files:**
 
-- `cli_arguments.json`: Records the CLI arguments you entered to run DeepTune, along with the DeepTune version.
+- `cli_arguments.json`: Records the CLI arguments you entered to run *DeepTune*, along with the *DeepTune* version.
 - `model_weights.pth`: The fine-tuned model weights (used later for testing).
 - `training_log.csv`: A performance log reporting training and validation accuracies and errors for each epoch.
 
@@ -419,13 +419,13 @@ output_directory
 
 > For GANDALF, the directory will be named as `trainval_output_<GANDALF>_<mode>_<yyyymmdd_hhmm>` with the weights stored in `GANDALF_model` subdirectory. 
 
-### 2.2 Using DeepTune for Evaluation
+### 2.2 Using *DeepTune* for Evaluation
 
-Evaluating your model on a separete holdout dataset (which we refer to as testing) here is referred to as evaluation. The reason is to simply not confuse the terms as testing in DeepTune documentation context also refers to testing the model functionality (e.g, writing test cases).
+Evaluating your model on a separete holdout dataset (which we refer to as testing) here is referred to as evaluation. The reason is to simply not confuse the terms as testing in *DeepTune* documentation context also refers to testing the model functionality (e.g, writing test cases).
 
-After using DeepTune to apply transfer learning on one of the models the package support, now we need to evaluate the performance of the tuned model for images.
+After using *DeepTune* to apply transfer learning on one of the models the package support, now we need to evaluate the performance of the tuned model for images.
 
-The following is the generic CLI structure of running DeepTune for evalaution of image datasets:
+The following is the generic CLI structure of running *DeepTune* for evalaution of image datasets:
 
 ```
 python -m evaluators.vision.evaluate \
@@ -442,14 +442,14 @@ python -m evaluators.vision.evaluate \
   [--freeze-backbone]
 ```
 
-`` --eval_df <str>`` : Path to your test dataset. It should be the `test_split_<yyyymmdd>_<hhmm>.parquet` you got from the previous DeepTune for splitting data run.
+`` --eval_df <str>`` : Path to your test dataset. It should be the `test_split_<yyyymmdd>_<hhmm>.parquet` you got from the previous *DeepTune* for splitting data run.
 
-`` --model_weights <str>`` : Path to your model's weights. It should be `model_weights.pth` you got from the previous DeepTune for training run.
+`` --model_weights <str>`` : Path to your model's weights. It should be `model_weights.pth` you got from the previous *DeepTune* for training run.
 
 **Notes**:
 > If you used one of the switches `--freeze_backone` or `--use_peft` or both in the previous run, you should use them while doing your evaluation here again.
 
-> You feed the evaluator here the same `--added_layers` and `--embed_size` you used for your previous training run of DeepTune. Otherwise, a mismatch error will occur.
+> You feed the evaluator here the same `--added_layers` and `--embed_size` you used for your previous training run of *DeepTune*. Otherwise, a mismatch error will occur.
 
 If everything is set correctly, and evaluation is done, you should expect an output in the same format:
 
@@ -463,7 +463,7 @@ INFO | Test accuracy: 98.18713450292398%
 Test results saved successfully!
 ```
 
-After evaluation is done, you may find the results in the directory specified with the `--out` directory or `deeptune_results` was initiated in your DeepTune path. Inside this folder, you will find the following output directory:
+After evaluation is done, you may find the results in the directory specified with the `--out` directory or `deeptune_results` was initiated in your *DeepTune* path. Inside this folder, you will find the following output directory:
 
 ```
 deeptune_results
@@ -474,14 +474,14 @@ deeptune_results
 
 Description of Output files:
   -  ``output_directory_test_<yyyymmdd>_<hhmm>`` folder:
-      - `cli_arguments.json`: Indicating the CLI arguments you entered to run DeepTune, with the DeepTune version you are running.
+      - `cli_arguments.json`: Indicating the CLI arguments you entered to run *DeepTune*, with the *DeepTune* version you are running.
       - `full_metrics.json`: The full metrics as appeared to you in the CLI while using the model.
    
 ### Text
 
-In DeepTune, the text SoTA models save the weights of both the models, and the tokenizers. The tokenizer role is to split sentences into smaller units (we call them tokens) that can be more easily assigned meaning. On the other hand, the model is responsible for handling the part of interpreting these tokens.
+In *DeepTune*, the text SoTA models save the weights of both the models, and the tokenizers. The tokenizer role is to split sentences into smaller units (we call them tokens) that can be more easily assigned meaning. On the other hand, the model is responsible for handling the part of interpreting these tokens.
 
-The output directory from applying transfer learning on BERT or GPT-2 using DeepTune is as follows:
+The output directory from applying transfer learning on BERT or GPT-2 using *DeepTune* is as follows:
 
 ```
 deeptune_results
@@ -496,7 +496,7 @@ deeptune_results
 
 Notice that there are directories saving the update tokenizer, and model files. We need to feed these directories while evaluating test dataset for the fine-tuned model.
 
-Hence, the generic CLI structure of running DeepTune for evalaution of text datasets:
+Hence, the generic CLI structure of running *DeepTune* for evalaution of text datasets:
 
 ```
 python -m evaluators.nlp.evaluate_<multilingualbert/gpt> \
@@ -511,7 +511,7 @@ python -m evaluators.nlp.evaluate_<multilingualbert/gpt> \
   [--freeze-backbone]
 ```
 
-For the ``--model_weights`` switch, we feed the whole output directory we got from running DeepTune for training (`trainval_output_<BERT/GPT2>_<yyyymmdd_hhmm>`)
+For the ``--model_weights`` switch, we feed the whole output directory we got from running *DeepTune* for training (`trainval_output_<BERT/GPT2>_<yyyymmdd_hhmm>`)
 
 **Note:**
 > For GPT-2 model, **the switches `--added_layers` and `embed_size` are set by default as we tweaked the model architecture in order to be properly ready for training, so you don't have to set these to a specific input.** More details to follow in further phase of writing the documentation.
@@ -519,7 +519,7 @@ For the ``--model_weights`` switch, we feed the whole output directory we got fr
 
 ### Tabular
 
-The generic CLI structure of running DeepTune for evalaution of text datasets using GANDALF is:
+The generic CLI structure of running *DeepTune* for evalaution of text datasets using GANDALF is:
 ```
 python -m evaluators.tabular.evaluate_gandalf \
 --eval_df <path_to_dataset> \
@@ -530,15 +530,15 @@ python -m evaluators.tabular.evaluate_gandalf \
 **Note**:
 > You feed the path to ``GANDALF_model`` subdirectory that you obtained after training as a parameter to ``--model_weights``.
 
-### 2.3 Using DeepTune for Embeddings Extraction
+### 2.3 Using *DeepTune* for Embeddings Extraction
 
 After we trained and evaluated our model, now we need to apply embeddings extraction used our fine-tuned model. Whatever you choose to apply embeddings extraction on is the user's/researcher's choice. However, as we integrate our framework with [df-analyze](https://github.com/stfxecutables/df-analyze) as we show in the next subsection, we choose to apply that for the test set we evaluated our model on.
 
 ### Images
 
-After using DeepTune to apply transfer learning on one of the models the package support and testing its performance, the user may want to extract further information from their dataset using DeepTune for their future applications.
+After using *DeepTune* to apply transfer learning on one of the models the package support and testing its performance, the user may want to extract further information from their dataset using *DeepTune* for their future applications.
 
-The following is the generic CLI structure of running DeepTune for embeddings extraction of image datasets:
+The following is the generic CLI structure of running *DeepTune* for embeddings extraction of image datasets:
 
 ``` 
 python -m embed.vision.embed \
@@ -554,13 +554,13 @@ python -m embed.vision.embed \
   --use_case <finetuned_or_pretrained_or_peft> \
 ```
 
-The `--use_case` switch specifies on which use case you want to use DeepTune for:
-  - pretrained: Using the exact weights of the model as it is without any further training. **This option allows you to use DeepTune with skiping the training and evaluation parts (You don't need to specify `--added_layers`, `--embed_size`, and `--model_weights`).**
-  - finetuned: If you ran DeepTune for Transfer Learning without PeFT.
-  - peft: If you ran DeepTune for Transfer Learning with PeFT.
+The `--use_case` switch specifies on which use case you want to use *DeepTune* for:
+  - pretrained: Using the exact weights of the model as it is without any further training. **This option allows you to use *DeepTune* with skiping the training and evaluation parts (You don't need to specify `--added_layers`, `--embed_size`, and `--model_weights`).**
+  - finetuned: If you ran *DeepTune* for Transfer Learning without PeFT.
+  - peft: If you ran *DeepTune* for Transfer Learning with PeFT.
 
 **Note**:
-> You feed the evaluator here the same `--added_layers` and `--embed_size` you used for your previous training run of DeepTune. Otherwise, a mismatch error will occur.
+> You feed the evaluator here the same `--added_layers` and `--embed_size` you used for your previous training run of *DeepTune*. Otherwise, a mismatch error will occur.
 
 If everything is set correctly, and evaluation is done, you should expect an output in the same format:
 
@@ -577,7 +577,7 @@ You will find the output in a format of Parquet file in the following path: `dee
 ### Text
 The process of Embeddings Extraction with text datasets would actually be the same except a small change in the CLI structure due to the reasons we illustrated in Section 2.2.
 
-The following is the generic CLI structure of running DeepTune for embeddings extraction of text datasets:
+The following is the generic CLI structure of running *DeepTune* for embeddings extraction of text datasets:
 
 
 ``` 
@@ -592,9 +592,9 @@ python -m embed.nlp.<gpt2/multilingualbert>_embeddings \
 ```
 
 **Notes:**
-> We recall the same note mentioned in Section 2.2 that **the switches `--added_layers` and `embed_size` for GPT-2 model are set by default as we tweaked the model architecture in order to be properly ready for training, so you don't have to set these to a specific input. Also, For the ``--adjusted_<bert/gpt2>_dir`` switch, we feed the whole output directory we got from running DeepTune for training (`output_directory_trainval_<yyyymmdd>_<hhmm>`)**.
+> We recall the same note mentioned in Section 2.2 that **the switches `--added_layers` and `embed_size` for GPT-2 model are set by default as we tweaked the model architecture in order to be properly ready for training, so you don't have to set these to a specific input. Also, For the ``--adjusted_<bert/gpt2>_dir`` switch, we feed the whole output directory we got from running *DeepTune* for training (`output_directory_trainval_<yyyymmdd>_<hhmm>`)**.
 
-> This version of DeepTune doesn't yet support using peft case for GPT-2. The later part will be added in a future version of DeepTune.
+> This version of *DeepTune* doesn't yet support using peft case for GPT-2. The later part will be added in a future version of *DeepTune*.
 
 
 You will find the output directory in the following format format in the specified output path: `embed_output_<PRETRAINED/FINETUNED/PEFT>_<model_version>_<mode>_<yyyymmdd_hhmm>`.
@@ -613,9 +613,9 @@ deeptune_results
 
 [df-analyze](https://github.com/stfxecutables/df-analyze) is a command-line tool developed in the same Medical Imaging Bioinformatics lab at St. Francis Xavier University for automating Machine Learning tasks on small to medium-sized tabular datasets (less than about 200 000 samples, and less than about 50 to 100 features) using Classical ML algorithms.
 
-If you want to further see how would your images/text dataset perform using Classical ML algorithms, it would be very difficult to achieve without having an intermediate representation of each sample. DeepTune provides you the way to get this intermediate representation using Embeddings Extraction as illustrated in Section 2.3, which allows you right now to run [df-analyze](https://github.com/stfxecutables/df-analyze)!
+If you want to further see how would your images/text dataset perform using Classical ML algorithms, it would be very difficult to achieve without having an intermediate representation of each sample. *DeepTune* provides you the way to get this intermediate representation using Embeddings Extraction as illustrated in Section 2.3, which allows you right now to run [df-analyze](https://github.com/stfxecutables/df-analyze)!
 
-After you successfully allocate your embeddings file, either after running DeepTune on image dataset or text one, you may install df-analyze —instructions on how to do that is found on the software repository link— and run the following command:
+After you successfully allocate your embeddings file, either after running *DeepTune* on image dataset or text one, you may install df-analyze —instructions on how to do that is found on the software repository link— and run the following command:
 
 ```
 python df-analyze.py --df "path\test_set_<use_case>_<model>_embeddings_cls.parquet" --outdir = ./deeptune_results --mode=classify --target label --classifiers lgbm rf sgd knn lr mlp dummy --embed-select none linear lgbm
@@ -645,9 +645,9 @@ If you find this repository helpful, please cite it as follows:
 
 
 ```bibtex
-@software{DeepTune,
+@software{*DeepTune*,
   author = {Moayadeldin Hussain, John Kendall, Jacob Levman},
-  title = {DeepTune: Cutting-edge library to automate Computer Vision and Natural Language Processing algorithms.},
+  title = {*DeepTune*: Cutting-edge library to automate Computer Vision and Natural Language Processing algorithms.},
   year = {2025},
   url = {https://github.com/moayadeldin/deeptune},
   version = {1.0.0}
