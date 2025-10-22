@@ -24,6 +24,8 @@ class DeepTuneVisionOptions:
             self._add_eval_embed_args()
         if run_type == (RunType.GANDALF):
             self._add_gandalf_args()
+        if run_type == (RunType.TIMESERIES):
+            self._add_timeseries_args
         if run_type == (RunType.OTHER):
             self._add_other_args()
 
@@ -65,7 +67,21 @@ class DeepTuneVisionOptions:
                 parsed_args.model_weights.resolve() if parsed_args.model_weights else None
             )
             self.eval_df: Optional[Path] = parsed_args.eval_df or (self.input_dir / "test_split.parquet" if self.input_dir else None)
-
+            
+        if run_type in RunType.TIMESERIES:
+            
+            self.max_encoder_length: Optional[int] = parsed_args.max_encoder_length
+            self.max_prediction_length: Optional[int] = parsed_args.max_prediction_length
+            self.time_varying_known_categoricals = parsed_args.time_varying_known_categoricals
+            self.time_varying_unknown_categoricals = parsed_args.time_varying_unknown_categoricals
+            self.static_categoricals = parsed_args.static_categoricals
+            self.time_varying_unknown_reals = parsed_args.time_varying_unknown_reals
+            self.time_varying_known_reals = parsed_args.time_varying_known_reals
+            self.static_reals = parsed_args.static_reals
+            
+            self.time_idx_column = parsed_args.time_idx
+            
+            
         if run_type in (RunType.EVAL, RunType.EMBED):
             self.eval_df: Optional[Path] = parsed_args.eval_df or (self.input_dir / "test_split.parquet" if self.input_dir else None)
             self.df: Optional[Path] = parsed_args.df
@@ -134,6 +150,23 @@ class DeepTuneVisionOptions:
         p.add_argument('--learning_rate', type=float, help='Learning rate.')
         p.add_argument('--train_df', type=Path, help='PARQUET file containing train data.')
         p.add_argument('--val_df', type=Path, help='PARQUET file containing validation data.')
+        
+    def _add_timeseries_args(self):
+        
+        p = self.parser
+        p.add_argument('--max_encoder_length', type=int, default=30, help='maximum history length used by the time series dataset.')
+        p.add_argument('--max_prediction_length', type=int, default=1, help='maximum prediction/decoder length')
+        
+        p.add_argument('--time_varying_known_categoricals', nargs='+', type=str, default=None, help='list of categorical variables that change over time and are known in the future.')
+        p.add_argument('--time_varying_unknown_categoricals', nargs='+', type=str, default=None, help='list of categorical variables that are not known in the future and change over time. Target Variables should be included here if they are categorical.')
+        p.add_argument('--static_categoricals', nargs='+', type=str, default=None, help='list of categorical variables that do not change over time.')
+        
+        p.add_argument('--time_varying_unknown_reals', nargs='+', type=str, default=None, help='list of continuous variables that are not known in the future and change over time. Target Variables should be included here if they are continuous.')
+        p.add_argument('--time_varying_known_reals', nargs='+', type=str, default=None, help='list of continuous variables that change over time and are known in the future.')
+        p.add_argument('--static_reals', nargs='+', type=str, default=None, help='list of continuous variables that do not change over time.')
+        p.add_argument('--time_idx_column', nargs='+', type=str, default=None, help='integer typed column denoting the time index within data.')
+        
+        
 
     def _add_eval_embed_args(self):
         p = self.parser
