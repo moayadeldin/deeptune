@@ -4,15 +4,13 @@
 
 ***DeepTune*** is a full compatible library to automate Computer Vision and Natural Language Processing algorithms on diverse images and text datasets.
 
-As a cutting-edge software library that has been specifically designed for use in different Machine Learning Tasks, inclduing but not limited to image classification, transfer learning, and embedding extraction. 
-
-***DeepTune*** is currently going under the process of extensive testing, and offers multiple features including ability to apply transfer learning via fine-tuning for advanced state-of-the-art (SoTA) classification algorithms for images, and texts, including Parameter Efficient Fine-Tuning with LoRA, and latent feature extraction as embedding vectors. This offers a massive assistance for users to take full advantage of what their case studies may offer with few simple commands.
+As a cutting-edge software library that has been specifically designed for automating machine learning use in different transfer learning domains, inclduing but not limited to medical imaging, and natural language understanding . ***DeepTune*** is currently going under the process of extensive testing, and offers multiple features including ability to apply transfer learning via fine-tuning for advanced state-of-the-art (SoTA) classification algorithms for images, and texts, including Parameter Efficient Fine-Tuning (PeFT/PEFT), and latent feature extraction as embedding vectors. This offers a massive assistance for users to take full advantage of what their case studies may offer with few simple commands.
 
 ## Features
 
 - Fine-tuning SoTA Computer Vision algorithms for Image Classification.
 - Fine-tuning SoTA NLP algorithms.
-- Fine-tuning SoTA Time Series algorithms (temporarily disabled; scheduled for re-release soon.).
+- Fine-tuning SoTA Time Series algorithms (temporarily disabled; scheduled for re-release soon).
 - Providing PEFT with LoRA support for Computer Vision algorithms implemented, enabling state-of-the-art models that typically require substantial computational resources to perform efficiently on lower-powered devices. This approach not only reduces computational overhead but also enhances performance.
 - Extracting meaningful feature embeddings with SoTA algorithms for image and text classification tasks.
   
@@ -152,7 +150,7 @@ Kindly note that you have to install PyTorch version that matches your CUDA and 
 
 ### 1.2 Linux and Windows
 
-Although the most of development cycle we have been using Windoes 11, *DeepTune* is expected function properly on Ubuntu 20.04 also.
+Although the most of development cycle we have been using Windows 11, *DeepTune* is being used and expected to function properly on Ubuntu 20.04.
 
 #### Creating Virtual Environment (Recommended)
 
@@ -184,21 +182,21 @@ $ pip install -r requirements.txt
 
 *DeepTune* gives you also a wide flexible set of options to choose what you think would suit your case the best. The options are as follows:
 
-- Transfer Learning Mode: *DeepTune* currently supports applying partial fine-tuning or full fine-tuning. Only the added layers are updated during partial fine-tuning, while the rest of the model remains frozen. For full fine-tuning, the weights update is applied across the whole architecture.
+- **Transfer Learning Mode**: *DeepTune* currently supports applying partial fine-tuning or full fine-tuning. Only the added layers are updated during partial fine-tuning, while the rest of the model remains frozen. For full fine-tuning, the weights update is applied across the whole architecture.
 
-- Supporting Parameter Efficient Fine-tuning (PeFT): PeFT techniques are usually referred in the literature as they are capable of providing performance improvements while being resource-efficient. In *DeepTune*, PeFT is supported for full fine-tuning.
+- **Supporting Parameter Efficient Fine-tuning (PeFT)**: PeFT techniques are usually referred in the literature as they are capable of providing performance improvements while being resource-efficient. In *DeepTune*, PeFT with Low-Rank Adaptation (LoRA) is supported for full fine-tuning.
 
-- Adjustable Additional Layer Choices: Fine-tuning is commonly applied in Deep Learning by adding one or more layer(s) on the top of the fine-tuned model. *DeepTune* gives you the choice of adding one, or two layers on the top of the model. Moreover, for the last layer size (also referred to as Embedding Layer) this is specified by the user choice as a CLI argument.
+- **Adjustable Additional Layer Choices**: Fine-tuning is commonly applied in Deep Learning by adding one or more layer(s) on the top of the fine-tuned model. *DeepTune* gives you the choice of adding one, or two layers on the top of the model. Moreover, for the last layer size (also referred to as Embedding Layer) this is specified by the user choice as a CLI argument.
 
-- Task Type: *DeepTune* provides initial support for converting classification-based models to work for regression.
+- **Task Type**: *DeepTune* provides initial support for converting classification-based models to work for regression.
 
-- Embeddings Extraction: *DeepTune* provides a wide support for extracting embeddings for your dataset for all of the models mentioned above. This application is extremely useful if you want to get a meaningful representation of your own dataset to utilize further (e.g, projecting in 2D and see how they correlate, provide them to classical ML approach, etc.)
+- **Embeddings Extraction**: *DeepTune* provides a wide support for extracting embeddings for your dataset for all of the models mentioned above. This application is extremely useful if you want to get a meaningful representation of your own dataset to utilize further (e.g, projecting in 2D and see how they correlate, provide them to classical ML approach, etc.)
 
 **Notes:**
 
 > 1. Pre-released version of *DeepTune* currently doesn't support PEFT for GPT-2.
 
-> 2. Kindly note that *DeepTune* for images and texts only accepts Parquet files as an input (Time Series datasets are given as CSVs). The parquet file expected is actually containing two columns, If we work with images, then the two columns are [`images`, `labels`] pair. **Images must be in Bytes Format for efficient representation, and labels must be numerically encoded**. If we work with text, then the two columns are [`text`, `labels`] pair. For text, **label column must be numerically encoded also.**
+> 2. Kindly note that *DeepTune* for images and texts only accepts Parquet files as an input. The parquet file expected is actually containing two columns, If we work with images, then the two columns are [`images`, `labels`] pair. **Images must be in Bytes Format for efficient representation, and labels must be numerically encoded**. If we work with text, then the two columns are [`text`, `labels`] pair. For text, **label column must be numerically encoded also.**
 
 ## Getting Started: Your First *DeepTune* Run
 
