@@ -10,3 +10,4 @@ pandas
 pyarrow
 pytest==7.4.0
 pytorch-forecasting
+torchvision==0.19.1
