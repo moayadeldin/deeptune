@@ -4,7 +4,7 @@
 
 ***DeepTune*** is a full compatible library to automate Computer Vision and Natural Language Processing algorithms on diverse images and text datasets.
 
-As a cutting-edge software library that has been specifically designed for automating machine learning use in different transfer learning domains, inclduing but not limited to medical imaging, and natural language understanding . ***DeepTune*** is currently going under the process of extensive testing, and offers multiple features including ability to apply transfer learning via fine-tuning for advanced state-of-the-art (SoTA) classification algorithms for images, and texts, including Parameter Efficient Fine-Tuning (PeFT/PEFT), and latent feature extraction as embedding vectors. This offers a massive assistance for users to take full advantage of what their case studies may offer with few simple commands.
+As a cutting-edge software library that has been specifically designed for automating machine learning use in different transfer learning domains, including but not limited to medical imaging, and natural language understanding. ***DeepTune*** is currently going under the process of extensive testing, and offers multiple features, including ability to apply transfer learning via fine-tuning for advanced state-of-the-art (SoTA) classification algorithms for images, and texts, including Parameter Efficient Fine-Tuning (PeFT/PEFT), and latent feature extraction as embedding vectors. This offers a massive assistance for users to take full advantage of what their case studies may offer with few simple commands.
 
 ## Features
 
@@ -184,7 +184,7 @@ $ pip install -r requirements.txt
 
 - **Transfer Learning Mode**: *DeepTune* currently supports applying partial fine-tuning or full fine-tuning for image and text pre-trained models. Only the added layers are updated during partial fine-tuning, while the rest of the model remains frozen. For full fine-tuning, the weights update is applied across the whole architecture.
 
-- **Supporting Parameter Efficient Fine-tuning (PeFT)**: PeFT techniques are usually referred in the literature as they are capable of providing performance improvements while being resource-efficient. In *DeepTune*, PeFT with Low-Rank Adaptation (LoRA) is supported for full fine-tuning.
+- **Supporting Parameter Efficient Fine-tuning (PeFT)**: PeFT techniques are known as capable of providing performance improvements while being resource-efficient. In *DeepTune*, PeFT with Low-Rank Adaptation (LoRA) is supported for full fine-tuning.
 
 - **Adjustable Additional Layer Choices**: Fine-tuning is commonly applied in Deep Learning by adding one or more layer(s) on the top of the fine-tuned model. *DeepTune* gives you the choice of adding one, or two layers on the top of the model. Moreover, for the last layer size (also referred to as Embedding Layer) this is specified by the user choice as a CLI argument.
 
