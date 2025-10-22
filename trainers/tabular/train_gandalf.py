@@ -33,7 +33,6 @@ def main():
     TYPE = args.type
     OUT = args.out
     MODEL_STR = 'GANDALF'
-    DATA_DIR = args.input_dir
     BATCH_SIZE=args.batch_size
     LEARNING_RATE=args.learning_rate
     NUM_EPOCHS = args.num_epochs
@@ -46,9 +45,6 @@ def main():
     CATEGORICAL_COLS = args.categorical_cols
     GFLU_STAGES = args.gflu_stages
 
-    
-
-    
     if FIXED_SEED:
         set_seed(FIXED_SEED)
 
@@ -59,21 +55,9 @@ def main():
     train_dataset = pd.read_parquet(TRAIN_DATASET_PATH)
     val_dataset = pd.read_parquet(VAL_DATASET_PATH)
 
-    # We do some preprocessing for both datasets filling the missing numeric columns with zero and fill missing columns with place holder of unknown.
-
-    num_cols_train = train_dataset.select_dtypes(include=["number"]).columns
-    train_dataset[num_cols_train] = train_dataset[num_cols_train].fillna(0)
-
-    num_cols_val = val_dataset.select_dtypes(include=["number"]).columns
-    val_dataset[num_cols_val] = val_dataset[num_cols_val].fillna(0)
-
-    train_str_cols = train_dataset.select_dtypes(include=["object", "category"]).columns
-    train_dataset[train_str_cols] = train_dataset[train_str_cols].fillna("unknown")
-
     TRAINVAL_OUTPUT_DIR = (OUT / f"trainval_output_{MODEL_STR}_{UNIQUE_ID}") if OUT else Path(f"deeptune_results/trainval_output_{MODEL_STR}_{TYPE}_{UNIQUE_ID}")
 
     performance_logger = PerformanceLogger(TRAINVAL_OUTPUT_DIR)
-
 
     data_config = DataConfig(
         target=TARGET,
@@ -109,15 +93,17 @@ def main():
     callback = PerformanceLoggerCallback(
         performance_logger=performance_logger,
     )    
+    
+    
 
     tabular_model.fit(train=train_dataset, validation=val_dataset,callbacks=[callback])
     end_time = time.time()
     total_time = end_time - start_time
-    save_process_times(epoch_times="For GANDALF we only track total time", total_duration=total_time, outdir=TRAINVAL_OUTPUT_DIR, process="training")
     tabular_model.save_model(TRAINVAL_OUTPUT_DIR/"GANDALF_model")
     print(f"Model saved to {TRAINVAL_OUTPUT_DIR}")
     performance_logger.save_to_csv(f"{TRAINVAL_OUTPUT_DIR}/training_log.csv")
     args.save_args(TRAINVAL_OUTPUT_DIR)
+    save_process_times(epoch_times="For GANDALF we only track total time", total_duration=total_time, outdir=TRAINVAL_OUTPUT_DIR, process="training")
 
 
 if __name__ == "__main__":
