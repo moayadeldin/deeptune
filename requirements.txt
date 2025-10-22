@@ -3,7 +3,7 @@ opencv_python==4.10.0.84
 Pillow==9.0.1
 tqdm==4.66.5
 numpy==1.24.4
-peft
+peft==0.10.0
 sentencepiece==0.2.0
 scikit-learn
 pandas
