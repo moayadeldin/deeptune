@@ -6,13 +6,13 @@
 
 As a cutting-edge software library that has been specifically designed for use in different Machine Learning Tasks, inclduing but not limited to image classification, transfer learning, and embedding extraction. 
 
-**DeepTune** is currently going under the process of extensive testing, and offers multiple features including ability to apply transfer learning via fine-tuning for advanced classification algorithms for images, and texts, including Parameter Efficient Fine-Tuning with LoRA, and latent feature extraction as embedding vectors. This offers a massive assistance for users to take full advantage of what their case studies may offer with simple commands.
+**DeepTune** is currently going under the process of extensive testing, and offers multiple features including ability to apply transfer learning via fine-tuning for advanced state-of-the-art (SoTA) classification algorithms for images, and texts, including Parameter Efficient Fine-Tuning with LoRA, and latent feature extraction as embedding vectors. This offers a massive assistance for users to take full advantage of what their case studies may offer with simple commands.
 
 ## Features
 
 - Fine-tuning SoTA Computer Vision algorithms for Image Classification.
 - Fine-tuning SoTA NLP algorithms.
-- Fine-tuning SoTA Time Series algorithms.
+- Fine-tuning SoTA Time Series algorithms (currently under maintenance, to be re-released in the near future).
 - Providing PEFT with LoRA support for Computer Vision algorithms implemented, enabling state-of-the-art models that typically require substantial computational resources to perform efficiently on lower-powered devices. This approach not only reduces computational overhead but also enhances performance.
 - Extracting meaningful feature embeddings with SoTA algorithms for image and text classification tasks.
 
