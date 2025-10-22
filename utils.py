@@ -71,6 +71,7 @@ class RunType(Enum):
     EVAL = "evalulation"
     EMBED = "embedding"
     GANDALF = "gandalf"
+    TIMESERIES = 'timeseries'
     OTHER = 'other'
 
 

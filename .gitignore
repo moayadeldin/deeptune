@@ -21,4 +21,3 @@ evaluators/vision/evaluate_peft_siglip.py
 .pt_tmp
 saved_models
 notes.txt
-timeseries
