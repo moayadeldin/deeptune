@@ -182,7 +182,7 @@ $ pip install -r requirements.txt
 
 *DeepTune* gives you also a wide flexible set of options to choose what you think would suit your case the best. The options are as follows:
 
-- **Transfer Learning Mode**: *DeepTune* currently supports applying partial fine-tuning or full fine-tuning. Only the added layers are updated during partial fine-tuning, while the rest of the model remains frozen. For full fine-tuning, the weights update is applied across the whole architecture.
+- **Transfer Learning Mode**: *DeepTune* currently supports applying partial fine-tuning or full fine-tuning for image and text pre-trained models. Only the added layers are updated during partial fine-tuning, while the rest of the model remains frozen. For full fine-tuning, the weights update is applied across the whole architecture.
 
 - **Supporting Parameter Efficient Fine-tuning (PeFT)**: PeFT techniques are usually referred in the literature as they are capable of providing performance improvements while being resource-efficient. In *DeepTune*, PeFT with Low-Rank Adaptation (LoRA) is supported for full fine-tuning.
 
@@ -639,14 +639,15 @@ Thanks to John's Work: [PEFT4Vision](https://github.com/johnkxl/peft4vision) for
 
 ## Citation
 
-If you find this repository helpful, please cite it as follows:
+If you find *DeepTune* useful, please give us a star ⭐ on GitHub for the latest update.
 
+Also if you find this repository helpful, please cite it as follows:
 
 ```bibtex
-@software{*DeepTune*,
+@software{DeepTune,
   author = {Moayadeldin Hussain, John Kendall, Jacob Levman},
-  title = {*DeepTune*: Cutting-edge library to automate Computer Vision and Natural Language Processing algorithms.},
+  title = {DeepTune: Cutting-edge library to automate Computer Vision and Natural Language Processing algorithms.},
   year = {2025},
   url = {https://github.com/moayadeldin/deeptune},
-  version = {1.0.0}
+  version = {1.1.0}
 }
