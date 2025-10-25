@@ -300,30 +300,63 @@ class PerformanceLoggerCallback(Callback):
             val_accuracy=val_accuracy,
         )
 
-def add_datetime_column_to_predictions(
-    pred_df,
-    input_csv_path,
-    time_idx_col="time_idx",
-    datetime_col="date"
-):
+# def add_datetime_column_to_predictions(
+#     pred_df,
+#     train_df_path,
+#     time_idx_col,
+#     datetime_col
+# ):
+#     """
+#     Add a datetime column to the prediction DataFrame by mapping from the original input CSV.
+
+#     Returns:
+#         pred_df (DataFrame): DataFrame with a new datetime column added.
+#     """
+#     original_df = pd.read_parquet(train_df_path)
+
+#     original_df[time_idx_col] = pd.to_datetime(original_df[time_idx_col])
+
+#     original_df = original_df.sort_values(time_idx_col).reset_index(drop=True)
+#     original_df["int_time_idx"] = original_df.index.astype(int)
+
+#     time_idx_to_date = dict(zip(original_df["int_time_idx"], original_df[time_idx_col]))
+
+#     pred_df[datetime_col] = pred_df[time_idx_col].map(time_idx_to_date)
+
+#     return pred_df
+
+def tensor_to_list(obj):
+    """Convert Tensors (or nested tensors in dicts/lists) to Python lists."""
+    if isinstance(obj, torch.Tensor):
+        return obj.detach().cpu().tolist()
+    elif isinstance(obj, dict):
+        return {k: tensor_to_list(v) for k, v in obj.items()}
+    elif isinstance(obj, list):
+        return [tensor_to_list(v) for v in obj]
+    else:
+        return obj
+
+def save_timeseries_prediction_to_json(prediction, outdir):
+    
     """
-    Add a datetime column to the prediction DataFrame by mapping from the original input CSV.
-
-    Returns:
-        pred_df (DataFrame): DataFrame with a new datetime column added.
+    Save PI Prediction Object to a JSON file.
     """
-    original_df = pd.read_csv(input_csv_path)
+    
+    output_data =  {
+        "model_prediction":tensor_to_list(prediction.output),
+        "input_dictionary": tensor_to_list(prediction.x),
+        "predicted_timesteps": tensor_to_list(prediction.decoder_lengths),
+        "ground_truth_target": tensor_to_list(
+            prediction.y if prediction.y is not None else prediction.x.get("decoder_target")
+        ),
+    }
+    
+    filename= f'{outdir}/prediction_output.json'
+    
+    with open(filename, "w") as f:
+        json.dump(output_data, f, indent=4)
 
-    original_df[time_idx_col] = pd.to_datetime(original_df[time_idx_col])
-
-    original_df = original_df.sort_values(time_idx_col).reset_index(drop=True)
-    original_df["int_time_idx"] = original_df.index.astype(int)
-
-    time_idx_to_date = dict(zip(original_df["int_time_idx"], original_df[time_idx_col]))
-
-    pred_df[datetime_col] = pred_df[time_idx_col].map(time_idx_to_date)
-
-    return pred_df
+    print(f"Prediction data saved to {filename}")
 
     
 
