@@ -65,8 +65,9 @@ def main():
 
     train_data, temp_data = train_test_split(df, train_size=TRAIN_SIZE, random_state=SEED)
     val_data, test_data = train_test_split(temp_data, test_size=(TEST_SIZE / (VAL_SIZE + TEST_SIZE)), random_state=SEED)
+    df_test_indices = pd.DataFrame({'Test Set Indices in the Original Dataframe': test_data.index}, index=False)
     
-    test_data["indices"] = test_data.index
+    df_test_indices.to_csv(f'{split_dir}/test_indices.csv')
 
     for part in (train_data,val_data,test_data):
         part.reset_index(drop=True, inplace=True)
