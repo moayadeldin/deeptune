@@ -72,7 +72,6 @@ class RunType(Enum):
     EMBED = "embedding"
     GANDALF = "gandalf"
     TIMESERIES = 'timeseries'
-    OTHER = 'other'
 
 
 def get_model_cls(model_architecture: str, use_peft: bool = False) -> Type[nn.Module]:

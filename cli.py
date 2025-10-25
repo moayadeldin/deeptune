@@ -25,36 +25,34 @@ class DeepTuneVisionOptions:
         if run_type == (RunType.GANDALF):
             self._add_gandalf_args()
         if run_type == (RunType.TIMESERIES):
-            self._add_timeseries_args
-        if run_type == (RunType.OTHER):
-            self._add_other_args()
+            self._add_timeseries_args()
 
         parsed_args = self.parser.parse_args(args)
-
-        self.input_dir: Optional[Path] = parsed_args.input_dir
-        self.mode: Optional[str] = parsed_args.mode
-        self.num_classes: Optional[int] = parsed_args.num_classes
+        
         self.out: Optional[Path] = parsed_args.out.resolve() if parsed_args.out else None
-
-        self.model_version: Optional[str] = parsed_args.model_version
-        self.added_layers: Optional[int] = parsed_args.added_layers
-        self.embed_size: Optional[int] = parsed_args.embed_size
-        self.freeze_backbone: bool = parsed_args.freeze_backbone
-        self.fixed_seed: bool = parsed_args.fixed_seed
         self.batch_size: Optional[int] = parsed_args.batch_size
-
+        
+        if run_type in (RunType.TRAIN, RunType.GANDALF, RunType.TIMESERIES):
+            self.num_epochs: Optional[int] = parsed_args.num_epochs
+            
+        if run_type in (RunType.TRAIN, RunType.EVAL):
+            self.num_classes: Optional[int] = parsed_args.num_classes
+            self.mode: Optional[str] = parsed_args.mode
+        
+        if run_type in (RunType.TRAIN, RunType.EVAL, RunType.EMBED):
+            self.model_version: Optional[str] = parsed_args.model_version
+            self.added_layers: Optional[int] = parsed_args.added_layers
+            self.embed_size: Optional[int] = parsed_args.embed_size
+            self.freeze_backbone: bool = parsed_args.freeze_backbone
+            
         if run_type == RunType.TRAIN:
+            self.fixed_seed: bool = parsed_args.fixed_seed
             self.num_epochs: Optional[int] = parsed_args.num_epochs
             self.learning_rate: Optional[float] = parsed_args.learning_rate
             self.train_df: Optional[Path] = parsed_args.train_df
             self.val_df:Optional[Path] = parsed_args.val_df
-            
-        if run_type == RunType.OTHER:
-            self.df_parquet_path: Optional[Path] = parsed_args.df_parquet_path
-            self.df_csv_path:Optional[Path] = parsed_args.df_csv_path
-
+            set_seed(self.fixed_seed)
         if run_type == RunType.GANDALF:
-            self.num_epochs: Optional[int] = parsed_args.num_epochs
             self.learning_rate: Optional[float] = parsed_args.learning_rate
             self.train_df: Optional[Path] = parsed_args.train_df
             self.val_df:Optional[Path] = parsed_args.val_df
@@ -68,8 +66,9 @@ class DeepTuneVisionOptions:
             )
             self.eval_df: Optional[Path] = parsed_args.eval_df or (self.input_dir / "test_split.parquet" if self.input_dir else None)
             
-        if run_type in RunType.TIMESERIES:
-            
+        if run_type == RunType.TIMESERIES:
+            self.train_df: Optional[Path] = parsed_args.train_df
+            self.val_df:Optional[Path] = parsed_args.val_df
             self.max_encoder_length: Optional[int] = parsed_args.max_encoder_length
             self.max_prediction_length: Optional[int] = parsed_args.max_prediction_length
             self.time_varying_known_categoricals = parsed_args.time_varying_known_categoricals
@@ -78,8 +77,9 @@ class DeepTuneVisionOptions:
             self.time_varying_unknown_reals = parsed_args.time_varying_unknown_reals
             self.time_varying_known_reals = parsed_args.time_varying_known_reals
             self.static_reals = parsed_args.static_reals
-            
-            self.time_idx_column = parsed_args.time_idx
+            self.time_idx_column = parsed_args.time_idx_column
+            self.target_column = parsed_args.target_column
+            self.group_ids = parsed_args.group_ids
             
             
         if run_type in (RunType.EVAL, RunType.EMBED):
@@ -97,7 +97,6 @@ class DeepTuneVisionOptions:
         
         self.model = self._parse_model_str(run_type)
         self.model_architecture = ( get_model_architecture(self.model_version) ) if self.model_version else 'not_provided'
-        set_seed(self.fixed_seed)
     
     def to_dict(self) -> dict:
         d = {}
@@ -130,8 +129,8 @@ class DeepTuneVisionOptions:
 
         # Dataset args
         p.add_argument('--input_dir', type=Path, help='Directory containing input data.')
-        p.add_argument('--mode', type=str, choices=['reg','cls'], help='Mode: Classification or Regression')
-        p.add_argument('--num_classes', type=int, help='Number of classes if the task is regression.')
+        p.add_argument('--mode', type=str, required=False, choices=['reg','cls'], help='Mode: Classification or Regression')
+        p.add_argument('--num_classes', type=int,required=False, help='Number of classes in your dataset.')
 
         p.add_argument('--out', type=Path, required=True, help='Destination directory name for results.')
 
@@ -157,17 +156,21 @@ class DeepTuneVisionOptions:
         p.add_argument('--max_encoder_length', type=int, default=30, help='maximum history length used by the time series dataset.')
         p.add_argument('--max_prediction_length', type=int, default=1, help='maximum prediction/decoder length')
         
-        p.add_argument('--time_varying_known_categoricals', nargs='+', type=str, default=None, help='list of categorical variables that change over time and are known in the future.')
-        p.add_argument('--time_varying_unknown_categoricals', nargs='+', type=str, default=None, help='list of categorical variables that are not known in the future and change over time. Target Variables should be included here if they are categorical.')
-        p.add_argument('--static_categoricals', nargs='+', type=str, default=None, help='list of categorical variables that do not change over time.')
+        p.add_argument('--time_varying_known_categoricals', nargs='+', type=str, default=[], help='list of categorical variables that change over time and are known in the future.')
+        p.add_argument('--time_varying_unknown_categoricals', nargs='+', type=str, default=[], help='list of categorical variables that are not known in the future and change over time. Target Variables should be included here if they are categorical.')
+        p.add_argument('--static_categoricals', nargs='+', type=str, default=[], help='list of categorical variables that do not change over time.')
         
-        p.add_argument('--time_varying_unknown_reals', nargs='+', type=str, default=None, help='list of continuous variables that are not known in the future and change over time. Target Variables should be included here if they are continuous.')
-        p.add_argument('--time_varying_known_reals', nargs='+', type=str, default=None, help='list of continuous variables that change over time and are known in the future.')
-        p.add_argument('--static_reals', nargs='+', type=str, default=None, help='list of continuous variables that do not change over time.')
-        p.add_argument('--time_idx_column', nargs='+', type=str, default=None, help='integer typed column denoting the time index within data.')
+        p.add_argument('--time_varying_unknown_reals', nargs='+', type=str, default=[], help='list of continuous variables that are not known in the future and change over time. Target Variables should be included here if they are continuous.')
+        p.add_argument('--time_varying_known_reals', nargs='+', type=str, default=[], help='list of continuous variables that change over time and are known in the future.')
+        p.add_argument('--static_reals', nargs='+', type=str, default=[], help='list of continuous variables that do not change over time.')
+        p.add_argument('--time_idx_column', type=str, default=None, help='integer typed column denoting the time index within data.')
+        p.add_argument('--group_ids',type=str,default=None, help='List of column names identifying a time series instance within your data. If you have only one timeseries, set this to the name of column that is constant.')
+        p.add_argument('--train_df', type=Path, help='PARQUET file containing train data.')
+        p.add_argument('--val_df', type=Path, help='PARQUET file containing validation data.')
+        p.add_argument('--num_epochs', type=int, help='Number of epochs.')
+        p.add_argument('--target_column', type=str, help='Target Column')
         
         
-
     def _add_eval_embed_args(self):
         p = self.parser
         p.add_argument('--df', type=Path, help='PARQUET file containing data.')
@@ -204,11 +207,7 @@ class DeepTuneVisionOptions:
         p.add_argument('--val_df', type=Path, help='PARQUET file containing validation data.')
         p.add_argument('--eval_df', type=Path, help='PARQUET file containing testing data.')
         p.add_argument('--model_weights', type=Path, help='Path to model weights.')
-        
-    def _add_other_args(self):
-        p = self.parser
-        p.add_argument('--df_parquet_path', type=str, help='First dataframe to feed for getting intersection')
-        p.add_argument('--df_csv_path', type=str, help='Second dataframe to feed for getting intersection')
+    
         
 
     def _parse_model_str(self, mode: RunType) -> str:
@@ -216,8 +215,9 @@ class DeepTuneVisionOptions:
             prefix_str = "PEFT" if self.use_peft else "FINETUNED"
         elif mode == RunType.GANDALF:
             prefix_str = "GANDALF"
-        elif mode == RunType.OTHER:
-            prefix_str = None
+        elif mode == RunType.TIMESERIES:
+            prefix_str = "TIMESERIES"
+            self.model_version=None
         else:
             prefix_str = self.use_case.value.upper()
 

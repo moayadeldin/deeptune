@@ -7,7 +7,7 @@ from pandas import DataFrame
 from pathlib import Path
 from sklearn.preprocessing import LabelEncoder
 from sklearn.model_selection import train_test_split
-
+import warnings
 from utils import save_cli_args
 
 
@@ -30,8 +30,14 @@ def main():
 
     FIXED_SEED = args.fixed_seed
     DISABLE_NUMERICAL_ENCODING = args.disable_numerical_encoding
-    SEED: int = 42 if FIXED_SEED else np.random.randint(low=0, high=1_000)
+    if FIXED_SEED:
+        SEED: int = 42
+    else:
+        SEED = np.random.randint(low=0, high=1_000)
 
+        warnings.warn('This will set a random seed for different initialization affecting Deeptune, inclduing weights and datasets splits. You are safe to neglect this warning if you are using Deeptune for purposes other than training or generating data splits', category=UserWarning)
+        warnings.warn("This is liable to increase variability across consecutive runs of DeepTune.", category=UserWarning)
+        
     OUT_DIR: Path = args.out
     split_dir = OUT_DIR / f"data_splits_{UNIQUE_ID}"
 
@@ -43,7 +49,7 @@ def main():
 
     ### NOTE THAT THE LABELS FOR DEEPTUNE MUST BE NUMERICALLY ENCODED ###
 
-    if not DISABLE_NUMERICAL_ENCODING:
+    if not DISABLE_NUMERICAL_ENCODING and 'labels' in df.columns:
         CLASS_NAMES = df['labels']
         le = LabelEncoder()
         le.fit(CLASS_NAMES)
