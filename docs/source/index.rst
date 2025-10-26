@@ -63,7 +63,7 @@ If you make use of `DeepTune`, please cite the repository as follows:
 
    @software{DeepTune,
    author  = {Moayadeldin Hussain, John Kendall and Jacob Levman},
-   title   = {DeepTune: Cutting-edge library Automating the integration of state-of-the-art deep learning models on image, text, and tabular datasets},
+   title   = {DeepTune: Cutting-edge library Automating the integration of state-of-the-art deep learning models for multimodal applications},
    year = {2025},
    url = {https://github.com/moayadeldin/deeptune},
    version = {1.1.0}
