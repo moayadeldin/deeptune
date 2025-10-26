@@ -1,0 +1,30 @@
+Welcome to Deeptune's documentation!
+===================================
+
+**DeepTune** is a full compatible library to automate Computer Vision, and Natural Language Processing, state-of-the-art algorithms on diverse images and text datasets. The library is designed for use in different applied machine learning domains, including but not limited to medical imaging, and natural language understanding, providing users with powerful, ready-to-use CLI tool that unlock the full potential of their case studies through just a few simple commands.
+
+Check out the :doc:`guides/install` section for further information, including how to install the library.
+
+.. note::
+
+   This project is under active development.
+
+Contents
+--------
+
+.. toctree::
+   :maxdepth: 2
+   :caption: User Guide
+
+   guides/install
+   guides/preface
+
+.. toctree::
+   :maxdepth: 2
+   :caption: Functionalities
+
+   functionalities/handlers/split
+   functionalities/handlers/training
+   functionalities/handlers/evaluation
+   functionalities/handlers/embedding
+   functionalities/handlers/dfanalyze

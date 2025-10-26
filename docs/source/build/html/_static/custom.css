@@ -1,0 +1,62 @@
+/* === Sidebar base === */
+.wy-nav-side,
+.wy-side-nav-search {
+  background-color: #1FA672 !important; /* your green */
+}
+
+/* Sidebar headings (section captions) */
+.wy-menu-vertical .caption,
+.wy-menu-vertical .caption span.caption-text {
+  color: #e8fff3 !important;
+  opacity: 1 !important;
+}
+
+/* Level 1 items */
+.wy-menu-vertical .toctree-l1 > a {
+  color: #f5fff9 !important;
+  font-weight: 600;
+}
+
+/* Nested items */
+.wy-menu-vertical .toctree-l2 a,
+.wy-menu-vertical .toctree-l3 a {
+  color: #ecfff6 !important;
+}
+
+/* Hover + focus states */
+.wy-menu-vertical a:hover,
+.wy-menu-vertical a:focus {
+  color: #ffffff !important;
+  background: rgba(255, 255, 255, 0.10) !important;
+}
+
+/* Active/expanded item */
+.wy-menu-vertical .current > a,
+.wy-menu-vertical .current > a:hover {
+  color: #ffffff !important;
+  background: rgba(0, 0, 0, 0.15) !important;
+  border-right: 0 !important;
+}
+
+/* Search box contrast */
+.wy-side-nav-search input[type="text"] {
+  background: #ffffff !important;
+  color: #234 !important;
+  border: 2px solid #ffffff !important;
+  box-shadow: none !important;
+}
+
+/* Content links inside main page use the same green */
+a {
+  color: #1FA672;
+}
+a:hover, a:focus {
+  color: #158a5c;
+}
+
+/* Optional: version flyout styling (if enabled) */
+.rst-versions,
+.rst-versions .rst-current-version {
+  background-color: #0f7f57 !important;
+  border-top-color: #0f7f57 !important;
+}

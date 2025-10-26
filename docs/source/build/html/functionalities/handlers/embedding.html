@@ -1,0 +1,217 @@
+
+
+<!DOCTYPE html>
+<html class="writer-html5" lang="en" data-content_root="../../">
+<head>
+  <meta charset="utf-8" /><meta name="viewport" content="width=device-width, initial-scale=1" />
+
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>Using DeepTune for Knowledge Extraction &mdash; DeepTune 0.1 documentation</title>
+      <link rel="stylesheet" type="text/css" href="../../_static/pygments.css?v=b86133f3" />
+      <link rel="stylesheet" type="text/css" href="../../_static/css/theme.css?v=e59714d7" />
+
+  
+      <script src="../../_static/jquery.js?v=5d32c60e"></script>
+      <script src="../../_static/_sphinx_javascript_frameworks_compat.js?v=2cd50e6c"></script>
+      <script src="../../_static/documentation_options.js?v=2709fde1"></script>
+      <script src="../../_static/doctools.js?v=9bcbadda"></script>
+      <script src="../../_static/sphinx_highlight.js?v=dc90522c"></script>
+    <script src="../../_static/js/theme.js"></script>
+    <link rel="index" title="Index" href="../../genindex.html" />
+    <link rel="search" title="Search" href="../../search.html" />
+    <link rel="next" title="[EXTRA] Integration with df-analyze" href="dfanalyze.html" />
+    <link rel="prev" title="Using DeepTune for Evaluation" href="evaluation.html" /> 
+</head>
+
+<body class="wy-body-for-nav"> 
+  <div class="wy-grid-for-nav">
+    <nav data-toggle="wy-nav-shift" class="wy-nav-side">
+      <div class="wy-side-scroll">
+        <div class="wy-side-nav-search" >
+
+          
+          
+          <a href="../../index.html" class="icon icon-home">
+            DeepTune
+          </a>
+<div role="search">
+  <form id="rtd-search-form" class="wy-form" action="../../search.html" method="get">
+    <input type="text" name="q" placeholder="Search docs" aria-label="Search docs" />
+    <input type="hidden" name="check_keywords" value="yes" />
+    <input type="hidden" name="area" value="default" />
+  </form>
+</div>
+        </div><div class="wy-menu wy-menu-vertical" data-spy="affix" role="navigation" aria-label="Navigation menu">
+              <p class="caption" role="heading"><span class="caption-text">User Guide</span></p>
+<ul>
+<li class="toctree-l1"><a class="reference internal" href="../../guides/install.html">Installation</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../guides/preface.html">Preface</a></li>
+</ul>
+<p class="caption" role="heading"><span class="caption-text">Functionalities</span></p>
+<ul class="current">
+<li class="toctree-l1"><a class="reference internal" href="split.html">Handling Datasets</a></li>
+<li class="toctree-l1"><a class="reference internal" href="training.html">Using <cite>DeepTune</cite> for Training</a></li>
+<li class="toctree-l1"><a class="reference internal" href="evaluation.html">Using <cite>DeepTune</cite> for Evaluation</a></li>
+<li class="toctree-l1 current"><a class="current reference internal" href="#">Using <cite>DeepTune</cite> for Knowledge Extraction</a><ul>
+<li class="toctree-l2"><a class="reference internal" href="#images">Images</a></li>
+<li class="toctree-l2"><a class="reference internal" href="#text">Text</a></li>
+<li class="toctree-l2"><a class="reference internal" href="#tabular">Tabular</a></li>
+<li class="toctree-l2"><a class="reference internal" href="#embeddings-output">Embeddings Output</a></li>
+</ul>
+</li>
+<li class="toctree-l1"><a class="reference internal" href="dfanalyze.html">[EXTRA] Integration with df-analyze</a></li>
+</ul>
+
+        </div>
+      </div>
+    </nav>
+
+    <section data-toggle="wy-nav-shift" class="wy-nav-content-wrap"><nav class="wy-nav-top" aria-label="Mobile navigation menu" >
+          <i data-toggle="wy-nav-top" class="fa fa-bars"></i>
+          <a href="../../index.html">DeepTune</a>
+      </nav>
+
+      <div class="wy-nav-content">
+        <div class="rst-content">
+          <div role="navigation" aria-label="Page navigation">
+  <ul class="wy-breadcrumbs">
+      <li><a href="../../index.html" class="icon icon-home" aria-label="Home"></a></li>
+      <li class="breadcrumb-item active">Using <cite>DeepTune</cite> for Knowledge Extraction</li>
+      <li class="wy-breadcrumbs-aside">
+            <a href="../../_sources/functionalities/handlers/embedding.rst.txt" rel="nofollow"> View page source</a>
+      </li>
+  </ul>
+  <hr/>
+</div>
+          <div role="main" class="document" itemscope="itemscope" itemtype="http://schema.org/Article">
+           <div itemprop="articleBody">
+             
+  <section id="using-deeptune-for-knowledge-extraction">
+<h1>Using <cite>DeepTune</cite> for Knowledge Extraction<a class="headerlink" href="#using-deeptune-for-knowledge-extraction" title="Link to this heading"></a></h1>
+<p>After we trained and evaluated our fine-tuned model, the user may need to obtain intermediate knowledge representation of their data for further postprocessing according to their own choice. This practice is widely adpoted in medical imaging applications, where fine-tuned deep learning models serve as encoders for both image data and associated clinical metadata.</p>
+<p>We integrate <cite>DeepTune</cite> with <a class="reference external" href="https://github.com/stfxecutables/df-analyze">df-analyze</a> with both being part of the MIB Lab &#64;StFX open-source software contributions as we show in <a class="reference internal" href="dfanalyze.html"><span class="doc">[EXTRA] Integration with df-analyze</span></a> section.</p>
+<section id="images">
+<h2>Images<a class="headerlink" href="#images" title="Link to this heading"></a></h2>
+<p>The following is the generic CLI structure of running DeepTune for embeddings extraction of image datasets:</p>
+<div class="highlight-console notranslate"><div class="highlight"><pre><span></span><span class="gp">$ </span>python<span class="w"> </span>-m<span class="w"> </span>embed.vision.embed<span class="w"> </span><span class="se">\</span>
+--df<span class="w"> </span>&lt;path_to_df&gt;<span class="w"> </span><span class="se">\</span>
+--batch_size<span class="w"> </span>&lt;int&gt;<span class="w"> </span><span class="se">\</span>
+--num_classes<span class="w"> </span>&lt;int&gt;<span class="w"> </span><span class="se">\</span>
+--out<span class="w"> </span>&lt;str&gt;<span class="w"> </span><span class="se">\</span>
+--model_version<span class="w"> </span>&lt;str&gt;<span class="w"> </span><span class="se">\</span>
+--model_weights<span class="w"> </span>&lt;str&gt;<span class="w"> </span><span class="se">\</span>
+--added_layers<span class="w"> </span>&lt;int&gt;<span class="w"> </span><span class="se">\</span>
+--embed_size<span class="w"> </span>&lt;int&gt;<span class="w"> </span><span class="se">\</span>
+--mode<span class="w"> </span>&lt;cls_or_reg&gt;<span class="w"> </span><span class="se">\</span>
+--use_case<span class="w"> </span>&lt;finetuned_or_pretrained_or_peft&gt;<span class="w"> </span><span class="se">\</span>
+</pre></div>
+</div>
+<p>The <code class="docutils literal notranslate"><span class="pre">--use_case</span></code> argument specifies on which use case you want to use DeepTune for:</p>
+<blockquote>
+<div><ul class="simple">
+<li><p><cite>pretrained</cite>: Using the exact weights of the model as it is without any further training. This option allows you to use DeepTune with skipping the training and evaluation parts (You don’t need to specify <code class="docutils literal notranslate"><span class="pre">--added_layers</span></code>, <code class="docutils literal notranslate"><span class="pre">--embed_size</span></code>, and <code class="docutils literal notranslate"><span class="pre">--model_weights</span></code>).</p></li>
+<li><p><cite>finetuned</cite>: If you ran DeepTune for Transfer Learning without PeFT.</p></li>
+<li><p><cite>peft</cite>: If you ran DeepTune for Transfer Learning with PeFT.</p></li>
+</ul>
+<div class="admonition note">
+<p class="admonition-title">Note</p>
+<p>You feed the evaluator here the same <code class="docutils literal notranslate"><span class="pre">--added_layers</span></code> and <code class="docutils literal notranslate"><span class="pre">--embed_size</span></code> you used for your previous training run of DeepTune. Otherwise, a mismatch error will occur.</p>
+</div>
+</div></blockquote>
+<p>If everything is set correctly, and evaluation is done, you should expect an output in the same format:</p>
+</section>
+<section id="text">
+<h2>Text<a class="headerlink" href="#text" title="Link to this heading"></a></h2>
+<p>The following is the generic CLI structure of running DeepTune for embeddings extraction of text datasets:</p>
+<div class="highlight-console notranslate"><div class="highlight"><pre><span></span><span class="gp">$ </span>python<span class="w"> </span>-m<span class="w"> </span>embed.nlp.&lt;gpt2/multilingualbert&gt;_embeddings<span class="w"> </span><span class="se">\</span>
+--batch_size<span class="w"> </span>&lt;int&gt;<span class="w"> </span><span class="se">\</span>
+--num_classes<span class="w"> </span>&lt;int&gt;<span class="w"> </span><span class="se">\</span>
+--df<span class="w"> </span>&lt;path_to_df&gt;<span class="w"> </span><span class="se">\</span>
+--model_weights<span class="w"> </span>&lt;str&gt;<span class="w"> </span><span class="se">\</span>
+--added_layers<span class="w"> </span>&lt;int&gt;<span class="w"> </span><span class="se">\</span>
+--embed_size<span class="w"> </span>&lt;int&gt;<span class="w"> </span><span class="se">\</span>
+--use_case<span class="w"> </span>&lt;finetuned_or_pretrained_or_peft&gt;<span class="w"> </span><span class="se">\</span>
+</pre></div>
+</div>
+<div class="admonition note">
+<p class="admonition-title">Note</p>
+<p>We recall the same note mentioned in <a class="reference internal" href="training.html"><span class="doc">Using DeepTune for Training</span></a> and <a class="reference internal" href="evaluation.html"><span class="doc">Using DeepTune for Evaluation</span></a> sections which is that the arguments <code class="docutils literal notranslate"><span class="pre">--added_layers</span></code> and <code class="docutils literal notranslate"><span class="pre">--embed_size</span></code> for GPT-2 model are set by default due to design constraints.</p>
+</div>
+</section>
+<section id="tabular">
+<h2>Tabular<a class="headerlink" href="#tabular" title="Link to this heading"></a></h2>
+<p>The following is the generic CLI structure of running DeepTune for embeddings extraction of text datasets:</p>
+<div class="highlight-console notranslate"><div class="highlight"><pre><span></span><span class="gp">$ </span>python<span class="w"> </span>-m<span class="w"> </span>embed.vision.embed<span class="w"> </span><span class="se">\</span>
+--df<span class="w"> </span>&lt;path_to_df&gt;<span class="w"> </span><span class="se">\</span>
+--batch_size<span class="w"> </span>&lt;int&gt;<span class="w"> </span><span class="se">\</span>
+--out<span class="w"> </span>&lt;str&gt;<span class="w"> </span><span class="se">\</span>
+--tabular_target_column<span class="w"> </span>&lt;str&gt;<span class="w"> </span><span class="se">\</span>
+--model_weights<span class="w"> </span>&lt;str&gt;<span class="w"> </span><span class="se">\</span>
+--categorical_cols<span class="w"> </span><span class="se">\</span>
+--continuous_cols<span class="w"> </span><span class="se">\</span>
+</pre></div>
+</div>
+<div class="admonition note">
+<p class="admonition-title">Note</p>
+<p>As GANDALF relies on the standard training scheme without applying transfer learning, we do not use Parameter Efficient Fine-Tuning (PeFT), Fine-Tuning, or Pretrained options. Indeed, we only use the already trained model’s weights to obtain the embeddings.</p>
+</div>
+</section>
+<section id="embeddings-output">
+<h2>Embeddings Output<a class="headerlink" href="#embeddings-output" title="Link to this heading"></a></h2>
+<p>For images, text, or tabular data embeddings, you you may find the results in the directory specified with the <code class="docutils literal notranslate"><span class="pre">--out</span></code> or default <cite>DeepTune</cite> directory as follows:</p>
+<div class="highlight-console notranslate"><div class="highlight"><pre><span></span><span class="go">deeptune_results</span>
+<span class="go">├── embed_output_&lt;model_details&gt;_&lt;yyyymmdd&gt;_&lt;hhmm&gt;</span>
+<span class="go">    └── &lt;model_details&gt;_embeddings.parquet</span>
+<span class="go">    └── cli_arguments.json</span>
+<span class="go">    └── embedding_details.json</span>
+</pre></div>
+</div>
+<table class="docutils align-default">
+<colgroup>
+<col style="width: 25.0%" />
+<col style="width: 75.0%" />
+</colgroup>
+<tbody>
+<tr class="row-odd"><td><p><code class="docutils literal notranslate"><span class="pre">&lt;model_details&gt;_embeddings.parquet</span></code></p></td>
+<td><p>The parquet file containing knowledge representation itself.</p></td>
+</tr>
+<tr class="row-even"><td><p><code class="docutils literal notranslate"><span class="pre">embeddings_details.json</span></code></p></td>
+<td><p>Stores the amount of time needed between starting and completing the embeddings.</p></td>
+</tr>
+</tbody>
+</table>
+</section>
+</section>
+
+
+           </div>
+          </div>
+          <footer><div class="rst-footer-buttons" role="navigation" aria-label="Footer">
+        <a href="evaluation.html" class="btn btn-neutral float-left" title="Using DeepTune for Evaluation" accesskey="p" rel="prev"><span class="fa fa-arrow-circle-left" aria-hidden="true"></span> Previous</a>
+        <a href="dfanalyze.html" class="btn btn-neutral float-right" title="[EXTRA] Integration with df-analyze" accesskey="n" rel="next">Next <span class="fa fa-arrow-circle-right" aria-hidden="true"></span></a>
+    </div>
+
+  <hr/>
+
+  <div role="contentinfo">
+    <p>&#169; Copyright 2025, Moayadeldin Hussain.</p>
+  </div>
+
+  Built with <a href="https://www.sphinx-doc.org/">Sphinx</a> using a
+    <a href="https://github.com/readthedocs/sphinx_rtd_theme">theme</a>
+    provided by <a href="https://readthedocs.org">Read the Docs</a>.
+   
+
+</footer>
+        </div>
+      </div>
+    </section>
+  </div>
+  <script>
+      jQuery(function () {
+          SphinxRtdTheme.Navigation.enable(true);
+      });
+  </script> 
+
+</body>
+</html>
