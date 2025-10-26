@@ -17,8 +17,8 @@ Main Features
 - Fine-tuning state-of-the-art Computer Vision algorithms (ResNet, DenseNet, etc.) for image classification.
 - Fine-tuning state-of-the-art NLP (BERT, GPT-2) algorithms for text classification.
 - End-to-end training for tabular and time-series algorithms (time-series is temporarily disabled; scheduled for re-release soon).
-- Enabled parameter-efficient fine-tuning of state-of-the-art vision and NLP models using PEFT with LoRA, reducing computational cost while maintaining high performance.
-- Leveraged fine-tuned and pretrained state-of-the-art vision and language models to generate robust knowledge representations for downstream visual and textual tasks.
+- Enabling parameter-efficient fine-tuning of state-of-the-art vision and NLP models using PEFT with LoRA, reducing computational cost while maintaining high performance.
+- Leveraging fine-tuned and pretrained state-of-the-art vision and language models to generate robust knowledge representations for downstream visual and textual tasks.
 
 
 `DeepTune` Supported Models
@@ -62,9 +62,9 @@ If you make use of `DeepTune`, please cite the repository as follows:
 .. code-block:: bibtex
 
    @software{DeepTune,
-     author  = {Moayadeldin Hussain and John Kendall and Jacob Levman},
-     title   = {DeepTune: Cutting-edge library to automate Computer Vision and Natural Language Processing algorithms},
-     year    = {2025},
-     url     = {https://github.com/moayadeldin/deeptune},
-     version = {1.1.0}
+   author  = {Moayadeldin Hussain, John Kendall and Jacob Levman},
+   title   = {DeepTune: Cutting-edge library Automating the integration of state-of-the-art deep learning models on image, text, and tabular datasets},
+   year = {2025},
+   url = {https://github.com/moayadeldin/deeptune},
+   version = {1.1.0}
    }
