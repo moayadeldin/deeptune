@@ -18,7 +18,7 @@ def main():
 
     args = DeepTuneVisionOptions(RunType.GANDALF)
 
-    TEST_PATH = args.eval_df
+    TEST_PATH = args.df
     OUT = args.out
     MODEL_STR = 'GANDALF'
     BATCH_SIZE = args.batch_size
