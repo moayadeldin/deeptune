@@ -9,7 +9,7 @@
 
 - Fine-tuning state-of-the-art Computer Vision algorithms (ResNet, DenseNet, etc.) for image classification.
 - Fine-tuning state-of-the-art NLP (BERT, GPT-2) algorithms for text classification.
-- Enabled parameter-efficient fine-tuning of state-of-the-art vision and NLP models using PEFT with LoRA, reducing computational cost while maintaining high performance.
+- Enabling Parameter-Efficient Fine-Tuning (PEFT) of state-of-the-art vision and NLP models using PEFT with LoRA, reducing computational cost while maintaining high performance.
 - Providing PEFT with LoRA support for Computer Vision algorithms implemented, enabling state-of-the-art models that typically require substantial computational resources to perform efficiently on lower-powered devices. This approach not only reduces computational overhead but also enhances performance.
 - Leveraging fine-tuned and pretrained state-of-the-art vision and language models to generate robust knowledge representations for downstream visual and textual tasks.
   
