@@ -1,6 +1,7 @@
 # *DeepTune*
 
 [![deeptune tests](https://github.com/moayadeldin/deeptune/actions/workflows/test.yml/badge.svg)](https://github.com/moayadeldin/deeptune/actions/workflows/test.yml)
+[![Documentation Status](https://readthedocs.org/projects/deeptune/badge/?version=latest)](https://deeptune.readthedocs.io/en/latest/)
 
 ***DeepTune*** is a full compatible library to automate Computer Vision, and Natural Language Processing, state-of-the-art algorithms on diverse images and text datasets. The library is designed for use in different applied machine learning domains, including but not limited to medical imaging, natural language understanding, time series analysis, providing users with powerful, ready-to-use CLI tool that unlock the full potential of their case studies through just a few simple commands.
 
@@ -135,8 +136,8 @@ Also if you find this repository helpful, please cite it as follows:
 
 ```bibtex
 @software{DeepTune,
-  author = {Moayadeldin Hussain, John Kendall, Jacob Levman},
-  title = {DeepTune: Cutting-edge library to automate Computer Vision and Natural Language Processing algorithms.},
+  author  = {Moayadeldin Hussain, John Kendall and Jacob Levman},
+  title   = {DeepTune: Cutting-edge library Automating the integration of state-of-the-art deep learning models on image, text, and tabular datasets},
   year = {2025},
   url = {https://github.com/moayadeldin/deeptune},
   version = {1.1.0}
