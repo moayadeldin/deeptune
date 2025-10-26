@@ -28,14 +28,14 @@ class DeepTuneVisionOptions:
             self._add_timeseries_args()
 
         parsed_args = self.parser.parse_args(args)
-        
+        self.input_dir: Optional[Path] = parsed_args.input_dir.resolve() if parsed_args.input_dir else None
         self.out: Optional[Path] = parsed_args.out.resolve() if parsed_args.out else None
         self.batch_size: Optional[int] = parsed_args.batch_size
         
         if run_type in (RunType.TRAIN, RunType.GANDALF, RunType.TIMESERIES):
             self.num_epochs: Optional[int] = parsed_args.num_epochs
             
-        if run_type in (RunType.TRAIN, RunType.EVAL):
+        if run_type in (RunType.TRAIN, RunType.EVAL,RunType.EMBED):
             self.num_classes: Optional[int] = parsed_args.num_classes
             self.mode: Optional[str] = parsed_args.mode
         
@@ -65,6 +65,7 @@ class DeepTuneVisionOptions:
                 parsed_args.model_weights.resolve() if parsed_args.model_weights else None
             )
             self.eval_df: Optional[Path] = parsed_args.eval_df or (self.input_dir / "test_split.parquet" if self.input_dir else None)
+            self.df: Optional[Path] = parsed_args.df
             
         if run_type == RunType.TIMESERIES:
             self.train_df: Optional[Path] = parsed_args.train_df
@@ -132,7 +133,7 @@ class DeepTuneVisionOptions:
         p.add_argument('--mode', type=str, required=False, choices=['reg','cls'], help='Mode: Classification or Regression')
         p.add_argument('--num_classes', type=int,required=False, help='Number of classes in your dataset.')
 
-        p.add_argument('--out', type=Path, required=True, help='Destination directory name for results.')
+        p.add_argument('--out', type=Path, required=False, help='Destination directory name for results.')
 
         # Model args
         p.add_argument('--model_version', type=str, help='Model version to use.')

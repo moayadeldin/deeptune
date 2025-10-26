@@ -112,10 +112,14 @@ def load_vision_model(
 
     if use_case == 'peft':
         adjusted_model_cls = PEFT_MODEL_CLS_MAP.get(model_architecture)
+        if adjusted_model_cls is None:
+             raise ValueError(f'Make sure that you entered the correct model version as mentioned in DeepTune documentation of the available models versions.')
         model = adjusted_model_cls(num_classes, model_version, added_layers, embed_size, freeze_backbone, task_type=mode)
 
     elif use_case == 'finetuned':
         adjusted_model_cls = MODEL_CLS_MAP.get(model_architecture)
+        if adjusted_model_cls is None:
+             raise ValueError(f'Make sure that you entered the correct model version as mentioned in DeepTune documentation of the available models versions.')
         model = adjusted_model_cls(num_classes, model_version, added_layers, embed_size, freeze_backbone, task_type=mode)
 
     elif use_case == 'pretrained':
