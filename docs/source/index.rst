@@ -1,7 +1,7 @@
 Welcome to Deeptune's documentation!
 ===================================
 
-**DeepTune** is a full compatible library to automate Computer Vision, and Natural Language Processing, state-of-the-art algorithms on diverse images and text datasets. The library is designed for use in different applied machine learning domains, including but not limited to medical imaging, and natural language understanding, providing users with powerful, ready-to-use CLI tool that unlock the full potential of their case studies through just a few simple commands.
+**DeepTune** is a full compatible library to automate Computer Vision, Natural Language Processing, Tabular, and Time Series state-of-the-art deep learning algorithms for multimodal applications on image, text, tabular, and time series datasets. The library is designed for use in different applied machine learning domains, including but not limited to medical imaging, natural language understanding, time series analysis, providing users with powerful, ready-to-use CLI tool that unlock the full potential of their case studies through just a few simple commands.
 
 Check out the :doc:`guides/install` section for further information, including how to install the library.
 
