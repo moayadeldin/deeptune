@@ -5,7 +5,7 @@
 
 ***DeepTune*** is a full compatible library to automate Computer Vision, Natural Language Processing, Tabular, and Time Series state-of-the-art deep learning algorithms for multimodal applications on image, text, tabular, and time series datasets. The library is designed for use in different applied machine learning domains, including but not limited to medical imaging, natural language understanding, time series analysis, providing users with powerful, ready-to-use CLI tool that unlock the full potential of their case studies through just a few simple commands.
 
-We are glad to present `DeepTune` primarily for undergraduate and graduate students at StFX helping them carrying their own coursework and research, and aspire to seeing this software adopted broadly across the computer science research community.
+***DeepTune*** is primarily presented for undergraduate and graduate computer science students community at StFX, and we aspire to seeing this software adopted broadly across the computer science research community.
 
 ## Features
 
