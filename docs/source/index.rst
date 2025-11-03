@@ -3,6 +3,8 @@ Welcome to Deeptune's documentation!
 
 **DeepTune** is a full compatible library to automate Computer Vision, Natural Language Processing, Tabular, and Time Series state-of-the-art deep learning algorithms for multimodal applications on image, text, tabular, and time series datasets. The library is designed for use in different applied machine learning domains, including but not limited to medical imaging, natural language understanding, time series analysis, providing users with powerful, ready-to-use CLI tool that unlock the full potential of their case studies through just a few simple commands.
 
+**DeepTune** is primarily presented for undergraduate and graduate computer science students community at St. Francis Xavier University (StFX) in NS, and we aspire to seeing this software adopted broadly across the computer science research community all over the world.
+
 Check out the :doc:`guides/install` section for further information, including how to install the library.
 
 GitHub repository can be accessed through the following link: https://github.com/moayadeldin/deeptune
