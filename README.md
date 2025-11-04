@@ -112,24 +112,25 @@
       <td>Text</td>
       <td>bert-base-multilingual-cased</td>
     </tr>
-  <tr>
-    <td>GANDALF</td>
-    <td colspan="2" style="text-align:center; font-weight:bold; font-size:16px;">Supports End-to-End Conventional Training</td>
-    <td>✅</td>
-    <td>Classification & Regression</td>
-    <td>Tabular</td>
-    <td>GANDALF</td>
-  </tr>
-    </tbody>
-  </table>
-  <tr>
-    <td>DeepAR</td>
-    <td colspan="2" style="text-align:center; font-weight:bold; font-size:16px;">Supports End-to-End Conventional Training</td>
-    <td>✅</td>
-    <td>Time Series Forecasting</td>
-    <td>Time Series</td>
-    <td>DeepAR</td>
-  </tr>
+<tr>
+  <td>GANDALF</td>
+  <td colspan="2" style="text-align:center; font-weight:bold; font-size:16px;">Supports End-to-End Conventional Training</td>
+  <td>✅</td>
+  <td>Classification & Regression</td>
+  <td>Tabular</td</td>
+  <td>GANDALF</td>
+</tr>
+<tr>
+  <td>DeepAR</td>
+  <td colspan="2" style="text-align:center; font-weight:bold; font-size:16px;">Supports End-to-End Conventional Training</td>
+  <td>✅</td>
+  <td>Time Series Forecasting</td>
+  <td>Time Series</td>
+  <td>DeepAR</td>
+</tr>
+</tbody>
+</table>
+
 
 ## Documentation
 
