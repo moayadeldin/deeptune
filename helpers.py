@@ -342,6 +342,9 @@ def save_timeseries_prediction_to_json(prediction, outdir):
     Save PI Prediction Object to a JSON file.
     """
     
+    if not os.path.exists(outdir):
+        os.makedirs(outdir)
+    
     output_data =  {
         "model_prediction":tensor_to_list(prediction.output),
         "input_dictionary": tensor_to_list(prediction.x),
@@ -356,7 +359,7 @@ def save_timeseries_prediction_to_json(prediction, outdir):
     with open(filename, "w") as f:
         json.dump(output_data, f, indent=4)
 
-    print(f"Prediction data saved to {filename}")
+    print(f"Full Prediction output data information is saved to {filename}")
 
     
 

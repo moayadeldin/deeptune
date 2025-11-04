@@ -11,11 +11,10 @@ from lightning.pytorch.tuner import Tuner
 import numpy as np
 from helpers import save_timeseries_prediction_to_json
 from pytorch_forecasting.metrics import MAE
-import matplotlib.pyplot as plt
 from lightning.pytorch.callbacks import ModelCheckpoint
-import torch
 from lightning.pytorch import Trainer
-from options import UNIQUE_ID
+import time 
+from utils import save_process_times
 
 def main():
     
@@ -44,6 +43,8 @@ def main():
     val_df["__split"] = "val"
     
     df = pd.concat([train_df, val_df],ignore_index=True)
+    
+    TRAINVAL_OUTPUT_DIR = (OUT / f"trainval_deepAR_output_{UNIQUE_ID}")
     
     logger = TensorBoardLogger(
     save_dir=OUT,
@@ -119,12 +120,15 @@ def main():
     
         
     checkpoint_cb = ModelCheckpoint(
-    dirpath=f"{OUT/UNIQUE_ID}",
+    dirpath=TRAINVAL_OUTPUT_DIR,
     monitor="val_loss",
     mode="min",
     save_top_k=1,              
     filename="deepar-{epoch:02d}-{val_loss:.3f}",
     )
+    
+    total_time = 0
+    start_time = time.time()
     
     trainer = Trainer(accelerator='cpu', gradient_clip_val = GRADIENT_CLIP_VAL)
     
@@ -185,8 +189,6 @@ def main():
     )
     MAE()(predictions.output, predictions.y)
     
-    print(f"The Mean Absolute Error of your predictions are: {predictions.output}.")
-    
     pred = best_model.predict(
     val_dataloader,
     return_index=True,
@@ -196,7 +198,14 @@ def main():
     trainer_kwargs=dict(accelerator="cpu"),
     )
     
-    save_timeseries_prediction_to_json(pred, f"{OUT/UNIQUE_ID}")
+    print(f"Model's prediction of the target {TARGET_COLUMN} in the validation set is {pred.output.squeeze().item():.4f}")
+    
+    end_time = time.time()
+    total_time = end_time - start_time
+    
+    save_timeseries_prediction_to_json(pred, TRAINVAL_OUTPUT_DIR)
+    args.save_args(TRAINVAL_OUTPUT_DIR)
+    save_process_times(epoch_times=NUM_EPOCHS, total_duration=total_time, outdir=TRAINVAL_OUTPUT_DIR, process="training")
 
 if __name__ == "__main__":
     main()

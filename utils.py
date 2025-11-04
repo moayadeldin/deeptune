@@ -9,7 +9,7 @@ from argparse import Namespace, ArgumentError
 from enum import Enum
 from pathlib import Path
 from typing import Type
-
+import os
 from src.vision.densenet import adjustedDenseNet
 from src.vision.densenet_peft import adjustedPeftDenseNet
 from src.vision.efficientnet import adjustedEfficientNet
@@ -105,27 +105,27 @@ def get_model_architecture(model_version: str):
         return match.group()
     raise ValueError(f"Could not identify architecture from: {model_version}")
 
+### DEPRECATED ###
+# def save_cli_args(args: Namespace, outdir: Path) -> None:
+#     """
+#     Save the CLI arguments to a JSON file.
 
-def save_cli_args(args: Namespace, outdir: Path) -> None:
-    """
-    Save the CLI arguments to a JSON file.
-
-    Parameters
-    ----------
-    args: Namespace
-        Parsed CLI arguments.
+#     Parameters
+#     ----------
+#     args: Namespace
+#         Parsed CLI arguments.
     
-    outdir: Path
-        Directory to save the `cli_arguments.json` file.
-    """
-    cli_dict = args.__dict__.copy()
-    for k, v in cli_dict.items():
-        if isinstance(v, Path):
-            cli_dict[k] = str(v.resolve())
+#     outdir: Path
+#         Directory to save the `cli_arguments.json` file.
+#     """
+#     cli_dict = args.__dict__.copy()
+#     for k, v in cli_dict.items():
+#         if isinstance(v, Path):
+#             cli_dict[k] = str(v.resolve())
     
-    out_path = outdir / "cli_arguments.json"
-    with open(out_path, "w") as f:
-        json.dump(cli_dict, f, indent=4)
+#     out_path = os.path.join(outdir, "cli_arguments.json")
+#     with open(out_path, "w") as f:
+#         json.dump(cli_dict, f, indent=4)
 
 
 def set_seed(use_fixed_seed: bool) -> None:

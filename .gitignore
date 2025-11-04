@@ -21,3 +21,8 @@ evaluators/vision/evaluate_peft_siglip.py
 .pt_tmp
 saved_models
 notes.txt
+trainers\vision\custom_train_siglip_handler.py
+evaluators\vision\custom_evaluate_siglip_handler.py
+embed\vision\custom_embed_siglip_handler.py
+src\vision\siglip.py
+embed\timeseries

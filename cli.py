@@ -2,7 +2,6 @@ from argparse import ArgumentParser, RawTextHelpFormatter
 from enum import Enum
 from pathlib import Path
 from typing import Optional
-
 from utils import UseCase, RunType, get_model_architecture, set_seed
 
 
@@ -68,6 +67,7 @@ class DeepTuneVisionOptions:
             self.df: Optional[Path] = parsed_args.df
             
         if run_type == RunType.TIMESERIES:
+            self.df: Optional[Path] = parsed_args.df
             self.train_df: Optional[Path] = parsed_args.train_df
             self.val_df:Optional[Path] = parsed_args.val_df
             self.max_encoder_length: Optional[int] = parsed_args.max_encoder_length
@@ -81,6 +81,10 @@ class DeepTuneVisionOptions:
             self.time_idx_column = parsed_args.time_idx_column
             self.target_column = parsed_args.target_column
             self.group_ids = parsed_args.group_ids
+            self.eval_df: Optional[Path] = parsed_args.eval_df
+            self.model_weights: Optional[Path] = (
+                parsed_args.model_weights.resolve() if parsed_args.model_weights else None
+            )
             
             
         if run_type in (RunType.EVAL, RunType.EMBED):
@@ -154,13 +158,13 @@ class DeepTuneVisionOptions:
     def _add_timeseries_args(self):
         
         p = self.parser
+  
+        p.add_argument('--df', type=Path, help='PARQUET file containing data.')
         p.add_argument('--max_encoder_length', type=int, default=30, help='maximum history length used by the time series dataset.')
         p.add_argument('--max_prediction_length', type=int, default=1, help='maximum prediction/decoder length')
-        
         p.add_argument('--time_varying_known_categoricals', nargs='+', type=str, default=[], help='list of categorical variables that change over time and are known in the future.')
         p.add_argument('--time_varying_unknown_categoricals', nargs='+', type=str, default=[], help='list of categorical variables that are not known in the future and change over time. Target Variables should be included here if they are categorical.')
-        p.add_argument('--static_categoricals', nargs='+', type=str, default=[], help='list of categorical variables that do not change over time.')
-        
+        p.add_argument('--static_categoricals', nargs='+', type=str, default=[], help='list of categorical variables that do not change over time.')        
         p.add_argument('--time_varying_unknown_reals', nargs='+', type=str, default=[], help='list of continuous variables that are not known in the future and change over time. Target Variables should be included here if they are continuous.')
         p.add_argument('--time_varying_known_reals', nargs='+', type=str, default=[], help='list of continuous variables that change over time and are known in the future.')
         p.add_argument('--static_reals', nargs='+', type=str, default=[], help='list of continuous variables that do not change over time.')
@@ -170,7 +174,8 @@ class DeepTuneVisionOptions:
         p.add_argument('--val_df', type=Path, help='PARQUET file containing validation data.')
         p.add_argument('--num_epochs', type=int, help='Number of epochs.')
         p.add_argument('--target_column', type=str, help='Target Column')
-        
+        p.add_argument('--eval_df', type=Path, help='PARQUET file containing testing data.')
+        p.add_argument('--model_weights', required=False, type=Path, help='Path to model weights.')
         
     def _add_eval_embed_args(self):
         p = self.parser
