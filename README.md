@@ -11,7 +11,7 @@
 
 - Fine-tuning state-of-the-art Computer Vision algorithms (ResNet, DenseNet, etc.) for image classification.
 - Fine-tuning state-of-the-art NLP (BERT, GPT-2) algorithms for text classification.
-- Enabling Parameter-Efficient Fine-Tuning (PEFT) of state-of-the-art vision and language models using PEFT with LoRA, reducing computational cost while maintaining high performance.
+- End-to-end training for tabular and time-series algorithms.
 - Providing PEFT with LoRA support for Computer Vision algorithms implemented, enabling state-of-the-art models that typically require substantial computational resources to perform efficiently on lower-powered devices. This approach not only reduces computational overhead but also enhances performance.
 - Leveraging fine-tuned and pretrained state-of-the-art vision and language models to generate robust knowledge representations for downstream visual and textual tasks.
   
@@ -112,16 +112,24 @@
       <td>Text</td>
       <td>bert-base-multilingual-cased</td>
     </tr>
-<tr>
-  <td>GANDALF</td>
-  <td colspan="2" style="text-align:center; font-weight:bold; font-size:16px;">Only Supports Regular Training</td>
-  <td>✅</td>
-  <td>Classification & Regression</td>
-  <td>Tabular</td>
-  <td>GANDALF</td>
-</tr>
-  </tbody>
-</table>
+  <tr>
+    <td>GANDALF</td>
+    <td colspan="2" style="text-align:center; font-weight:bold; font-size:16px;">Supports End-to-End Conventional Training</td>
+    <td>✅</td>
+    <td>Classification & Regression</td>
+    <td>Tabular</td>
+    <td>GANDALF</td>
+  </tr>
+    </tbody>
+  </table>
+  <tr>
+    <td>DeepAR</td>
+    <td colspan="2" style="text-align:center; font-weight:bold; font-size:16px;">Supports End-to-End Conventional Training</td>
+    <td>✅</td>
+    <td>Time Series Forecasting</td>
+    <td>Time Series</td>
+    <td>DeepAR</td>
+  </tr>
 
 ## Documentation
 
