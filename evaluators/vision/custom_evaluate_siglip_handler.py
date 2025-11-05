@@ -14,7 +14,7 @@ from datasets.image_datasets import ParquetImageDataset
 from options import UNIQUE_ID, DEVICE, NUM_WORKERS, PERSIST_WORK, PIN_MEM
 from src.vision.siglip import CustomSiglipModel, CustomSigLIPWithPeft, load_siglip_processor_offline, load_siglip_variant
 
-from utils import save_cli_args, UseCase, save_process_times
+from utils import UseCase, save_process_times
 
 
 def evaluate_siglip(
