@@ -1,0 +1,138 @@
+
+
+<!DOCTYPE html>
+<html class="writer-html5" lang="en" data-content_root="../">
+<head>
+  <meta charset="utf-8" /><meta name="viewport" content="width=device-width, initial-scale=1" />
+
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>Preface &mdash; DeepTune 1.1.0 documentation</title>
+      <link rel="stylesheet" type="text/css" href="../_static/pygments.css?v=b86133f3" />
+      <link rel="stylesheet" type="text/css" href="../_static/css/theme.css?v=e59714d7" />
+
+  
+      <script src="../_static/jquery.js?v=5d32c60e"></script>
+      <script src="../_static/_sphinx_javascript_frameworks_compat.js?v=2cd50e6c"></script>
+      <script src="../_static/documentation_options.js?v=fc837d61"></script>
+      <script src="../_static/doctools.js?v=9bcbadda"></script>
+      <script src="../_static/sphinx_highlight.js?v=dc90522c"></script>
+    <script src="../_static/js/theme.js"></script>
+    <link rel="index" title="Index" href="../genindex.html" />
+    <link rel="search" title="Search" href="../search.html" />
+    <link rel="next" title="Handling Datasets" href="../functionalities/handlers/split.html" />
+    <link rel="prev" title="Installation" href="install.html" /> 
+</head>
+
+<body class="wy-body-for-nav"> 
+  <div class="wy-grid-for-nav">
+    <nav data-toggle="wy-nav-shift" class="wy-nav-side">
+      <div class="wy-side-scroll">
+        <div class="wy-side-nav-search" >
+
+          
+          
+          <a href="../index.html" class="icon icon-home">
+            DeepTune
+          </a>
+<div role="search">
+  <form id="rtd-search-form" class="wy-form" action="../search.html" method="get">
+    <input type="text" name="q" placeholder="Search docs" aria-label="Search docs" />
+    <input type="hidden" name="check_keywords" value="yes" />
+    <input type="hidden" name="area" value="default" />
+  </form>
+</div>
+        </div><div class="wy-menu wy-menu-vertical" data-spy="affix" role="navigation" aria-label="Navigation menu">
+              <p class="caption" role="heading"><span class="caption-text">User Guide</span></p>
+<ul class="current">
+<li class="toctree-l1"><a class="reference internal" href="install.html">Installation</a></li>
+<li class="toctree-l1 current"><a class="current reference internal" href="#">Preface</a></li>
+</ul>
+<p class="caption" role="heading"><span class="caption-text">Functionalities</span></p>
+<ul>
+<li class="toctree-l1"><a class="reference internal" href="../functionalities/handlers/split.html">Handling Datasets</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../functionalities/handlers/training.html">Using <cite>DeepTune</cite> for Training</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../functionalities/handlers/evaluation.html">Using <cite>DeepTune</cite> for Evaluation</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../functionalities/handlers/embedding.html">Using <cite>DeepTune</cite> for Knowledge Extraction</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../functionalities/handlers/dfanalyze.html">[EXTRA] Integration with df-analyze</a></li>
+</ul>
+
+        </div>
+      </div>
+    </nav>
+
+    <section data-toggle="wy-nav-shift" class="wy-nav-content-wrap"><nav class="wy-nav-top" aria-label="Mobile navigation menu" >
+          <i data-toggle="wy-nav-top" class="fa fa-bars"></i>
+          <a href="../index.html">DeepTune</a>
+      </nav>
+
+      <div class="wy-nav-content">
+        <div class="rst-content">
+          <div role="navigation" aria-label="Page navigation">
+  <ul class="wy-breadcrumbs">
+      <li><a href="../index.html" class="icon icon-home" aria-label="Home"></a></li>
+      <li class="breadcrumb-item active">Preface</li>
+      <li class="wy-breadcrumbs-aside">
+            <a href="../_sources/guides/preface.rst.txt" rel="nofollow"> View page source</a>
+      </li>
+  </ul>
+  <hr/>
+</div>
+          <div role="main" class="document" itemscope="itemscope" itemtype="http://schema.org/Article">
+           <div itemprop="articleBody">
+             
+  <section id="preface">
+<h1>Preface<a class="headerlink" href="#preface" title="Link to this heading"></a></h1>
+<p>Now as you installed the required packages needed for <em>DeepTune</em>, and just before running your first <em>DeepTune</em> program, you may read this preface to get more engaged on what exactly to expect from the program.</p>
+<p><em>DeepTune</em> currently supports finetuning 6 different state-of-the-art image classification models to fine-tune your dataset with: ResNet, DenseNet, Swin, EfficientNet, VGGNet, and ViT for images, with BERT, and GPT-2 for images. More details of the supported variants is found in the documentation’s supported models table.</p>
+<p><em>DeepTune</em> gives you also a wide flexible set of options to choose what you think would suit your case the best. The options are as follows:</p>
+<ul class="simple">
+<li><p><strong>Transfer Learning Mode</strong>: <em>DeepTune</em> currently supports applying partial fine-tuning or full fine-tuning for image and text pre-trained models. Only the added layers are updated during partial fine-tuning, while the rest of the model remains frozen. For full fine-tuning, the weights update is applied across the whole architecture.</p></li>
+<li><p><strong>Supporting Parameter Efficient Fine-tuning (PeFT)</strong>: PeFT techniques are known as capable of providing performance improvements while being resource-efficient. In <em>DeepTune</em>, PeFT with Low-Rank Adaptation (LoRA) is supported for full fine-tuning.</p></li>
+</ul>
+<div class="admonition note">
+<p class="admonition-title">Note</p>
+<p><em>DeepTune</em> currently doesn’t support PEFT for GPT-2.</p>
+</div>
+<ul class="simple">
+<li><p><strong>Adjustable Additional Layer Choices</strong>: Fine-tuning is commonly applied in Deep Learning by adding one or more layer(s) on the top of the fine-tuned model. <em>DeepTune</em> gives you the choice of adding one, or two layers on the top of the model. Moreover, for the last layer size (also referred to as Embedding Layer) this is specified by the user choice as a CLI argument.</p></li>
+<li><p><strong>Task Type</strong>: <em>DeepTune</em> provides initial support for converting classification-based models to work for regression.</p></li>
+<li><p><strong>Embeddings Extraction</strong>: <em>DeepTune</em> provides a wide support for extracting embeddings for your dataset for all of the models mentioned above. This application is extremely useful if you want to get a meaningful representation of your own dataset to utilize further (e.g, projecting in 2D and see how they correlate, provide them to classical ML approach, etc.)</p></li>
+</ul>
+<div class="admonition note">
+<p class="admonition-title">Note</p>
+<p>Kindly note that <em>DeepTune</em> for images and texts only accepts Parquet files as an input. The parquet file expected is actually containing two columns (among potentially many), If we work with images, then the two columns are [<cite>images</cite>, <cite>labels</cite>] pair. <strong>Images must be in Bytes Format for efficient representation, and labels must be numerically encoded</strong>. If we work with text, then the two columns are [<cite>text</cite>, <cite>labels</cite>] pair. For text, <strong>label column must be numerically encoded also.</strong></p>
+</div>
+</section>
+
+
+           </div>
+          </div>
+          <footer><div class="rst-footer-buttons" role="navigation" aria-label="Footer">
+        <a href="install.html" class="btn btn-neutral float-left" title="Installation" accesskey="p" rel="prev"><span class="fa fa-arrow-circle-left" aria-hidden="true"></span> Previous</a>
+        <a href="../functionalities/handlers/split.html" class="btn btn-neutral float-right" title="Handling Datasets" accesskey="n" rel="next">Next <span class="fa fa-arrow-circle-right" aria-hidden="true"></span></a>
+    </div>
+
+  <hr/>
+
+  <div role="contentinfo">
+    <p>&#169; Copyright 2025, Moayadeldin Hussain.</p>
+  </div>
+
+  Built with <a href="https://www.sphinx-doc.org/">Sphinx</a> using a
+    <a href="https://github.com/readthedocs/sphinx_rtd_theme">theme</a>
+    provided by <a href="https://readthedocs.org">Read the Docs</a>.
+   
+
+</footer>
+        </div>
+      </div>
+    </section>
+  </div>
+  <script>
+      jQuery(function () {
+          SphinxRtdTheme.Navigation.enable(true);
+      });
+  </script> 
+
+</body>
+</html>
