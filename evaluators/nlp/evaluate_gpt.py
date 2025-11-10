@@ -29,7 +29,7 @@ def main():
     MODEL_STR = 'GPT2'
     MODE = args.mode
     FREEZE_BACKBONE = args.freeze_backbone
-    USE_PEFT = args.use_peft
+    USE_PEFT = args.use_peft # disabled
 
     BATCH_SIZE = args.batch_size
     
@@ -39,7 +39,7 @@ def main():
     TEST_OUTPUT_DIR = (OUT / f"test_output_{MODEL_STR}_{UNIQUE_ID}") if OUT else Path(f"deeptune_results/test_output_{MODEL_STR}_{MODE}_{UNIQUE_ID}")
 
     if USE_PEFT:
-        pass
+        raise ValueError("PEFT is not supported for GPT2 yet.")
     else:
         gpt2_model,tokenizer = load_gpt2_model_offline()
         model =AdjustedGPT2Model(gpt_model=gpt2_model, freeze_backbone=FREEZE_BACKBONE)

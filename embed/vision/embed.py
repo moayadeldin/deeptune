@@ -15,7 +15,7 @@ from torchvision.models import Swin_T_Weights
 
 from datasets.image_datasets import ParquetImageDataset
 from options import UNIQUE_ID, DEVICE, NUM_WORKERS, PERSIST_WORK, PIN_MEM
-from embed.vision.custom_embed_siglip_handler import embed_with_siglip
+# from embed.vision.custom_embed_siglip_handler import embed_with_siglip
 from helpers import transformations
 import time
 from cli import DeepTuneVisionOptions
@@ -44,20 +44,20 @@ def main():
 
     EMBED_FILE = EMBED_OUTPUT / f"{MODEL_STR}_{MODE}_embeddings.parquet"
 
-    if MODEL_ARCHITECTURE == "siglip" and MODEL_VERSION == "siglip":
-        embed_with_siglip(
-            dataset_path=DF_PATH,
-            model_weights=MODEL_PATH,
-            num_classes=NUM_CLASSES,
-            added_layers=ADDED_LAYERS,
-            embed_size=EMBED_SIZE,
-            use_case=USE_CASE,
-            outdir=EMBED_OUTPUT,
-            output=EMBED_FILE,
-            device=DEVICE,
-        )
-        args.save_args(EMBED_OUTPUT)
-        return
+    # if MODEL_ARCHITECTURE == "siglip" and MODEL_VERSION == "siglip":
+    #     embed_with_siglip(
+    #         dataset_path=DF_PATH,
+    #         model_weights=MODEL_PATH,
+    #         num_classes=NUM_CLASSES,
+    #         added_layers=ADDED_LAYERS,
+    #         embed_size=EMBED_SIZE,
+    #         use_case=USE_CASE,
+    #         outdir=EMBED_OUTPUT,
+    #         output=EMBED_FILE,
+    #         device=DEVICE,
+    #     )
+    #     args.save_args(EMBED_OUTPUT)
+    #     return
 
     model = load_vision_model(
         model_architecture=MODEL_ARCHITECTURE,

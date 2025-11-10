@@ -10,7 +10,7 @@ from argparse import Namespace
 from pytorch_lightning.callbacks import Callback
 from transformers import GPT2Tokenizer, GPT2Model
 from transformers import BertModel, BertTokenizer
-
+import shutil
 from src.nlp.gpt2 import AdjustedGPT2Model
 from src.nlp.multilingual_bert import CustomMultilingualBERT
 from src.nlp.multilingual_bert_peft import CustomMultilingualPeftBERT
@@ -63,41 +63,6 @@ def fixed_seed(seed):
     torch.backends.cudnn.deterministic = True
     print("torch.backends.cudnn.deterministic set to True.")
 
-def save_finetunedbertmodel(model,tokenizer,output_dir,model_config):
-    
-    """
-    Save the BERT model after we finetune it.
-    
-    Args:
-        model (CustomMultilingualBERT): The finetuned model.
-        tokenizer (BertTokenizer): The tokenizer used for the model.
-        output_dir (str): The path to save the model.
-        model_config (dict): The configuration of different adjustments the user had to the model (e.g, the number of added layers, the embedding layer size, the number of classes in nue dataset).
-    """
-    
-    
-    if not os.path.exists(output_dir):
-        os.makedirs(output_dir)
-        
-        
-    # save model state dic
-    torch.save(model.state_dict(), os.path.join(output_dir,'model_weights.pth'))
-    print(f"Model weights saved to {os.path.join(output_dir, 'model_weights.pth')}")
-    
-    # save underlying BERT model
-    model.bert.save_pretrained(os.path.join(output_dir, "bert_model"))
-    print(f"BERT model saved to {os.path.join(output_dir, 'bert_model')}")
-    
-    # save tokenizer
-    tokenizer.save_pretrained(os.path.join(output_dir, "tokenizer"))
-    print(f"Tokenizer saved to {os.path.join(output_dir, 'tokenizer')}")
-    
-    # save model's layers
-    with open(os.path.join(output_dir, "model_config.json"), "w") as f:
-        json.dump(model_config, f)
-    print(f"Model configuration saved to {os.path.join(output_dir, 'model_config.json')}")
-    
-
 
 def load_finetunedbert_model(model_dir, use_peft=None, use_case=None):
     """
@@ -141,28 +106,6 @@ def load_finetunedbert_model(model_dir, use_peft=None, use_case=None):
 
     return model, tokenizer
 
-def save_finetuned_gpt2(model, tokenizer, output_dir, output_dim=1000):
-    """
-    Save the fine-tuned Adjusted GPT-2 model and tokenizer for later inference.
-    """
-    os.makedirs(output_dir, exist_ok=True)
-
-    # Save model weights
-    torch.save(model.state_dict(), os.path.join(output_dir, "model_weights.pth"))
-    print(f"Saved model weights to {os.path.join(output_dir, 'model_weights.pth')}")
-
-    # Save GPT-2 backbone separately
-    model.gpt2.save_pretrained(os.path.join(output_dir, "gpt2_model"))
-    tokenizer.save_pretrained(os.path.join(output_dir, "tokenizer"))
-    print(f"Saved GPT-2 backbone and tokenizer to {output_dir}")
-
-    # Save config for reproducibility
-    config = {
-        "output_dim": output_dim
-    }
-    with open(os.path.join(output_dir, "model_config.json"), "w") as f:
-        json.dump(config, f, indent=2)
-    print(f"Saved model config to {os.path.join(output_dir, 'model_config.json')}")
 
 def load_finetuned_gpt2(model_dir):
     """
@@ -259,15 +202,13 @@ class PerformanceLogger:
         df = pd.DataFrame(self.log_data)
         df.to_csv(file_path, index=False)
         print(f"Saved performance log to {file_path}")
-        
+                
      def save_to_parquet(self, file_path):
         os.makedirs(self.output_dir,exist_ok=True)
         """Save the logged data to a Parquet file."""
         df = pd.DataFrame(self.log_data)
         df.to_parquet(file_path, index=False)
         print(f"Saved performance log to {file_path}")
-        
-
 class PerformanceLoggerCallback(Callback):
 
     def __init__(self,performance_logger):
@@ -360,39 +301,3 @@ def save_timeseries_prediction_to_json(prediction, outdir):
         json.dump(output_data, f, indent=4)
 
     print(f"Full Prediction output data information is saved to {filename}")
-
-    
-
-def save_finetunedbertmodel(model,tokenizer,output_dir,model_config):
-    
-    """
-    Save the BERT model after we finetune it.
-    
-    Args:
-        model (CustomMultilingualBERT): The finetuned model.
-        tokenizer (BertTokenizer): The tokenizer used for the model.
-        output_dir (str): The path to save the model.
-        model_config (dict): The configuration of different adjustments the user had to the model (e.g, the number of added layers, the embedding layer size, the number of classes in nue dataset).
-    """
-    
-    
-    if not os.path.exists(output_dir):
-        os.makedirs(output_dir)
-        
-        
-    # save model state dic
-    torch.save(model.state_dict(), os.path.join(output_dir,'model_weights.pth'))
-    print(f"Model weights saved to {os.path.join(output_dir, 'model_weights.pth')}")
-    
-    # save underlying BERT model
-    model.bert.save_pretrained(os.path.join(output_dir, "bert_model"))
-    print(f"BERT model saved to {os.path.join(output_dir, 'bert_model')}")
-    
-    # save tokenizer
-    tokenizer.save_pretrained(os.path.join(output_dir, "tokenizer"))
-    print(f"Tokenizer saved to {os.path.join(output_dir, 'tokenizer')}")
-    
-    # save model's layers
-    with open(os.path.join(output_dir, "model_config.json"), "w") as f:
-        json.dump(model_config, f)
-    print(f"Model configuration saved to {os.path.join(output_dir, 'model_config.json')}")

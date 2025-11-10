@@ -12,7 +12,6 @@ from helpers import load_finetunedbert_model
 import time
 from pathlib import Path
 from options import UNIQUE_ID, DEVICE, NUM_WORKERS, PERSIST_WORK, PIN_MEM
-from embed.vision.custom_embed_siglip_handler import embed_with_siglip
 from cli import DeepTuneVisionOptions
 from utils import MODEL_CLS_MAP, PEFT_MODEL_CLS_MAP, RunType, save_process_times
 

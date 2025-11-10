@@ -8,7 +8,6 @@ from pathlib import Path
 from sklearn.preprocessing import LabelEncoder
 from sklearn.model_selection import train_test_split
 import warnings
-from utils import save_cli_args
 
 
 UNIQUE_ID = datetime.now().strftime("%Y%m%d_%H%M")
@@ -30,26 +29,40 @@ def main():
 
     FIXED_SEED = args.fixed_seed
     DISABLE_NUMERICAL_ENCODING = args.disable_numerical_encoding
-    if FIXED_SEED:
+        
+    OUT_DIR: Path = args.out
+
+    train_path, val_path, test_path = split_dataset(
+        train_size=TRAIN_SIZE,
+        val_size=VAL_SIZE,
+        test_size=TEST_SIZE,
+        df_path=DF_PATH,
+        out_dir=OUT_DIR,
+        fixed_seed=FIXED_SEED,
+        disable_numerical_encoding=DISABLE_NUMERICAL_ENCODING
+    )
+
+    print(f"Dataset splits saved to:\n Train:{train_path}\n Validation: {val_path}\n Test: {test_path}")
+
+def split_dataset(train_size: float, val_size: float, test_size:float, df_path: Path, out_dir: Path, fixed_seed: bool, disable_numerical_encoding: bool):
+    split_dir = out_dir / f"data_splits_{UNIQUE_ID}"
+    train_dataset_path = split_dir / f"train_split.parquet"
+    val_dataset_path = split_dir / f"val_split.parquet"
+    test_dataset_path = split_dir / f"test_split.parquet"
+    
+    df = pd.read_parquet(df_path)
+
+    if fixed_seed:
         SEED: int = 42
     else:
         SEED = np.random.randint(low=0, high=1_000)
 
         warnings.warn('This will set a random seed for different initialization affecting Deeptune, inclduing weights and datasets splits. You are safe to neglect this warning if you are using Deeptune for purposes other than training or generating data splits', category=UserWarning)
         warnings.warn("This is liable to increase variability across consecutive runs of DeepTune.", category=UserWarning)
-        
-    OUT_DIR: Path = args.out
-    split_dir = OUT_DIR / f"data_splits_{UNIQUE_ID}"
-
-    train_dataset_path = split_dir / f"train_split.parquet"
-    val_dataset_path = split_dir / f"val_split.parquet"
-    test_dataset_path = split_dir / f"test_split.parquet"
-    
-    df = pd.read_parquet(DF_PATH)
 
     ### NOTE THAT THE LABELS FOR DEEPTUNE MUST BE NUMERICALLY ENCODED ###
 
-    if not DISABLE_NUMERICAL_ENCODING and 'labels' in df.columns:
+    if not disable_numerical_encoding and 'labels' in df.columns:
         CLASS_NAMES = df['labels']
         le = LabelEncoder()
         le.fit(CLASS_NAMES)
@@ -63,9 +76,9 @@ def main():
     val_data: DataFrame
     test_data: DataFrame
 
-    train_data, temp_data = train_test_split(df, train_size=TRAIN_SIZE, random_state=SEED)
-    val_data, test_data = train_test_split(temp_data, test_size=(TEST_SIZE / (VAL_SIZE + TEST_SIZE)), random_state=SEED)
-    df_test_indices = pd.DataFrame({'Test Set Indices in the Original Dataframe': test_data.index}, index=False)
+    train_data, temp_data = train_test_split(df, train_size=train_size, random_state=SEED)
+    val_data, test_data = train_test_split(temp_data, test_size=(test_size / (val_size + test_size)), random_state=SEED)
+    df_test_indices = pd.DataFrame({'Test Set Indices in the Original Dataframe': test_data.index})
     
     df_test_indices.to_csv(f'{split_dir}/test_indices.csv')
 
@@ -76,10 +89,7 @@ def main():
     val_data.to_parquet(val_dataset_path, index=False)
     test_data.to_parquet(test_dataset_path, index=False)
 
-    print(f"Dataset splits saved to {split_dir}")
-
-    save_cli_args(args, split_dir)
-
+    return train_dataset_path, val_dataset_path, test_dataset_path
 
 def make_parser() -> ArgumentParser:
     parser = ArgumentParser(description="Split parquet file into Train, Val, and Test splits. Allows the same splits to be used for training several deep learners. The splits maintain all features.", formatter_class=RawTextHelpFormatter)

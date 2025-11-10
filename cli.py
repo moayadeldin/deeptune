@@ -3,8 +3,8 @@ from enum import Enum
 from pathlib import Path
 from typing import Optional
 from utils import UseCase, RunType, get_model_architecture, set_seed
-
-
+import json
+import os, shutil
 class DeepTuneVisionOptions:
     """
     Class for dynamically creating DeepTune's CLI arguments.
@@ -17,6 +17,8 @@ class DeepTuneVisionOptions:
         self.mode = run_type
         self._add_default_args()
         
+        if run_type == RunType.ONECALL:
+            self._add_onecall_args()
         if run_type == RunType.TRAIN:
             self._add_training_args()
         if run_type in (RunType.EVAL, RunType.EMBED):
@@ -27,9 +29,16 @@ class DeepTuneVisionOptions:
             self._add_timeseries_args()
 
         parsed_args = self.parser.parse_args(args)
-        self.input_dir: Optional[Path] = parsed_args.input_dir.resolve() if parsed_args.input_dir else None
+        # self.input_dir: Optional[Path] = parsed_args.input_dir.resolve() if parsed_args.input_dir else None
         self.out: Optional[Path] = parsed_args.out.resolve() if parsed_args.out else None
         self.batch_size: Optional[int] = parsed_args.batch_size
+
+        if run_type == RunType.ONECALL:
+            self.modality: str = parsed_args.modality
+            self.df: Optional[Path] = parsed_args.df
+            self.model_version: str = parsed_args.model_version
+            self.num_classes: Optional[int] = parsed_args.num_classes
+            self.use_peft: bool = parsed_args.use_peft
         
         if run_type in (RunType.TRAIN, RunType.GANDALF, RunType.TIMESERIES):
             self.num_epochs: Optional[int] = parsed_args.num_epochs
@@ -37,6 +46,7 @@ class DeepTuneVisionOptions:
         if run_type in (RunType.TRAIN, RunType.EVAL,RunType.EMBED):
             self.num_classes: Optional[int] = parsed_args.num_classes
             self.mode: Optional[str] = parsed_args.mode
+            self.use_peft: bool = parsed_args.use_peft
         
         if run_type in (RunType.TRAIN, RunType.EVAL, RunType.EMBED):
             self.model_version: Optional[str] = parsed_args.model_version
@@ -63,7 +73,7 @@ class DeepTuneVisionOptions:
             self.model_weights: Optional[Path] = (
                 parsed_args.model_weights.resolve() if parsed_args.model_weights else None
             )
-            self.eval_df: Optional[Path] = parsed_args.eval_df or (self.input_dir / "test_split.parquet" if self.input_dir else None)
+            self.eval_df: Optional[Path] = parsed_args.eval_df
             self.df: Optional[Path] = parsed_args.df
             
         if run_type == RunType.TIMESERIES:
@@ -88,7 +98,7 @@ class DeepTuneVisionOptions:
             
             
         if run_type in (RunType.EVAL, RunType.EMBED):
-            self.eval_df: Optional[Path] = parsed_args.eval_df or (self.input_dir / "test_split.parquet" if self.input_dir else None)
+            self.eval_df: Optional[Path] = parsed_args.eval_df
             self.df: Optional[Path] = parsed_args.df
             self.model_weights: Optional[Path] = (
                 parsed_args.model_weights.resolve() if parsed_args.model_weights else None
@@ -116,40 +126,55 @@ class DeepTuneVisionOptions:
                 d[k] = v
         return d
 
-    def save_args(self, outdir: Path) -> None:
+    def save_args(self, outdir: str) -> None:
         """
         Save the CLI arguments to a JSON file.
         """
         cli_dict = self.to_dict()
-        
-        outdir.mkdir(parents=True, exist_ok=True)
-        out_path = outdir / "cli_arguments.json"
-        
-        import json
-        with open(out_path, "w") as f:
-            json.dump(cli_dict, f, indent=4)
+
+        try:
+            outdir = Path(outdir)
+            outdir.mkdir(parents=True, exist_ok=True)
+
+            out_path = outdir / "cli_arguments.json"
+
+            with open(out_path, "w") as f:
+                json.dump({"example": "data"}, f, indent=2)
+
+        except Exception as e:
+            print(f"There is an Error while saving model: {e}")
+            # clean up incomplete directory
+            if os.path.exists(outdir):
+                shutil.rmtree(outdir, ignore_errors=True)
 
     def _add_default_args(self):
         p = self.parser
 
         # Dataset args
-        p.add_argument('--input_dir', type=Path, help='Directory containing input data.')
+        # p.add_argument('--input_dir', type=Path, help='Directory containing input data.')
         p.add_argument('--mode', type=str, required=False, choices=['reg','cls'], help='Mode: Classification or Regression')
-        p.add_argument('--num_classes', type=int,required=False, help='Number of classes in your dataset.')
-
+        # p.add_argument('--num_classes', type=int,required=False, help='Number of classes in your dataset.')
         p.add_argument('--out', type=Path, required=False, help='Destination directory name for results.')
 
         # Model args
         p.add_argument('--model_version', type=str, help='Model version to use.')
-        p.add_argument('--use-peft', action='store_true', help='Use PEFT-adapted model.')
         p.add_argument('--added_layers', type=int, choices=[1,2], help='Number of layers to add to the model.')
         p.add_argument('--embed_size', type=int, help='The number of features desired to obtain when using the model to extract embeddings.')
         p.add_argument('--freeze-backbone', action='store_true', help='Freeze backbone.')
         p.add_argument('--fixed-seed', action='store_true', help='Use fixed seed 42.')
         p.add_argument('--batch_size', type=int, help='Batch size.')
 
+    def _add_onecall_args(self):
+        p = self.parser
+        p.add_argument('--num_classes', type=int,required=False, help='Number of classes in your dataset.')
+        p.add_argument('--use-peft', action='store_true', help='Use PEFT-adapted model.')
+        p.add_argument("--modality", help="Modality you work on", choices=["text", "images"], required=True)
+        p.add_argument('--df', type=Path, required=True, help='Path to the dataframe (parquet file) to be used for training.')
+
     def _add_training_args(self):
         p = self.parser
+        p.add_argument('--num_classes', type=int,required=False, help='Number of classes in your dataset.')
+        p.add_argument('--use-peft', action='store_true', help='Use PEFT-adapted model.')
         p.add_argument('--num_epochs', type=int, help='Number of epochs.')
         p.add_argument('--learning_rate', type=float, help='Learning rate.')
         p.add_argument('--train_df', type=Path, help='PARQUET file containing train data.')
@@ -180,13 +205,15 @@ class DeepTuneVisionOptions:
     def _add_eval_embed_args(self):
         p = self.parser
         p.add_argument('--df', type=Path, help='PARQUET file containing data.')
+        p.add_argument('--use-peft', action='store_true', help='Use PEFT-adapted model.')
         p.add_argument('--eval_df', type=Path, help='PARQUET file containing testing data.')
+        p.add_argument('--num_classes', type=int,required=False, help='Number of classes in your dataset.')
         p.add_argument('--model_weights', required=False, type=Path, help='Path to model weights.')
         p.add_argument(
             '--use_case',
             type=UseCase.parse,
             choices=UseCase.choices(),
-            default=UseCase.PRETRAINED.value,
+            default=None,
             help="""
             The type of training applied to the model in use.
             
@@ -224,6 +251,8 @@ class DeepTuneVisionOptions:
         elif mode == RunType.TIMESERIES:
             prefix_str = "TIMESERIES"
             self.model_version=None
+        elif mode == RunType.ONECALL:
+            prefix_str = "PEFT" if self.use_peft else "FINETUNED"
         else:
             prefix_str = self.use_case.value.upper()
 

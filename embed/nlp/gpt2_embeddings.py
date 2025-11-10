@@ -8,7 +8,6 @@ from tqdm import tqdm
 import torch.nn as nn
 from pathlib import Path
 from options import UNIQUE_ID, DEVICE, NUM_WORKERS, PERSIST_WORK, PIN_MEM
-from embed.vision.custom_embed_siglip_handler import embed_with_siglip
 from cli import DeepTuneVisionOptions
 from utils import MODEL_CLS_MAP, PEFT_MODEL_CLS_MAP, RunType,save_process_times
 import time
@@ -21,11 +20,15 @@ def main():
     OUT = args.out
 
     USE_CASE = args.use_case.value
-    
+
+    print(USE_CASE)
+
     if USE_CASE == 'pretrained':
-        MODEL_STR = 'pretrained_BERT'
+        MODEL_STR = 'pretrained_GPT2'
     elif USE_CASE == 'finetuned':
-        MODEL_STR = 'FINETUNED_BERT'
+        MODEL_STR = 'FINETUNED_GPT2'
+    elif USE_CASE == "peft":
+        raise ValueError("PEFT is not supported for GPT2 yet.")
     else:
         raise ValueError('There is no third option other than ["finetuned", "pretrained"] For GPT2 in Deeptune (For now)')
 
