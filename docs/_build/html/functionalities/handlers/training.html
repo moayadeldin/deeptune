@@ -1,0 +1,323 @@
+
+
+<!DOCTYPE html>
+<html class="writer-html5" lang="en" data-content_root="../../">
+<head>
+  <meta charset="utf-8" /><meta name="viewport" content="width=device-width, initial-scale=1" />
+
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>Using DeepTune for Training &mdash; DeepTune 1.1.0 documentation</title>
+      <link rel="stylesheet" type="text/css" href="../../_static/pygments.css?v=b86133f3" />
+      <link rel="stylesheet" type="text/css" href="../../_static/css/theme.css?v=e59714d7" />
+
+  
+      <script src="../../_static/jquery.js?v=5d32c60e"></script>
+      <script src="../../_static/_sphinx_javascript_frameworks_compat.js?v=2cd50e6c"></script>
+      <script src="../../_static/documentation_options.js?v=fc837d61"></script>
+      <script src="../../_static/doctools.js?v=9bcbadda"></script>
+      <script src="../../_static/sphinx_highlight.js?v=dc90522c"></script>
+    <script src="../../_static/js/theme.js"></script>
+    <link rel="index" title="Index" href="../../genindex.html" />
+    <link rel="search" title="Search" href="../../search.html" />
+    <link rel="next" title="Using DeepTune for Evaluation" href="evaluation.html" />
+    <link rel="prev" title="Handling Datasets" href="split.html" /> 
+</head>
+
+<body class="wy-body-for-nav"> 
+  <div class="wy-grid-for-nav">
+    <nav data-toggle="wy-nav-shift" class="wy-nav-side">
+      <div class="wy-side-scroll">
+        <div class="wy-side-nav-search" >
+
+          
+          
+          <a href="../../index.html" class="icon icon-home">
+            DeepTune
+          </a>
+<div role="search">
+  <form id="rtd-search-form" class="wy-form" action="../../search.html" method="get">
+    <input type="text" name="q" placeholder="Search docs" aria-label="Search docs" />
+    <input type="hidden" name="check_keywords" value="yes" />
+    <input type="hidden" name="area" value="default" />
+  </form>
+</div>
+        </div><div class="wy-menu wy-menu-vertical" data-spy="affix" role="navigation" aria-label="Navigation menu">
+              <p class="caption" role="heading"><span class="caption-text">User Guide</span></p>
+<ul>
+<li class="toctree-l1"><a class="reference internal" href="../../guides/install.html">Installation</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../guides/preface.html">Preface</a></li>
+</ul>
+<p class="caption" role="heading"><span class="caption-text">Functionalities</span></p>
+<ul class="current">
+<li class="toctree-l1"><a class="reference internal" href="split.html">Handling Datasets</a></li>
+<li class="toctree-l1 current"><a class="current reference internal" href="#">Using <cite>DeepTune</cite> for Training</a><ul>
+<li class="toctree-l2"><a class="reference internal" href="#images">Images</a></li>
+<li class="toctree-l2"><a class="reference internal" href="#text">Text</a></li>
+<li class="toctree-l2"><a class="reference internal" href="#tabular">Tabular</a></li>
+<li class="toctree-l2"><a class="reference internal" href="#training-output">Training Output</a></li>
+</ul>
+</li>
+<li class="toctree-l1"><a class="reference internal" href="evaluation.html">Using <cite>DeepTune</cite> for Evaluation</a></li>
+<li class="toctree-l1"><a class="reference internal" href="embedding.html">Using <cite>DeepTune</cite> for Knowledge Extraction</a></li>
+<li class="toctree-l1"><a class="reference internal" href="dfanalyze.html">[EXTRA] Integration with df-analyze</a></li>
+</ul>
+
+        </div>
+      </div>
+    </nav>
+
+    <section data-toggle="wy-nav-shift" class="wy-nav-content-wrap"><nav class="wy-nav-top" aria-label="Mobile navigation menu" >
+          <i data-toggle="wy-nav-top" class="fa fa-bars"></i>
+          <a href="../../index.html">DeepTune</a>
+      </nav>
+
+      <div class="wy-nav-content">
+        <div class="rst-content">
+          <div role="navigation" aria-label="Page navigation">
+  <ul class="wy-breadcrumbs">
+      <li><a href="../../index.html" class="icon icon-home" aria-label="Home"></a></li>
+      <li class="breadcrumb-item active">Using <cite>DeepTune</cite> for Training</li>
+      <li class="wy-breadcrumbs-aside">
+            <a href="../../_sources/functionalities/handlers/training.rst.txt" rel="nofollow"> View page source</a>
+      </li>
+  </ul>
+  <hr/>
+</div>
+          <div role="main" class="document" itemscope="itemscope" itemtype="http://schema.org/Article">
+           <div itemprop="articleBody">
+             
+  <section id="using-deeptune-for-training">
+<h1>Using <cite>DeepTune</cite> for Training<a class="headerlink" href="#using-deeptune-for-training" title="Link to this heading"></a></h1>
+<section id="images">
+<h2>Images<a class="headerlink" href="#images" title="Link to this heading"></a></h2>
+<p>The following is the generic CLI structure of running <cite>DeepTune</cite> on images dataset stored in Parquet file as bytes format for training:</p>
+<div class="highlight-console notranslate"><div class="highlight"><pre><span></span><span class="gp">$ </span>python<span class="w"> </span>-m<span class="w"> </span>trainers.vision.train<span class="w"> </span><span class="se">\</span>
+--train_df<span class="w"> </span>&lt;str&gt;<span class="w"> </span><span class="se">\</span>
+--val_df<span class="w"> </span>&lt;str&gt;<span class="w"> </span><span class="se">\</span>
+--model_version<span class="w"> </span>&lt;str&gt;<span class="w"> </span><span class="se">\</span>
+--batch_size<span class="w"> </span>&lt;int&gt;<span class="w"> </span><span class="se">\</span>
+--num_classes<span class="w"> </span>&lt;int&gt;<span class="w"> </span><span class="se">\</span>
+--num_epochs<span class="w"> </span>&lt;int&gt;<span class="w"> </span><span class="se">\</span>
+--learning_rate<span class="w"> </span>&lt;float&gt;<span class="w"> </span><span class="se">\</span>
+--added_layers<span class="w"> </span>&lt;int&gt;<span class="w"> </span><span class="se">\</span>
+--embed_size<span class="w"> </span>&lt;int&gt;<span class="w"> </span><span class="se">\</span>
+--out<span class="w"> </span>&lt;str&gt;
+<span class="go">--mode &lt;cls_or_reg&gt; \</span>
+<span class="go">[--fixed-seed] \</span>
+<span class="go">[--use-peft] \</span>
+<span class="go">[--freeze-backbone]</span>
+</pre></div>
+</div>
+<table class="docutils align-default">
+<colgroup>
+<col style="width: 25.0%" />
+<col style="width: 75.0%" />
+</colgroup>
+<tbody>
+<tr class="row-odd"><td><p><code class="docutils literal notranslate"><span class="pre">--train_df</span> <span class="pre">&lt;str&gt;</span></code></p></td>
+<td><p>Path to your training dataset (must be a parquet file).</p></td>
+</tr>
+<tr class="row-even"><td><p><code class="docutils literal notranslate"><span class="pre">--val_df</span> <span class="pre">&lt;str&gt;</span></code></p></td>
+<td><p>Path to your validation dataset (must be a parquet file).</p></td>
+</tr>
+<tr class="row-odd"><td><p><code class="docutils literal notranslate"><span class="pre">--&lt;model&gt;_version</span> <span class="pre">&lt;str&gt;</span></code></p></td>
+<td><p>The model to use along with its respective architecture version.
+You may refer to the <em>Supported Models</em> table for available options.</p></td>
+</tr>
+<tr class="row-even"><td><p><code class="docutils literal notranslate"><span class="pre">--batch_size</span> <span class="pre">&lt;int&gt;</span></code></p></td>
+<td><p>Number of samples per batch.</p></td>
+</tr>
+<tr class="row-odd"><td><p><code class="docutils literal notranslate"><span class="pre">--num_classes</span> <span class="pre">&lt;int&gt;</span></code></p></td>
+<td><p>Number of classes in your dataset.</p></td>
+</tr>
+<tr class="row-even"><td><p><code class="docutils literal notranslate"><span class="pre">--num_epochs</span> <span class="pre">&lt;int&gt;</span></code></p></td>
+<td><p>Number of training epochs.</p></td>
+</tr>
+<tr class="row-odd"><td><p><code class="docutils literal notranslate"><span class="pre">--learning_rate</span> <span class="pre">&lt;float&gt;</span></code></p></td>
+<td><p>Learning rate used for optimization.</p></td>
+</tr>
+<tr class="row-even"><td><p><code class="docutils literal notranslate"><span class="pre">--added_layers</span> <span class="pre">&lt;int&gt;</span></code></p></td>
+<td><p>Number of layers added on top of the model for transfer learning (either with or without using PeFT).
+Only values <strong>1</strong> or <strong>2</strong> are supported currently.</p></td>
+</tr>
+<tr class="row-odd"><td><p><code class="docutils literal notranslate"><span class="pre">--embed_size</span> <span class="pre">&lt;int&gt;</span></code></p></td>
+<td><p>Size of the intermediate embedding layer (applicable when using two added layers).</p></td>
+</tr>
+<tr class="row-even"><td><p><code class="docutils literal notranslate"><span class="pre">--out</span> <span class="pre">&lt;str&gt;</span></code></p></td>
+<td><p>Path to the directory where you want to save the results.</p></td>
+</tr>
+<tr class="row-odd"><td><p><code class="docutils literal notranslate"><span class="pre">--fixed-seed</span></code></p></td>
+<td><p><em>(Flag)</em> Ensures that a fixed random seed is set for reproducibility.</p></td>
+</tr>
+<tr class="row-even"><td><p><code class="docutils literal notranslate"><span class="pre">--mode</span> <span class="pre">&lt;str&gt;</span></code></p></td>
+<td><p>Task mode: either <code class="docutils literal notranslate"><span class="pre">cls</span></code> for classification or <code class="docutils literal notranslate"><span class="pre">reg</span></code> for regression.</p></td>
+</tr>
+<tr class="row-odd"><td><p><code class="docutils literal notranslate"><span class="pre">--use-peft</span></code></p></td>
+<td><p><em>(Flag)</em> Enables <strong>Parameter-Efficient Fine-Tuning (PeFT)</strong>.</p></td>
+</tr>
+<tr class="row-even"><td><p><code class="docutils literal notranslate"><span class="pre">--freeze-backbone</span></code></p></td>
+<td><p><em>(Flag)</em> Determines whether to train only the added layers or update all model parameters during training.</p></td>
+</tr>
+</tbody>
+</table>
+<div class="admonition note">
+<p class="admonition-title">Note</p>
+<p>For using PeFT just add the <cite>–use-peft</cite> switch to the previous command.</p>
+</div>
+<p>For example, suppose that we want to train our model with ResNet18, and apply transfer learning to update the whole model’s weights, and an embedding layer of size 1000. Hence, we run the command as follows:</p>
+<div class="highlight-console notranslate"><div class="highlight"><pre><span></span><span class="gp">$ </span>python<span class="w"> </span>-m<span class="w"> </span>trainers.vision.train<span class="w"> </span>--train_df<span class="w"> </span>&lt;str&gt;<span class="w"> </span>--val_df<span class="w"> </span>&lt;str&gt;<span class="w"> </span>--model_version<span class="w"> </span>resnet18<span class="w"> </span>--batch_size<span class="w"> </span><span class="m">4</span><span class="w"> </span>--num_classes<span class="w"> </span><span class="m">2</span><span class="w"> </span>--num_epochs<span class="w"> </span><span class="m">10</span><span class="w"> </span>--learning_rate<span class="w"> </span><span class="m">0</span>.0001<span class="w"> </span>--added_layers<span class="w"> </span><span class="m">2</span><span class="w"> </span>--embed_size<span class="w"> </span><span class="m">1000</span><span class="w"> </span>--out<span class="w"> </span>&lt;str&gt;<span class="w"> </span>--mode<span class="w"> </span>cls<span class="w"> </span>--fixed-seed
+</pre></div>
+</div>
+<p>If everything is set correctly, you should expect an output in the same format:</p>
+<div class="highlight-text notranslate"><div class="highlight"><pre><span></span>&gt; os.environ[&#39;PYTHONHASHSEED&#39;] set to 42.
+&gt; np.random.seed(42) set.
+&gt; torch.manual_seed(42) set.
+&gt; torch.cuda.manual_seed(42) set.
+&gt; torch.cuda.manual_seed_all(42) set.
+&gt; torch.backends.cudnn.benchmark set to False.
+&gt; torch.backends.cudnn.deterministic set to True.
+&gt; Dataset is loaded!
+&gt; Data splits have been saved and overwritten if they existed.
+&gt; The Trainer class is loaded successfully.
+
+&gt; 4%|████    | 459/855 [00:17&lt;01:07,  5.89it/s, loss=0.43]
+</pre></div>
+</div>
+</section>
+<section id="text">
+<h2>Text<a class="headerlink" href="#text" title="Link to this heading"></a></h2>
+<p>Since <code class="docutils literal notranslate"><span class="pre">DeepTune</span></code> currently supports only two models for text classification, the way they are called in the CLI differs from that of image models. Apart from this, the CLI structure remains largely the same:</p>
+<div class="admonition note">
+<p class="admonition-title">Note</p>
+<p>GPT-2 model does not support PeFT right now in <code class="docutils literal notranslate"><span class="pre">DeepTune</span></code>.</p>
+</div>
+<div class="admonition note">
+<p class="admonition-title">Note</p>
+<p>There is no need to specify the <cite>–added_layers</cite> and <cite>–embed_size</cite> switches with using GPT-2 <strong>as they are already statically fixed due to design constraints</strong>.</p>
+</div>
+</section>
+<section id="tabular">
+<h2>Tabular<a class="headerlink" href="#tabular" title="Link to this heading"></a></h2>
+<p>Currently, <code class="docutils literal notranslate"><span class="pre">DeepTune</span></code> offers only support for GANDALF (Gated Adaptive Network for Deep Automated Learning of Features) model to provide predictions on your own tabular data. You can read more about GANDALF through the paper <a class="reference external" href="https://arxiv.org/abs/2207.08548">here</a>.</p>
+<p>The generic CLI workflow for applying GANDALF in <code class="docutils literal notranslate"><span class="pre">DeepTune</span></code> requires specifying certain columns before training can begin, which is mainly determining the continuous columns in your dataset and the categorical columns as an input.</p>
+<div class="admonition note">
+<p class="admonition-title">Note</p>
+<p>Currently, GANDALF implementation does not support transfer learning in the way we commonly applied to images or text above. Instead, it follows the standard training scheme, starting from scratch.</p>
+</div>
+<div class="highlight-console notranslate"><div class="highlight"><pre><span></span><span class="gp">$ </span>python<span class="w"> </span>-m<span class="w"> </span>trainers.tabular.train_gandalf<span class="w"> </span><span class="se">\</span>
+--train_df<span class="w"> </span>&lt;str&gt;<span class="w"> </span><span class="se">\</span>
+--val_df<span class="w"> </span>&lt;str&gt;<span class="w"> </span><span class="se">\</span>
+--batch_size<span class="w"> </span>&lt;int&gt;<span class="w"> </span><span class="se">\</span>
+--num_epochs<span class="w"> </span>&lt;int&gt;<span class="w"> </span><span class="se">\</span>
+--learning_rate<span class="w"> </span>&lt;float&gt;<span class="w"> </span><span class="se">\</span>
+--out<span class="w"> </span>&lt;str&gt;
+<span class="go">[--fixed-seed] \</span>
+<span class="go">--categorical_cols \</span>
+<span class="go">--continuous_cols \</span>
+<span class="go">--tabular_target_column &lt;str&gt; \</span>
+<span class="go">--gflu_stages &lt;int&gt;</span>
+</pre></div>
+</div>
+<table class="docutils align-default">
+<colgroup>
+<col style="width: 25.0%" />
+<col style="width: 75.0%" />
+</colgroup>
+<tbody>
+<tr class="row-odd"><td><p><code class="docutils literal notranslate"><span class="pre">--categorical_cols</span> <span class="pre">&lt;str&gt;</span> <span class="pre">(space-separated)</span></code></p></td>
+<td><p>Column names of the categorical fields to treat differently.</p></td>
+</tr>
+<tr class="row-even"><td><p><code class="docutils literal notranslate"><span class="pre">--continuous_cols</span> <span class="pre">&lt;str&gt;</span> <span class="pre">(space-separated)</span></code></p></td>
+<td><p>Column names of the numeric fields.</p></td>
+</tr>
+<tr class="row-odd"><td><p><code class="docutils literal notranslate"><span class="pre">--tabular_target_column</span> <span class="pre">&lt;str&gt;</span></code></p></td>
+<td><p>Target column within the dataset.</p></td>
+</tr>
+<tr class="row-even"><td><p><code class="docutils literal notranslate"><span class="pre">--gflu_stages</span> <span class="pre">&lt;int&gt;</span></code></p></td>
+<td><p>Number of GFLU stages for GANDALF.</p></td>
+</tr>
+</tbody>
+</table>
+<div class="admonition note">
+<p class="admonition-title">Note</p>
+<p><code class="docutils literal notranslate"><span class="pre">--gflu_stages</span></code> is a hyperparameter related to internal GANDALF working, according to the documentation on <a class="reference external" href="https://pytorch-tabular.readthedocs.io/en/latest/apidocs_model/#pytorch_tabular.models.GANDALFConfig">PyTorch Tabular</a>, it is the number of layers in the feature abstraction layer. The documentation defaults to 6 and we advise the same.</p>
+</div>
+</section>
+<section id="training-output">
+<h2>Training Output<a class="headerlink" href="#training-output" title="Link to this heading"></a></h2>
+<p>After training completes, you may find the results in the directory specified with the <cite>–out</cite> directory. Alternatively, <code class="docutils literal notranslate"><span class="pre">DeepTune</span></code> will create an output directory named  <cite>deeptune_results</cite> (if it does not already exist). Inside this directory, the results are organized in a subfolder using the following naming convention: <code class="docutils literal notranslate"><span class="pre">trainval_output_&lt;FINETUNED/PEFT&gt;_&lt;model_version&gt;_&lt;mode&gt;_&lt;yyyymmdd_hhmm&gt;</span></code> with the following output:</p>
+<div class="highlight-console notranslate"><div class="highlight"><pre><span></span><span class="go">output_directory</span>
+<span class="go">├── trainval_output_&lt;FINETUNED/PEFT&gt;_&lt;model_version&gt;_&lt;mode&gt;_&lt;yyyymmdd_hhmm&gt;</span>
+<span class="go">    └── cli_arguments.json</span>
+<span class="go">    └── model_weights.pth</span>
+<span class="go">    └── training_log.csv</span>
+<span class="go">    └── training_details.json</span>
+</pre></div>
+</div>
+<table class="docutils align-default">
+<colgroup>
+<col style="width: 25.0%" />
+<col style="width: 75.0%" />
+</colgroup>
+<tbody>
+<tr class="row-odd"><td><p><code class="docutils literal notranslate"><span class="pre">cli_arguments.json</span></code></p></td>
+<td><p>Records the CLI arguments you entered to run <code class="docutils literal notranslate"><span class="pre">DeepTune</span></code>.</p></td>
+</tr>
+<tr class="row-even"><td><p><code class="docutils literal notranslate"><span class="pre">model_weights.pth</span></code></p></td>
+<td><p>The fine-tuned model weights (used later for evaluation).</p></td>
+</tr>
+<tr class="row-odd"><td><p><code class="docutils literal notranslate"><span class="pre">training_log.csv</span></code></p></td>
+<td><p>A performance log reporting training and validation accuracies and errors for each epoch.</p></td>
+</tr>
+<tr class="row-even"><td><p><code class="docutils literal notranslate"><span class="pre">training_details.json</span></code></p></td>
+<td><p>Stores the amount of time needed between starting and completing the training.</p></td>
+</tr>
+</tbody>
+</table>
+<p>For text GPT-2 and BERT models, instead of the <code class="docutils literal notranslate"><span class="pre">model_weights.pth</span></code> file, you may find a whole subdirectory containing the tokenizer and model weights files.</p>
+<div class="highlight-console notranslate"><div class="highlight"><pre><span></span><span class="go">output_directory</span>
+<span class="go">└── trainval_output_&lt;BERT/GPT2&gt;_&lt;yyyymmdd_hhmm&gt;</span>
+<span class="go">    ├── tokenizer</span>
+<span class="go">    │   └── ...</span>
+<span class="go">    ├── model</span>
+<span class="go">    │   └── ...</span>
+<span class="go">    ├── model_weights.pth</span>
+<span class="go">    └── training_log.csv</span>
+</pre></div>
+</div>
+<p>For tabular data using GANDALF, the directory will be named as <code class="docutils literal notranslate"><span class="pre">trainval_output_&lt;GANDALF&gt;_&lt;mode&gt;_&lt;yyyymmdd_hhmm&gt;</span></code> with the weights stored in <code class="docutils literal notranslate"><span class="pre">GANDALF_model</span></code> subdirectory.</p>
+</section>
+</section>
+
+
+           </div>
+          </div>
+          <footer><div class="rst-footer-buttons" role="navigation" aria-label="Footer">
+        <a href="split.html" class="btn btn-neutral float-left" title="Handling Datasets" accesskey="p" rel="prev"><span class="fa fa-arrow-circle-left" aria-hidden="true"></span> Previous</a>
+        <a href="evaluation.html" class="btn btn-neutral float-right" title="Using DeepTune for Evaluation" accesskey="n" rel="next">Next <span class="fa fa-arrow-circle-right" aria-hidden="true"></span></a>
+    </div>
+
+  <hr/>
+
+  <div role="contentinfo">
+    <p>&#169; Copyright 2025, Moayadeldin Hussain.</p>
+  </div>
+
+  Built with <a href="https://www.sphinx-doc.org/">Sphinx</a> using a
+    <a href="https://github.com/readthedocs/sphinx_rtd_theme">theme</a>
+    provided by <a href="https://readthedocs.org">Read the Docs</a>.
+   
+
+</footer>
+        </div>
+      </div>
+    </section>
+  </div>
+  <script>
+      jQuery(function () {
+          SphinxRtdTheme.Navigation.enable(true);
+      });
+  </script> 
+
+</body>
+</html>

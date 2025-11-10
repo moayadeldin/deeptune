@@ -108,7 +108,7 @@ Since ``DeepTune`` currently supports only two models for text classification, t
     GPT-2 model does not support PeFT right now in ``DeepTune``.
 
 .. code-block:: console
-    $ python -m trainers.nlp.[train_multilinbert/train_gpt2] \
+    $ python -m trainers.nlp.[train_multilingualbert/train_gpt2] \
     --train_df <str> \
     --val_df <str> \
     --batch_size <int> \

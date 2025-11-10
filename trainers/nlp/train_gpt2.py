@@ -1,12 +1,8 @@
-from src.nlp.multilingual_bert import CustomMultilingualBERT
-from src.nlp.multilingual_bert_peft import CustomMultilingualPeftBERT
 from src.nlp.gpt2 import load_gpt2_model_offline
-from helpers import save_finetuned_gpt2
 from tqdm import tqdm
 import torch.nn as nn
 import torch
 import torch.optim as optim
-import options
 import logging
 from helpers import PerformanceLogger
 import sys
@@ -14,12 +10,12 @@ from src.nlp.gpt2 import AdjustedGPT2Model
 import time
 from cli import DeepTuneVisionOptions
 from utils import save_process_times
+import shutil
 from pathlib import Path
-from options import UNIQUE_ID, DEVICE, NUM_WORKERS, PERSIST_WORK, PIN_MEM
-from utils import get_model_cls,RunType,set_seed
+from options import UNIQUE_ID, DEVICE
+from utils import RunType,set_seed
+import json, os
 from datasets.text_datasets import TextDataset
-
-# Initialize the needed variables either from the CLI user sents or from the device.
 
 
 def main():
@@ -27,8 +23,6 @@ def main():
     args = DeepTuneVisionOptions(RunType.TRAIN)
     TRAIN_PATH: Path = args.train_df
     VAL_PATH: Path = args.val_df
-    DATA_DIR: Path = args.input_dir
-    MODE = args.mode
     OUT = args.out
     MODEL_STR = 'GPT2'
     FREEZE_BACKBONE = args.freeze_backbone
@@ -39,22 +33,56 @@ def main():
     NUM_EPOCHS = args.num_epochs
     LEARNING_RATE = args.learning_rate
 
-    if FIXED_SEED:
-        set_seed(FIXED_SEED)
 
-    TRAIN_DATASET_PATH = TRAIN_PATH or ( DATA_DIR / "train_split.parquet" )
-    VAL_DATASET_PATH = VAL_PATH or ( DATA_DIR / "val_split.parquet" )
+    train(
+        train_df=TRAIN_PATH,
+        val_df=VAL_PATH,
+        out=OUT,
+        freeze_backbone=FREEZE_BACKBONE,
+        use_peft=USE_PEFT,
+        fixed_seed=FIXED_SEED,
+        batch_size=BATCH_SIZE,
+        num_epochs=NUM_EPOCHS,
+        learning_rate=LEARNING_RATE,
+        model_str=MODEL_STR,
+        args=args
+        
+    )
 
-    TRAINVAL_OUTPUT_DIR = (OUT / f"trainval_output_{MODEL_STR}_{UNIQUE_ID}") if OUT else Path(f"deeptune_results/trainval_output_{MODEL_STR}_{MODE}_{UNIQUE_ID}")
+
+def train(
+        train_df: Path,
+        val_df: Path,
+        out: Path,
+        freeze_backbone: bool,
+        use_peft: bool,
+        fixed_seed: int,
+        batch_size: int,
+        num_epochs: int,
+        learning_rate: float,
+        model_str: str,
+        args: DeepTuneVisionOptions,
+
+):
+    if use_peft:
+        raise ValueError("PEFT is not supported for GPT2 yet.")
+    
+    if fixed_seed:
+        set_seed(fixed_seed)
+
+    TRAIN_DATASET_PATH = train_df
+    VAL_DATASET_PATH = val_df
+
+    TRAINVAL_OUTPUT_DIR = (out / f"trainval_output_{model_str}_{UNIQUE_ID}")
 
 
     gpt_model,tokenizer = load_gpt2_model_offline()
     tokenizer.pad_token = tokenizer.eos_token
 
-    if USE_PEFT:
+    if use_peft:
         pass
     else:
-        adjusted_model = AdjustedGPT2Model(gpt_model=gpt_model,freeze_backbone=FREEZE_BACKBONE)
+        adjusted_model = AdjustedGPT2Model(gpt_model=gpt_model,freeze_backbone=freeze_backbone)
     
 
     train_dataset = TextDataset(parquet_file=TRAIN_DATASET_PATH, tokenizer=tokenizer, max_length=512)
@@ -62,29 +90,27 @@ def main():
             
     train_loader = torch.utils.data.DataLoader(
             train_dataset,
-            batch_size=BATCH_SIZE,
+            batch_size=batch_size,
             shuffle=True,
             num_workers=0
         )
     val_loader = torch.utils.data.DataLoader(
             val_dataset,
-            batch_size=BATCH_SIZE,
+            batch_size=batch_size,
             shuffle=False,
             num_workers=0
         )
     
-    
-    model_trainer = GPTrainer(adjusted_model,tokenizer, LEARNING_RATE, TRAINVAL_OUTPUT_DIR,NUM_EPOCHS,train_loader,val_loader)
+    model_trainer = GPTrainer(adjusted_model,tokenizer, learning_rate, TRAINVAL_OUTPUT_DIR,num_epochs,train_loader,val_loader)
 
     model_trainer.train()
 
-    save_finetuned_gpt2(adjusted_model,tokenizer,output_dir=TRAINVAL_OUTPUT_DIR)
-    args.save_args(TRAINVAL_OUTPUT_DIR)
+    output_dir = model_trainer.save_tunedgpt2model(model=adjusted_model,tokenizer=tokenizer,output_dir=TRAINVAL_OUTPUT_DIR, args=args)
     
-    
+    return output_dir
 
 
-# Here we construct the trainer of Multlingual BERT
+# Here we construct the trainer of Multlingual GPT2
 
 class GPTrainer:
 
@@ -96,8 +122,8 @@ class GPTrainer:
         
         Args:
         
-            model (HuggingFace Model): The NLP BERT model we are loading from the src file.
-            tokenizer (HuggingFace Tokenizer): The NLP BERT model we are loading from load_nlp_bert_ml_model_offline() function in utilities file.
+            model (HuggingFace Model): The NLP gpt2 model we are loading from the src file.
+            tokenizer (HuggingFace Tokenizer): The NLP gpt2 model we are loading from load_nlp_gpt2_ml_model_offline() function in utilities file.
             
         Attributes:
         
@@ -124,8 +150,8 @@ class GPTrainer:
         
     def train(self):
         
-        total_time = 0
-        epoch_times = []
+        self.total_time = 0
+        self.epoch_times = []
         
         for epoch in range(self.num_epochs):
             
@@ -172,10 +198,10 @@ class GPTrainer:
                         
             epoch_end = time.time()
             epoch_duration = epoch_end - start_time
-            total_time += epoch_duration
+            self.total_time += epoch_duration
 
             # record the time taken for the current epoch
-            epoch_times.append({"epoch": epoch + 1, "duration_seconds": epoch_duration})
+            self.epoch_times.append({"epoch": epoch + 1, "Total Duration of the Whole Program": epoch_duration})
 
             self.logger.info(f"Epoch {epoch + 1}/{self.num_epochs}, Training Loss: {epoch_loss:.4f}, Training Accuracy: {epoch_accuracy:.2f}%")
 
@@ -189,10 +215,6 @@ class GPTrainer:
                 val_loss=val_loss,
                 val_accuracy=val_accuracy
             )
-
-            self.performance_logger.save_to_csv(f"{self.outdir}/training_log.csv")
-        # record the total training time at the end
-        save_process_times(epoch_times, total_time, self.outdir,"training")
 
     def validate(self):
         self.model.eval()
@@ -225,6 +247,54 @@ class GPTrainer:
         val_accuracy = correct / total
 
         return avg_val_loss, val_accuracy
+    
+    def save_tunedgpt2model(self,model,tokenizer,output_dir,args,output_dim=1000):
+    
+        """
+        Save the gpt2 model after we finetune it.
+        
+        Args:
+            model (CustomMultilingualgpt2): The finetuned model.
+            tokenizer (gpt2Tokenizer): The tokenizer used for the model.
+            output_dir (str): The path to save the model.
+        """
+        
+        try:
+            if not os.path.exists(output_dir):
+                os.makedirs(output_dir)
+
+            dir_path = os.path.abspath(output_dir)
+
+            # Save model weights
+            torch.save(model.state_dict(), os.path.join(dir_path, "model_weights.pth"))
+            print(f"Saved model weights to {os.path.join(dir_path, 'model_weights.pth')}")
+
+            # Save GPT-2 backbone separately
+            model.gpt2.save_pretrained(os.path.join(dir_path, "gpt2_model"))
+            tokenizer.save_pretrained(os.path.join(dir_path, "tokenizer"))
+            print(f"Saved GPT-2 backbone and tokenizer to {dir_path}")
+
+            # Save config for reproducibility
+            config = {"output_dim": output_dim}
+            with open(os.path.join(dir_path, "model_config.json"), "w") as f:
+                json.dump(config, f, indent=2)
+
+            print(f"Saved model config to {os.path.join(dir_path)}")
+
+            args.save_args(dir_path)           
+                
+            self.performance_logger.save_to_csv(f"{dir_path}/training_log.csv")
+
+            save_process_times(self.epoch_times, self.total_time, dir_path,"training")
+
+            return dir_path
+
+        except Exception as e:
+
+            print(f"There is an Error while saving model: {e}")
+            if os.path.exists(output_dir):
+                shutil.rmtree(output_dir, ignore_errors=True)
+        
     
 if __name__ == '__main__':
 

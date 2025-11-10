@@ -45,24 +45,24 @@ def main():
     TRAINVAL_OUTPUT_DIR = (OUT / f"trainval_output_{MODEL_STR}_{UNIQUE_ID}") if OUT else Path(f"deeptune_results/trainval_output_{MODEL_STR}_{MODE}_{UNIQUE_ID}")
 
 
-    if MODEL_ARCHITECTURE.lower() == "siglip" and MODEL_VERSION == "siglip":
-        from trainers.vision.custom_train_siglip_handler import train_siglip
-        train_siglip(
-            num_classes=NUM_CLASSES,
-            added_layers=ADDED_LAYERS,
-            embed_size=EMBED_SIZE,
-            train_dataset_path=TRAIN_DATASET_PATH,
-            val_dataset_path=VAL_DATASET_PATH,
-            outdir=TRAINVAL_OUTPUT_DIR,
-            device=DEVICE,
-            batch_size=BATCH_SIZE,
-            learning_rate=LEARNING_RATE,
-            num_epochs=NUM_EPOCHS,
-            use_peft=USE_PEFT,
-            freeze_backbone=FREEZE_BACKBONE,
-        )
-        args.save_args(TRAINVAL_OUTPUT_DIR)
-        return
+    # if MODEL_ARCHITECTURE.lower() == "siglip" and MODEL_VERSION == "siglip":
+    #     from trainers.vision.custom_train_siglip_handler import train_siglip
+    #     train_siglip(
+    #         num_classes=NUM_CLASSES,
+    #         added_layers=ADDED_LAYERS,
+    #         embed_size=EMBED_SIZE,
+    #         train_dataset_path=TRAIN_DATASET_PATH,
+    #         val_dataset_path=VAL_DATASET_PATH,
+    #         outdir=TRAINVAL_OUTPUT_DIR,
+    #         device=DEVICE,
+    #         batch_size=BATCH_SIZE,
+    #         learning_rate=LEARNING_RATE,
+    #         num_epochs=NUM_EPOCHS,
+    #         use_peft=USE_PEFT,
+    #         freeze_backbone=FREEZE_BACKBONE,
+    #     )
+    #     args.save_args(TRAINVAL_OUTPUT_DIR)
+    #     return
 
     train_dataset = ParquetImageDataset.from_parquet(parquet_file=TRAIN_DATASET_PATH, transform=transformations)
     val_dataset = ParquetImageDataset.from_parquet(parquet_file=VAL_DATASET_PATH, transform=transformations)
