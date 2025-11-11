@@ -16,62 +16,43 @@ from cli import DeepTuneVisionOptions
 from utils import MODEL_CLS_MAP, PEFT_MODEL_CLS_MAP, RunType, save_process_times
 
 
-"""
-Please Note that that extracting embeddings from MultiLingualBERT is only supported through the finetuned or PEFT version. If you want to use original pre-tranied model please refer to the XLM RoBERTa in DeepTune.
-"""
+def embed(df_path, out, model_weights, batch_size, use_case,num_classes,added_layers,embed_size,freeze_backbone=False):
 
-def main():
-     
-    args = DeepTuneVisionOptions(RunType.EMBED)
-
-    DF_PATH = args.df
-    OUT = args.out
-    USE_CASE = args.use_case.value
-    NUM_CLASSES = args.num_classes
-    ADDED_LAYERS = args.added_layers
-    EMBED_SIZE = args.embed_size
-    FREEZE_BACKBONE = args.freeze_backbone
-    MODEL_WEIGHTS = args.model_weights
-
-    if USE_CASE == 'peft':
+    if use_case == 'peft':
         MODEL_STR = 'PEFT_BERT'
-    elif USE_CASE == 'finetuned':
+    elif use_case == 'finetuned':
         MODEL_STR = 'FINETUNED_BERT'
     else:
         MODEL_STR = 'PRETRAINED_BERT'
 
-    MODEL_WEIGHTS = args.model_weights
-    # USE_CASE = args.use_case.value
+    # use_case = args.use_case.value
 
-    BATCH_SIZE = args.batch_size
-    EMBED_OUTPUT = (OUT / f"embed_output_{MODEL_STR}_{UNIQUE_ID}") if OUT else Path(f"deeptune_results/embed_output_{MODEL_STR}_{UNIQUE_ID}")
+    EMBED_OUTPUT = (out / f"embed_output_{MODEL_STR}_{UNIQUE_ID}")
     EMBED_OUTPUT.mkdir(parents=True, exist_ok=True)
 
-    EMBED_FILE = EMBED_OUTPUT / f"{MODEL_STR}_{USE_CASE}_embeddings.parquet"
+    EMBED_FILE = EMBED_OUTPUT / f"{MODEL_STR}_{use_case}_embeddings.parquet"
 
-    if USE_CASE == 'finetuned':
-        model = CustomMultilingualBERT(NUM_CLASSES,ADDED_LAYERS, EMBED_SIZE,FREEZE_BACKBONE)
-        args.use_case = 'finetuned-MultiLingualBERT'
+    if use_case == 'finetuned':
+        model = CustomMultilingualBERT(num_classes=num_classes,added_layers=added_layers, embedding_layer=embed_size,freeze_backbone=freeze_backbone)
         pass
-    elif USE_CASE == 'peft':
-        model = CustomMultilingualPeftBERT(NUM_CLASSES,ADDED_LAYERS, EMBED_SIZE,FREEZE_BACKBONE)
-        args.use_case = 'finetuned-MultiLingualBERT'
+    elif use_case == 'peft':
+        model = CustomMultilingualPeftBERT(num_classes=num_classes,added_layers=added_layers, embedding_layer=embed_size,freeze_backbone=freeze_backbone)
 
-    elif USE_CASE == 'pretrained':
-        model = CustomMultilingualBERT(NUM_CLASSES,ADDED_LAYERS, EMBED_SIZE,FREEZE_BACKBONE,pretrained=True)
+    elif use_case == 'pretrained':
+        model = CustomMultilingualBERT(num_classes=num_classes,added_layers=added_layers, embedding_layer=embed_size,freeze_backbone=freeze_backbone,pretrained=True)
     else:
         raise ValueError('There is no fourth option other than ["finetuned", "peft", "pretrained"]')
 
     start_time = time.time()
     
     # load the model, the tokenizer and the dataset.
-    if USE_CASE == 'pretrained':
+    if use_case == 'pretrained':
         _, tokenizer = load_nlp_bert_ml_model_offline()
     else:
-        _,tokenizer = load_finetunedbert_model(MODEL_WEIGHTS)
+        _,tokenizer = load_finetunedbert_model(model_weights)
     model = model.to(DEVICE)
 
-    df = pd.read_parquet(DF_PATH)
+    df = pd.read_parquet(df_path)
 
     texts = df['text'].tolist()
     labels = df['labels'].tolist()
@@ -83,9 +64,9 @@ def main():
     all_labels=[]
     
     with torch.no_grad():
-        for i in tqdm(range(0, len(texts), BATCH_SIZE), total=(len(texts) + BATCH_SIZE - 1) // BATCH_SIZE, desc="Embedding Text"):
-            batch_texts  = texts[i:i + BATCH_SIZE]
-            batch_labels = labels[i:i + BATCH_SIZE]
+        for i in tqdm(range(0, len(texts), batch_size), total=(len(texts) + batch_size - 1) // batch_size, desc="Embedding Text"):
+            batch_texts  = texts[i:i + batch_size]
+            batch_labels = labels[i:i + batch_size]
 
             inputs = tokenizer(
                 batch_texts,
@@ -104,7 +85,7 @@ def main():
             )
             embeddings = bert_outputs.last_hidden_state[:, 0, :]  # (batch, hidden_dim)
 
-            if ADDED_LAYERS == 2:
+            if added_layers == 2:
                 embeddings = model.additional(embeddings)
 
             all_embeddings.append(embeddings.cpu())
@@ -120,15 +101,43 @@ def main():
     others = others.reset_index(drop=True)
     df_embed = pd.concat([df_embed, others], axis=1)
 
-    df_embed.to_parquet(EMBED_FILE, index=False)
-    print(f"Saved text embeddings to {OUT}")
-
 
     end_time = time.time()
     total_time = end_time - start_time
     save_process_times(epoch_times=1, total_duration=total_time, outdir=EMBED_OUTPUT, process="embedding")
+
+    df_embed.to_parquet(EMBED_FILE, index=False)
+    print(f"Saved text embeddings to {out}")
     
-    return df_embed
+    return EMBED_OUTPUT
+
+
+def main():
+     
+    args = DeepTuneVisionOptions(RunType.EMBED)
+
+    DF_PATH = args.df
+    OUT = args.out
+    USE_CASE = args.use_case.value
+    NUM_CLASSES = args.num_classes
+    ADDED_LAYERS = args.added_layers
+    EMBED_SIZE = args.embed_size
+    FREEZE_BACKBONE = args.freeze_backbone
+    MODEL_WEIGHTS = args.model_weights
+    BATCH_SIZE = args.batch_size
+
+    embed(
+        df_path=DF_PATH,
+        out=OUT,
+        use_case=USE_CASE,
+        num_classes=NUM_CLASSES,
+        added_layers=ADDED_LAYERS,
+        embed_size=EMBED_SIZE,
+        freeze_backbone=FREEZE_BACKBONE ,
+        model_weights=MODEL_WEIGHTS,
+        batch_size=BATCH_SIZE
+    )
+
             
 if __name__ == "__main__":
     

@@ -9,18 +9,14 @@ from pandas import DataFrame
 from pathlib import Path
 from torch.utils.data import DataLoader
 from tqdm import tqdm
-
 from torchvision.models import ResNet18_Weights, ResNet34_Weights, ResNet50_Weights, ResNet101_Weights, ResNet152_Weights
 from torchvision.models import Swin_T_Weights
-
 from datasets.image_datasets import ParquetImageDataset
 from options import UNIQUE_ID, DEVICE, NUM_WORKERS, PERSIST_WORK, PIN_MEM
-# from embed.vision.custom_embed_siglip_handler import embed_with_siglip
 from helpers import transformations
 import time
 from cli import DeepTuneVisionOptions
 from utils import MODEL_CLS_MAP, PEFT_MODEL_CLS_MAP, RunType,save_process_times
-
 
 def main():
     args = DeepTuneVisionOptions(RunType.EMBED)

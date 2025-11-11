@@ -1,59 +1,40 @@
 
 import torch
 from datasets.text_datasets import TextDataset
-from src.nlp.multilingual_bert import load_nlp_bert_ml_model_offline
-import pandas as pd 
 from sklearn.metrics import classification_report, roc_auc_score
 from src.nlp.multilingual_bert import CustomMultilingualBERT
 from src.nlp.multilingual_bert_peft import CustomMultilingualPeftBERT
 from helpers import load_finetunedbert_model
-import options
 from tqdm import tqdm
 import numpy as np
 import torch.nn as nn
 import json
 import logging
-import options
 import time
 from utils import save_process_times
 from cli import DeepTuneVisionOptions
-from pathlib import Path
-from options import UNIQUE_ID, DEVICE, NUM_WORKERS, PERSIST_WORK, PIN_MEM
-from utils import get_model_cls,RunType,set_seed
+from options import UNIQUE_ID, DEVICE
+from utils import RunType
 from datasets.text_datasets import TextDataset
 
-def main():
+def evaluate(eval_df, out, model_weights, num_classes,added_layers,embed_size, batch_size, freeze_backbone, args, use_peft, model_str):
 
-    args = DeepTuneVisionOptions(RunType.EVAL)
 
-    TEST_PATH = args.eval_df
-    OUT = args.out
-    USE_PEFT = args.use_peft
-    MODEL_STR = 'PEFT-BERT' if USE_PEFT else 'BERT'
-
-    BATCH_SIZE = args.batch_size
-    
-    MODEL_WEIGHTS = args.model_weights
-    FREEZE_BACKBONE = args.freeze_backbone
-    NUM_CLASSES = args.num_classes
-    ADDED_LAYERS = args.added_layers
-    EMBED_SIZE = args.embed_size
-
-    TEST_OUTPUT_DIR = (OUT / f"test_output_{MODEL_STR}_{UNIQUE_ID}") if OUT else Path(f"deeptune_results/test_output_{MODEL_STR}_{UNIQUE_ID}")
-
-    if USE_PEFT:
-        model = CustomMultilingualPeftBERT(NUM_CLASSES,ADDED_LAYERS,EMBED_SIZE,FREEZE_BACKBONE)
+    if use_peft:
+        model = CustomMultilingualPeftBERT(num_classes=num_classes,added_layers=added_layers,embedding_layer=embed_size,freeze_backbone=freeze_backbone)
     else:
-        model = CustomMultilingualBERT(NUM_CLASSES, ADDED_LAYERS, EMBED_SIZE,FREEZE_BACKBONE)
+        model = CustomMultilingualBERT(num_classes=num_classes, added_layers=added_layers, embedding_layer=embed_size,freeze_backbone=freeze_backbone)
 
-    _,tokenizer = load_finetunedbert_model(MODEL_WEIGHTS)
+    _,tokenizer = load_finetunedbert_model(model_weights)
+
+    TEST_OUTPUT_DIR = (out / f"test_output_{model_str}_{UNIQUE_ID}")
 
     model.to(device=DEVICE)
 
-    test_dataset = TextDataset(parquet_file=TEST_PATH, tokenizer=tokenizer)
+    test_dataset = TextDataset(parquet_file=eval_df, tokenizer=tokenizer)
     test_loader = torch.utils.data.DataLoader(
     test_dataset,
-    batch_size=BATCH_SIZE,
+    batch_size=batch_size,
     shuffle=False,
     num_workers=0
     )
@@ -124,9 +105,9 @@ def main():
     except ValueError:
         metrics_dict["auroc"] = "AUROC not applicable for this setup"
     
-    print(test_accuracy, test_loss)
+    print(f"The test accuracy is: {test_accuracy}, while the test loss is: {test_loss}")
     logger.info(f"Test accuracy: {test_accuracy}%")
-    print(metrics_dict)
+    # print(metrics_dict)
     args.save_args(TEST_OUTPUT_DIR)
 
     with open(TEST_OUTPUT_DIR / "full_metrics.json", 'w') as f:
@@ -136,6 +117,40 @@ def main():
     total_time = end_time - start_time
     save_process_times(epoch_times=1, total_duration=total_time, outdir=TEST_OUTPUT_DIR, process="evaluation")
 
+    return metrics_dict
+
+
+def main():
+
+    args = DeepTuneVisionOptions(RunType.EVAL)
+
+    EVAL_PATH = args.eval_df
+    OUT = args.out
+    USE_PEFT = args.use_peft
+    MODEL_STR = 'PEFT-BERT' if USE_PEFT else 'BERT'
+
+    BATCH_SIZE = args.batch_size
+    
+    MODEL_WEIGHTS = args.model_weights
+    FREEZE_BACKBONE = args.freeze_backbone
+    NUM_CLASSES = args.num_classes
+    ADDED_LAYERS = args.added_layers
+    EMBED_SIZE = args.embed_size
+
+    evaluate(
+        eval_df=EVAL_PATH,
+        out=OUT,
+        model_weights=MODEL_WEIGHTS,
+        freeze_backbone=FREEZE_BACKBONE,
+        added_layers=ADDED_LAYERS,
+        num_classes=NUM_CLASSES,
+        embed_size=EMBED_SIZE,
+        use_peft=False,
+        args=args,
+        batch_size=BATCH_SIZE,
+        model_str=MODEL_STR
+    )
+    
     
 if __name__ == "__main__":
     

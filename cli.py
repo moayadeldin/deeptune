@@ -139,7 +139,7 @@ class DeepTuneVisionOptions:
             out_path = outdir / "cli_arguments.json"
 
             with open(out_path, "w") as f:
-                json.dump({"example": "data"}, f, indent=2)
+                json.dump(cli_dict, f, indent=4)
 
         except Exception as e:
             print(f"There is an Error while saving model: {e}")

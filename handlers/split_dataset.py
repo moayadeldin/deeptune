@@ -69,7 +69,7 @@ def split_dataset(train_size: float, val_size: float, test_size:float, df_path: 
         df['labels'] = le.transform(df['labels'])
 
 
-    # df = df[:10]
+    df = df[:10]
     split_dir.mkdir(parents=True, exist_ok=True)
 
     train_data: DataFrame

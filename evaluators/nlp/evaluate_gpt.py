@@ -1,57 +1,39 @@
 
 import torch
 from datasets.text_datasets import TextDataset
-import pandas as pd 
 from sklearn.metrics import classification_report, roc_auc_score
 from src.nlp.gpt2 import AdjustedGPT2Model,load_gpt2_model_offline
 from helpers import load_finetuned_gpt2
-import options
 from tqdm import tqdm
 import numpy as np
 import torch.nn as nn
 import logging
 import json
-import options
 import time
 from cli import DeepTuneVisionOptions
-from pathlib import Path
-from options import UNIQUE_ID, DEVICE, NUM_WORKERS, PERSIST_WORK, PIN_MEM
-from utils import get_model_cls,RunType,set_seed
+from options import UNIQUE_ID, DEVICE
+from utils import RunType
 from utils import save_process_times
 from datasets.text_datasets import TextDataset
 
-def main():
+def evaluate(eval_df, out, model_weights, batch_size, freeze_backbone, args, model_str, use_peft=False):
 
-    args = DeepTuneVisionOptions(RunType.EVAL)
-
-    TEST_PATH = args.eval_df
-    OUT = args.out
-    MODEL_STR = 'GPT2'
-    MODE = args.mode
-    FREEZE_BACKBONE = args.freeze_backbone
-    USE_PEFT = args.use_peft # disabled
-
-    BATCH_SIZE = args.batch_size
-    
-    MODEL_WEIGHTS = args.model_weights
-    FREEZE_BACKBONE = args.freeze_backbone
-
-    TEST_OUTPUT_DIR = (OUT / f"test_output_{MODEL_STR}_{UNIQUE_ID}") if OUT else Path(f"deeptune_results/test_output_{MODEL_STR}_{MODE}_{UNIQUE_ID}")
-
-    if USE_PEFT:
+    if use_peft:
         raise ValueError("PEFT is not supported for GPT2 yet.")
     else:
         gpt2_model,tokenizer = load_gpt2_model_offline()
-        model =AdjustedGPT2Model(gpt_model=gpt2_model, freeze_backbone=FREEZE_BACKBONE)
+        model =AdjustedGPT2Model(gpt_model=gpt2_model, freeze_backbone=freeze_backbone)
     
-    model,tokenizer = load_finetuned_gpt2(MODEL_WEIGHTS)
+    model,tokenizer = load_finetuned_gpt2(model_weights)
+
+    TEST_OUTPUT_DIR = (out / f"test_output_{model_str}_{UNIQUE_ID}")
 
     model.to(device=DEVICE)
         
-    test_dataset = TextDataset(parquet_file=TEST_PATH, tokenizer=tokenizer)
+    test_dataset = TextDataset(parquet_file=eval_df, tokenizer=tokenizer)
     test_loader = torch.utils.data.DataLoader(
     test_dataset,
-    batch_size=BATCH_SIZE,
+    batch_size=batch_size,
     shuffle=False,
     num_workers=0
     )
@@ -115,7 +97,7 @@ def main():
     except ValueError:
         metrics_dict["auroc"] = "AUROC not applicable for this setup"
 
-    print(test_accuracy, test_loss)
+    print(f"The test accuracy is: {test_accuracy}, while the test loss is: {test_loss}")
     logger.info(f"Test accuracy: {test_accuracy:.2f}%")
     print(metrics_dict)
     args.save_args(TEST_OUTPUT_DIR)
@@ -126,6 +108,35 @@ def main():
     end_time = time.time()
     total_time = end_time - start_time
     save_process_times(epoch_times=1, total_duration=total_time, outdir=TEST_OUTPUT_DIR, process="evaluation")
+
+    return metrics_dict
+
+def main():
+
+    args = DeepTuneVisionOptions(RunType.EVAL)
+
+    EVAL_PATH = args.eval_df
+    OUT = args.out
+    MODEL_STR = 'GPT2'
+    FREEZE_BACKBONE = args.freeze_backbone
+
+    BATCH_SIZE = args.batch_size
+    
+    MODEL_WEIGHTS = args.model_weights
+    FREEZE_BACKBONE = args.freeze_backbone
+
+    evaluate(
+        eval_df=EVAL_PATH,
+        out=OUT,
+        model_weights=MODEL_WEIGHTS,
+        model_str=MODEL_STR,
+        freeze_backbone=FREEZE_BACKBONE,
+        use_peft=False,
+        args=args,
+        batch_size=BATCH_SIZE,
+    )
+
+
 
     
 if __name__ == "__main__":
