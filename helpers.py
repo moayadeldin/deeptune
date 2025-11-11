@@ -5,8 +5,8 @@ import pandas as pd
 import random
 import torch
 import torchvision
-
-from argparse import Namespace
+from datetime import datetime
+from pathlib import Path
 from pytorch_lightning.callbacks import Callback
 from transformers import GPT2Tokenizer, GPT2Model
 from transformers import BertModel, BertTokenizer
@@ -301,3 +301,21 @@ def save_timeseries_prediction_to_json(prediction, outdir):
         json.dump(output_data, f, indent=4)
 
     print(f"Full Prediction output data information is saved to {filename}")
+
+def date_id(prefix="deeptune", root_dir="."):
+    """
+    Generate a date-based ID for parent folder. Increments if a folder already exists.
+    Example: deeptune-20251110-exp1, deeptune-20251110-exp2, ...
+    """
+    date_str = datetime.utcnow().strftime("%Y%m%d")
+    base_prefix = f"{prefix}-{date_str}-exp"
+    n = 1
+
+    # Increment until unused folder name found
+    while (Path(root_dir) / f"{base_prefix}{n}").exists():
+        n += 1
+
+    final_name = f"{base_prefix}{n}"
+    return final_name
+
+

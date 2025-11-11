@@ -117,7 +117,8 @@ def train(
     model_config = {
         "num_classes":num_classes,
         "added_layers":added_layers,
-        "embedding_layer": embed_size
+        "embedding_layer": embed_size,
+        "use_peft": use_peft
     }
 
     output_dir = model_trainer.save_tunedbertmodel(model,tokenizer,output_dir=TRAINVAL_OUTPUT_DIR,model_config=model_config)
@@ -234,7 +235,7 @@ class BERTrainer:
                 self.total_time += epoch_duration
 
             # record the time taken for the current epoch
-            self.epoch_times.append({"epoch": epoch + 1, "Total Duration of the Whole Program": epoch_duration})
+            self.epoch_times.append({"epoch": epoch + 1, "Duration": epoch_duration})
 
             # update the logger
             self.logger.info(
@@ -324,8 +325,6 @@ class BERTrainer:
 
             dir_path = os.path.abspath(output_dir)
 
-                
-            # save model state dic
             torch.save(model.state_dict(), os.path.join(dir_path,'model_weights.pth'))
             print(f"Model weights saved to {os.path.join(dir_path, 'model_weights.pth')}")
             
