@@ -109,7 +109,7 @@ def embed(df_path, out, model_weights, batch_size, use_case,num_classes,added_la
     df_embed.to_parquet(EMBED_FILE, index=False)
     print(f"Saved text embeddings to {out}")
     
-    return EMBED_OUTPUT
+    return out,df_embed.shape
 
 
 def main():
@@ -126,7 +126,7 @@ def main():
     MODEL_WEIGHTS = args.model_weights
     BATCH_SIZE = args.batch_size
 
-    embed(
+    embed_output_path = embed(
         df_path=DF_PATH,
         out=OUT,
         use_case=USE_CASE,
@@ -137,6 +137,8 @@ def main():
         model_weights=MODEL_WEIGHTS,
         batch_size=BATCH_SIZE
     )
+
+    # print(f'The embeddings file is saved in {embed_output_path}')
 
             
 if __name__ == "__main__":

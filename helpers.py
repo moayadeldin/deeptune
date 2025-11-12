@@ -8,6 +8,7 @@ import torchvision
 from datetime import datetime
 from pathlib import Path
 from pytorch_lightning.callbacks import Callback
+from tabulate import tabulate
 from transformers import GPT2Tokenizer, GPT2Model
 from transformers import BertModel, BertTokenizer
 import shutil
@@ -307,7 +308,7 @@ def date_id(prefix="deeptune", root_dir="."):
     Generate a date-based ID for parent folder. Increments if a folder already exists.
     Example: deeptune-20251110-exp1, deeptune-20251110-exp2, ...
     """
-    date_str = datetime.utcnow().strftime("%Y%m%d")
+    date_str = datetime.now().strftime("%Y%m%d")
     base_prefix = f"{prefix}-{date_str}-exp"
     n = 1
 
@@ -318,4 +319,33 @@ def date_id(prefix="deeptune", root_dir="."):
     final_name = f"{base_prefix}{n}"
     return final_name
 
+def print_metrics_table(metrics_dict, embed_shape, embed_path):
+    table = [
+        ["Loss", "-", "-", "-", "-", f"{metrics_dict.get('loss', 0):.4f}"],
+        ["Accuracy", "-", "-", "-", "-", f"{metrics_dict.get('accuracy', 0):.4f}"],
+    ]
+
+    for key in metrics_dict:
+        if key.isdigit():  # class keys like '1', '3'
+            class_metrics = metrics_dict[key]
+            table.append([
+                f"Class {key}",
+                class_metrics.get('precision', 0.0),
+                class_metrics.get('recall', 0.0),
+                class_metrics.get('f1-score', 0.0),
+                class_metrics.get('support', 0.0),
+                "-"
+            ])
+
+    table.append(["AUROC", "-", "-", "-", "-", metrics_dict.get('auroc', '-')])
+
+    table.append(["Embedding Matrix Dimension", "-", "-", "-", "-", str(embed_shape)])
+    table.append(["Output Location", "-", "-", "-", "-", str(embed_path)])
+
+
+    print(tabulate(
+        table,
+        headers=["Metric", "Precision", "Recall", "F1-Score", "Support", "Value"],
+        tablefmt="github"
+    ))
 

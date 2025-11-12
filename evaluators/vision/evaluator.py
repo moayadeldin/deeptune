@@ -129,11 +129,14 @@ class TestTrainer:
             except ValueError:
                 metrics_dict["auroc"] = "AUROC not applicable for this setup"
             
-            print(test_accuracy, test_loss)
-            self.logger.info(f"Test accuracy: {test_accuracy}%")
+            # print(test_accuracy, test_loss)
+            self.logger.info(f"The test accuracy is: {test_accuracy}, while the test loss is: {test_loss}")
 
             with open(self.output_dir / "full_metrics.json", 'w') as f:
                 json.dump(metrics_dict, f, indent=4)
+
+
+            return metrics_dict
                 
             
         end_time = time.time()

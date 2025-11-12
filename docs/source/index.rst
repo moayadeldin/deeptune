@@ -18,7 +18,7 @@ Main Features
 
 - Fine-tuning state-of-the-art Computer Vision algorithms (ResNet, DenseNet, etc.) for image classification.
 - Fine-tuning state-of-the-art NLP (BERT, GPT-2) algorithms for text classification.
-- End-to-end training for tabular and time-series algorithms (time-series is temporarily disabled; scheduled for re-release soon).
+- End-to-end training for tabular and time-series algorithms.
 - Enabling parameter-efficient fine-tuning of state-of-the-art vision and NLP models using PEFT with LoRA, reducing computational cost while maintaining high performance.
 - Leveraging fine-tuned and pretrained state-of-the-art vision and language models to generate robust knowledge representations for downstream visual and textual tasks.
 
