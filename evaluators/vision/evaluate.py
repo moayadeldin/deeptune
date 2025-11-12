@@ -10,7 +10,6 @@ from cli import DeepTuneVisionOptions
 # from evaluators.vision.custom_evaluate_siglip_handler import evaluate_siglip
 from utils import get_model_cls, RunType
 
-
 def main() -> None:
     args = DeepTuneVisionOptions(RunType.EVAL)
     EVAL_DF_PATH: Path = args.eval_df
@@ -19,18 +18,63 @@ def main() -> None:
     OUT = args.out
 
     MODEL_VERSION = args.model_version
-    MODEL_ARCHITECTURE = args.model_architecture
     MODEL_STR = args.model
 
     MODEL_WEIGHTS = args.model_weights
     USE_PEFT = args.use_peft
     ADDED_LAYERS = args.added_layers
     EMBED_SIZE = args.embed_size
-    
+    FREEZE_BACKBONE = args.freeze_backbone
     BATCH_SIZE = args.batch_size
-    
-    EVAL_OUTPUT_DIR = (OUT / f"eval_output_{MODEL_STR}_{UNIQUE_ID}") if OUT else Path(f"deeptune_results/eval_output_{MODEL_STR}_{MODE}_{UNIQUE_ID}")
+
+    evaluate(
+        eval_df=EVAL_DF_PATH,
+        mode=MODE,
+        num_classes=NUM_CLASSES,
+        out=OUT,
+        model_version=MODEL_VERSION,
+        model_str=MODEL_STR,
+        model_weights=MODEL_WEIGHTS,
+        use_peft=USE_PEFT,
+        added_layers=ADDED_LAYERS,
+        embed_size=EMBED_SIZE,
+        batch_size=BATCH_SIZE,
+        freeze_backbone=FREEZE_BACKBONE,
+        args=args
+    )
+
+
+
+def evaluate(eval_df, out, model_weights, num_classes,model_version,mode,added_layers,embed_size, batch_size, freeze_backbone, args, use_peft, model_str):
+
+        
+    EVAL_OUTPUT_DIR = (out / f"eval_output_{model_str}_{UNIQUE_ID}")
     EVAL_OUTPUT_DIR.mkdir(parents=True, exist_ok=True)
+
+    MODEL_ARCHITECTURE = args.model_architecture
+
+    adjusted_model_cls = get_model_cls(MODEL_ARCHITECTURE, use_peft=use_peft)
+    MODEL = adjusted_model_cls(num_classes, model_version, added_layers, embed_size, task_type=mode,freeze_backbone=freeze_backbone)
+
+    test_dataset = ParquetImageDataset.from_parquet(eval_df, transform=transformations)
+
+    test_loader = DataLoader(
+        test_dataset,
+        batch_size=batch_size,
+        shuffle=False,
+        num_workers=NUM_WORKERS,
+        pin_memory=PIN_MEM,
+        persistent_workers=PERSIST_WORK
+    )
+  
+    test_trainer = TestTrainer(
+        model=MODEL,
+        batch_size=batch_size,
+        test_loader=test_loader,
+        output_dir=EVAL_OUTPUT_DIR,
+        device=DEVICE,
+        mode=mode
+    )
 
     # if MODEL_ARCHITECTURE == "siglip" and MODEL_VERSION == "siglip":
     #     evaluate_siglip(
@@ -44,35 +88,15 @@ def main() -> None:
     #         device=DEVICE,
     #         outdir=EVAL_OUTPUT_DIR,
     #     )
-
-    adjusted_model_cls = get_model_cls(MODEL_ARCHITECTURE, use_peft=USE_PEFT)
-    MODEL = adjusted_model_cls(NUM_CLASSES, MODEL_VERSION, ADDED_LAYERS, EMBED_SIZE, task_type=MODE)
-
-    test_dataset = ParquetImageDataset.from_parquet(EVAL_DF_PATH, transform=transformations)
-
-    test_loader = DataLoader(
-        test_dataset,
-        batch_size=BATCH_SIZE,
-        shuffle=False,
-        num_workers=NUM_WORKERS,
-        pin_memory=PIN_MEM,
-        persistent_workers=PERSIST_WORK
-    )
-  
-    test_trainer = TestTrainer(
-        model=MODEL,
-        batch_size=BATCH_SIZE,
-        test_loader=test_loader,
-        output_dir=EVAL_OUTPUT_DIR,
-        device=DEVICE,
-        mode=MODE
-    )
     
-    test_trainer.test(best_model_weights_path=MODEL_WEIGHTS)
+    metrics_dict = test_trainer.test(best_model_weights_path=model_weights)
     
     args.save_args(EVAL_OUTPUT_DIR)
     
     print('Test results saved successfully!')
+
+    return metrics_dict
+
 
 
 if __name__ == "__main__":

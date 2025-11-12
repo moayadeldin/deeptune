@@ -18,27 +18,11 @@ import time
 from cli import DeepTuneVisionOptions
 from utils import MODEL_CLS_MAP, PEFT_MODEL_CLS_MAP, RunType,save_process_times
 
-def main():
-    args = DeepTuneVisionOptions(RunType.EMBED)
-    DF_PATH: Path = args.df
-    MODE = args.mode
-    NUM_CLASSES = args.num_classes
-    OUT = args.out
+def embed(df_path, out, model_weights, batch_size, use_case,model_version,added_layers, embed_size, num_classes, args,mode,model_str):
 
-    MODEL_VERSION = args.model_version
-    MODEL_ARCHITECTURE = args.model_architecture
-    MODEL_STR = args.model
-
-    MODEL_PATH = args.model_weights
-    USE_CASE = args.use_case.value
-    ADDED_LAYERS = args.added_layers
-    EMBED_SIZE = args.embed_size
-    
-    BATCH_SIZE = args.batch_size
-    EMBED_OUTPUT = (OUT / f"embed_output_{MODEL_STR}_{UNIQUE_ID}") if OUT else Path(f"deeptune_results/embed_output_{MODEL_STR}_{MODE}_{UNIQUE_ID}")
+    EMBED_OUTPUT = (out / f"embed_output_{model_str}_{UNIQUE_ID}")
     EMBED_OUTPUT.mkdir(parents=True, exist_ok=True)
-
-    EMBED_FILE = EMBED_OUTPUT / f"{MODEL_STR}_{MODE}_embeddings.parquet"
+     
 
     # if MODEL_ARCHITECTURE == "siglip" and MODEL_VERSION == "siglip":
     #     embed_with_siglip(
@@ -55,27 +39,32 @@ def main():
     #     args.save_args(EMBED_OUTPUT)
     #     return
 
+    MODEL_ARCHITECTURE = args.model_architecture
+    EMBED_FILE = EMBED_OUTPUT / f"{model_str}_{mode}_embeddings.parquet"
+
     model = load_vision_model(
         model_architecture=MODEL_ARCHITECTURE,
-        model_version=MODEL_VERSION,
-        use_case=USE_CASE,
-        num_classes=NUM_CLASSES,
-        embed_size=EMBED_SIZE,
-        added_layers=ADDED_LAYERS,
+        model_version=model_version,
+        use_case=use_case,
+        num_classes=num_classes,
+        embed_size=embed_size,
+        added_layers=added_layers,
         freeze_backbone=False,
-        mode=MODE,
-        model_path=MODEL_PATH,
+        mode=mode,
+        model_path=model_weights,
     )
     
     start_time = time.time()
 
-    adjusted_model = adjust_vision_model(model, MODEL_ARCHITECTURE, USE_CASE, ADDED_LAYERS)
+    adjusted_model = adjust_vision_model(model, MODEL_ARCHITECTURE, use_case=use_case, added_layers=added_layers)
 
-    embedding_model = EmbeddingModel(adjusted_model, MODEL_ARCHITECTURE, MODEL_VERSION, ADDED_LAYERS, EMBED_SIZE, MODE, DEVICE)
 
-    df = pd.read_parquet(DF_PATH)
 
-    combined_df = embedding_model(df, BATCH_SIZE)
+    embedding_model = EmbeddingModel(adjusted_model, MODEL_ARCHITECTURE, device=DEVICE, model_version=model_version, added_layers=added_layers, embed_size=embed_size)
+
+    df = pd.read_parquet(df_path)
+
+    combined_df = embedding_model(df, batch_size)
 
     combined_df.to_parquet(EMBED_FILE, index=False)
     
@@ -85,6 +74,43 @@ def main():
 
     args.save_args(EMBED_OUTPUT)
 
+    return out, combined_df.shape
+     
+
+
+def main():
+    args = DeepTuneVisionOptions(RunType.EMBED)
+    DF_PATH: Path = args.df
+    MODE = args.mode
+    NUM_CLASSES = args.num_classes
+    OUT = args.out
+
+    MODEL_VERSION = args.model_version
+    MODEL_STR = args.model
+
+    USE_CASE = args.use_case.value
+    ADDED_LAYERS = args.added_layers
+    MODEL_WEIGHTS=args.model_weights
+    EMBED_SIZE = args.embed_size
+    
+    BATCH_SIZE = args.batch_size
+
+    embed_output_path = embed(
+         df_path=DF_PATH,
+         num_classes=NUM_CLASSES,
+         model_version=MODEL_VERSION,
+         model_weights=MODEL_WEIGHTS,
+         use_case=USE_CASE,
+         added_layers=ADDED_LAYERS,
+         embed_size=EMBED_SIZE,
+         batch_size=BATCH_SIZE,
+         out=OUT,
+         mode=MODE,
+         model_str=MODEL_STR,
+         args=args
+    )
+
+    print(f'The embeddings file is saved in {embed_output_path}')
 
 def load_vision_model(
     model_architecture: str,
@@ -280,7 +306,7 @@ class EmbeddingModel:
 
         embeddings, labels, extracted_other_cols = self._extract_embeddings_labels(data_loader)
 
-        print(f"The shape of the embeddings matrix in the dataset is {embeddings.shape}")
+        # print(f"The shape of the embeddings matrix in the dataset is {embeddings.shape}")
 
         embeddings_df = pd.DataFrame(embeddings)
 

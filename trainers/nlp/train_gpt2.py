@@ -201,7 +201,7 @@ class GPTrainer:
             self.total_time += epoch_duration
 
             # record the time taken for the current epoch
-            self.epoch_times.append({"epoch": epoch + 1, "Total Duration": epoch_duration})
+            self.epoch_times.append({"epoch": epoch + 1, "Duration": epoch_duration})
 
             self.logger.info(f"Epoch {epoch + 1}/{self.num_epochs}, Training Loss: {epoch_loss:.4f}, Training Accuracy: {epoch_accuracy:.2f}%")
 
