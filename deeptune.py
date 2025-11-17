@@ -27,7 +27,7 @@ from helpers import date_id,print_metrics_table
 # os.environ['TORCH_FORCE_NO_WEIGHTS_ONLY_LOAD'] = '1' # disabling weights-only loading error
 
 defaults={
-    'num_epochs':1,
+    'num_epochs':3,
     'learning_rate':1e-4,
     'added_layers':2,
     'embed_size':1000,
