@@ -39,6 +39,16 @@ class DeepTuneVisionOptions:
             self.model_version: str = parsed_args.model_version
             self.num_classes: Optional[int] = parsed_args.num_classes
             self.use_peft: bool = parsed_args.use_peft
+            self.target: Optional[str] = parsed_args.target
+
+            # ganadalf specific
+            self.type: Optional[str] = parsed_args.type
+            self.continuous_cols = parsed_args.continuous_cols
+            self.categorical_cols = parsed_args.categorical_cols
+
+            # timeseries specific
+            self.time_idx_column = parsed_args.time_idx_column
+
         
         if run_type in (RunType.TRAIN, RunType.GANDALF, RunType.TIMESERIES):
             self.num_epochs: Optional[int] = parsed_args.num_epochs
@@ -108,7 +118,6 @@ class DeepTuneVisionOptions:
         #       Requires making sure pretrained models are supported for embed and eval...
         if run_type == RunType.EMBED:
             self.use_case: UseCase = UseCase.from_string(parsed_args.use_case)
-        self.use_peft: bool = parsed_args.use_peft
         
         self.model = self._parse_model_str(run_type)
         self.model_architecture = ( get_model_architecture(self.model_version) ) if self.model_version else 'not_provided'
@@ -154,7 +163,7 @@ class DeepTuneVisionOptions:
         # p.add_argument('--input_dir', type=Path, help='Directory containing input data.')
         p.add_argument('--mode', type=str, required=False, choices=['reg','cls'], help='Mode: Classification or Regression')
         # p.add_argument('--num_classes', type=int,required=False, help='Number of classes in your dataset.')
-        p.add_argument('--out', type=Path, required=False, help='Destination directory name for results.')
+        p.add_argument('--out', type=Path, required=True, help='Destination directory name for results.')
 
         # Model args
         p.add_argument('--model_version', type=str, help='Model version to use.')
@@ -168,9 +177,15 @@ class DeepTuneVisionOptions:
         p = self.parser
         p.add_argument('--num_classes', type=int,required=False, help='Number of classes in your dataset.')
         p.add_argument('--use-peft', action='store_true', help='Use PEFT-adapted model.')
-        p.add_argument("--modality", help="Modality you work on", choices=["text", "images"], required=True)
+        p.add_argument("--modality", help="Modality you work on", choices=["text", "images", "tabular", "timeseries"], required=True)
         p.add_argument('--df', type=Path, required=True, help='Path to the dataframe (parquet file) to be used for training.')
-
+        p.add_argument('--target', type=str, required=True, help="Specify the name of your target column.")
+    
+        # gandalf specific
+        p.add_argument('--type', type=str, required=False, choices=['classification','regression'], help='Type: Classification or Regression for GANDALF')
+        p.add_argument('--continuous_cols', nargs='+', help='List of continuous column names for GANDALF',required=False)
+        p.add_argument('--categorical_cols', nargs='+', help='List of categorical column names for GANDALF',required=False)
+        p.add_argument('--time_idx_column', type=str, default='labels', help='integer typed column denoting the time index within data.')
     def _add_training_args(self):
         p = self.parser
         p.add_argument('--num_classes', type=int,required=False, help='Number of classes in your dataset.')
@@ -193,7 +208,7 @@ class DeepTuneVisionOptions:
         p.add_argument('--time_varying_unknown_reals', nargs='+', type=str, default=[], help='list of continuous variables that are not known in the future and change over time. Target Variables should be included here if they are continuous.')
         p.add_argument('--time_varying_known_reals', nargs='+', type=str, default=[], help='list of continuous variables that change over time and are known in the future.')
         p.add_argument('--static_reals', nargs='+', type=str, default=[], help='list of continuous variables that do not change over time.')
-        p.add_argument('--time_idx_column', type=str, default=None, help='integer typed column denoting the time index within data.')
+        p.add_argument('--time_idx_column', type=str, default='labels', help='integer typed column denoting the time index within data.')
         p.add_argument('--group_ids',type=str,default=None, help='List of column names identifying a time series instance within your data. If you have only one timeseries, set this to the name of column that is constant.')
         p.add_argument('--train_df', type=Path, help='PARQUET file containing train data.')
         p.add_argument('--val_df', type=Path, help='PARQUET file containing validation data.')
@@ -229,7 +244,7 @@ class DeepTuneVisionOptions:
     def _add_gandalf_args(self):
 
         p = self.parser
-        p.add_argument('--tabular_target_column', nargs='+', type=str, help='Target column for GANDALF')
+        p.add_argument('--tabular_target_column', nargs='+', type=str, default='labels', help='Target column for GANDALF')
         p.add_argument('--continuous_cols', nargs='+', help='List of continuous column names for GANDALF')
         p.add_argument('--categorical_cols', nargs='+', help='List of categorical column names for GANDALF')
         p.add_argument('--gflu_stages', type=int, default=6, help='Number of GFLU stages for GANDALF')
@@ -240,6 +255,7 @@ class DeepTuneVisionOptions:
         p.add_argument('--val_df', type=Path, help='PARQUET file containing validation data.')
         p.add_argument('--eval_df', type=Path, help='PARQUET file containing testing data.')
         p.add_argument('--model_weights', type=Path, help='Path to model weights.')
+        p.add_argument('--df', type=Path, help='PARQUET file containing data.')
     
         
 
@@ -248,9 +264,12 @@ class DeepTuneVisionOptions:
             prefix_str = "PEFT" if self.use_peft else "FINETUNED"
         elif mode == RunType.GANDALF:
             prefix_str = "GANDALF"
+            self.model_version=None
+            return f"{prefix_str}"
         elif mode == RunType.TIMESERIES:
             prefix_str = "TIMESERIES"
             self.model_version=None
+            return f"{prefix_str}"
         elif mode == RunType.ONECALL:
             prefix_str = "PEFT" if self.use_peft else "FINETUNED"
         else:

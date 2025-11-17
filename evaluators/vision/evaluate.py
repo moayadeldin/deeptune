@@ -88,8 +88,15 @@ def evaluate(eval_df, out, model_weights, num_classes,model_version,mode,added_l
     #         device=DEVICE,
     #         outdir=EVAL_OUTPUT_DIR,
     #     )
+
+    mw = Path(model_weights)
+
+    if mw.suffix == ".pth":
+        ckpt_path = mw
+    else:
+        ckpt_path = next(mw.glob("*.pth"))
     
-    metrics_dict = test_trainer.test(best_model_weights_path=model_weights)
+    metrics_dict = test_trainer.test(best_model_weights_path=ckpt_path)
     
     args.save_args(EVAL_OUTPUT_DIR)
     

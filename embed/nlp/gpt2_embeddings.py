@@ -89,7 +89,7 @@ def embed(df_path, out, model_weights, batch_size, use_case):
     
     embeddings_df.to_parquet(EMBED_FILE, index=False)
 
-    print(f"Saved text embeddings to {out}")
+    print(f'The embeddings file is saved in {EMBED_OUTPUT}')
     return out, embeddings_df.shape
     
 

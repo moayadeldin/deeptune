@@ -123,7 +123,7 @@
 <tr>
   <td>DeepAR</td>
   <td colspan="2" style="text-align:center; font-weight:bold; font-size:16px;">Supports End-to-End Conventional Training</td>
-  <td>✅</td>
+  <td>—</td>
   <td>Time Series Forecasting</td>
   <td>Time Series</td>
   <td>DeepAR</td>

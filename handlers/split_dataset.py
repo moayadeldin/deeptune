@@ -29,6 +29,8 @@ def main():
 
     FIXED_SEED = args.fixed_seed
     DISABLE_NUMERICAL_ENCODING = args.disable_numerical_encoding
+    KEEP_TARGET_COLUMN_NAME = args.disable_target_column_renaming
+    TARGET_COLUMN = args.target
         
     OUT_DIR: Path = args.out
 
@@ -39,18 +41,25 @@ def main():
         df_path=DF_PATH,
         out_dir=OUT_DIR,
         fixed_seed=FIXED_SEED,
-        disable_numerical_encoding=DISABLE_NUMERICAL_ENCODING
+        disable_numerical_encoding=DISABLE_NUMERICAL_ENCODING,
+        target_column=TARGET_COLUMN,
+        keep_target_column_name=KEEP_TARGET_COLUMN_NAME
     )
 
     print(f"Dataset splits saved to:\n Train:{train_path}\n Validation: {val_path}\n Test: {test_path}")
 
-def split_dataset(train_size: float, val_size: float, test_size:float, df_path: Path, out_dir: Path, fixed_seed: bool, disable_numerical_encoding: bool):
+def split_dataset(train_size: float, val_size: float, test_size:float, df_path: Path, out_dir: Path, fixed_seed: bool, disable_numerical_encoding: bool, target_column:str, keep_target_column_name: bool=False):
     split_dir = out_dir / f"data_splits_{UNIQUE_ID}"
     train_dataset_path = split_dir / f"train_split.parquet"
     val_dataset_path = split_dir / f"val_split.parquet"
     test_dataset_path = split_dir / f"test_split.parquet"
     
     df = pd.read_parquet(df_path)
+
+    # for convenience and as part of the preprocessing, deeptune will rename the target column of prediction to labels.
+
+    if not keep_target_column_name:
+        df = df.rename(columns={target_column:'labels'})
 
     if fixed_seed:
         SEED: int = 42
@@ -69,7 +78,7 @@ def split_dataset(train_size: float, val_size: float, test_size:float, df_path: 
         df['labels'] = le.transform(df['labels'])
 
 
-    # df = df[:10] #for try & error purposes
+    df = df[:10] #for try & error purposes
     split_dir.mkdir(parents=True, exist_ok=True)
 
     train_data: DataFrame
@@ -134,6 +143,21 @@ def make_parser() -> ArgumentParser:
         action="store_true",
         help="Disable the automatic numerical encoding of the labels' column."
     )
+
+    parser.add_argument(
+        "--target",
+        type=str,
+        required=True,
+        help="Specify the name of your target column."
+    )
+
+    parser.add_argument(
+        "--disable-target-column-renaming",
+        action="store_true",
+        help="Disable the automatic renaming of the target column to 'labels'. By default, Deeptune renames the target column to 'labels' for consistency across modalities."
+    )
+
+    
 
     return parser
 

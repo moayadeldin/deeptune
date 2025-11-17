@@ -20,7 +20,7 @@ from utils import MODEL_CLS_MAP, PEFT_MODEL_CLS_MAP, RunType,save_process_times
 
 def embed(df_path, out, model_weights, batch_size, use_case,model_version,added_layers, embed_size, num_classes, args,mode,model_str):
 
-    EMBED_OUTPUT = (out / f"embed_output_{model_str}_{UNIQUE_ID}")
+    EMBED_OUTPUT = out / f"embed_output_{model_str}_{UNIQUE_ID}"
     EMBED_OUTPUT.mkdir(parents=True, exist_ok=True)
      
 
@@ -42,6 +42,13 @@ def embed(df_path, out, model_weights, batch_size, use_case,model_version,added_
     MODEL_ARCHITECTURE = args.model_architecture
     EMBED_FILE = EMBED_OUTPUT / f"{model_str}_{mode}_embeddings.parquet"
 
+    mw = Path(model_weights)
+
+    if mw.suffix == ".pth":
+        ckpt_path = mw
+    else:
+        ckpt_path = next(mw.glob("*.pth"))
+
     model = load_vision_model(
         model_architecture=MODEL_ARCHITECTURE,
         model_version=model_version,
@@ -51,7 +58,7 @@ def embed(df_path, out, model_weights, batch_size, use_case,model_version,added_
         added_layers=added_layers,
         freeze_backbone=False,
         mode=mode,
-        model_path=model_weights,
+        model_path=ckpt_path,
     )
     
     start_time = time.time()
@@ -74,6 +81,8 @@ def embed(df_path, out, model_weights, batch_size, use_case,model_version,added_
 
     args.save_args(EMBED_OUTPUT)
 
+    print(f'The embeddings file is saved in {EMBED_OUTPUT}')
+
     return out, combined_df.shape
      
 
@@ -95,7 +104,7 @@ def main():
     
     BATCH_SIZE = args.batch_size
 
-    embed_output_path = embed(
+    embed_output_path, _ = embed(
          df_path=DF_PATH,
          num_classes=NUM_CLASSES,
          model_version=MODEL_VERSION,
@@ -110,7 +119,7 @@ def main():
          args=args
     )
 
-    print(f'The embeddings file is saved in {embed_output_path}')
+    
 
 def load_vision_model(
     model_architecture: str,

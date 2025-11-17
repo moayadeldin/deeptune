@@ -319,33 +319,60 @@ def date_id(prefix="deeptune", root_dir="."):
     final_name = f"{base_prefix}{n}"
     return final_name
 
-def print_metrics_table(metrics_dict, embed_shape, embed_path):
-    table = [
-        ["Loss", "-", "-", "-", "-", f"{metrics_dict.get('loss', 0):.4f}"],
-        ["Accuracy", "-", "-", "-", "-", f"{metrics_dict.get('accuracy', 0):.4f}"],
-    ]
 
-    for key in metrics_dict:
-        if key.isdigit():  # class keys like '1', '3'
-            class_metrics = metrics_dict[key]
-            table.append([
-                f"Class {key}",
-                class_metrics.get('precision', 0.0),
-                class_metrics.get('recall', 0.0),
-                class_metrics.get('f1-score', 0.0),
-                class_metrics.get('support', 0.0),
-                "-"
-            ])
+def print_metrics_table(metrics_dict, embed_shape, embed_path, modality):
 
-    table.append(["AUROC", "-", "-", "-", "-", metrics_dict.get('auroc', '-')])
+    if modality == 'text' or modality == 'images':
+        table = [
+            ["Loss", "-", "-", "-", "-", f"{metrics_dict.get('loss', 0):.4f}"],
+            ["Accuracy", "-", "-", "-", "-", f"{metrics_dict.get('accuracy', 0):.4f}"],
+        ]
 
-    table.append(["Embedding Matrix Dimension", "-", "-", "-", "-", str(embed_shape)])
-    table.append(["Output Location", "-", "-", "-", "-", str(embed_path)])
+        for key in metrics_dict:
+            if key.isdigit():
+                class_metrics = metrics_dict[key]
+                table.append([
+                    f"Class {key}",
+                    class_metrics.get('precision', 0.0),
+                    class_metrics.get('recall', 0.0),
+                    class_metrics.get('f1-score', 0.0),
+                    class_metrics.get('support', 0.0),
+                    "-"
+                ])
 
+        for avg_key in ["macro avg", "weighted avg"]:
+            if avg_key in metrics_dict:
+                avg_metrics = metrics_dict[avg_key]
+                table.append([
+                    avg_key.title(),
+                    avg_metrics.get('precision', 0.0),
+                    avg_metrics.get('recall', 0.0),
+                    avg_metrics.get('f1-score', 0.0),
+                    avg_metrics.get('support', 0.0),
+                    "-"
+                ])
 
-    print(tabulate(
-        table,
-        headers=["Metric", "Precision", "Recall", "F1-Score", "Support", "Value"],
-        tablefmt="github"
-    ))
+        table.append(["AUROC", "-", "-", "-", "-", metrics_dict.get('auroc', '-')])
 
+        table.append(["Embedding Matrix Dimension", "-", "-", "-", "-", str(embed_shape)])
+        table.append(["Output Location", "-", "-", "-", "-", str(embed_path)])
+        print(tabulate(
+            table,
+            headers=["Metric / Key", "Precision", "Recall", "F1-Score", "Support", "Value"],
+            tablefmt="github"
+        ))
+
+        
+
+    elif modality == 'tabular':
+        table = [
+            ["Test Loss",     f"{metrics_dict.get('loss', 0):.4f}"],
+            ["Test Accuracy", f"{metrics_dict.get('accuracy', 0) * 100:.2f}%"],
+            ["Embedding Matrix Dimension", str(embed_shape)],
+            ["Output Location",           str(embed_path)],
+        ]
+
+        headers = ["Metric", "Value"]
+        print(tabulate(table, headers=headers, tablefmt="github"))
+    else:
+        raise ValueError(f"Unsupported modality: {modality}")
