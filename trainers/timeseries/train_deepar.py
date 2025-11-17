@@ -1,7 +1,7 @@
 from pytorch_forecasting import TimeSeriesDataSet
 import pytorch_forecasting
 import pandas as pd
-from src.timeseries.deepar import deepAR
+from src.timeseries.deepAR import deepAR
 from cli import DeepTuneVisionOptions
 from utils import RunType
 from options import UNIQUE_ID
@@ -14,40 +14,44 @@ from pytorch_forecasting.metrics import MAE
 from lightning.pytorch.callbacks import ModelCheckpoint
 from lightning.pytorch import Trainer
 import time 
+from pathlib import Path
 from utils import save_process_times
 
-def main():
+def train(
+        train_df: Path,
+        val_df: Path,
+        num_epochs: int,
+        out: Path,
+        batch_size: int,
+        timeindex_column: str,
+        target_column: str,
+        args: DeepTuneVisionOptions,
+        max_encoder_length: int = 30,
+        max_prediction_length: int = 1,
+        time_varying_known_categoricals: list = [],
+        time_varying_unknown_categoricals: list = [],
+        static_categoricals: list = [],
+        time_varying_known_reals: list = [],
+        group_ids = None,
+        time_varying_unknown_reals: list = [],
+        static_reals: list = None,
+        model_str='DeepAR',
+
+):
     
+    train_df = pd.read_parquet(train_df)
+    val_df = pd.read_parquet(val_df)
     
-    args = DeepTuneVisionOptions(RunType.TIMESERIES)
-    TRAIN_DF_PATH = args.train_df
-    VAL_DF_PATH = args.val_df
-    NUM_EPOCHS = args.num_epochs
-    OUT = args.out
-    BATCH_SIZE = args.batch_size
-    TIMEINDEX_COLUMN = args.time_idx_column
-    TARGET_COLUMN = args.target_column
-    MAX_ENCODER_LENGTH = args.max_encoder_length
-    MAX_PREDICTION_LENGTH = args.max_prediction_length
-    TIME_VARYING_KNOWN_CATEGORICALS = args.time_varying_known_categoricals
-    TIME_VARYING_UNKNOWN_CATEGORICALS = args.time_varying_unknown_categoricals
-    STATIC_CATEGORICALS = args.static_categoricals
-    TIME_VARYING_KNOWN_REALS = args.time_varying_known_reals
-    TIME_VARYING_UNKNOWN_REALS = args.time_varying_unknown_reals
-    STATIC_REALS = args.static_reals
-    
-    train_df = pd.read_parquet(TRAIN_DF_PATH)
-    val_df = pd.read_parquet(VAL_DF_PATH)
     
     train_df["__split"] = "train"
     val_df["__split"] = "val"
     
     df = pd.concat([train_df, val_df],ignore_index=True)
     
-    TRAINVAL_OUTPUT_DIR = (OUT / f"trainval_deepAR_output_{UNIQUE_ID}")
+    TRAINVAL_OUTPUT_DIR = (out / f"trainval_{model_str}_output_{UNIQUE_ID}")
     
     logger = TensorBoardLogger(
-    save_dir=OUT,
+    save_dir=out,
     name=UNIQUE_ID,
     version=""
 )
@@ -59,16 +63,15 @@ def main():
     
     df['group'] = '0'
     
-    df[TIMEINDEX_COLUMN] = pd.to_datetime(df[TIMEINDEX_COLUMN])
-    df = df.sort_values(TIMEINDEX_COLUMN)
+    df[timeindex_column] = pd.to_datetime(df[timeindex_column])
+    df = df.sort_values(timeindex_column)
     
-    time_col = df[TIMEINDEX_COLUMN]
+    time_col = df[timeindex_column]
     df["time_idx"] = ((time_col - time_col.min()).dt.total_seconds() // 3600).astype(int)
     
+    GROUP_IDS = ['group'] if group_ids is None else group_ids
     
-    GROUP_IDS = ['group'] if args.group_ids is None else args.group_ids
-    
-    df[TARGET_COLUMN] = df[TARGET_COLUMN].astype(np.float64)
+    df[target_column] = df[target_column].astype(np.float64)
     
     train_df = df[df["__split"] == "train"].copy()
     val_df = df[df["__split"] == "val"].copy()
@@ -78,7 +81,7 @@ def main():
     # IMPORTANT: TimeSeries models needs the last "max_encoder_length" timesteps to predict the next "max_prediction_length". Hence, we must get these timesteps from the training set to initialize the encoder in validation
     hist = train_df.sort_values(["group","time_idx"]) \
                 .groupby("group", as_index=False) \
-                .tail(MAX_ENCODER_LENGTH)
+                .tail(max_encoder_length)
 
     val_plus_hist = pd.concat([hist, val_df], ignore_index=True) \
                     .sort_values(["group","time_idx"])
@@ -87,15 +90,15 @@ def main():
     training_dataset = TimeSeriesDataSet(
         train_df,
         time_idx = "time_idx",
-        target=TARGET_COLUMN,
-        max_prediction_length = MAX_PREDICTION_LENGTH,
-        max_encoder_length = MAX_ENCODER_LENGTH,
-        time_varying_known_categoricals = TIME_VARYING_KNOWN_CATEGORICALS,
-        time_varying_unknown_categoricals = TIME_VARYING_UNKNOWN_CATEGORICALS,
-        static_categoricals = STATIC_CATEGORICALS,
-        time_varying_known_reals = TIME_VARYING_KNOWN_REALS,
-        time_varying_unknown_reals=(TIME_VARYING_UNKNOWN_REALS) + [TARGET_COLUMN],
-        static_reals = STATIC_REALS,
+        target=target_column,
+        max_prediction_length = max_prediction_length,
+        max_encoder_length = max_encoder_length,
+        time_varying_known_categoricals = time_varying_known_categoricals,
+        time_varying_unknown_categoricals = time_varying_unknown_categoricals,
+        static_categoricals = static_categoricals,
+        time_varying_known_reals = time_varying_known_reals,
+        time_varying_unknown_reals=(time_varying_unknown_reals) + [target_column],
+        static_reals = static_reals,
         group_ids = GROUP_IDS,
         allow_missing_timesteps=True,
         target_normalizer=pytorch_forecasting.data.encoders.TorchNormalizer()
@@ -111,11 +114,11 @@ def main():
     )
     
     train_dataloader = training_dataset.to_dataloader(
-        train=True, batch_size=BATCH_SIZE, num_workers=0, batch_sampler='synchronized'
+        train=True, batch_size=batch_size, num_workers=0, batch_sampler='synchronized'
     )
     
     val_dataloader = validation_dataset.to_dataloader(
-        train=False, batch_size=BATCH_SIZE, num_workers=0, batch_sampler='synchronized'
+        train=False, batch_size=batch_size, num_workers=0, batch_sampler='synchronized'
     )
     
         
@@ -151,7 +154,7 @@ def main():
     )
     
     trainer = Trainer(
-    max_epochs=NUM_EPOCHS,
+    max_epochs=num_epochs,
     accelerator="cpu",
     logger=logger,
     enable_model_summary=True,
@@ -198,14 +201,59 @@ def main():
     trainer_kwargs=dict(accelerator="cpu"),
     )
     
-    print(f"Model's prediction of the target {TARGET_COLUMN} in the validation set is {pred.output.squeeze().item():.4f}")
+    print(f"Model's prediction of the target {target_column} in the validation set is {pred.output.squeeze().item():.4f}")
     
     end_time = time.time()
     total_time = end_time - start_time
     
     save_timeseries_prediction_to_json(pred, TRAINVAL_OUTPUT_DIR)
     args.save_args(TRAINVAL_OUTPUT_DIR)
-    save_process_times(epoch_times=NUM_EPOCHS, total_duration=total_time, outdir=TRAINVAL_OUTPUT_DIR, process="training")
+    save_process_times(epoch_times=num_epochs, total_duration=total_time, outdir=TRAINVAL_OUTPUT_DIR, process="training")
 
+    return TRAINVAL_OUTPUT_DIR
+
+def main():
+    
+    args = DeepTuneVisionOptions(RunType.TIMESERIES)
+    TRAIN_DF_PATH = args.train_df
+    VAL_DF_PATH = args.val_df
+    NUM_EPOCHS = args.num_epochs
+    OUT = args.out
+    BATCH_SIZE = args.batch_size
+    TIMEINDEX_COLUMN = args.time_idx_column
+    TARGET_COLUMN = args.target_column
+    MAX_ENCODER_LENGTH = args.max_encoder_length
+    MAX_PREDICTION_LENGTH = args.max_prediction_length
+    TIME_VARYING_KNOWN_CATEGORICALS = args.time_varying_known_categoricals
+    TIME_VARYING_UNKNOWN_CATEGORICALS = args.time_varying_unknown_categoricals
+    STATIC_CATEGORICALS = args.static_categoricals
+    TIME_VARYING_KNOWN_REALS = args.time_varying_known_reals
+    TIME_VARYING_UNKNOWN_REALS = args.time_varying_unknown_reals
+    STATIC_REALS = args.static_reals
+    GROUP_IDS = args.group_ids
+
+    train(
+        train_df=TRAIN_DF_PATH,
+        val_df=VAL_DF_PATH,
+        num_epochs=NUM_EPOCHS,
+        out=OUT,
+        batch_size=BATCH_SIZE,
+        timeindex_column=TIMEINDEX_COLUMN,
+        target_column=TARGET_COLUMN,
+        max_encoder_length=MAX_ENCODER_LENGTH,
+        max_prediction_length=MAX_PREDICTION_LENGTH,
+        time_varying_known_categoricals=TIME_VARYING_KNOWN_CATEGORICALS,
+        time_varying_unknown_categoricals=TIME_VARYING_UNKNOWN_CATEGORICALS,
+        static_categoricals=STATIC_CATEGORICALS,
+        time_varying_known_reals=TIME_VARYING_KNOWN_REALS,
+        time_varying_unknown_reals=TIME_VARYING_UNKNOWN_REALS,
+        static_reals=STATIC_REALS,
+        args=args,
+        group_ids=GROUP_IDS,
+        model_str='DeepAR',
+    )
+    
+
+    
 if __name__ == "__main__":
     main()

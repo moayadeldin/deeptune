@@ -13,10 +13,9 @@ import os
 from helpers import PerformanceLogger,PerformanceLoggerCallback
 from pathlib import Path
 from utils import save_process_times
-from options import UNIQUE_ID, DEVICE, NUM_WORKERS, PERSIST_WORK, PIN_MEM
-from embed.vision.custom_embed_siglip_handler import embed_with_siglip
+from options import UNIQUE_ID
 from cli import DeepTuneVisionOptions
-from utils import MODEL_CLS_MAP, PEFT_MODEL_CLS_MAP, RunType,set_seed
+from utils import RunType,set_seed
 import pandas as pd
 
 
@@ -29,14 +28,12 @@ def main():
     args = DeepTuneVisionOptions(RunType.GANDALF)
     TRAIN_PATH: Path = args.train_df
     VAL_PATH: Path = args.val_df
-    DATA_DIR: Path = args.input_dir
-    TYPE = args.type
+    type = args.type
     OUT = args.out
     MODEL_STR = 'GANDALF'
     BATCH_SIZE=args.batch_size
     LEARNING_RATE=args.learning_rate
     NUM_EPOCHS = args.num_epochs
-    FIXED_SEED = args.fixed_seed
 
 
     # GANDALF Specific Args
@@ -45,41 +42,69 @@ def main():
     CATEGORICAL_COLS = args.categorical_cols
     GFLU_STAGES = args.gflu_stages
 
-    if FIXED_SEED:
-        set_seed(FIXED_SEED)
+    train(
+        train_df=TRAIN_PATH,
+        val_df=VAL_PATH,
+        type=type,
+        batch_size=BATCH_SIZE,
+        num_epochs=NUM_EPOCHS,
+        learning_rate=LEARNING_RATE,
+        gflu_stages=GFLU_STAGES,
+        target=TARGET,
+        continuous_cols=CONTINUOUS_COLS,
+        categorical_cols=CATEGORICAL_COLS,
+        out=OUT,
+        args=args,
+        model_str=MODEL_STR
+    )
 
-    
-    TRAIN_DATASET_PATH = TRAIN_PATH or ( DATA_DIR / "train_split.parquet" )
-    VAL_DATASET_PATH = VAL_PATH or ( DATA_DIR / "val_split.parquet" )
 
-    train_dataset = pd.read_parquet(TRAIN_DATASET_PATH)
-    val_dataset = pd.read_parquet(VAL_DATASET_PATH)
+def train(
+        train_df: Path,
+        val_df: Path,
+        out: Path,
+        type:str,
+        batch_size: int,
+        num_epochs: int,
+        learning_rate: float,
+        gflu_stages:int,
+        target:str,
+        continuous_cols: str,
+        categorical_cols: str,
+        model_str: str,
+        args: DeepTuneVisionOptions,
 
-    TRAINVAL_OUTPUT_DIR = (OUT / f"trainval_output_{MODEL_STR}_{UNIQUE_ID}") if OUT else Path(f"deeptune_results/trainval_output_{MODEL_STR}_{TYPE}_{UNIQUE_ID}")
+):
+
+    train_dataset = pd.read_parquet(train_df)
+    val_dataset = pd.read_parquet(val_df)
+
+    TRAINVAL_OUTPUT_DIR = (out / f"trainval_output_{model_str}_{UNIQUE_ID}") 
 
     performance_logger = PerformanceLogger(TRAINVAL_OUTPUT_DIR)
 
     data_config = DataConfig(
-        target=TARGET,
-        continuous_cols=CONTINUOUS_COLS,
-        categorical_cols=CATEGORICAL_COLS,
+        target=target,
+        continuous_cols=continuous_cols,
+        categorical_cols=categorical_cols,
     )
 
     optimizer_config = OptimizerConfig()
 
     start_time = time.time()
     trainer_config = TrainerConfig(
-        batch_size=BATCH_SIZE,
-        max_epochs=NUM_EPOCHS,
+        batch_size=batch_size,
+        max_epochs=num_epochs,
+        progress_bar='None'
     )
 
     model_config = GANDALF(
         data_config=data_config,
         optimizer_config=optimizer_config,
         trainer_config=trainer_config,
-        task=TYPE,
-        gflu_stages=GFLU_STAGES,
-        learning_rate=LEARNING_RATE,
+        task=type,
+        gflu_stages=gflu_stages,
+        learning_rate=learning_rate,
     )
 
     tabular_model = TabularModel(
@@ -94,8 +119,6 @@ def main():
         performance_logger=performance_logger,
     )    
     
-    
-
     tabular_model.fit(train=train_dataset, validation=val_dataset,callbacks=[callback])
     end_time = time.time()
     total_time = end_time - start_time
@@ -105,6 +128,7 @@ def main():
     args.save_args(TRAINVAL_OUTPUT_DIR)
     save_process_times(epoch_times="For GANDALF we only track total time", total_duration=total_time, outdir=TRAINVAL_OUTPUT_DIR, process="training")
 
+    return TRAINVAL_OUTPUT_DIR
 
 if __name__ == "__main__":
 
