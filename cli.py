@@ -40,6 +40,7 @@ class DeepTuneVisionOptions:
             self.num_classes: Optional[int] = parsed_args.num_classes
             self.use_peft: bool = parsed_args.use_peft
             self.target: Optional[str] = parsed_args.target
+            self.raw_data: bool = parsed_args.raw_data
 
             # ganadalf specific
             self.type: Optional[str] = parsed_args.type
@@ -179,12 +180,14 @@ class DeepTuneVisionOptions:
         p.add_argument('--use-peft', action='store_true', help='Use PEFT-adapted model.')
         p.add_argument("--modality", help="Modality you work on", choices=["text", "images", "tabular", "timeseries"], required=True)
         p.add_argument('--df', type=Path, required=True, help='Path to the dataframe (parquet file) to be used for training.')
-        p.add_argument('--target', type=str, required=True, help="Specify the name of your target column.")
-    
+        p.add_argument('--target', type=str, required=False, help="Specify the name of your target column. Default is 'labels'.")
+        p.add_argument('--raw-data', action='store_true', help='Use raw data instead of ready-to-use parquet.')
+        
         # gandalf specific
         p.add_argument('--type', type=str, required=False, choices=['classification','regression'], help='Type: Classification or Regression for GANDALF')
         p.add_argument('--continuous_cols', nargs='+', help='List of continuous column names for GANDALF',required=False)
         p.add_argument('--categorical_cols', nargs='+', help='List of categorical column names for GANDALF',required=False)
+        # timeseries specific
         p.add_argument('--time_idx_column', type=str, default='labels', help='integer typed column denoting the time index within data.')
     def _add_training_args(self):
         p = self.parser

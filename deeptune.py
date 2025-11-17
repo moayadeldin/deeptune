@@ -21,10 +21,8 @@ from handlers.split_dataset import split_dataset
 from pathlib import Path
 from cli import DeepTuneVisionOptions
 from utils import RunType
-from helpers import date_id,print_metrics_table
-
-
-# os.environ['TORCH_FORCE_NO_WEIGHTS_ONLY_LOAD'] = '1' # disabling weights-only loading error
+from helpers import date_id,print_metrics_table,print_training_log_table, print_experiment_paths_table
+from handlers.raw_to_parquet_dataset import raw_to_parquet
 
 defaults={
     'num_epochs':3,
@@ -49,12 +47,19 @@ def main():
     parent_dir = date_id(root_dir=args.out)
 
     TARGET = args.target
+    RAW_DATA = args.raw_data
+
+    df_path = args.df if not RAW_DATA else raw_to_parquet(
+        dataset_dir=args.df,
+        out=Path(args.out)/parent_dir,
+        modality=args.modality,
+    )
 
     train_data_path, val_data_path, test_data_path = split_dataset(
         train_size=defaults['train_size'],
         val_size=defaults['val_size'],
         test_size=defaults['test_size'],
-        df_path=args.df,
+        df_path=df_path,
         out_dir=Path(args.out)/parent_dir,
         fixed_seed=defaults['fixed_seed'],
         disable_numerical_encoding=defaults['disable_numerical_encoding'],
@@ -100,7 +105,7 @@ def main():
             )
 
 
-            embed_path,embed_shape = embed_multilingualbert(
+            exp_path,embed_shape = embed_multilingualbert(
                 df_path=test_data_path,
                 out=Path(args.out)/parent_dir,
                 model_weights=ckpt_directory,
@@ -111,6 +116,7 @@ def main():
                 use_case=USE_CASE,
                 freeze_backbone=defaults['freeze_backbone'],
             )
+
 
         elif args.model_version == 'gpt2':
 
@@ -139,15 +145,17 @@ def main():
                 model_str='gpt2'
             )
 
-            embed_path,embed_shape = embed_gpt2(
+            exp_path,embed_shape = embed_gpt2(
                 df_path=test_data_path,
                 out = Path(args.out)/parent_dir,
                 model_weights=ckpt_directory,
                 batch_size = args.batch_size,
                 use_case="finetuned")
             
-            print_metrics_table(metrics_dict, embed_shape, embed_path, modality='text')
-            
+        csv_dir = Path(ckpt_directory)
+        print_experiment_paths_table(df_path=df_path, train_data_path=train_data_path, val_data_path=val_data_path, test_data_path=test_data_path, ckpt_directory=ckpt_directory, exp_path=exp_path)
+        print_training_log_table(csv_dir/"training_log.csv")
+        print_metrics_table(metrics_dict, embed_shape, exp_path, modality='text')
     elif args.modality == 'images':
 
         ckpt_directory = train_images(
@@ -185,7 +193,7 @@ def main():
             args=args
         )
 
-        embed_path,embed_shape = embed_images(
+        exp_path,embed_shape = embed_images(
             df_path=test_data_path,
             out=Path(args.out)/parent_dir,
             model_weights=ckpt_directory,
@@ -199,8 +207,10 @@ def main():
             args=args,
             mode=defaults['mode'],
         )
-
-        print_metrics_table(metrics_dict, embed_shape, embed_path, modality='images')
+        csv_dir = Path(ckpt_directory).parent
+        print_experiment_paths_table(df_path=df_path, train_data_path=train_data_path, val_data_path=val_data_path, test_data_path=test_data_path, ckpt_directory=ckpt_directory, exp_path=exp_path)
+        print_training_log_table(csv_dir/"training_log.csv")
+        print_metrics_table(metrics_dict, embed_shape, modality='images')
 
     elif args.modality == 'tabular':
 
@@ -230,7 +240,7 @@ def main():
             )
 
 
-            embed_path,embed_shape = embed_tabular_gandalf(
+            exp_path,embed_shape = embed_tabular_gandalf(
                 eval_df=test_data_path,
                 out=Path(args.out)/parent_dir,
                 model_weights=ckpt_directory,
@@ -241,8 +251,8 @@ def main():
                 args=args,
                 model_str='GANDALF',
             )
-
-            print_metrics_table(metrics_dict, embed_shape, embed_path, modality='tabular')
+            print_experiment_paths_table(df_path=df_path, train_data_path=train_data_path, val_data_path=val_data_path, test_data_path=test_data_path, ckpt_directory=ckpt_directory, exp_path=exp_path)
+            print_metrics_table(metrics_dict, embed_shape, modality='tabular')
 
     elif args.modality == 'timeseries':
         if args.model_version == 'deepAR':
@@ -274,7 +284,12 @@ def main():
                 args=args,
             ) 
 
-            return
+            print_experiment_paths_table(df_path=df_path, train_data_path=train_data_path, val_data_path=val_data_path, test_data_path=test_data_path, ckpt_directory=ckpt_directory, exp_path=exp_path)
+
+    print(" ✅ Your run is complete. Check the output directory table for a detailed copy of your results. \n Thank you for using DeepTune! 😊🚀")
+
+
+        
 
             
 
