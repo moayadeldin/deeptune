@@ -320,7 +320,7 @@ def date_id(prefix="deeptune", root_dir="."):
     return final_name
 
 
-def print_metrics_table(metrics_dict, embed_shape, embed_path, modality):
+def print_metrics_table(metrics_dict, embed_shape, modality):
 
     if modality == 'text' or modality == 'images':
         table = [
@@ -352,27 +352,130 @@ def print_metrics_table(metrics_dict, embed_shape, embed_path, modality):
                     "-"
                 ])
 
-        table.append(["AUROC", "-", "-", "-", "-", metrics_dict.get('auroc', '-')])
+        table.append(["AUROC", "-", "-", "-", "-", metrics_dict.get('auroc', 'Not Supported for This Setup')])
 
         table.append(["Embedding Matrix Dimension", "-", "-", "-", "-", str(embed_shape)])
-        table.append(["Output Location", "-", "-", "-", "-", str(embed_path)])
+        print("\n" + "="*50)
+        print(" 🎯 DeepTune's Holdout Set Metrics Report")
+        print("="*50 + "\n")
+        
         print(tabulate(
             table,
             headers=["Metric / Key", "Precision", "Recall", "F1-Score", "Support", "Value"],
             tablefmt="github"
         ))
 
-        
-
     elif modality == 'tabular':
+        print("\n" + "="*50)
+        print(" 🎯 DeepTune's Holdout Set Metrics Report")
+        print("="*50 + "\n")
         table = [
             ["Test Loss",     f"{metrics_dict.get('loss', 0):.4f}"],
             ["Test Accuracy", f"{metrics_dict.get('accuracy', 0) * 100:.2f}%"],
             ["Embedding Matrix Dimension", str(embed_shape)],
-            ["Output Location",           str(embed_path)],
         ]
 
         headers = ["Metric", "Value"]
         print(tabulate(table, headers=headers, tablefmt="github"))
     else:
         raise ValueError(f"Unsupported modality: {modality}")
+    
+
+
+def print_training_log_table(csv_path):
+    """
+    Loads training_log.csv and prints it in GitHub tabulate format.
+
+    Expected CSV columns:
+        - epoch
+        - epoch_loss
+        - epoch_accuracy
+        - val_loss
+        - val_accuracy
+    """
+
+    if not os.path.exists(csv_path):
+        print(f"[ERROR] CSV file does not exist: {csv_path}")
+        return
+
+    df = pd.read_csv(csv_path)
+
+    required_cols = ["epoch", "epoch_loss", "epoch_accuracy", "val_loss", "val_accuracy"]
+    for col in required_cols:
+        if col not in df.columns:
+            print(f"[ERROR] Missing column in CSV: {col}")
+            return
+        
+    table = []
+    for _, row in df.iterrows():
+        table.append([
+            int(row["epoch"]),
+            row["epoch_loss"],
+            row["epoch_accuracy"],
+            row["val_loss"],
+            row["val_accuracy"]
+        ])
+
+
+    # Print title
+    print("\n" + "="*60)
+    print(" 📍 DeepTune's Training and Validation Log Report")
+    print("="*60 + "\n")
+
+    print(tabulate(
+        table,
+        headers=["Epoch", "Train Loss", "Train Accuracy", "Val Loss", "Val Accuracy"],
+        tablefmt="github",
+        floatfmt=".4f"
+    ))
+
+def print_experiment_paths_table(
+    df_path,
+    train_data_path,
+    val_data_path,
+    test_data_path,
+    ckpt_directory,
+    exp_path,
+    title="DeepTune Output Directory Table",
+):
+    """
+    Print a summary table of key DeepTune experiment paths.
+
+    Parameters
+    ----------
+    df_path : str
+        Path to the full dataset parquet file.
+    train_data_path : str
+        Path to the training set.
+    val_data_path : str
+        Path to the validation set.
+    test_data_path : str
+        Path to the holdout/test set.
+    ckpt_directory : str
+        Path to the directory containing model weights/checkpoints.
+    exp_path : str
+        Path to the root DeepTune experiment directory.
+    title : str, optional
+        Title printed above the table
+    """
+
+    table = [
+        ["Full Dataset as a Parquet File:", df_path],
+        ["Training set:",                 train_data_path],
+        ["Validation set:",               val_data_path],
+        ["Holdout set:",                  test_data_path],
+        ["Model's Weights:",              ckpt_directory],
+        ["Full DeepTune Experiment Directory:", exp_path],
+    ]
+
+    print("\n" + "=" * 30)
+    print(title)
+    print("=" * 30 + "\n")
+
+    print(
+        tabulate(
+            table,
+            headers=["The File", "Path"],
+            tablefmt="github"
+        )
+    )

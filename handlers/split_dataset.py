@@ -8,9 +8,8 @@ from pathlib import Path
 from sklearn.preprocessing import LabelEncoder
 from sklearn.model_selection import train_test_split
 import warnings
+from options import UNIQUE_ID
 
-
-UNIQUE_ID = datetime.now().strftime("%Y%m%d_%H%M")
 
 
 def main():
