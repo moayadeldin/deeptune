@@ -28,7 +28,7 @@ def main():
 
     FIXED_SEED = args.fixed_seed
     DISABLE_NUMERICAL_ENCODING = args.disable_numerical_encoding
-    KEEP_TARGET_COLUMN_NAME = args.disable_target_column_renaming
+    DISABLE_TARGET_COLUMN_RENAMING = args.disable_target_column_renaming
     TARGET_COLUMN = args.target
         
     OUT_DIR: Path = args.out
@@ -42,12 +42,12 @@ def main():
         fixed_seed=FIXED_SEED,
         disable_numerical_encoding=DISABLE_NUMERICAL_ENCODING,
         target_column=TARGET_COLUMN,
-        keep_target_column_name=KEEP_TARGET_COLUMN_NAME
+        disable_target_column_renaming=DISABLE_TARGET_COLUMN_RENAMING
     )
 
     print(f"Dataset splits saved to:\n Train:{train_path}\n Validation: {val_path}\n Test: {test_path}")
 
-def split_dataset(train_size: float, val_size: float, test_size:float, df_path: Path, out_dir: Path, fixed_seed: bool, disable_numerical_encoding: bool, target_column:str, keep_target_column_name: bool=False):
+def split_dataset(train_size: float, val_size: float, test_size:float, df_path: Path, out_dir: Path, fixed_seed: bool, disable_numerical_encoding: bool, target_column:str, disable_target_column_renaming: bool=False):
     split_dir = out_dir / f"data_splits_{UNIQUE_ID}"
     train_dataset_path = split_dir / f"train_split.parquet"
     val_dataset_path = split_dir / f"val_split.parquet"
@@ -57,7 +57,7 @@ def split_dataset(train_size: float, val_size: float, test_size:float, df_path: 
 
     # for convenience and as part of the preprocessing, deeptune will rename the target column of prediction to labels.
 
-    if not keep_target_column_name:
+    if not disable_target_column_renaming:
         df = df.rename(columns={target_column:'labels'})
 
     if fixed_seed:
@@ -146,8 +146,8 @@ def make_parser() -> ArgumentParser:
     parser.add_argument(
         "--target",
         type=str,
-        required=True,
-        help="Specify the name of your target column."
+        required=False,
+        help="Specify the name of your target column. Default is 'labels'.",
     )
 
     parser.add_argument(
