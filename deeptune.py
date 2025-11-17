@@ -155,7 +155,7 @@ def main():
         csv_dir = Path(ckpt_directory)
         print_experiment_paths_table(df_path=df_path, train_data_path=train_data_path, val_data_path=val_data_path, test_data_path=test_data_path, ckpt_directory=ckpt_directory, exp_path=exp_path)
         print_training_log_table(csv_dir/"training_log.csv")
-        print_metrics_table(metrics_dict, embed_shape, exp_path, modality='text')
+        print_metrics_table(metrics_dict, embed_shape, modality='text')
     elif args.modality == 'images':
 
         ckpt_directory = train_images(
@@ -224,7 +224,7 @@ def main():
                 num_epochs=defaults['num_epochs'],
                 learning_rate=defaults['learning_rate'],
                 gflu_stages=defaults['gflu_stages'],
-                target=[defaults['target']],
+                target=defaults['target'],
                 continuous_cols=args.continuous_cols,
                 categorical_cols=args.categorical_cols,
                 model_str='GANDALF',
