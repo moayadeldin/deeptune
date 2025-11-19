@@ -25,7 +25,7 @@ from helpers import date_id,print_metrics_table,print_training_log_table, print_
 from handlers.raw_to_parquet_dataset import raw_to_parquet
 
 defaults={
-    'num_epochs':3,
+    'num_epochs':5,
     'learning_rate':1e-4,
     'added_layers':2,
     'embed_size':1000,
