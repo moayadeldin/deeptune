@@ -143,8 +143,8 @@ The generic CLI workflow for applying GANDALF in ``DeepTune`` requires specifyin
     --batch_size <int> \
     --num_epochs <int> \
     --learning_rate <float> \
-    --out <str>
-    [--fixed-seed] \
+    --out <str> \
+    --mode <cls_or_reg> \
     --categorical_cols \
     --continuous_cols \
     --tabular_target_column <str> \

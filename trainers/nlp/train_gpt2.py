@@ -203,10 +203,10 @@ class GPTrainer:
             # record the time taken for the current epoch
             self.epoch_times.append({"epoch": epoch + 1, "Duration": epoch_duration})
 
-            self.logger.info(f"Epoch {epoch + 1}/{self.num_epochs}, Training Loss: {epoch_loss:.4f}, Training Accuracy: {epoch_accuracy:.2f}%")
+            self.logger.info(f"Epoch {epoch + 1}/{self.num_epochs}, Training Loss: {epoch_loss:.4f}, Training Accuracy: {epoch_accuracy:.3f}%")
 
             val_loss, val_accuracy = self.validate()
-            self.logger.info(f"Validation loss: {val_loss:.4f}, Accuracy: {val_accuracy:.2f}%")
+            self.logger.info(f"Validation loss: {val_loss:.4f}, Accuracy: {val_accuracy:.3f}%")
 
             self.performance_logger.log_epoch(
                 epoch=epoch + 1,
@@ -244,7 +244,7 @@ class GPTrainer:
                 correct += (predicted == labels).sum().item()
 
         avg_val_loss = val_loss / len(self.val_loader)
-        val_accuracy = correct / total
+        val_accuracy = 100. * ( correct / total )
 
         return avg_val_loss, val_accuracy
     

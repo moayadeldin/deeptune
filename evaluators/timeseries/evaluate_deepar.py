@@ -127,7 +127,7 @@ def evaluate(
         return_decoder_lengths=True
     )
     
-    print(f"Model's prediction of the target {target_column} in the evaluation/test set is {pred.output.squeeze().item():.4f}")
+    print(f" =======> Model's prediction of the target column in the evaluation/test set is {pred.output.squeeze().item():.4f}")
     
     end_time = time.time()
     total_time = end_time - start_time
@@ -136,7 +136,7 @@ def evaluate(
     args.save_args(TEST_OUTPUT_DIR)
     save_process_times(epoch_times=1, total_duration=total_time, outdir=TEST_OUTPUT_DIR, process="evaluation")
     
-    return pred.output.squeeze().item()
+    return TEST_OUTPUT_DIR,pred.output.squeeze().item()
 
 
 def main():

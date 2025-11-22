@@ -148,11 +148,11 @@ class Trainer:
                 """
                 
                 self.logger.info(
-                    f"Epoch {epoch + 1}/{self.num_epochs}, Training Loss: {running_loss / len(self.train_loader)}, Training Accuracy: {epoch_accuracy}"
+                    f"Epoch {epoch + 1}/{self.num_epochs}, Training Loss: {running_loss / len(self.train_loader):.3f}, Training Accuracy: {epoch_accuracy:.3f} % "
                 )    
                 # Then we see how validation set works 
                 val_loss, val_accuracy = self.validate()
-                self.logger.info(f"Validation loss: {val_loss}, Accuracy: {val_accuracy}")
+                self.logger.info(f"Validation loss: {val_loss:.3f} , Valiadation Accuracy: {val_accuracy:.3f} % ")
             
             else:
                 """
@@ -165,7 +165,6 @@ class Trainer:
     
                 val_loss = self.validate()    
             
-            self.logger.info(f"Validation loss: {val_loss}")
             if self.performance_logger:
 
                 if self.mode == 'cls':
@@ -235,11 +234,11 @@ class Trainer:
         # if mode regression then no need to return accuracy or compute it
         
         if self.mode == 'cls':
-            val_accuracy = correct / total
+            val_accuracy =  100. * correct / total
             val_loss = val_loss / len(self.val_loader)
             return val_loss, val_accuracy
         else:
-            val_loss = val_loss / len(self.val_loader)
+            val_loss =  100. * val_loss / len(self.val_loader)
             return val_loss
             
     

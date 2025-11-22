@@ -45,6 +45,7 @@
 <ul>
 <li class="toctree-l1"><a class="reference internal" href="guides/install.html">Installation</a></li>
 <li class="toctree-l1"><a class="reference internal" href="guides/preface.html">Preface</a></li>
+<li class="toctree-l1"><a class="reference internal" href="guides/demos.html">Demos</a></li>
 </ul>
 <p class="caption" role="heading"><span class="caption-text">Functionalities</span></p>
 <ul>
@@ -94,7 +95,7 @@
 <ul class="simple">
 <li><p>Fine-tuning state-of-the-art Computer Vision algorithms (ResNet, DenseNet, etc.) for image classification.</p></li>
 <li><p>Fine-tuning state-of-the-art NLP (BERT, GPT-2) algorithms for text classification.</p></li>
-<li><p>End-to-end training for tabular and time-series algorithms (time-series is temporarily disabled; scheduled for re-release soon).</p></li>
+<li><p>End-to-end training for tabular and time-series algorithms.</p></li>
 <li><p>Enabling parameter-efficient fine-tuning of state-of-the-art vision and NLP models using PEFT with LoRA, reducing computational cost while maintaining high performance.</p></li>
 <li><p>Leveraging fine-tuned and pretrained state-of-the-art vision and language models to generate robust knowledge representations for downstream visual and textual tasks.</p></li>
 </ul>
@@ -103,6 +104,23 @@
 <h2><cite>DeepTune</cite> Supported Models<a class="headerlink" href="#deeptune-supported-models" title="Link to this heading"></a></h2>
 <a class="reference internal image-reference" href="_images/deeptune_models.png"><img alt="A table illustrating DeepTune supported models for vision, NLP, and tabular data tasks." src="_images/deeptune_models.png" style="width: 800px;" />
 </a>
+</section>
+<section id="deeptune-running-demos">
+<h2><cite>DeepTune</cite> Running Demos<a class="headerlink" href="#deeptune-running-demos" title="Link to this heading"></a></h2>
+<p>The following videos demonstratee how to use <strong>DeepTune</strong> for medical image classification and sentiment analysis by fine-tuning ResNet18, and Multilingual BERT models without and with PEFT respectively. The singleline command automates running the entire pipeline including loading the raw images, dataset splitting, training, evaluation, and embeddings extraction.</p>
+<ol class="arabic simple">
+<li><p><strong>Images Demo.</strong> The data sample used in this demo is a subset of the Chest X-Ray Images (Pneumonia) dataset available at: <a class="reference external" href="https://www.kaggle.com/datasets/paultimothymooney/chest-xray-pneumonia">Chest X-Ray dataset</a>.</p></li>
+</ol>
+<video width="640" controls>
+    <source src="_static/deeptune_images_demo.mp4" type="video/mp4">
+    Your browser does not support the video tag.
+</video><ol class="arabic simple" start="2">
+<li><p><strong>Text Demo.</strong> The data sample used in this demo is a subset of the Twitter Sentiment Analysis dataset available at: <a class="reference external" href="https://www.kaggle.com/datasets/yasserh/twitter-tweets-sentiment-dataset">Twitter Sentiment Analysis dataset</a>.</p></li>
+</ol>
+<video width="640" controls>
+    <source src="_static/deeptune_text_demo.mp4" type="video/mp4">
+    Your browser does not support the video tag.
+</video><p>The tabular and time-series video demos are available in the <a class="reference internal" href="guides/demos.html"><span class="doc">Demos</span></a> section.</p>
 </section>
 <section id="contents">
 <h2>Contents<a class="headerlink" href="#contents" title="Link to this heading"></a></h2>
@@ -116,6 +134,7 @@
 </ul>
 </li>
 <li class="toctree-l1"><a class="reference internal" href="guides/preface.html">Preface</a></li>
+<li class="toctree-l1"><a class="reference internal" href="guides/demos.html">Demos</a></li>
 </ul>
 </div>
 <div class="toctree-wrapper compound">
@@ -123,7 +142,7 @@
 <ul>
 <li class="toctree-l1"><a class="reference internal" href="functionalities/handlers/split.html">Handling Datasets</a><ul>
 <li class="toctree-l2"><a class="reference internal" href="functionalities/handlers/split.html#split-your-dataset">Split Your Dataset</a></li>
-<li class="toctree-l2"><a class="reference internal" href="functionalities/handlers/split.html#getting-the-intersection-between-two-datasets">Getting the Intersection Between Two Datasets</a></li>
+<li class="toctree-l2"><a class="reference internal" href="functionalities/handlers/split.html#get-the-intersection-between-two-datasets">Get the Intersection Between Two Datasets</a></li>
 </ul>
 </li>
 <li class="toctree-l1"><a class="reference internal" href="functionalities/handlers/training.html">Using <cite>DeepTune</cite> for Training</a><ul>

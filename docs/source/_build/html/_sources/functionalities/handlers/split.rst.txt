@@ -17,7 +17,8 @@ The following is the generic CLI structure to split the dataset:
         --test_size <float> \
         --out <path> \
         --[fixed-seed] \
-        --[disable-numerical-encoding]
+        --[disable-numerical-encoding] \
+        --[disable-target-column-renaming]
 
 .. note::
    It is important to use the ``--fixed-seed`` flag to regenerate the same train/val/test splits everytime you run the above command.
@@ -55,7 +56,8 @@ This directory will contain the split files, which will be used later for traini
      - *(Flag)* Ensures that a fixed random seed is set for reproducibility.
    * - ``--disable-numerical-encoding``
      - *(Flag)* Disables the default numerical label encoding when generating splits.
-
+   * - ``--disable-target-column-renaming``
+     - *(Flag)* Disables the automatic renaming of the target column to 'labels'. By default, Deeptune renames the target column to 'labels' for consistency across modalities.
 .. note::
 
     For the ``test_indices.csv`` file, it includes an additional indices column that maps the entry of each test sample to the original dataset, making it easier to track where they are located in ``--df`` file.

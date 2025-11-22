@@ -107,21 +107,23 @@ Since ``DeepTune`` currently supports only two models for text classification, t
 .. note::
     GPT-2 model does not support PeFT right now in ``DeepTune``.
 
-.. code-block:: console
-    $ python -m trainers.nlp.[train_multilinbert/train_gpt2] \
-    --train_df <str> \
-    --val_df <str> \
-    --batch_size <int> \
-    --num_classes <int> \
-    --num_epochs <int> \
-    --learning_rate <float> \
-    --added_layers <int> \
-    --embed_size <int> \ 
-    [--fixed-seed]
-    [--freeze_backbone]
+.. code-block:: bash
+
+    $ python -m trainers.nlp.[train_multilingualbert/train_gpt2] \
+        --train_df <str> \
+        --val_df <str> \
+        --batch_size <int> \
+        --num_classes <int> \
+        --num_epochs <int> \
+        --learning_rate <float> \
+        --added_layers <int> \
+        --embed_size <int> \
+        [--fixed-seed]
+        [--freeze_backbone]
 
 .. note::
-    There is no need to specify the `--added_layers` and `--embed_size` switches with using GPT-2 **as they are already statically fixed due to design constraints**.
+    There is no need to specify the ``--added_layers`` and ``--embed_size`` switches when using GPT-2
+    as they are already statically fixed due to design constraints.
 
 Tabular
 -------
@@ -141,8 +143,8 @@ The generic CLI workflow for applying GANDALF in ``DeepTune`` requires specifyin
     --batch_size <int> \
     --num_epochs <int> \
     --learning_rate <float> \
-    --out <str>
-    [--fixed-seed] \
+    --out <str> \
+    --mode <cls_or_reg> \
     --categorical_cols \
     --continuous_cols \
     --tabular_target_column <str> \

@@ -83,8 +83,11 @@ def train(
 
     performance_logger = PerformanceLogger(TRAINVAL_OUTPUT_DIR)
 
+    categorical_cols = categorical_cols or []
+    continuous_cols = continuous_cols or []
+
     data_config = DataConfig(
-        target=target,
+        target=[target],
         continuous_cols=continuous_cols,
         categorical_cols=categorical_cols,
     )

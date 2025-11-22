@@ -19,8 +19,8 @@ def embed(
         eval_df: Path,
         out: Path,
         model_weights: Path,
-        continuous_cols: str,
-        categorical_cols: str,
+        cont_cols: str,
+        cat_cols: str,
         batch_size: int,
         target:str,
         args: DeepTuneVisionOptions,
@@ -29,6 +29,9 @@ def embed(
 
 ):
     
+    continuous_cols = cont_cols or []
+    categorical_cols = cat_cols or []
+    
     EMBED_OUTPUT = (out / f"embed_output_{model_str}_{UNIQUE_ID}")
     EMBED_OUTPUT.mkdir(parents=True, exist_ok=True)
 
@@ -36,7 +39,8 @@ def embed(
 
     df = pd.read_parquet(eval_df)
 
-    dataset = TabularDataset(df, continuous_cols, categorical_cols, label_col=target)
+
+    dataset = TabularDataset(df, cont_cols=continuous_cols, cat_cols=categorical_cols, label_col=target)
     data_loader = DataLoader(dataset, batch_size=batch_size, shuffle=False)
 
     model = TabularModel.load_model(os.path.join(model_weights, 'GANDALF_model'))
@@ -99,8 +103,8 @@ def main():
         out=OUT,
         model_weights=MODEL_WEIGHTS,
         args=args,
-        continuous_cols=CONTINUOUS_COLS,
-        categorical_cols=CATEGORICAL_COLS,
+        cont_cols=CONTINUOUS_COLS,
+        cat_cols=CATEGORICAL_COLS,
         batch_size=BATCH_SIZE,
         target=TARGET_COLUMN,
         model_str=MODEL_STR,

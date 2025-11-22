@@ -15,6 +15,7 @@ import shutil
 from src.nlp.gpt2 import AdjustedGPT2Model
 from src.nlp.multilingual_bert import CustomMultilingualBERT
 from src.nlp.multilingual_bert_peft import CustomMultilingualPeftBERT
+import math
 
 # Kindly note that right now we pass the same transformations to ResNet, Swin and DenseNet, both trained on ImageNet
 transformations = torchvision.transforms.Compose([
@@ -320,41 +321,62 @@ def date_id(prefix="deeptune", root_dir="."):
     return final_name
 
 
-def print_metrics_table(metrics_dict, embed_shape, modality):
+def print_metrics_table(metrics_dict, embed_shape, modality, mapping_path=None):
+
+    class_id_to_name={}
+
+    if mapping_path is not None:
+        mapping_path = Path(mapping_path)
+        if mapping_path.exists():
+            with open(mapping_path, "r") as f:
+                mapping_data = json.load(f)
+
+            class_id_to_name = {int(v): k for k, v in mapping_data.items()}
 
     if modality == 'text' or modality == 'images':
         table = [
-            ["Loss", "-", "-", "-", "-", f"{metrics_dict.get('loss', 0):.4f}"],
-            ["Accuracy", "-", "-", "-", "-", f"{metrics_dict.get('accuracy', 0):.4f}"],
+            ["Loss", "-", "-", "-", "-", f"{metrics_dict.get('loss', 0):.3f}"],
+            ["Accuracy", "-", "-", "-", "-", f"{metrics_dict.get('accuracy', 0) * 100:.2f} %"],
         ]
 
-        for key in metrics_dict:
-            if key.isdigit():
+        for cld, class_name in class_id_to_name.items():
+                key = str(cld)
+                if key not in metrics_dict:
+                    continue
                 class_metrics = metrics_dict[key]
                 table.append([
-                    f"Class {key}",
-                    class_metrics.get('precision', 0.0),
-                    class_metrics.get('recall', 0.0),
-                    class_metrics.get('f1-score', 0.0),
-                    class_metrics.get('support', 0.0),
+                    f"Class: {class_name}",
+                    f"{class_metrics.get('precision', 0.0):.3f}",
+                    f"{class_metrics.get('recall', 0.0):.3f}",
+                    f"{class_metrics.get('f1-score', 0.0):.3f}",
+                    f"{class_metrics.get('support', 0.0):.0f}",
                     "-"
                 ])
 
+        avg_labels = {
+            "macro avg": "Macro Average",
+            "weighted avg": "Weighted Average"
+        }
         for avg_key in ["macro avg", "weighted avg"]:
             if avg_key in metrics_dict:
                 avg_metrics = metrics_dict[avg_key]
                 table.append([
-                    avg_key.title(),
-                    avg_metrics.get('precision', 0.0),
-                    avg_metrics.get('recall', 0.0),
-                    avg_metrics.get('f1-score', 0.0),
-                    avg_metrics.get('support', 0.0),
+                    avg_labels[avg_key],
+                    f"{avg_metrics.get('precision', 0.0):.3f}",
+                    f"{avg_metrics.get('recall', 0.0):.3f}",
+                    f"{avg_metrics.get('f1-score', 0.0):.3f}",
+                    f"{avg_metrics.get('support', 0.0):.0f}",   
                     "-"
                 ])
 
-        table.append(["AUROC", "-", "-", "-", "-", metrics_dict.get('auroc', 'Not Supported for This Setup')])
+        auroc_value = metrics_dict.get("auroc", None)
 
-        table.append(["Embedding Matrix Dimension", "-", "-", "-", "-", str(embed_shape)])
+        if auroc_value is None or (isinstance(auroc_value, float) and math.isnan(auroc_value)):
+            auroc_value = "Not Supported for This Setup"
+
+        table.append(["AUROC", "-", "-", "-", "-", auroc_value])
+
+        table.append(["Embeddings Matrix Dimension", "-", "-", "-", "-", str(embed_shape)])
         print("\n" + "="*50)
         print(" 🎯 DeepTune's Holdout Set Metrics Report")
         print("="*50 + "\n")
@@ -370,7 +392,7 @@ def print_metrics_table(metrics_dict, embed_shape, modality):
         print(" 🎯 DeepTune's Holdout Set Metrics Report")
         print("="*50 + "\n")
         table = [
-            ["Test Loss",     f"{metrics_dict.get('loss', 0):.4f}"],
+            ["Test Loss",     f"{metrics_dict.get('loss', 0):.3f}"],
             ["Test Accuracy", f"{metrics_dict.get('accuracy', 0) * 100:.2f}%"],
             ["Embedding Matrix Dimension", str(embed_shape)],
         ]
@@ -410,14 +432,12 @@ def print_training_log_table(csv_path):
     for _, row in df.iterrows():
         table.append([
             int(row["epoch"]),
-            row["epoch_loss"],
-            row["epoch_accuracy"],
-            row["val_loss"],
-            row["val_accuracy"]
+            f"{row['epoch_loss']:.3f}",
+            f"{row['epoch_accuracy']:.2f} %",
+            f"{row['val_loss']:.3f}",
+            f"{row['val_accuracy']:.2f} %"
         ])
 
-
-    # Print title
     print("\n" + "="*60)
     print(" 📍 DeepTune's Training and Validation Log Report")
     print("="*60 + "\n")
@@ -425,8 +445,7 @@ def print_training_log_table(csv_path):
     print(tabulate(
         table,
         headers=["Epoch", "Train Loss", "Train Accuracy", "Val Loss", "Val Accuracy"],
-        tablefmt="github",
-        floatfmt=".4f"
+        tablefmt="github"
     ))
 
 def print_experiment_paths_table(

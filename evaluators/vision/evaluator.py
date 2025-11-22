@@ -130,7 +130,7 @@ class TestTrainer:
                 metrics_dict["auroc"] = "AUROC not applicable for this setup"
             
             # print(test_accuracy, test_loss)
-            self.logger.info(f"The test accuracy is: {test_accuracy}, while the test loss is: {test_loss}")
+            self.logger.info(f"The test accuracy is: {test_accuracy:.3f} %. The test loss is: {test_loss:.3f}")
 
             with open(self.output_dir / "full_metrics.json", 'w') as f:
                 json.dump(metrics_dict, f, indent=4)

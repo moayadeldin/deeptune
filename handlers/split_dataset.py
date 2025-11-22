@@ -9,6 +9,7 @@ from sklearn.preprocessing import LabelEncoder
 from sklearn.model_selection import train_test_split
 import warnings
 from options import UNIQUE_ID
+import json
 
 
 
@@ -47,13 +48,15 @@ def main():
 
     print(f"Dataset splits saved to:\n Train:{train_path}\n Validation: {val_path}\n Test: {test_path}")
 
-def split_dataset(train_size: float, val_size: float, test_size:float, df_path: Path, out_dir: Path, fixed_seed: bool, disable_numerical_encoding: bool, target_column:str, disable_target_column_renaming: bool=False):
+def split_dataset(train_size: float, val_size: float, test_size:float, df_path: Path, out_dir: Path, fixed_seed: bool, disable_numerical_encoding: bool, target_column:str,modality:str, disable_target_column_renaming: bool=False):
     split_dir = out_dir / f"data_splits_{UNIQUE_ID}"
     train_dataset_path = split_dir / f"train_split.parquet"
     val_dataset_path = split_dir / f"val_split.parquet"
     test_dataset_path = split_dir / f"test_split.parquet"
     
     df = pd.read_parquet(df_path)
+
+    split_dir.mkdir(parents=True, exist_ok=True)
 
     # for convenience and as part of the preprocessing, deeptune will rename the target column of prediction to labels.
 
@@ -76,9 +79,15 @@ def split_dataset(train_size: float, val_size: float, test_size:float, df_path: 
         le.fit(CLASS_NAMES)
         df['labels'] = le.transform(df['labels'])
 
+        if modality != 'timeseries':
+            class_to_int = {cls: int(idx) for idx, cls in enumerate(le.classes_)}
 
-    # df = df[:100] #for try & error purposes
-    split_dir.mkdir(parents=True, exist_ok=True)
+            with open(split_dir / 'label_mapping.json', 'w') as f:
+
+                json.dump(class_to_int, f, indent=4)
+
+
+    # df = df[:50] #for try & error purposes
 
     train_data: DataFrame
     val_data: DataFrame

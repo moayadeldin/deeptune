@@ -6,14 +6,14 @@
   <meta charset="utf-8" /><meta name="viewport" content="width=device-width, initial-scale=1" />
 
   <meta name="viewport" content="width=device-width, initial-scale=1.0" />
-  <title>Using DeepTune for Training &mdash; DeepTune 0.1 documentation</title>
+  <title>Using DeepTune for Training &mdash; DeepTune 1.1.0 documentation</title>
       <link rel="stylesheet" type="text/css" href="../../_static/pygments.css?v=b86133f3" />
       <link rel="stylesheet" type="text/css" href="../../_static/css/theme.css?v=e59714d7" />
 
   
       <script src="../../_static/jquery.js?v=5d32c60e"></script>
       <script src="../../_static/_sphinx_javascript_frameworks_compat.js?v=2cd50e6c"></script>
-      <script src="../../_static/documentation_options.js?v=2709fde1"></script>
+      <script src="../../_static/documentation_options.js?v=fc837d61"></script>
       <script src="../../_static/doctools.js?v=9bcbadda"></script>
       <script src="../../_static/sphinx_highlight.js?v=dc90522c"></script>
     <script src="../../_static/js/theme.js"></script>
@@ -191,9 +191,23 @@ Only values <strong>1</strong> or <strong>2</strong> are supported currently.</p
 <p class="admonition-title">Note</p>
 <p>GPT-2 model does not support PeFT right now in <code class="docutils literal notranslate"><span class="pre">DeepTune</span></code>.</p>
 </div>
+<div class="highlight-bash notranslate"><div class="highlight"><pre><span></span>$<span class="w"> </span>python<span class="w"> </span>-m<span class="w"> </span>trainers.nlp.<span class="o">[</span>train_multilingualbert/train_gpt2<span class="o">]</span><span class="w"> </span><span class="se">\</span>
+<span class="w">    </span>--train_df<span class="w"> </span>&lt;str&gt;<span class="w"> </span><span class="se">\</span>
+<span class="w">    </span>--val_df<span class="w"> </span>&lt;str&gt;<span class="w"> </span><span class="se">\</span>
+<span class="w">    </span>--batch_size<span class="w"> </span>&lt;int&gt;<span class="w"> </span><span class="se">\</span>
+<span class="w">    </span>--num_classes<span class="w"> </span>&lt;int&gt;<span class="w"> </span><span class="se">\</span>
+<span class="w">    </span>--num_epochs<span class="w"> </span>&lt;int&gt;<span class="w"> </span><span class="se">\</span>
+<span class="w">    </span>--learning_rate<span class="w"> </span>&lt;float&gt;<span class="w"> </span><span class="se">\</span>
+<span class="w">    </span>--added_layers<span class="w"> </span>&lt;int&gt;<span class="w"> </span><span class="se">\</span>
+<span class="w">    </span>--embed_size<span class="w"> </span>&lt;int&gt;<span class="w"> </span><span class="se">\</span>
+<span class="w">    </span><span class="o">[</span>--fixed-seed<span class="o">]</span>
+<span class="w">    </span><span class="o">[</span>--freeze_backbone<span class="o">]</span>
+</pre></div>
+</div>
 <div class="admonition note">
 <p class="admonition-title">Note</p>
-<p>There is no need to specify the <cite>–added_layers</cite> and <cite>–embed_size</cite> switches with using GPT-2 <strong>as they are already statically fixed due to design constraints</strong>.</p>
+<p>There is no need to specify the <code class="docutils literal notranslate"><span class="pre">--added_layers</span></code> and <code class="docutils literal notranslate"><span class="pre">--embed_size</span></code> switches when using GPT-2
+as they are already statically fixed due to design constraints.</p>
 </div>
 </section>
 <section id="tabular">
@@ -210,12 +224,12 @@ Only values <strong>1</strong> or <strong>2</strong> are supported currently.</p
 --batch_size<span class="w"> </span>&lt;int&gt;<span class="w"> </span><span class="se">\</span>
 --num_epochs<span class="w"> </span>&lt;int&gt;<span class="w"> </span><span class="se">\</span>
 --learning_rate<span class="w"> </span>&lt;float&gt;<span class="w"> </span><span class="se">\</span>
---out<span class="w"> </span>&lt;str&gt;
-<span class="go">[--fixed-seed] \</span>
-<span class="go">--categorical_cols \</span>
-<span class="go">--continuous_cols \</span>
-<span class="go">--tabular_target_column &lt;str&gt; \</span>
-<span class="go">--gflu_stages &lt;int&gt;</span>
+--out<span class="w"> </span>&lt;str&gt;<span class="w"> </span><span class="se">\</span>
+--mode<span class="w"> </span>&lt;cls_or_reg&gt;<span class="w"> </span><span class="se">\</span>
+--categorical_cols<span class="w"> </span><span class="se">\</span>
+--continuous_cols<span class="w"> </span><span class="se">\</span>
+--tabular_target_column<span class="w"> </span>&lt;str&gt;<span class="w"> </span><span class="se">\</span>
+--gflu_stages<span class="w"> </span>&lt;int&gt;
 </pre></div>
 </div>
 <table class="docutils align-default">
