@@ -63,10 +63,15 @@ def main():
         out_dir=Path(args.out)/parent_dir,
         fixed_seed=defaults['fixed_seed'],
         disable_numerical_encoding=defaults['disable_numerical_encoding'],
-        target_column=TARGET
+        target_column=TARGET,
+        modality=args.modality
     )
 
     USE_CASE = 'peft' if args.use_peft else 'finetuned'
+
+    MAPPING_PATH = next((p / "label_mapping.json" 
+                     for p in Path(Path(args.out)/parent_dir).glob("data_splits*") 
+                     if (p / "label_mapping.json").exists()), None)
 
     if args.modality == 'text':
     
@@ -155,7 +160,8 @@ def main():
         csv_dir = Path(ckpt_directory)
         print_experiment_paths_table(df_path=df_path, train_data_path=train_data_path, val_data_path=val_data_path, test_data_path=test_data_path, ckpt_directory=ckpt_directory, exp_path=exp_path)
         print_training_log_table(csv_dir/"training_log.csv")
-        print_metrics_table(metrics_dict, embed_shape, modality='text')
+        print_metrics_table(metrics_dict, embed_shape, modality='text', mapping_path=MAPPING_PATH)
+        
     elif args.modality == 'images':
 
         ckpt_directory = train_images(
@@ -210,7 +216,7 @@ def main():
         csv_dir = Path(ckpt_directory).parent
         print_experiment_paths_table(df_path=df_path, train_data_path=train_data_path, val_data_path=val_data_path, test_data_path=test_data_path, ckpt_directory=ckpt_directory, exp_path=exp_path)
         print_training_log_table(csv_dir/"training_log.csv")
-        print_metrics_table(metrics_dict, embed_shape, modality='images')
+        print_metrics_table(metrics_dict, embed_shape, modality='images',mapping_path=MAPPING_PATH)
 
     elif args.modality == 'tabular':
 
@@ -244,15 +250,15 @@ def main():
                 eval_df=test_data_path,
                 out=Path(args.out)/parent_dir,
                 model_weights=ckpt_directory,
-                continuous_cols=args.continuous_cols,
-                categorical_cols=args.categorical_cols,
+                cont_cols=args.continuous_cols,
+                cat_cols=args.categorical_cols,
                 batch_size=args.batch_size,
                 target=defaults['target'],
                 args=args,
                 model_str='GANDALF',
             )
             print_experiment_paths_table(df_path=df_path, train_data_path=train_data_path, val_data_path=val_data_path, test_data_path=test_data_path, ckpt_directory=ckpt_directory, exp_path=exp_path)
-            print_metrics_table(metrics_dict, embed_shape, modality='tabular')
+            print_metrics_table(metrics_dict, embed_shape, modality='tabular',mapping_path=MAPPING_PATH)
 
     elif args.modality == 'timeseries':
         if args.model_version == 'deepAR':
@@ -271,7 +277,7 @@ def main():
             )
 
 
-            _ = evaluate_deepar(
+            exp_path,_ = evaluate_deepar(
                 train_df_path=train_data_path,
                 val_df_path=val_data_path,
                 eval_df_path=test_data_path,
@@ -286,7 +292,7 @@ def main():
 
             print_experiment_paths_table(df_path=df_path, train_data_path=train_data_path, val_data_path=val_data_path, test_data_path=test_data_path, ckpt_directory=ckpt_directory, exp_path=exp_path)
 
-    print(" ✅ Your run is complete. Check the output directory table for a detailed copy of your results. \n Thank you for using DeepTune! 😊🚀")
+    print(" ✅ Your run is complete. Check the output directory table for a detailed copy of your results. \n Thank you for using DeepTune!🚀")
 
 
         

@@ -97,8 +97,8 @@ def evaluate(eval_df, out, model_weights, batch_size, freeze_backbone, args, mod
     except ValueError:
         metrics_dict["auroc"] = "AUROC not applicable for this setup"
 
-    print(f"The test accuracy is: {test_accuracy}, while the test loss is: {test_loss}")
-    logger.info(f"Test accuracy: {test_accuracy:.2f}%")
+    print(f"The test accuracy is: {test_accuracy:.3f} %, while the test loss is: {test_loss}")
+    logger.info(f"Test accuracy: {test_accuracy:.3f}%")
     print(metrics_dict)
     args.save_args(TEST_OUTPUT_DIR)
 

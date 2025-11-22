@@ -31,6 +31,35 @@ Main Features
   :alt: A table illustrating DeepTune supported models for vision, NLP, and tabular data tasks.
 
 
+
+`DeepTune` Running Demos
+------------------------------
+
+The following videos demonstratee how to use **DeepTune** for medical image classification and sentiment analysis by fine-tuning ResNet18, and Multilingual BERT models without and with PEFT respectively. The singleline command automates running the entire pipeline including loading the raw images, dataset splitting, training, evaluation, and embeddings extraction.
+
+
+1. **Images Demo.** The data sample used in this demo is a subset of the Chest X-Ray Images (Pneumonia) dataset available at: `Chest X-Ray dataset <https://www.kaggle.com/datasets/paultimothymooney/chest-xray-pneumonia>`_.
+
+.. raw:: html
+
+    <video width="640" controls>
+        <source src="_static/deeptune_images_demo.mp4" type="video/mp4">
+        Your browser does not support the video tag.
+    </video>
+
+2. **Text Demo.** The data sample used in this demo is a subset of the Twitter Sentiment Analysis dataset available at: `Twitter Sentiment Analysis dataset <https://www.kaggle.com/datasets/yasserh/twitter-tweets-sentiment-dataset>`_.
+
+.. raw:: html
+
+    <video width="640" controls>
+        <source src="_static/deeptune_text_demo.mp4" type="video/mp4">
+        Your browser does not support the video tag.
+    </video>
+
+
+The tabular and time-series video demos are available in the :doc:`guides/demos` section.
+
+
 Contents
 --------
 
@@ -40,6 +69,7 @@ Contents
 
    guides/install
    guides/preface
+   guides/demos
 
 .. toctree::
    :maxdepth: 2

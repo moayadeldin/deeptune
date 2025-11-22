@@ -20,6 +20,13 @@ On Windows 11, Python 3.8 and Conda 24.9.2:
     $ conda create -n deeptune
     $ conda activate deeptune
 
+or using venv:
+
+.. code-block:: console
+
+    $ python -m venv deeptune
+    $ source deeptune/bin/activate
+
 Install dependencies
 --------------------
 

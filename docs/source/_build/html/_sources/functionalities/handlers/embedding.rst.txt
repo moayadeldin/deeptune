@@ -75,7 +75,25 @@ The following is the generic CLI structure of running DeepTune for embeddings ex
 
     As GANDALF relies on the standard training scheme without applying transfer learning, we do not use Parameter Efficient Fine-Tuning (PeFT), Fine-Tuning, or Pretrained options. Indeed, we only use the already trained model's weights to obtain the embeddings.
 
+Embeddings Output
+-----------------
 
-For images, text, or tabular data embeddings, you you may find the results in the directory specified with the `--out` or default `DeepTune` directory as follows: 
+For images, text, or tabular data embeddings, you you may find the results in the directory specified with the ``--out`` or default `DeepTune` directory as follows: 
 
+.. code-block:: console
 
+    deeptune_results
+    ├── embed_output_<model_details>_<yyyymmdd>_<hhmm>
+        └── <model_details>_embeddings.parquet
+        └── cli_arguments.json
+        └── embedding_details.json
+
+.. list-table::
+   :widths: 25 75
+   :header-rows: 0
+
+   * - ``<model_details>_embeddings.parquet``
+     - The parquet file containing knowledge representation itself.
+
+   * - ``embeddings_details.json``
+     - Stores the amount of time needed between starting and completing the embeddings.

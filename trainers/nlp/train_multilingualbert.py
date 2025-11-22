@@ -239,13 +239,13 @@ class BERTrainer:
 
             # update the logger
             self.logger.info(
-                f"Epoch {epoch + 1}/{self.num_epochs}, Training Loss: {running_loss / len(self.train_loader)}, Training Accuracy: {epoch_accuracy}"
-            )
+                    f"Epoch {epoch + 1}/{self.num_epochs}, Training Loss: {running_loss / len(self.train_loader):.3f}, Training Accuracy: {epoch_accuracy:.3f} % "
+            )  
             
             # apply validation after each epoch on training set
                 
             val_loss, val_accuracy = self.validate()
-            self.logger.info(f"Validation loss: {val_loss}, Accuracy: {val_accuracy}")
+            self.logger.info(f"Validation loss: {val_loss:.3f} , Valiadation Accuracy: {val_accuracy:.3f} % ")
                 
             # update the performance logger
             self.performance_logger.log_epoch(
@@ -302,7 +302,7 @@ class BERTrainer:
                 total += labels.size(0)
                 correct += (predicted==labels).sum().item()
                 
-        val_accuracy = correct / total
+        val_accuracy = 100. * ( correct / total )
         val_loss = val_loss / len(self.val_loader)
         return val_loss, val_accuracy
     

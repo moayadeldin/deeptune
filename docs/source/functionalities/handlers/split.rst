@@ -62,7 +62,7 @@ This directory will contain the split files, which will be used later for traini
 
     For the ``test_indices.csv`` file, it includes an additional indices column that maps the entry of each test sample to the original dataset, making it easier to track where they are located in ``--df`` file.
 
-Getting the Intersection Between Two Datasets
+Get the Intersection Between Two Datasets
 ---------------------------------------------
 
 This feature is mainly implemented to be integrated with `df-analyze <https://github.com/stfxecutables/df-analyze>`_, where `df-analyze <https://github.com/stfxecutables/df-analyze>`_ relies by default on 40% of the input dataset as the test set. Since the AutoML framework uses `DeepTune`'s embeddings for `df-analyze <https://github.com/stfxecutables/df-analyze>`_, it is sometimes necessary to extract the intersection between the two dataframes.
