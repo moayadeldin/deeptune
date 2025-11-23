@@ -1,0 +1,259 @@
+
+
+<!DOCTYPE html>
+<html class="writer-html5" lang="en" data-content_root="../">
+<head>
+  <meta charset="utf-8" /><meta name="viewport" content="width=device-width, initial-scale=1" />
+
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>Your First DeepTune Run &mdash; DeepTune 1.0.0 documentation</title>
+      <link rel="stylesheet" type="text/css" href="../_static/pygments.css?v=b86133f3" />
+      <link rel="stylesheet" type="text/css" href="../_static/css/theme.css?v=e59714d7" />
+
+  
+      <script src="../_static/jquery.js?v=5d32c60e"></script>
+      <script src="../_static/_sphinx_javascript_frameworks_compat.js?v=2cd50e6c"></script>
+      <script src="../_static/documentation_options.js?v=8d563738"></script>
+      <script src="../_static/doctools.js?v=9bcbadda"></script>
+      <script src="../_static/sphinx_highlight.js?v=dc90522c"></script>
+    <script src="../_static/js/theme.js"></script>
+    <link rel="index" title="Index" href="../genindex.html" />
+    <link rel="search" title="Search" href="../search.html" />
+    <link rel="next" title="Handling Datasets" href="../functionalities/handlers/split.html" />
+    <link rel="prev" title="Demos" href="../guides/demos.html" /> 
+</head>
+
+<body class="wy-body-for-nav"> 
+  <div class="wy-grid-for-nav">
+    <nav data-toggle="wy-nav-shift" class="wy-nav-side">
+      <div class="wy-side-scroll">
+        <div class="wy-side-nav-search" >
+
+          
+          
+          <a href="../index.html" class="icon icon-home">
+            DeepTune
+          </a>
+<div role="search">
+  <form id="rtd-search-form" class="wy-form" action="../search.html" method="get">
+    <input type="text" name="q" placeholder="Search docs" aria-label="Search docs" />
+    <input type="hidden" name="check_keywords" value="yes" />
+    <input type="hidden" name="area" value="default" />
+  </form>
+</div>
+        </div><div class="wy-menu wy-menu-vertical" data-spy="affix" role="navigation" aria-label="Navigation menu">
+              <p class="caption" role="heading"><span class="caption-text">User Guide</span></p>
+<ul>
+<li class="toctree-l1"><a class="reference internal" href="../guides/install.html">Installation</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../guides/preface.html">Preface</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../guides/demos.html">Demos</a></li>
+</ul>
+<p class="caption" role="heading"><span class="caption-text">Quick Start</span></p>
+<ul class="current">
+<li class="toctree-l1 current"><a class="current reference internal" href="#">Your First DeepTune Run</a><ul>
+<li class="toctree-l2"><a class="reference internal" href="#unified-single-cli-call-structure">Unified Single CLI Call Structure</a></li>
+<li class="toctree-l2"><a class="reference internal" href="#raw-data-handling">Raw Data Handling</a></li>
+<li class="toctree-l2"><a class="reference internal" href="#predefined-hyperparameters">Predefined Hyperparameters</a></li>
+<li class="toctree-l2"><a class="reference internal" href="#unified-cli-output-structure">Unified CLI Output Structure</a></li>
+</ul>
+</li>
+</ul>
+<p class="caption" role="heading"><span class="caption-text">Functionalities</span></p>
+<ul>
+<li class="toctree-l1"><a class="reference internal" href="../functionalities/handlers/split.html">Handling Datasets</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../functionalities/handlers/training.html">Using <cite>DeepTune</cite> for Training</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../functionalities/handlers/evaluation.html">Using <cite>DeepTune</cite> for Evaluation</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../functionalities/handlers/embedding.html">Using <cite>DeepTune</cite> for Knowledge Extraction</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../functionalities/handlers/dfanalyze.html">[EXTRA] Integration with df-analyze</a></li>
+</ul>
+
+        </div>
+      </div>
+    </nav>
+
+    <section data-toggle="wy-nav-shift" class="wy-nav-content-wrap"><nav class="wy-nav-top" aria-label="Mobile navigation menu" >
+          <i data-toggle="wy-nav-top" class="fa fa-bars"></i>
+          <a href="../index.html">DeepTune</a>
+      </nav>
+
+      <div class="wy-nav-content">
+        <div class="rst-content">
+          <div role="navigation" aria-label="Page navigation">
+  <ul class="wy-breadcrumbs">
+      <li><a href="../index.html" class="icon icon-home" aria-label="Home"></a></li>
+      <li class="breadcrumb-item active">Your First DeepTune Run</li>
+      <li class="wy-breadcrumbs-aside">
+            <a href="../_sources/tutorials/firstrun.rst.txt" rel="nofollow"> View page source</a>
+      </li>
+  </ul>
+  <hr/>
+</div>
+          <div role="main" class="document" itemscope="itemscope" itemtype="http://schema.org/Article">
+           <div itemprop="articleBody">
+             
+  <section id="your-first-deeptune-run">
+<h1>Your First DeepTune Run<a class="headerlink" href="#your-first-deeptune-run" title="Link to this heading"></a></h1>
+<p>Welcome to your first <strong>DeepTune</strong> project! This tutorial will guide you through the essential steps to set up and run a <strong>DeepTune</strong> experiment using a sample dataset. By the end of this tutorial, you will have a basic understanding of how to use <strong>DeepTune</strong> for your machine learning tasks. You should have already prepared the virtual environment and/or installed the dependencies as described in the <span class="xref std std-doc">guides/install</span> section, and got an idea about <strong>DeepTune</strong> functionalities from the <span class="xref std std-doc">guides/preface</span> section.</p>
+<section id="unified-single-cli-call-structure">
+<h2>Unified Single CLI Call Structure<a class="headerlink" href="#unified-single-cli-call-structure" title="Link to this heading"></a></h2>
+<p>The easiest way to get started with <strong>DeepTune</strong> is to use the unified pipeline that handles all the steps needed to run a complete experiment, from raw data handling to training, evaluation, and embeddings extraction.</p>
+<div class="highlight-console notranslate"><div class="highlight"><pre><span></span><span class="gp">$ </span>python<span class="w"> </span>-m<span class="w"> </span>deeptune<span class="w"> </span><span class="se">\</span>
+<span class="w">    </span>--df<span class="w"> </span>&lt;str&gt;<span class="w"> </span><span class="se">\</span>
+<span class="w">    </span>--modality<span class="w"> </span>&lt;images_or_text_or_timeseries_or_tabular&gt;<span class="w"> </span><span class="se">\</span>
+<span class="w">    </span>--target<span class="w"> </span>&lt;str&gt;<span class="w"> </span><span class="se">\</span>
+<span class="w">    </span>--num_classes<span class="w"> </span>&lt;int&gt;<span class="w"> </span><span class="se">\</span>
+<span class="w">    </span>--batch_size<span class="w"> </span>&lt;int&gt;<span class="w"> </span><span class="se">\</span>
+<span class="w">    </span>--model_version<span class="w"> </span>&lt;model_name&gt;<span class="w"> </span><span class="se">\</span>
+<span class="w">    </span>--out<span class="w"> </span>&lt;str&gt;<span class="w"> </span><span class="se">\</span>
+<span class="w">    </span><span class="o">[</span>--fixed-seed<span class="o">]</span><span class="w"> </span><span class="se">\</span>
+<span class="w">    </span><span class="o">[</span>--use-peft<span class="o">]</span><span class="w"> </span><span class="se">\</span>
+<span class="w">    </span><span class="o">[</span>--raw-data<span class="o">]</span><span class="w"> </span><span class="se">\</span>
+</pre></div>
+</div>
+<div class="admonition note">
+<p class="admonition-title">Note</p>
+<p>You only need to specify the <code class="docutils literal notranslate"><span class="pre">--num_classes</span></code> argument for image classification tasks and with Multilingual BERT. It is not needed for other time-series, tabular models, and GPT-2 as they handle this internally.</p>
+</div>
+<p>For example, suppose that we want to run an experiment on an image classification task using a dataset stored in directory named <code class="docutils literal notranslate"><span class="pre">data</span></code> with fine-tuned ResNet18, and we decide that the target column would be named <code class="docutils literal notranslate"><span class="pre">label</span></code> for the parquet file saved during preprocessing. The dataset has 3 classes, we choose a batch size of 8, and we want to save the results in the <code class="docutils literal notranslate"><span class="pre">output</span></code> directory. We also want to use PeFT during training, and ensure that the random seed is fixed for reproducibility. The command would look like this:</p>
+<div class="highlight-console notranslate"><div class="highlight"><pre><span></span><span class="gp">$ </span>python<span class="w"> </span>-m<span class="w"> </span>deeptune<span class="w"> </span><span class="se">\</span>
+<span class="w">    </span>--df<span class="w"> </span>data<span class="w"> </span><span class="se">\</span>
+<span class="w">    </span>--modality<span class="w"> </span>images<span class="w"> </span><span class="se">\</span>
+<span class="w">    </span>--target<span class="w"> </span>label<span class="w"> </span><span class="se">\</span>
+<span class="w">    </span>--num_classes<span class="w"> </span><span class="m">3</span><span class="w"> </span><span class="se">\</span>
+<span class="w">    </span>--batch_size<span class="w"> </span><span class="m">8</span><span class="w"> </span><span class="se">\</span>
+<span class="w">    </span>--out<span class="w"> </span>output<span class="w"> </span><span class="se">\</span>
+<span class="w">    </span>--model_version<span class="w"> </span>resnet18<span class="w"> </span><span class="se">\</span>
+<span class="w">    </span>--use-peft<span class="w"> </span><span class="se">\</span>
+<span class="w">    </span>--fixed-seed<span class="w"> </span><span class="se">\</span>
+<span class="w">    </span>--raw-data
+</pre></div>
+</div>
+<p>In case we want to run an experiment on a text classification task using a dataset stored in <code class="docutils literal notranslate"><span class="pre">data/text_data.parquet</span></code> with fine-tuned Multilingual BERT, with the target column named <code class="docutils literal notranslate"><span class="pre">sentiment</span></code>, 2 classes, batch size of 16, saving results in <code class="docutils literal notranslate"><span class="pre">text_output</span></code>, and without using PeFT, the command would be:</p>
+</section>
+<section id="raw-data-handling">
+<h2>Raw Data Handling<a class="headerlink" href="#raw-data-handling" title="Link to this heading"></a></h2>
+<p><strong>DeepTune</strong> was designed initially to only support data in format of Parquet files. However, to make it easier for users to get started, <strong>DeepTune</strong> provides support for converting multiple raw data formats (CSV/XLSX for tabular, timeseries, or text data, and image files for vision tasks) into the required Parquet format using the <code class="docutils literal notranslate"><span class="pre">--raw-data</span></code> flag.</p>
+<p>For the text, tabular, and time-series modalities, the raw data file must be in CSV or XLSX format. For the image modality, the raw data must be organized in a directory structure where each subdirectory represents the train, validation and test split. Inside each split subdirectory, it would contain the class labels containing the respective images.</p>
+<p>For example, the directory structure for image data should look like this:</p>
+<div class="highlight-text notranslate"><div class="highlight"><pre><span></span>data/
+├── train/
+│   ├── class_1/
+│   │   ├── image1.jpg
+│   │   ├── image2.jpg
+│   │   └── ...
+│   ├── class_2/
+│   │   ├── image1.jpg
+│   │   ├── image2.jpg
+│   │   └── ...
+│   └── class_3/
+│       ├── image1.jpg
+│       ├── image2.jpg
+│       └── ...
+├── val/
+│   ├── class_1/
+│   │   ├── image1.jpg
+│   │   ├── image2.jpg
+│   │   └── ...
+│   ├── class_2/
+│   │   ├── image1.jpg
+│   │   ├── image2.jpg
+│   │   └── ...
+│   └── class_3/
+│       ├── image1.jpg
+│       ├── image2.jpg
+│       └── ...
+└── test/
+    ├── class_1/
+    │   ├── image1.jpg
+    │   ├── image2.jpg
+    │   └── ...
+    ├── class_2/
+    │   ├── image1.jpg
+    │   ├── image2.jpg
+    │   └── ...
+    └── class_3/
+        ├── image1.jpg
+        ├── image2.jpg
+        └── ...
+</pre></div>
+</div>
+<p>When using the <code class="docutils literal notranslate"><span class="pre">--raw-data</span></code> flag, <strong>DeepTune</strong> will automatically handle the conversion process before proceeding with the experiment. Make sure to specify the correct path to your raw data using the <code class="docutils literal notranslate"><span class="pre">--df</span></code> argument. At the end, the converted Parquet files will be saved in the output directory specified by the <code class="docutils literal notranslate"><span class="pre">--out</span></code> argument, along with the experiment results.</p>
+</section>
+<section id="predefined-hyperparameters">
+<h2>Predefined Hyperparameters<a class="headerlink" href="#predefined-hyperparameters" title="Link to this heading"></a></h2>
+<p>To simplify the initial experience with <strong>DeepTune</strong>, a set of predefined hyperparameters is used. These hyperparameters have been chosen based on common practices and are intended to provide a good starting point for most experiments. When you run the unified CLI command without specifying certain hyperparameters, <strong>DeepTune</strong> will automatically apply these predefined values. The predefined hyperparameters are as follows:</p>
+<ul class="simple">
+<li><p><strong>Learning Rate</strong>: 0.0001</p></li>
+<li><p><strong>Number of Epochs</strong>: 5</p></li>
+<li><p><strong>Number of Added Layers</strong>: 2</p></li>
+<li><p><strong>Embedding Size</strong>: 1000 (applicable when using two added layers)</p></li>
+<li><p><strong>Train/Validation/Test Split Ratios</strong>: 80% / 10% / 10%</p></li>
+<li><p><strong>Task Mode</strong>: Classification (<cite>cls</cite>) by default</p></li>
+<li><p><strong>Freeze Backbone</strong>: False (i.e., full fine-tuning by default)</p></li>
+<li><p><strong>Disable Numerical Encoding</strong>: False (i.e., numerical encoding is applied by default as part of preprocessing).</p></li>
+<li><p><strong>GFUL Stages</strong>: 6 (applicable for GANDALF only)</p></li>
+</ul>
+</section>
+<section id="unified-cli-output-structure">
+<h2>Unified CLI Output Structure<a class="headerlink" href="#unified-cli-output-structure" title="Link to this heading"></a></h2>
+<p>After running the unified CLI command, <strong>DeepTune</strong> will generate an output directory containing the results of your experiment. The structure of the output directory will be as follows:</p>
+<div class="highlight-text notranslate"><div class="highlight"><pre><span></span>output_directory
+├── deeptune-&lt;yyyymmdd&gt;-exp&lt;int&gt;
+    ├── &lt;modality&gt;_dataset_&lt;yyyymmdd_hhmm&gt;.parquet
+    ├── data_splits_&lt;yyyymmdd_hhmm&gt;
+    │   ├── train_split.parquet
+    │   ├── val_split.parquet
+    │   ├── test_split.parquet
+    │   └── test_indices.csv
+    │   └── label_mapping.json
+    ├── trainval_output_&lt;model_version&gt;_&lt;yyyymmdd_hhmm&gt;
+    │   ├── cli_arguments.json
+    │   ├── model_weights.pth
+    │   ├── training_details.json
+    │   ├── training_log.csv
+    ├── eval_output_&lt;model_version&gt;_&lt;yyyymmdd_hhmm&gt;
+    │   ├── full_metrics.json
+    │   ├── cli_arguments.json
+    ├── embed_output_&lt;model_version&gt;_&lt;yyyymmdd_hhmm&gt;
+        ├── &lt;model_version&gt;_cls_embeddings.parquet
+        ├── cli_arguments.json
+        ├── embeddings_details.json
+</pre></div>
+</div>
+<p>In order to avoid overwriting previous experiment results, each run of the unified CLI command will create a new subdirectory within the specified output directory. The subdirectory will be named using the format <code class="docutils literal notranslate"><span class="pre">deeptune-&lt;yyyymmdd&gt;-exp&lt;int&gt;</span></code>, where <cite>&lt;yyyymmdd&gt;</cite> represents the date of the experiment, and <cite>&lt;int&gt;</cite> is an incrementing integer starting from 1 for each experiment conducted on that date. This ensures that all your experiment results are preserved and easily accessible for future reference.</p>
+<p>In order to know what the output directory components correspond to, you may refer to the respective sections in the <span class="xref std std-doc">split</span>, <span class="xref std std-doc">training</span>, <span class="xref std std-doc">evaluation</span>, and <span class="xref std std-doc">embedding</span> parts of the documentation.</p>
+</section>
+</section>
+
+
+           </div>
+          </div>
+          <footer><div class="rst-footer-buttons" role="navigation" aria-label="Footer">
+        <a href="../guides/demos.html" class="btn btn-neutral float-left" title="Demos" accesskey="p" rel="prev"><span class="fa fa-arrow-circle-left" aria-hidden="true"></span> Previous</a>
+        <a href="../functionalities/handlers/split.html" class="btn btn-neutral float-right" title="Handling Datasets" accesskey="n" rel="next">Next <span class="fa fa-arrow-circle-right" aria-hidden="true"></span></a>
+    </div>
+
+  <hr/>
+
+  <div role="contentinfo">
+    <p>&#169; Copyright 2025, Moayadeldin Hussain.</p>
+  </div>
+
+  Built with <a href="https://www.sphinx-doc.org/">Sphinx</a> using a
+    <a href="https://github.com/readthedocs/sphinx_rtd_theme">theme</a>
+    provided by <a href="https://readthedocs.org">Read the Docs</a>.
+   
+
+</footer>
+        </div>
+      </div>
+    </section>
+  </div>
+  <script>
+      jQuery(function () {
+          SphinxRtdTheme.Navigation.enable(true);
+      });
+  </script> 
+
+</body>
+</html>

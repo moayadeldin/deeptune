@@ -6,14 +6,14 @@
   <meta charset="utf-8" /><meta name="viewport" content="width=device-width, initial-scale=1" />
 
   <meta name="viewport" content="width=device-width, initial-scale=1.0" />
-  <title>Using DeepTune for Training &mdash; DeepTune 1.1.0 documentation</title>
+  <title>Using DeepTune for Training &mdash; DeepTune 1.0.0 documentation</title>
       <link rel="stylesheet" type="text/css" href="../../_static/pygments.css?v=b86133f3" />
       <link rel="stylesheet" type="text/css" href="../../_static/css/theme.css?v=e59714d7" />
 
   
       <script src="../../_static/jquery.js?v=5d32c60e"></script>
       <script src="../../_static/_sphinx_javascript_frameworks_compat.js?v=2cd50e6c"></script>
-      <script src="../../_static/documentation_options.js?v=fc837d61"></script>
+      <script src="../../_static/documentation_options.js?v=8d563738"></script>
       <script src="../../_static/doctools.js?v=9bcbadda"></script>
       <script src="../../_static/sphinx_highlight.js?v=dc90522c"></script>
     <script src="../../_static/js/theme.js"></script>
@@ -46,19 +46,25 @@
 <ul>
 <li class="toctree-l1"><a class="reference internal" href="../../guides/install.html">Installation</a></li>
 <li class="toctree-l1"><a class="reference internal" href="../../guides/preface.html">Preface</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../guides/demos.html">Demos</a></li>
+</ul>
+<p class="caption" role="heading"><span class="caption-text">Quick Start</span></p>
+<ul>
+<li class="toctree-l1"><a class="reference internal" href="../../tutorials/firstrun.html">Your First DeepTune Run</a></li>
 </ul>
 <p class="caption" role="heading"><span class="caption-text">Functionalities</span></p>
 <ul class="current">
 <li class="toctree-l1"><a class="reference internal" href="split.html">Handling Datasets</a></li>
-<li class="toctree-l1 current"><a class="current reference internal" href="#">Using <cite>DeepTune</cite> for Training</a><ul>
+<li class="toctree-l1 current"><a class="current reference internal" href="#">Using <strong>DeepTune</strong> for Training</a><ul>
 <li class="toctree-l2"><a class="reference internal" href="#images">Images</a></li>
 <li class="toctree-l2"><a class="reference internal" href="#text">Text</a></li>
 <li class="toctree-l2"><a class="reference internal" href="#tabular">Tabular</a></li>
+<li class="toctree-l2"><a class="reference internal" href="#time-series">Time Series</a></li>
 <li class="toctree-l2"><a class="reference internal" href="#training-output">Training Output</a></li>
 </ul>
 </li>
-<li class="toctree-l1"><a class="reference internal" href="evaluation.html">Using <cite>DeepTune</cite> for Evaluation</a></li>
-<li class="toctree-l1"><a class="reference internal" href="embedding.html">Using <cite>DeepTune</cite> for Knowledge Extraction</a></li>
+<li class="toctree-l1"><a class="reference internal" href="evaluation.html">Using <strong>DeepTune</strong> for Evaluation</a></li>
+<li class="toctree-l1"><a class="reference internal" href="embedding.html">Using <strong>DeepTune</strong> for Knowledge Extraction</a></li>
 <li class="toctree-l1"><a class="reference internal" href="dfanalyze.html">[EXTRA] Integration with df-analyze</a></li>
 </ul>
 
@@ -76,7 +82,7 @@
           <div role="navigation" aria-label="Page navigation">
   <ul class="wy-breadcrumbs">
       <li><a href="../../index.html" class="icon icon-home" aria-label="Home"></a></li>
-      <li class="breadcrumb-item active">Using <cite>DeepTune</cite> for Training</li>
+      <li class="breadcrumb-item active">Using <strong>DeepTune</strong> for Training</li>
       <li class="wy-breadcrumbs-aside">
             <a href="../../_sources/functionalities/handlers/training.rst.txt" rel="nofollow"> View page source</a>
       </li>
@@ -87,10 +93,10 @@
            <div itemprop="articleBody">
              
   <section id="using-deeptune-for-training">
-<h1>Using <cite>DeepTune</cite> for Training<a class="headerlink" href="#using-deeptune-for-training" title="Link to this heading"></a></h1>
+<h1>Using <strong>DeepTune</strong> for Training<a class="headerlink" href="#using-deeptune-for-training" title="Link to this heading"></a></h1>
 <section id="images">
 <h2>Images<a class="headerlink" href="#images" title="Link to this heading"></a></h2>
-<p>The following is the generic CLI structure of running <cite>DeepTune</cite> on images dataset stored in Parquet file as bytes format for training:</p>
+<p>The following is the generic CLI structure of running <strong>DeepTune</strong> on images dataset stored in Parquet file as bytes format for training:</p>
 <div class="highlight-console notranslate"><div class="highlight"><pre><span></span><span class="gp">$ </span>python<span class="w"> </span>-m<span class="w"> </span>trainers.vision.train<span class="w"> </span><span class="se">\</span>
 --train_df<span class="w"> </span>&lt;str&gt;<span class="w"> </span><span class="se">\</span>
 --val_df<span class="w"> </span>&lt;str&gt;<span class="w"> </span><span class="se">\</span>
@@ -186,10 +192,10 @@ Only values <strong>1</strong> or <strong>2</strong> are supported currently.</p
 </section>
 <section id="text">
 <h2>Text<a class="headerlink" href="#text" title="Link to this heading"></a></h2>
-<p>Since <code class="docutils literal notranslate"><span class="pre">DeepTune</span></code> currently supports only two models for text classification, the way they are called in the CLI differs from that of image models. Apart from this, the CLI structure remains largely the same:</p>
+<p>Since <strong>DeepTune</strong> currently supports only two models for text classification, the way they are called in the CLI differs from that of image models. Apart from this, the CLI structure remains largely the same:</p>
 <div class="admonition note">
 <p class="admonition-title">Note</p>
-<p>GPT-2 model does not support PeFT right now in <code class="docutils literal notranslate"><span class="pre">DeepTune</span></code>.</p>
+<p>GPT-2 model does not support PeFT right now in <strong>DeepTune</strong>.</p>
 </div>
 <div class="highlight-bash notranslate"><div class="highlight"><pre><span></span>$<span class="w"> </span>python<span class="w"> </span>-m<span class="w"> </span>trainers.nlp.<span class="o">[</span>train_multilingualbert/train_gpt2<span class="o">]</span><span class="w"> </span><span class="se">\</span>
 <span class="w">    </span>--train_df<span class="w"> </span>&lt;str&gt;<span class="w"> </span><span class="se">\</span>
@@ -212,11 +218,11 @@ as they are already statically fixed due to design constraints.</p>
 </section>
 <section id="tabular">
 <h2>Tabular<a class="headerlink" href="#tabular" title="Link to this heading"></a></h2>
-<p>Currently, <code class="docutils literal notranslate"><span class="pre">DeepTune</span></code> offers only support for GANDALF (Gated Adaptive Network for Deep Automated Learning of Features) model to provide predictions on your own tabular data. You can read more about GANDALF through the paper <a class="reference external" href="https://arxiv.org/abs/2207.08548">here</a>.</p>
-<p>The generic CLI workflow for applying GANDALF in <code class="docutils literal notranslate"><span class="pre">DeepTune</span></code> requires specifying certain columns before training can begin, which is mainly determining the continuous columns in your dataset and the categorical columns as an input.</p>
+<p>Currently, <strong>DeepTune</strong> offers only support for GANDALF (Gated Adaptive Network for Deep Automated Learning of Features) model to provide predictions on your own tabular data. You can read more about GANDALF through the paper <a class="reference external" href="https://arxiv.org/abs/2207.08548">here</a>.</p>
+<p>The generic CLI workflow for applying GANDALF in <strong>DeepTune</strong> requires specifying certain columns before training can begin, which is mainly determining the continuous columns in your dataset and the categorical columns as an input.</p>
 <div class="admonition note">
 <p class="admonition-title">Note</p>
-<p>Currently, GANDALF implementation does not support transfer learning in the way we commonly applied to images or text above. Instead, it follows the standard training scheme, starting from scratch.</p>
+<p>GANDALF implementation does not support transfer learning in the way we commonly applied to images or text above. Instead, it follows the standard training scheme, starting from scratch.</p>
 </div>
 <div class="highlight-console notranslate"><div class="highlight"><pre><span></span><span class="gp">$ </span>python<span class="w"> </span>-m<span class="w"> </span>trainers.tabular.train_gandalf<span class="w"> </span><span class="se">\</span>
 --train_df<span class="w"> </span>&lt;str&gt;<span class="w"> </span><span class="se">\</span>
@@ -238,10 +244,10 @@ as they are already statically fixed due to design constraints.</p>
 <col style="width: 75.0%" />
 </colgroup>
 <tbody>
-<tr class="row-odd"><td><p><code class="docutils literal notranslate"><span class="pre">--categorical_cols</span> <span class="pre">&lt;str&gt;</span> <span class="pre">(space-separated)</span></code></p></td>
+<tr class="row-odd"><td><p><code class="docutils literal notranslate"><span class="pre">--categorical_cols</span> <span class="pre">&lt;str&gt;</span></code></p></td>
 <td><p>Column names of the categorical fields to treat differently.</p></td>
 </tr>
-<tr class="row-even"><td><p><code class="docutils literal notranslate"><span class="pre">--continuous_cols</span> <span class="pre">&lt;str&gt;</span> <span class="pre">(space-separated)</span></code></p></td>
+<tr class="row-even"><td><p><code class="docutils literal notranslate"><span class="pre">--continuous_cols</span> <span class="pre">&lt;str&gt;</span></code></p></td>
 <td><p>Column names of the numeric fields.</p></td>
 </tr>
 <tr class="row-odd"><td><p><code class="docutils literal notranslate"><span class="pre">--tabular_target_column</span> <span class="pre">&lt;str&gt;</span></code></p></td>
@@ -257,9 +263,85 @@ as they are already statically fixed due to design constraints.</p>
 <p><code class="docutils literal notranslate"><span class="pre">--gflu_stages</span></code> is a hyperparameter related to internal GANDALF working, according to the documentation on <a class="reference external" href="https://pytorch-tabular.readthedocs.io/en/latest/apidocs_model/#pytorch_tabular.models.GANDALFConfig">PyTorch Tabular</a>, it is the number of layers in the feature abstraction layer. The documentation defaults to 6 and we advise the same.</p>
 </div>
 </section>
+<section id="time-series">
+<h2>Time Series<a class="headerlink" href="#time-series" title="Link to this heading"></a></h2>
+<p>Currently, <strong>DeepTune</strong> offers only support for DeepAR model to provide predictions on your own time-series data. You can read more about DeepAR through the paper <a class="reference external" href="https://arxiv.org/abs/1704.04110">here</a>.</p>
+<div class="admonition note">
+<p class="admonition-title">Note</p>
+<p>DeepAR implementation (similar to GANDALF) does not support transfer learning in the way we commonly applied to images or text above. Instead, it follows the standard training scheme, starting from scratch.</p>
+</div>
+<div class="highlight-console notranslate"><div class="highlight"><pre><span></span><span class="gp">$ </span>python<span class="w"> </span>-m<span class="w"> </span>trainers.timeseries.train_deepar<span class="w"> </span><span class="se">\</span>
+--train_df<span class="w"> </span>&lt;str&gt;<span class="w"> </span><span class="se">\</span>
+--val_df<span class="w"> </span>&lt;str&gt;<span class="w"> </span><span class="se">\</span>
+--batch_size<span class="w"> </span>&lt;int&gt;<span class="w"> </span><span class="se">\</span>
+--num_epochs<span class="w"> </span>&lt;int&gt;<span class="w"> </span><span class="se">\</span>
+--out<span class="w"> </span>&lt;str&gt;<span class="w"> </span><span class="se">\</span>
+--time_idx_column<span class="w"> </span>&lt;str&gt;<span class="w"> </span><span class="se">\</span>
+--target_column<span class="w"> </span>&lt;str&gt;<span class="w"> </span><span class="se">\</span>
+--max_encoder_length<span class="w"> </span>&lt;int&gt;<span class="w"> </span><span class="se">\</span>
+--max_prediction_length<span class="w"> </span>&lt;int&gt;<span class="w"> </span><span class="se">\</span>
+--time_varying_known_categoricals<span class="w"> </span>&lt;list&gt;<span class="w"> </span><span class="se">\</span>
+--time_varying_unknown_categoricals<span class="w"> </span>&lt;list&gt;<span class="w"> </span><span class="se">\</span>
+--static_categoricals<span class="w"> </span>&lt;list&gt;<span class="w"> </span><span class="se">\</span>
+--time_varying_known_reals<span class="w"> </span>&lt;list&gt;<span class="w"> </span><span class="se">\</span>
+--time_varying_unknown_reals<span class="w"> </span>&lt;list&gt;<span class="w"> </span><span class="se">\</span>
+--static_reals<span class="w"> </span>&lt;list&gt;<span class="w"> </span><span class="se">\</span>
+--group_ids<span class="w"> </span>&lt;str&gt;<span class="w"> </span><span class="se">\</span>
+</pre></div>
+</div>
+<div class="admonition note">
+<p class="admonition-title">Note</p>
+<p>The columns related to categoricals, reals, and maximum prediction length are optional, you may skip them.</p>
+</div>
+<table class="docutils align-default">
+<colgroup>
+<col style="width: 25.0%" />
+<col style="width: 75.0%" />
+</colgroup>
+<tbody>
+<tr class="row-odd"><td><p><code class="docutils literal notranslate"><span class="pre">--time_idx_column</span> <span class="pre">&lt;str&gt;</span></code></p></td>
+<td><p>Name of the time index column in your dataset.</p></td>
+</tr>
+<tr class="row-even"><td><p><code class="docutils literal notranslate"><span class="pre">--target_column</span> <span class="pre">&lt;str&gt;</span></code></p></td>
+<td><p>Name of the target column in your dataset.</p></td>
+</tr>
+<tr class="row-odd"><td><p><code class="docutils literal notranslate"><span class="pre">--max_encoder_length</span> <span class="pre">&lt;int&gt;</span></code></p></td>
+<td><p>Maximum encoder length for forecasting.</p></td>
+</tr>
+<tr class="row-even"><td><p><code class="docutils literal notranslate"><span class="pre">--max_prediction_length</span> <span class="pre">&lt;int&gt;</span></code></p></td>
+<td><p>Maximum prediction length for forecasting.</p></td>
+</tr>
+<tr class="row-odd"><td><p><code class="docutils literal notranslate"><span class="pre">--time_varying_known_categoricals</span> <span class="pre">&lt;str&gt;</span></code></p></td>
+<td><p>Column names of time-varying known categorical features.</p></td>
+</tr>
+<tr class="row-even"><td><p><code class="docutils literal notranslate"><span class="pre">--time_varying_unknown_categoricals</span> <span class="pre">&lt;str&gt;</span></code></p></td>
+<td><p>Column names of time-varying unknown categorical features.</p></td>
+</tr>
+<tr class="row-odd"><td><p><code class="docutils literal notranslate"><span class="pre">--static_categoricals</span> <span class="pre">&lt;str&gt;</span></code></p></td>
+<td><p>Column names of static categorical features.</p></td>
+</tr>
+<tr class="row-even"><td><p><code class="docutils literal notranslate"><span class="pre">--time_varying_known_reals</span> <span class="pre">&lt;str&gt;</span></code></p></td>
+<td><p>Column names of time-varying known real-valued features.</p></td>
+</tr>
+<tr class="row-odd"><td><p><code class="docutils literal notranslate"><span class="pre">--time_varying_unknown_reals</span> <span class="pre">&lt;str&gt;</span></code></p></td>
+<td><p>Column names of time-varying unknown real-valued features.</p></td>
+</tr>
+<tr class="row-even"><td><p><code class="docutils literal notranslate"><span class="pre">--static_reals</span> <span class="pre">&lt;str&gt;</span></code></p></td>
+<td><p>Column names of static real-valued features.</p></td>
+</tr>
+<tr class="row-odd"><td><p><code class="docutils literal notranslate"><span class="pre">--group_ids</span> <span class="pre">&lt;str&gt;</span></code></p></td>
+<td><p>Column names used to identify different time series groups. Set to default “0”.</p></td>
+</tr>
+</tbody>
+</table>
+<div class="admonition note">
+<p class="admonition-title">Note</p>
+<p>For more information about these arguments, you may refer to the <a class="reference external" href="https://pytorch-forecasting.readthedocs.io/en/v1.3.0/api/pytorch_forecasting.models.deepar._deepar.DeepAR.html">PyTorch Forecasting documentation</a>.</p>
+</div>
+</section>
 <section id="training-output">
 <h2>Training Output<a class="headerlink" href="#training-output" title="Link to this heading"></a></h2>
-<p>After training completes, you may find the results in the directory specified with the <cite>–out</cite> directory. Alternatively, <code class="docutils literal notranslate"><span class="pre">DeepTune</span></code> will create an output directory named  <cite>deeptune_results</cite> (if it does not already exist). Inside this directory, the results are organized in a subfolder using the following naming convention: <code class="docutils literal notranslate"><span class="pre">trainval_output_&lt;FINETUNED/PEFT&gt;_&lt;model_version&gt;_&lt;mode&gt;_&lt;yyyymmdd_hhmm&gt;</span></code> with the following output:</p>
+<p>After training completes, you may find the results in the directory specified with the <cite>–out</cite> directory. Alternatively, <strong>DeepTune</strong> will create an output directory named  <cite>deeptune_results</cite> (if it does not already exist). Inside this directory, the results are organized in a subfolder using the following naming convention: <code class="docutils literal notranslate"><span class="pre">trainval_output_&lt;FINETUNED/PEFT&gt;_&lt;model_version&gt;_&lt;mode&gt;_&lt;yyyymmdd_hhmm&gt;</span></code> with the following output:</p>
 <div class="highlight-console notranslate"><div class="highlight"><pre><span></span><span class="go">output_directory</span>
 <span class="go">├── trainval_output_&lt;FINETUNED/PEFT&gt;_&lt;model_version&gt;_&lt;mode&gt;_&lt;yyyymmdd_hhmm&gt;</span>
 <span class="go">    └── cli_arguments.json</span>
@@ -275,7 +357,7 @@ as they are already statically fixed due to design constraints.</p>
 </colgroup>
 <tbody>
 <tr class="row-odd"><td><p><code class="docutils literal notranslate"><span class="pre">cli_arguments.json</span></code></p></td>
-<td><p>Records the CLI arguments you entered to run <code class="docutils literal notranslate"><span class="pre">DeepTune</span></code>.</p></td>
+<td><p>Records the CLI arguments you entered to run <strong>DeepTune</strong>.</p></td>
 </tr>
 <tr class="row-even"><td><p><code class="docutils literal notranslate"><span class="pre">model_weights.pth</span></code></p></td>
 <td><p>The fine-tuned model weights (used later for evaluation).</p></td>
@@ -299,7 +381,7 @@ as they are already statically fixed due to design constraints.</p>
 <span class="go">    └── training_log.csv</span>
 </pre></div>
 </div>
-<p>For tabular data using GANDALF, the directory will be named as <code class="docutils literal notranslate"><span class="pre">trainval_output_&lt;GANDALF&gt;_&lt;mode&gt;_&lt;yyyymmdd_hhmm&gt;</span></code> with the weights stored in <code class="docutils literal notranslate"><span class="pre">GANDALF_model</span></code> subdirectory.</p>
+<p>For tabular data using GANDALF, the directory will be named as <code class="docutils literal notranslate"><span class="pre">trainval_output_&lt;GANDALF&gt;_&lt;mode&gt;_&lt;yyyymmdd_hhmm&gt;</span></code> with the weights stored in <code class="docutils literal notranslate"><span class="pre">GANDALF_model</span></code> subdirectory. For the timeseries modality, the weights will be stored in <cite>.ckpt</cite> format instead of <cite>.pth</cite>, and <code class="docutils literal notranslate"><span class="pre">prediction_output.json</span></code> will be provided instead of <code class="docutils literal notranslate"><span class="pre">training_log.csv</span></code>.</p>
 </section>
 </section>
 
