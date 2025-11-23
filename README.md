@@ -3,9 +3,10 @@
 [![deeptune tests](https://github.com/moayadeldin/deeptune/actions/workflows/test.yml/badge.svg)](https://github.com/moayadeldin/deeptune/actions/workflows/test.yml)
 [![Documentation Status](https://readthedocs.org/projects/deeptune/badge/?version=latest)](https://deeptune.readthedocs.io/en/latest/)
 
-***DeepTune*** is a full compatible library to automate Computer Vision, Natural Language Processing, Tabular, and Time Series state-of-the-art deep learning algorithms for multimodal applications on image, text, tabular, and time series datasets. The library is designed for use in different applied machine learning domains, including but not limited to medical imaging, natural language understanding, time series analysis, providing users with powerful, ready-to-use CLI tool that unlock the full potential of their case studies through just a few simple commands.
+***DeepTune*** is a full compatible library to automate Computer Vision, Natural Language Processing, Tabular, and Time Series state-of-the-art deep learning algorithms for cross-modal applications on image, text, tabular, and time series datasets. The library is designed for use in different applied machine learning domains, including but not limited to medical imaging, natural language understanding, time series analysis, providing users with powerful, ready-to-use CLI tool that unlock the full potential of their case studies through just a few simple commands.
 
-***DeepTune*** is primarily presented for undergraduate and graduate computer science students community at St. Francis Xavier University (StFX) in NS, and we aspire to seeing this software adopted broadly across the computer science research community all over the world.
+***DeepTune*** is primarily presented for undergraduate and graduate computer science students community at St. Francis Xavier University (StFX) in Nova Scotia, Canada. We aspire to seeing this software adopted broadly across the computer science research community all over the world.
+
 
 ## Features
 
@@ -147,9 +148,9 @@ Also if you find this repository helpful, please cite it as follows:
 
 ```bibtex
 @software{DeepTune,
-  author  = {Moayadeldin Hussain, John Kendall and Jacob Levman},
-  title   = {DeepTune: Cutting-edge library Automating the integration of state-of-the-art deep learning models for multimodal applications},
-  year = {2025},
-  url = {https://github.com/moayadeldin/deeptune},
-  version = {1.1.0}
+author  = {Moayadeldin Hussain, John Kendall and Jacob Levman},
+title   = {DeepTune: Cutting-edge Tool automating state-of-the-art deep learning models for cross-modal applications},
+year = {2025},
+url = {https://github.com/moayadeldin/deeptune},
+version = {1.0.0}
 }
