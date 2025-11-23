@@ -1,4 +1,4 @@
-Your First DeepTune Run
+Your First **DeepTune** Run
 ===========================
 Welcome to your first **DeepTune** project! This tutorial will guide you through the essential steps to set up and run a **DeepTune** experiment using a sample dataset. By the end of this tutorial, you will have a basic understanding of how to use **DeepTune** for your machine learning tasks. You should have already prepared the virtual environment and/or installed the dependencies as described in the :doc:`guides/install` section, and got an idea about **DeepTune** functionalities from the :doc:`guides/preface` section.
 
@@ -71,9 +71,10 @@ For example, suppose that we want to run an experiment on an image classificatio
 In case we want to run an experiment on a text classification task using a dataset stored in ``data/text_data.parquet`` with fine-tuned Multilingual BERT, with the target column named ``sentiment``, 2 classes, batch size of 16, saving results in ``text_output``, and without using PeFT, the command would be:
 
 .. code-block:: console
+
     $ python -m deeptune \
         --df data/text_data.parquet \
-        --model_version bert
+        --model_version bert \
         --modality text \
         --target sentiment \
         --num_classes 2 \

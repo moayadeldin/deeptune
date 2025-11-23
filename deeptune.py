@@ -25,13 +25,13 @@ from helpers import date_id,print_metrics_table,print_training_log_table, print_
 from handlers.raw_to_parquet_dataset import raw_to_parquet
 
 defaults={
-    'num_epochs':5,
+    'num_epochs':10,
     'learning_rate':1e-4,
     'added_layers':2,
     'embed_size':1000,
-    'train_size':0.8,
+    'train_size':0.7,
     'val_size':0.1,
-    'test_size':0.1,
+    'test_size':0.2,
     'mode':'cls',
     'freeze_backbone': False,
     'fixed_seed':True,
