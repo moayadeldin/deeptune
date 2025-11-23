@@ -16,6 +16,7 @@ from embed.tabular.gandalf_embeddings import embed as embed_tabular_gandalf
 ##### IV. TIMESERIES IMPORTS #####
 from trainers.timeseries.train_deepar import train as train_deepar
 from evaluators.timeseries.evaluate_deepar import evaluate as evaluate_deepar
+from embed.timeseries.deepAR_embeddings import embed as embed_deepar
 ##### IV. GENERIC IMPORTS #####
 from handlers.split_dataset import split_dataset
 from pathlib import Path
@@ -25,13 +26,13 @@ from helpers import date_id,print_metrics_table,print_training_log_table, print_
 from handlers.raw_to_parquet_dataset import raw_to_parquet
 
 defaults={
-    'num_epochs':5,
+    'num_epochs':10,
     'learning_rate':1e-4,
     'added_layers':2,
     'embed_size':1000,
-    'train_size':0.8,
+    'train_size':0.7,
     'val_size':0.1,
-    'test_size':0.1,
+    'test_size':0.2,
     'mode':'cls',
     'freeze_backbone': False,
     'fixed_seed':True,
@@ -288,7 +289,18 @@ def main():
                 model_weights=ckpt_directory,
                 group_ids=defaults['group_ids'],
                 args=args,
-            ) 
+            )
+
+            exp_path, embed_shape = embed_deepar(
+                eval_df=test_data_path,
+                out=Path(args.out)/parent_dir,
+                model_weights=ckpt_directory,
+                batch_size=args.batch_size,
+                target_column=defaults['target'],
+                args=args,
+                model_str='DeepAR',
+                timeindex_column=args.time_idx_column,
+            )
 
             print_experiment_paths_table(df_path=df_path, train_data_path=train_data_path, val_data_path=val_data_path, test_data_path=test_data_path, ckpt_directory=ckpt_directory, exp_path=exp_path)
 

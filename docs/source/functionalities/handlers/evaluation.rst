@@ -96,7 +96,7 @@ The generic CLI structure of running **DeepTune** for evalaution of time series 
     --model_weights <str> \
     --out <str> \
     --time_idx_column <str> \
-    --target_column <str> \
+    --target <str> \
     --max_encoder_length <int> \
     --max_prediction_length <int> \
     --time_varying_known_categoricals <list> \

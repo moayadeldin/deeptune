@@ -74,6 +74,40 @@ The following is the generic CLI structure of running **DeepTune** for embedding
 
     As GANDALF relies on the standard training scheme without applying transfer learning, we do not use Parameter Efficient Fine-Tuning (PeFT), Fine-Tuning, or Pretrained options. Indeed, we only use the already trained model's weights to obtain the embeddings.
 
+
+Time Series
+------------
+
+Before going through the steps to run **DeepTune** for time series embeddings extraction, it is important to note that time series models in ``pytorch-tabular`` process the data differently compared to other modalities. Specifically, they handle sequences of data over time through sliding windows that is constructed given the encoder and decoder lengths. Therefore, when extracting embeddings for time series data, the output will correspond to these sliding windows rather than individual time points. 
+
+The expected output should be treated as embeddings for each sliding window created from the time series data, and not for each individual time point. 
+
+Hence, for each sliding window created from the time series data, **DeepTune** will generate an embedding that captures the temporal patterns and relationships within that window, with the target value corresponding to the end of the decoder window. For the rest of target values, they will be padded to maintain alignment with and the final shape of the original input. 
+
+.. note::
+
+    *DeepTune** ensures that the padded values are clearly indicated in the output embeddings with the ``is_padded`` column, allowing users to easily identify and handle these values during their analysis.
+
+The following is the generic CLI structure of running DeepTune for embeddings extraction of time series datasets:
+
+.. code-block:: console
+
+    $ python -m embed.timeseries.deepAR_embeddings \
+    --df <path_to_df> \
+    --batch_size <int> \
+    --out <str> \
+    --model_weights <str> \
+    --time_idx_column <str> \
+    --target <str> \
+
+.. note::
+
+    Similar to the tabular modality, DeepAR relies on the standard training scheme without applying transfer learning. Therefore, we do not use Parameter Efficient Fine-Tuning (PeFT), Fine-Tuning, or Pretrained options. Indeed, we only use the already trained model's weights to obtain the embeddings.
+
+
+
+
+
 Embeddings Output
 -----------------
 
