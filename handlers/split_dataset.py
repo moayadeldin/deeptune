@@ -31,6 +31,7 @@ def main():
     DISABLE_NUMERICAL_ENCODING = args.disable_numerical_encoding
     DISABLE_TARGET_COLUMN_RENAMING = args.disable_target_column_renaming
     TARGET_COLUMN = args.target
+    MODALITY = args.modality
         
     OUT_DIR: Path = args.out
 
@@ -43,7 +44,8 @@ def main():
         fixed_seed=FIXED_SEED,
         disable_numerical_encoding=DISABLE_NUMERICAL_ENCODING,
         target_column=TARGET_COLUMN,
-        disable_target_column_renaming=DISABLE_TARGET_COLUMN_RENAMING
+        disable_target_column_renaming=DISABLE_TARGET_COLUMN_RENAMING,
+        modality=MODALITY,
     )
 
     print(f"Dataset splits saved to:\n Train:{train_path}\n Validation: {val_path}\n Test: {test_path}")
@@ -80,7 +82,7 @@ def split_dataset(train_size: float, val_size: float, test_size:float, df_path: 
         df['labels'] = le.transform(df['labels'])
 
         if modality != 'timeseries':
-            class_to_int = {cls: int(idx) for idx, cls in enumerate(le.classes_)}
+            class_to_int = {str(cls): int(idx) for idx, cls in enumerate(le.classes_)}
 
             with open(split_dir / 'label_mapping.json', 'w') as f:
 
@@ -157,6 +159,14 @@ def make_parser() -> ArgumentParser:
         type=str,
         required=False,
         help="Specify the name of your target column. Default is 'labels'.",
+    )
+
+    parser.add_argument(
+        "--modality",
+        type=str,
+        required=True,
+        choices=['timeseries','tabular','text','images'],
+        help="Specify the modality of your dataset. This is used to determine whether label encoding mapping files are needed."
     )
 
     parser.add_argument(

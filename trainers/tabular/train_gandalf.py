@@ -87,7 +87,7 @@ def train(
     continuous_cols = continuous_cols or []
 
     data_config = DataConfig(
-        target=[target],
+        target=target,
         continuous_cols=continuous_cols,
         categorical_cols=categorical_cols,
     )

@@ -6,8 +6,8 @@ project = 'DeepTune'
 copyright = '2025, Moayadeldin Hussain'
 author = 'Moayadeldin Hussain'
 
-release = '1.1.0'
-version = '1.1.0'
+release = '1.0.0'
+version = '1.0.0'
 
 # -- General configuration
 

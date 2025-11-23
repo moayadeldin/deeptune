@@ -3,7 +3,7 @@
 
 `df-analyze <https://github.com/stfxecutables/df-analyze>`_ is a command-line tool developed in the same Medical Imaging Bioinformatics lab at St. Francis Xavier University for automating Machine Learning tasks on small to medium-sized tabular datasets (less than about 200 000 samples, and less than about 50 to 100 features) using Classical ML algorithms.
 
-After you successfully allocate your embeddings file, either after running `DeepTune` on image dataset or text one, you may install df-analyze —instructions on how to do that is found on the software repository link— and run the following command:
+After you successfully allocate your embeddings file, either after running **DeepTune** on image dataset or text one, you may install df-analyze —instructions on how to do that is found on the software repository link— and run the following command:
 
 .. code-block:: console
 

@@ -6,14 +6,14 @@
   <meta charset="utf-8" /><meta name="viewport" content="width=device-width, initial-scale=1" />
 
   <meta name="viewport" content="width=device-width, initial-scale=1.0" />
-  <title>[EXTRA] Integration with df-analyze &mdash; DeepTune 1.1.0 documentation</title>
+  <title>[EXTRA] Integration with df-analyze &mdash; DeepTune 1.0.0 documentation</title>
       <link rel="stylesheet" type="text/css" href="../../_static/pygments.css?v=b86133f3" />
       <link rel="stylesheet" type="text/css" href="../../_static/css/theme.css?v=e59714d7" />
 
   
       <script src="../../_static/jquery.js?v=5d32c60e"></script>
       <script src="../../_static/_sphinx_javascript_frameworks_compat.js?v=2cd50e6c"></script>
-      <script src="../../_static/documentation_options.js?v=fc837d61"></script>
+      <script src="../../_static/documentation_options.js?v=8d563738"></script>
       <script src="../../_static/doctools.js?v=9bcbadda"></script>
       <script src="../../_static/sphinx_highlight.js?v=dc90522c"></script>
     <script src="../../_static/js/theme.js"></script>
@@ -45,12 +45,17 @@
 <ul>
 <li class="toctree-l1"><a class="reference internal" href="../../guides/install.html">Installation</a></li>
 <li class="toctree-l1"><a class="reference internal" href="../../guides/preface.html">Preface</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../guides/demos.html">Demos</a></li>
+</ul>
+<p class="caption" role="heading"><span class="caption-text">Quick Start</span></p>
+<ul>
+<li class="toctree-l1"><a class="reference internal" href="../../tutorials/firstrun.html">Your First DeepTune Run</a></li>
 </ul>
 <p class="caption" role="heading"><span class="caption-text">Functionalities</span></p>
 <ul class="current">
 <li class="toctree-l1"><a class="reference internal" href="split.html">Handling Datasets</a></li>
 <li class="toctree-l1"><a class="reference internal" href="training.html">Using <cite>DeepTune</cite> for Training</a></li>
-<li class="toctree-l1"><a class="reference internal" href="evaluation.html">Using <cite>DeepTune</cite> for Evaluation</a></li>
+<li class="toctree-l1"><a class="reference internal" href="evaluation.html">Using <strong>DeepTune</strong> for Evaluation</a></li>
 <li class="toctree-l1"><a class="reference internal" href="embedding.html">Using <cite>DeepTune</cite> for Knowledge Extraction</a></li>
 <li class="toctree-l1 current"><a class="current reference internal" href="#">[EXTRA] Integration with df-analyze</a></li>
 </ul>
@@ -82,7 +87,7 @@
   <section id="extra-integration-with-df-analyze">
 <h1>[EXTRA] Integration with df-analyze<a class="headerlink" href="#extra-integration-with-df-analyze" title="Link to this heading"></a></h1>
 <p><a class="reference external" href="https://github.com/stfxecutables/df-analyze">df-analyze</a> is a command-line tool developed in the same Medical Imaging Bioinformatics lab at St. Francis Xavier University for automating Machine Learning tasks on small to medium-sized tabular datasets (less than about 200 000 samples, and less than about 50 to 100 features) using Classical ML algorithms.</p>
-<p>After you successfully allocate your embeddings file, either after running <cite>DeepTune</cite> on image dataset or text one, you may install df-analyze —instructions on how to do that is found on the software repository link— and run the following command:</p>
+<p>After you successfully allocate your embeddings file, either after running <strong>DeepTune</strong> on image dataset or text one, you may install df-analyze —instructions on how to do that is found on the software repository link— and run the following command:</p>
 <div class="highlight-console notranslate"><div class="highlight"><pre><span></span><span class="gp">$ </span>python<span class="w"> </span>df-analyze.py<span class="w"> </span>--df<span class="w"> </span><span class="s2">&quot;path\test_set_&lt;use_case&gt;_&lt;model&gt;_embeddings_cls.parquet&quot;</span><span class="w"> </span>--outdir<span class="w"> </span><span class="o">=</span><span class="w"> </span>./deeptune_results<span class="w"> </span>--mode<span class="o">=</span>classify<span class="w"> </span>--target<span class="w"> </span>label<span class="w"> </span>--classifiers<span class="w"> </span>lgbm<span class="w"> </span>rf<span class="w"> </span>sgd<span class="w"> </span>knn<span class="w"> </span>lr<span class="w"> </span>mlp<span class="w"> </span>dummy<span class="w"> </span>--embed-select<span class="w"> </span>none<span class="w"> </span>linear<span class="w"> </span>lgbm
 </pre></div>
 </div>

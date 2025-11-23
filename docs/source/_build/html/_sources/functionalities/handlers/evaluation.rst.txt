@@ -1,14 +1,14 @@
-Using `DeepTune` for Evaluation
+Using **DeepTune** for Evaluation
 =========
 
 Images
 ------
 
-Evaluating your model on a separete holdout test dataset is referred to as evaluation. The reason is to simply not confuse the terms as testing in `DeepTune` documentation context also refers to testing the model functionality (e.g, writing test cases).
+Evaluating your model on a separete holdout test dataset is referred to as evaluation. The reason is to simply not confuse the terms as testing in **DeepTune** documentation context also refers to testing the model functionality (e.g, writing test cases).
 
-After using `DeepTune` to apply transfer learning on one of the models the package support, now we need to evaluate the performance of the tuned model for images.
+After using **DeepTune** to apply transfer learning on one of the models the package support, now we need to evaluate the performance of the tuned model for images.
 
-The following is the generic CLI structure of running DeepTune for evalaution of image datasets:
+The following is the generic CLI structure of running **DeepTune** for evalaution of image datasets:
 
 .. code-block:: console
 
@@ -30,12 +30,15 @@ The following is the generic CLI structure of running DeepTune for evalaution of
    :header-rows: 0
 
    * - ``--eval_df <str>``
-     - Path to your test dataset. It should be the ``test_split_<yyyymmdd>_<hhmm>.parquet `` you got from the previous `DeepTune` for splitting data run.
+     - Path to your test dataset. It should be the ``test_split_<yyyymmdd>_<hhmm>.parquet `` you got from the previous **DeepTune** for splitting data run.
    * - ``--model_weights <str>``
-     - Path to your model's weights. It should be ```model_weights.pth`` you got from the previous `DeepTune` for training run.
+     - Path to your model's weights.
 
 .. note::
-    If you used one of the switches ``--freeze_backone`` or ``--use_peft`` or both in the previous run, you should use them while doing your evaluation here again. Also, you feed the evaluator here the same ``--added_layers`` and ``--embed_size`` you used for your previous training run of DeepTune. Otherwise, a mismatch error will occur.
+    For the ``--model_weights`` argument, we feed the whole output directory we got from running **DeepTune** for training (``trainval_output_<model_version>_<yyyymmdd_hhmm>``) instead of feeding the specific model weights file. **DeepTune** will automatically locate the correct model weights file inside that directory.
+
+.. note::
+    If you used one of the switches ``--freeze_backone`` or ``--use_peft`` or both in the previous run, you should use them while doing your evaluation here again. Also, you feed the evaluator here the same ``--added_layers`` and ``--embed_size`` you used for your previous training run of **DeepTune**. Otherwise, a mismatch error will occur.
 
 If everything is set correctly, and evaluation is done, you should expect an output in the same format:
 
@@ -48,9 +51,9 @@ If everything is set correctly, and evaluation is done, you should expect an out
 Text
 -----
 
-In `DeepTune`, the text SoTA models save the weights of both the models, and the tokenizers. The tokenizer role is to split sentences into smaller units (we call them tokens) that can be more easily assigned meaning. On the other hand, the model is responsible for handling the part of interpreting these tokens.
+In **DeepTune**, the text SoTA models save the weights of both the models, and the tokenizers. The tokenizer role is to split sentences into smaller units (we call them tokens) that can be more easily assigned meaning. On the other hand, the model is responsible for handling the part of interpreting these tokens.
 
-The generic CLI structure of running *DeepTune* for evalaution of text datasets:
+The generic CLI structure of running **DeepTune** for evalaution of text datasets:
 
 .. code-block:: console
 
@@ -65,16 +68,13 @@ The generic CLI structure of running *DeepTune* for evalaution of text datasets:
     [--use-peft] \
     [--freeze-backbone]
 
-.. note::
-    For the ``--model_weights`` argument, we feed the whole output directory we got from running `DeepTune` for training (``trainval_output_<BERT/GPT2>_<yyyymmdd_hhmm>``)
-
 .. note:: 
     For GPT-2 model, the switches ``--added_layers`` and ``embed_size`` are set by default as we tweaked the model architecture in order to be properly ready for training due to design constrains, so you don't have to set these to a specific input.
 
 
 Tabular
 -------
-The generic CLI structure of running *DeepTune* for evalaution of text datasets using GANDALF is:
+The generic CLI structure of running **DeepTune** for evalaution of text datasets using GANDALF is:
 
 .. code-block:: console
 
@@ -82,15 +82,36 @@ The generic CLI structure of running *DeepTune* for evalaution of text datasets 
     --eval_df <str> \
     --model_weights <str>
     --out <str>
-.. note::
-    You feed the path to ``GANDALF_model`` subdirectory that you obtained after training as a parameter to ``--model_weights``.
 
+Time Series
+-----------
+The generic CLI structure of running **DeepTune** for evalaution of time series datasets using DeepAR is:
+
+.. code-block:: console
+
+    $ python -m evaluators.timeseries.evaluate_deepar \
+    --train_df <str> \
+    --val_df <str> \
+    --eval_df <str> \
+    --model_weights <str> \
+    --out <str> \
+    --time_idx_column <str> \
+    --target_column <str> \
+    --max_encoder_length <int> \
+    --max_prediction_length <int> \
+    --time_varying_known_categoricals <list> \
+    --time_varying_unknown_categoricals <list> \
+    --static_categoricals <list> \
+    --time_varying_known_reals <list> \
+    --time_varying_unknown_reals <list> \
+    --static_reals <list> \
+    --group_ids <str> \
 
 Evaluation Output
 -----------------
 
 
-After evaluation is done, you may find the results in the directory specified with the ``--out`` directory or ``deeptune_results`` initiated in your `DeepTune` path. Inside this folder, you will find the following output directory:
+After evaluation is done, you may find the results in the directory specified with the ``--out`` directory or ``deeptune_results`` initiated in your **DeepTune** path. Inside this folder, you will find the following output directory:
 
 .. code-block:: console
 
@@ -105,7 +126,7 @@ After evaluation is done, you may find the results in the directory specified wi
    :header-rows: 0
 
    * - ``cli_arguments.json``
-     - Records the CLI arguments you entered to run ``DeepTune``.
+     - Records the CLI arguments you entered to run `**DeepTune**`.
 
    * - ``full_metrics.json``
      - The full metrics as appeared to you in the CLI while using the model.
@@ -113,4 +134,4 @@ After evaluation is done, you may find the results in the directory specified wi
    * - ``evaluation_details.json``
      - Stores the amount of time needed between starting and completing the training.
 
-Similarly, the output of the text and tabular datasets will have the same structure but with respectively different directory namings.
+Similarly, the output of the text, tabular, and time series datasets will have the same structure but with respectively different directory namings.

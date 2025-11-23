@@ -87,10 +87,11 @@ def embed(df_path, out, model_weights, batch_size, use_case):
     save_process_times(epoch_times=1, total_duration=total_time, outdir=EMBED_OUTPUT, process="embedding")
 
     
-    embeddings_df.to_parquet(EMBED_FILE, index=False)
+    print(f'The embeddings file is saved in {EMBED_FILE}')
 
-    print(f'The embeddings file is saved in {EMBED_OUTPUT}')
+    embeddings_df.to_parquet(EMBED_FILE, index=False)
     return out, embeddings_df.shape
+
     
 
 
@@ -103,16 +104,13 @@ def main():
 
     USE_CASE = args.use_case.value
 
-    embed_output_path = embed(
+    embed_output_path,_ = embed(
         df_path=DF_PATH,
         out=OUT,
         model_weights=args.model_weights,
         batch_size=args.batch_size,
         use_case=USE_CASE
     )
-
-    print(f'The embeddings file is saved in {embed_output_path}')
-
 if __name__ == "__main__":
     main()
 
@@ -145,10 +143,6 @@ if __name__ == "__main__":
 #     mean_embeddings = summed / counts
     
 #     return mean_embeddings
-
-if __name__ == "__main__":
-    
-    main()
 
 
 

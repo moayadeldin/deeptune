@@ -6,14 +6,14 @@
   <meta charset="utf-8" /><meta name="viewport" content="width=device-width, initial-scale=1" />
 
   <meta name="viewport" content="width=device-width, initial-scale=1.0" />
-  <title>Using DeepTune for Knowledge Extraction &mdash; DeepTune 1.1.0 documentation</title>
+  <title>Using DeepTune for Knowledge Extraction &mdash; DeepTune 1.0.0 documentation</title>
       <link rel="stylesheet" type="text/css" href="../../_static/pygments.css?v=b86133f3" />
       <link rel="stylesheet" type="text/css" href="../../_static/css/theme.css?v=e59714d7" />
 
   
       <script src="../../_static/jquery.js?v=5d32c60e"></script>
       <script src="../../_static/_sphinx_javascript_frameworks_compat.js?v=2cd50e6c"></script>
-      <script src="../../_static/documentation_options.js?v=fc837d61"></script>
+      <script src="../../_static/documentation_options.js?v=8d563738"></script>
       <script src="../../_static/doctools.js?v=9bcbadda"></script>
       <script src="../../_static/sphinx_highlight.js?v=dc90522c"></script>
     <script src="../../_static/js/theme.js"></script>
@@ -46,13 +46,18 @@
 <ul>
 <li class="toctree-l1"><a class="reference internal" href="../../guides/install.html">Installation</a></li>
 <li class="toctree-l1"><a class="reference internal" href="../../guides/preface.html">Preface</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../guides/demos.html">Demos</a></li>
+</ul>
+<p class="caption" role="heading"><span class="caption-text">Quick Start</span></p>
+<ul>
+<li class="toctree-l1"><a class="reference internal" href="../../tutorials/firstrun.html">Your First DeepTune Run</a></li>
 </ul>
 <p class="caption" role="heading"><span class="caption-text">Functionalities</span></p>
 <ul class="current">
 <li class="toctree-l1"><a class="reference internal" href="split.html">Handling Datasets</a></li>
 <li class="toctree-l1"><a class="reference internal" href="training.html">Using <cite>DeepTune</cite> for Training</a></li>
-<li class="toctree-l1"><a class="reference internal" href="evaluation.html">Using <cite>DeepTune</cite> for Evaluation</a></li>
-<li class="toctree-l1 current"><a class="current reference internal" href="#">Using <cite>DeepTune</cite> for Knowledge Extraction</a><ul>
+<li class="toctree-l1"><a class="reference internal" href="evaluation.html">Using <strong>DeepTune</strong> for Evaluation</a></li>
+<li class="toctree-l1 current"><a class="current reference internal" href="#">Using <strong>DeepTune</strong> for Knowledge Extraction</a><ul>
 <li class="toctree-l2"><a class="reference internal" href="#images">Images</a></li>
 <li class="toctree-l2"><a class="reference internal" href="#text">Text</a></li>
 <li class="toctree-l2"><a class="reference internal" href="#tabular">Tabular</a></li>
@@ -76,7 +81,7 @@
           <div role="navigation" aria-label="Page navigation">
   <ul class="wy-breadcrumbs">
       <li><a href="../../index.html" class="icon icon-home" aria-label="Home"></a></li>
-      <li class="breadcrumb-item active">Using <cite>DeepTune</cite> for Knowledge Extraction</li>
+      <li class="breadcrumb-item active">Using <strong>DeepTune</strong> for Knowledge Extraction</li>
       <li class="wy-breadcrumbs-aside">
             <a href="../../_sources/functionalities/handlers/embedding.rst.txt" rel="nofollow"> View page source</a>
       </li>
@@ -87,9 +92,9 @@
            <div itemprop="articleBody">
              
   <section id="using-deeptune-for-knowledge-extraction">
-<h1>Using <cite>DeepTune</cite> for Knowledge Extraction<a class="headerlink" href="#using-deeptune-for-knowledge-extraction" title="Link to this heading"></a></h1>
+<h1>Using <strong>DeepTune</strong> for Knowledge Extraction<a class="headerlink" href="#using-deeptune-for-knowledge-extraction" title="Link to this heading"></a></h1>
 <p>After we trained and evaluated our fine-tuned model, the user may need to obtain intermediate knowledge representation of their data for further postprocessing according to their own choice. This practice is widely adpoted in medical imaging applications, where fine-tuned deep learning models serve as encoders for both image data and associated clinical metadata.</p>
-<p>We integrate <cite>DeepTune</cite> with <a class="reference external" href="https://github.com/stfxecutables/df-analyze">df-analyze</a> with both being part of the MIB Lab &#64;StFX open-source software contributions as we show in <a class="reference internal" href="dfanalyze.html"><span class="doc">[EXTRA] Integration with df-analyze</span></a> section.</p>
+<p>We integrate <strong>DeepTune</strong> with <a class="reference external" href="https://github.com/stfxecutables/df-analyze">df-analyze</a> with both being part of the MIB Lab &#64;StFX open-source software contributions as we show in <a class="reference internal" href="dfanalyze.html"><span class="doc">[EXTRA] Integration with df-analyze</span></a> section.</p>
 <section id="images">
 <h2>Images<a class="headerlink" href="#images" title="Link to this heading"></a></h2>
 <p>The following is the generic CLI structure of running DeepTune for embeddings extraction of image datasets:</p>
@@ -106,16 +111,16 @@
 --use_case<span class="w"> </span>&lt;finetuned_or_pretrained_or_peft&gt;<span class="w"> </span><span class="se">\</span>
 </pre></div>
 </div>
-<p>The <code class="docutils literal notranslate"><span class="pre">--use_case</span></code> argument specifies on which use case you want to use DeepTune for:</p>
+<p>The <code class="docutils literal notranslate"><span class="pre">--use_case</span></code> argument specifies on which use case you want to use <strong>DeepTune</strong> for:</p>
 <blockquote>
 <div><ul class="simple">
-<li><p><cite>pretrained</cite>: Using the exact weights of the model as it is without any further training. This option allows you to use DeepTune with skipping the training and evaluation parts (You don’t need to specify <code class="docutils literal notranslate"><span class="pre">--added_layers</span></code>, <code class="docutils literal notranslate"><span class="pre">--embed_size</span></code>, and <code class="docutils literal notranslate"><span class="pre">--model_weights</span></code>).</p></li>
-<li><p><cite>finetuned</cite>: If you ran DeepTune for Transfer Learning without PeFT.</p></li>
-<li><p><cite>peft</cite>: If you ran DeepTune for Transfer Learning with PeFT.</p></li>
+<li><p><cite>pretrained</cite>: Using the exact weights of the model as it is without any further training. This option allows you to use <strong>DeepTune</strong> with skipping the training and evaluation parts (You don’t need to specify <code class="docutils literal notranslate"><span class="pre">--added_layers</span></code>, <code class="docutils literal notranslate"><span class="pre">--embed_size</span></code>, and <code class="docutils literal notranslate"><span class="pre">--model_weights</span></code>).</p></li>
+<li><p><cite>finetuned</cite>: If you ran <strong>DeepTune</strong> for Transfer Learning without PeFT.</p></li>
+<li><p><cite>peft</cite>: If you ran <strong>DeepTune</strong> for Transfer Learning with PeFT.</p></li>
 </ul>
 <div class="admonition note">
 <p class="admonition-title">Note</p>
-<p>You feed the evaluator here the same <code class="docutils literal notranslate"><span class="pre">--added_layers</span></code> and <code class="docutils literal notranslate"><span class="pre">--embed_size</span></code> you used for your previous training run of DeepTune. Otherwise, a mismatch error will occur.</p>
+<p>You feed the evaluator here the same <code class="docutils literal notranslate"><span class="pre">--added_layers</span></code> and <code class="docutils literal notranslate"><span class="pre">--embed_size</span></code> you used for your previous training run of <strong>DeepTune</strong>. Otherwise, a mismatch error will occur.</p>
 </div>
 </div></blockquote>
 <p>If everything is set correctly, and evaluation is done, you should expect an output in the same format:</p>
@@ -140,7 +145,7 @@
 </section>
 <section id="tabular">
 <h2>Tabular<a class="headerlink" href="#tabular" title="Link to this heading"></a></h2>
-<p>The following is the generic CLI structure of running DeepTune for embeddings extraction of text datasets:</p>
+<p>The following is the generic CLI structure of running <strong>DeepTune</strong> for embeddings extraction of text datasets:</p>
 <div class="highlight-console notranslate"><div class="highlight"><pre><span></span><span class="gp">$ </span>python<span class="w"> </span>-m<span class="w"> </span>embed.vision.embed<span class="w"> </span><span class="se">\</span>
 --df<span class="w"> </span>&lt;path_to_df&gt;<span class="w"> </span><span class="se">\</span>
 --batch_size<span class="w"> </span>&lt;int&gt;<span class="w"> </span><span class="se">\</span>
@@ -158,7 +163,7 @@
 </section>
 <section id="embeddings-output">
 <h2>Embeddings Output<a class="headerlink" href="#embeddings-output" title="Link to this heading"></a></h2>
-<p>For images, text, or tabular data embeddings, you you may find the results in the directory specified with the <code class="docutils literal notranslate"><span class="pre">--out</span></code> or default <cite>DeepTune</cite> directory as follows:</p>
+<p>For images, text, or tabular data embeddings, you you may find the results in the directory specified with the <code class="docutils literal notranslate"><span class="pre">--out</span></code> or default <strong>DeepTune</strong> directory as follows:</p>
 <div class="highlight-console notranslate"><div class="highlight"><pre><span></span><span class="go">deeptune_results</span>
 <span class="go">├── embed_output_&lt;model_details&gt;_&lt;yyyymmdd&gt;_&lt;hhmm&gt;</span>
 <span class="go">    └── &lt;model_details&gt;_embeddings.parquet</span>

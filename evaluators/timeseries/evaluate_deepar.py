@@ -38,7 +38,7 @@ def evaluate(
     val_df = pd.read_parquet(val_df_path)
     eval_df = pd.read_parquet(eval_df_path)
     
-    TEST_OUTPUT_DIR = (out / f"test_deepAR_output_{UNIQUE_ID}")
+    TEST_OUTPUT_DIR = (out / f"eval_deepAR_output_{UNIQUE_ID}")
     
     train_df["__split"] = "train"
     val_df["__split"] = "val"

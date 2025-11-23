@@ -6,14 +6,14 @@
   <meta charset="utf-8" /><meta name="viewport" content="width=device-width, initial-scale=1" />
 
   <meta name="viewport" content="width=device-width, initial-scale=1.0" />
-  <title>Welcome to Deeptune’s documentation! &mdash; DeepTune 1.1.0 documentation</title>
+  <title>Welcome to Deeptune’s documentation! &mdash; DeepTune 1.0.0 documentation</title>
       <link rel="stylesheet" type="text/css" href="_static/pygments.css?v=b86133f3" />
       <link rel="stylesheet" type="text/css" href="_static/css/theme.css?v=e59714d7" />
 
   
       <script src="_static/jquery.js?v=5d32c60e"></script>
       <script src="_static/_sphinx_javascript_frameworks_compat.js?v=2cd50e6c"></script>
-      <script src="_static/documentation_options.js?v=fc837d61"></script>
+      <script src="_static/documentation_options.js?v=8d563738"></script>
       <script src="_static/doctools.js?v=9bcbadda"></script>
       <script src="_static/sphinx_highlight.js?v=dc90522c"></script>
     <script src="_static/js/theme.js"></script>
@@ -45,13 +45,18 @@
 <ul>
 <li class="toctree-l1"><a class="reference internal" href="guides/install.html">Installation</a></li>
 <li class="toctree-l1"><a class="reference internal" href="guides/preface.html">Preface</a></li>
+<li class="toctree-l1"><a class="reference internal" href="guides/demos.html">Demos</a></li>
+</ul>
+<p class="caption" role="heading"><span class="caption-text">Quick Start</span></p>
+<ul>
+<li class="toctree-l1"><a class="reference internal" href="tutorials/firstrun.html">Your First DeepTune Run</a></li>
 </ul>
 <p class="caption" role="heading"><span class="caption-text">Functionalities</span></p>
 <ul>
 <li class="toctree-l1"><a class="reference internal" href="functionalities/handlers/split.html">Handling Datasets</a></li>
-<li class="toctree-l1"><a class="reference internal" href="functionalities/handlers/training.html">Using <cite>DeepTune</cite> for Training</a></li>
-<li class="toctree-l1"><a class="reference internal" href="functionalities/handlers/evaluation.html">Using <cite>DeepTune</cite> for Evaluation</a></li>
-<li class="toctree-l1"><a class="reference internal" href="functionalities/handlers/embedding.html">Using <cite>DeepTune</cite> for Knowledge Extraction</a></li>
+<li class="toctree-l1"><a class="reference internal" href="functionalities/handlers/training.html">Using <strong>DeepTune</strong> for Training</a></li>
+<li class="toctree-l1"><a class="reference internal" href="functionalities/handlers/evaluation.html">Using <strong>DeepTune</strong> for Evaluation</a></li>
+<li class="toctree-l1"><a class="reference internal" href="functionalities/handlers/embedding.html">Using <strong>DeepTune</strong> for Knowledge Extraction</a></li>
 <li class="toctree-l1"><a class="reference internal" href="functionalities/handlers/dfanalyze.html">[EXTRA] Integration with df-analyze</a></li>
 </ul>
 
@@ -81,8 +86,8 @@
              
   <section id="welcome-to-deeptune-s-documentation">
 <h1>Welcome to Deeptune’s documentation!<a class="headerlink" href="#welcome-to-deeptune-s-documentation" title="Link to this heading"></a></h1>
-<p><strong>DeepTune</strong> is a full compatible library to automate Computer Vision, Natural Language Processing, Tabular, and Time Series state-of-the-art deep learning algorithms for multimodal applications on image, text, tabular, and time series datasets. The library is designed for use in different applied machine learning domains, including but not limited to medical imaging, natural language understanding, time series analysis, providing users with powerful, ready-to-use CLI tool that unlock the full potential of their case studies through just a few simple commands.</p>
-<p><strong>DeepTune</strong> is primarily presented for undergraduate and graduate computer science students community at St. Francis Xavier University (StFX) in NS, and we aspire to seeing this software adopted broadly across the computer science research community all over the world.</p>
+<p><strong>DeepTune</strong> is a full compatible tool package to automate Computer Vision, Natural Language Processing, Tabular, and Time Series state-of-the-art deep learning algorithms for multimodal applications on image, text, tabular, and time series datasets. The library is designed for use in different applied machine learning domains, including but not limited to medical imaging, natural language understanding, time series analysis, providing users with powerful, ready-to-use CLI tool that unlock the full potential of their case studies through just a few simple commands.</p>
+<p><strong>DeepTune</strong> is primarily presented for undergraduate and graduate computer science students community at St. Francis Xavier University (StFX) in Antigonish, Nova Scotia, Canada. We aspire to seeing this software adopted broadly across the computer science research community all over the world.</p>
 <p>Check out the <a class="reference internal" href="guides/install.html"><span class="doc">Installation</span></a> section for further information, including how to install the library.</p>
 <p>GitHub repository can be accessed through the following link: <a class="reference external" href="https://github.com/moayadeldin/deeptune">https://github.com/moayadeldin/deeptune</a></p>
 <div class="admonition note">
@@ -99,19 +104,27 @@
 <li><p>Leveraging fine-tuned and pretrained state-of-the-art vision and language models to generate robust knowledge representations for downstream visual and textual tasks.</p></li>
 </ul>
 </section>
-<section id="deeptune-demonstration-demos">
-<h2><cite>DeepTune</cite> Demonstration Demos<a class="headerlink" href="#deeptune-demonstration-demos" title="Link to this heading"></a></h2>
-<ol class="arabic simple">
-<li><p>Images:</p></li>
-</ol>
-<video width="640" controls>
-    <source src="deeptune_images_demo.webm" type="video/webm">
-    Your browser does not support the video tag.
-</video></section>
 <section id="deeptune-supported-models">
 <h2><cite>DeepTune</cite> Supported Models<a class="headerlink" href="#deeptune-supported-models" title="Link to this heading"></a></h2>
 <a class="reference internal image-reference" href="_images/deeptune_models.png"><img alt="A table illustrating DeepTune supported models for vision, NLP, and tabular data tasks." src="_images/deeptune_models.png" style="width: 800px;" />
 </a>
+</section>
+<section id="deeptune-running-demos">
+<h2><cite>DeepTune</cite> Running Demos<a class="headerlink" href="#deeptune-running-demos" title="Link to this heading"></a></h2>
+<p>The following videos demonstratee how to use <strong>DeepTune</strong> for medical image classification and sentiment analysis by fine-tuning ResNet18, and Multilingual BERT models without and with PEFT respectively. The singleline command automates running the entire pipeline including loading the raw images, dataset splitting, training, evaluation, and embeddings extraction.</p>
+<ol class="arabic simple">
+<li><p><strong>Images Demo.</strong> The data sample used in this demo is a subset of the Chest X-Ray Images (Pneumonia) dataset available at: <a class="reference external" href="https://www.kaggle.com/datasets/paultimothymooney/chest-xray-pneumonia">Chest X-Ray dataset</a>.</p></li>
+</ol>
+<video width="640" controls>
+    <source src="_static/deeptune_images_demo.mp4" type="video/mp4">
+    Your browser does not support the video tag.
+</video><ol class="arabic simple" start="2">
+<li><p><strong>Text Demo.</strong> The data sample used in this demo is a subset of the Twitter Sentiment Analysis dataset available at: <a class="reference external" href="https://www.kaggle.com/datasets/yasserh/twitter-tweets-sentiment-dataset">Twitter Sentiment Analysis dataset</a>.</p></li>
+</ol>
+<video width="640" controls>
+    <source src="_static/deeptune_text_demo.mp4" type="video/mp4">
+    Your browser does not support the video tag.
+</video><p>The tabular and time-series video demos are available in the <a class="reference internal" href="guides/demos.html"><span class="doc">Demos</span></a> section.</p>
 </section>
 <section id="contents">
 <h2>Contents<a class="headerlink" href="#contents" title="Link to this heading"></a></h2>
@@ -125,31 +138,47 @@
 </ul>
 </li>
 <li class="toctree-l1"><a class="reference internal" href="guides/preface.html">Preface</a></li>
+<li class="toctree-l1"><a class="reference internal" href="guides/demos.html">Demos</a></li>
+</ul>
+</div>
+<div class="toctree-wrapper compound">
+<p class="caption" role="heading"><span class="caption-text">Quick Start</span></p>
+<ul>
+<li class="toctree-l1"><a class="reference internal" href="tutorials/firstrun.html">Your First DeepTune Run</a><ul>
+<li class="toctree-l2"><a class="reference internal" href="tutorials/firstrun.html#unified-single-cli-call-structure">Unified Single CLI Call Structure</a></li>
+<li class="toctree-l2"><a class="reference internal" href="tutorials/firstrun.html#raw-data-handling">Raw Data Handling</a></li>
+<li class="toctree-l2"><a class="reference internal" href="tutorials/firstrun.html#predefined-hyperparameters">Predefined Hyperparameters</a></li>
+<li class="toctree-l2"><a class="reference internal" href="tutorials/firstrun.html#unified-cli-output-structure">Unified CLI Output Structure</a></li>
+</ul>
+</li>
 </ul>
 </div>
 <div class="toctree-wrapper compound">
 <p class="caption" role="heading"><span class="caption-text">Functionalities</span></p>
 <ul>
 <li class="toctree-l1"><a class="reference internal" href="functionalities/handlers/split.html">Handling Datasets</a><ul>
+<li class="toctree-l2"><a class="reference internal" href="functionalities/handlers/split.html#raw-data-conversion-to-parquet-format">Raw Data Conversion to Parquet Format</a></li>
 <li class="toctree-l2"><a class="reference internal" href="functionalities/handlers/split.html#split-your-dataset">Split Your Dataset</a></li>
-<li class="toctree-l2"><a class="reference internal" href="functionalities/handlers/split.html#getting-the-intersection-between-two-datasets">Getting the Intersection Between Two Datasets</a></li>
+<li class="toctree-l2"><a class="reference internal" href="functionalities/handlers/split.html#get-the-intersection-between-two-datasets">Get the Intersection Between Two Datasets</a></li>
 </ul>
 </li>
-<li class="toctree-l1"><a class="reference internal" href="functionalities/handlers/training.html">Using <cite>DeepTune</cite> for Training</a><ul>
+<li class="toctree-l1"><a class="reference internal" href="functionalities/handlers/training.html">Using <strong>DeepTune</strong> for Training</a><ul>
 <li class="toctree-l2"><a class="reference internal" href="functionalities/handlers/training.html#images">Images</a></li>
 <li class="toctree-l2"><a class="reference internal" href="functionalities/handlers/training.html#text">Text</a></li>
 <li class="toctree-l2"><a class="reference internal" href="functionalities/handlers/training.html#tabular">Tabular</a></li>
+<li class="toctree-l2"><a class="reference internal" href="functionalities/handlers/training.html#time-series">Time Series</a></li>
 <li class="toctree-l2"><a class="reference internal" href="functionalities/handlers/training.html#training-output">Training Output</a></li>
 </ul>
 </li>
-<li class="toctree-l1"><a class="reference internal" href="functionalities/handlers/evaluation.html">Using <cite>DeepTune</cite> for Evaluation</a><ul>
+<li class="toctree-l1"><a class="reference internal" href="functionalities/handlers/evaluation.html">Using <strong>DeepTune</strong> for Evaluation</a><ul>
 <li class="toctree-l2"><a class="reference internal" href="functionalities/handlers/evaluation.html#images">Images</a></li>
 <li class="toctree-l2"><a class="reference internal" href="functionalities/handlers/evaluation.html#text">Text</a></li>
 <li class="toctree-l2"><a class="reference internal" href="functionalities/handlers/evaluation.html#tabular">Tabular</a></li>
+<li class="toctree-l2"><a class="reference internal" href="functionalities/handlers/evaluation.html#time-series">Time Series</a></li>
 <li class="toctree-l2"><a class="reference internal" href="functionalities/handlers/evaluation.html#evaluation-output">Evaluation Output</a></li>
 </ul>
 </li>
-<li class="toctree-l1"><a class="reference internal" href="functionalities/handlers/embedding.html">Using <cite>DeepTune</cite> for Knowledge Extraction</a><ul>
+<li class="toctree-l1"><a class="reference internal" href="functionalities/handlers/embedding.html">Using <strong>DeepTune</strong> for Knowledge Extraction</a><ul>
 <li class="toctree-l2"><a class="reference internal" href="functionalities/handlers/embedding.html#images">Images</a></li>
 <li class="toctree-l2"><a class="reference internal" href="functionalities/handlers/embedding.html#text">Text</a></li>
 <li class="toctree-l2"><a class="reference internal" href="functionalities/handlers/embedding.html#tabular">Tabular</a></li>
@@ -166,14 +195,14 @@
 </section>
 <section id="citation">
 <h2>Citation<a class="headerlink" href="#citation" title="Link to this heading"></a></h2>
-<p>If you find <cite>DeepTune</cite> useful in your research, support us with a star 💫 on the GitHub repo.</p>
-<p>If you make use of <cite>DeepTune</cite>, please cite the repository as follows:</p>
+<p>If you find <strong>DeepTune</strong> useful in your research, support us with a star 💫 on the GitHub repo.</p>
+<p>If you make use of <strong>DeepTune</strong>, please cite the repository as follows:</p>
 <div class="highlight-bibtex notranslate"><div class="highlight"><pre><span></span><span class="nc">@software</span><span class="p">{</span><span class="nl">DeepTune</span><span class="p">,</span>
 <span class="na">author</span><span class="w">  </span><span class="p">=</span><span class="w"> </span><span class="s">{Moayadeldin Hussain, John Kendall and Jacob Levman}</span><span class="p">,</span>
-<span class="na">title</span><span class="w">   </span><span class="p">=</span><span class="w"> </span><span class="s">{DeepTune: Cutting-edge library Automating the integration of state-of-the-art deep learning models for multimodal applications}</span><span class="p">,</span>
+<span class="na">title</span><span class="w">   </span><span class="p">=</span><span class="w"> </span><span class="s">{DeepTune: Cutting-edge Tool automating state-of-the-art deep learning models for cross-modal applications}</span><span class="p">,</span>
 <span class="na">year</span><span class="w"> </span><span class="p">=</span><span class="w"> </span><span class="s">{2025}</span><span class="p">,</span>
 <span class="na">url</span><span class="w"> </span><span class="p">=</span><span class="w"> </span><span class="s">{https://github.com/moayadeldin/deeptune}</span><span class="p">,</span>
-<span class="na">version</span><span class="w"> </span><span class="p">=</span><span class="w"> </span><span class="s">{1.1.0}</span>
+<span class="na">version</span><span class="w"> </span><span class="p">=</span><span class="w"> </span><span class="s">{1.0.0}</span>
 <span class="p">}</span>
 </pre></div>
 </div>
