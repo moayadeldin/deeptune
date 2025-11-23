@@ -1,7 +1,7 @@
 Welcome to Deeptune's documentation!
 ===================================
 
-**DeepTune** is a full compatible tool package to automate Computer Vision, Natural Language Processing, Tabular, and Time Series state-of-the-art deep learning algorithms for multimodal applications on image, text, tabular, and time series datasets. The library is designed for use in different applied machine learning domains, including but not limited to medical imaging, natural language understanding, time series analysis, providing users with powerful, ready-to-use CLI tool that unlock the full potential of their case studies through just a few simple commands.
+**DeepTune** is a full compatible tool package to automate Computer Vision, Natural Language Processing, Tabular, and Time Series state-of-the-art deep learning algorithms for multimodal applications on image, text, tabular, and time series datasets. The library is designed for use in different applied machine learning domains, including but not limited to medical imaging, natural language understanding, time series analysis, providing users with powerful, ready-to-use CLI tool that unlock the full potential of their case studies through just a one simple command.
 
 **DeepTune** is primarily presented for undergraduate and graduate computer science students community at St. Francis Xavier University (StFX) in Antigonish, Nova Scotia, Canada. We aspire to seeing this software adopted broadly across the computer science research community all over the world.
 
@@ -94,6 +94,9 @@ Contents
 Acknowledgements
 ----------------
 This software package was developed as part of work done by Moayadeldin Hussain at Medical Imaging Bioinformatics lab under the supervision of Jacob Levman at St. Francis Xavier Univeristy, Nova Scotia, Canada.
+
+Thanks to Xuchen for providing their parameter-efficient fine-tuned Swin implementation `SwinTransformerWithPEFT <https://github.com/XuchenGuo/SwinTransformerWithPEFT>`_.
+
 
 Citation
 --------
