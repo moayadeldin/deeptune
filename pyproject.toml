@@ -4,5 +4,5 @@ build-backend = "flit_core.buildapi"
 
 [project]
 name = "DeepTune"
-authors = [{name = "Moayadeldin Hussain", email = "moayadekdin@gmail.com"}]
-dynamic = ["1.1.0", "Advanced CLI tool automating multimodal Deep Learning applications"]
+authors = [{name = "Moayadeldin Hussain", email = "moayadeldin@gmail.com"}]
+dynamic = ["1.0.0", "Advanced CLI tool automating multimodal Deep Learning applications"]
