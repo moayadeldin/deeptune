@@ -16,6 +16,7 @@ from embed.tabular.gandalf_embeddings import embed as embed_tabular_gandalf
 ##### IV. TIMESERIES IMPORTS #####
 from trainers.timeseries.train_deepar import train as train_deepar
 from evaluators.timeseries.evaluate_deepar import evaluate as evaluate_deepar
+from embed.timeseries.deepAR_embeddings import embed as embed_deepar
 ##### IV. GENERIC IMPORTS #####
 from handlers.split_dataset import split_dataset
 from pathlib import Path
@@ -288,7 +289,18 @@ def main():
                 model_weights=ckpt_directory,
                 group_ids=defaults['group_ids'],
                 args=args,
-            ) 
+            )
+
+            exp_path, embed_shape = embed_deepar(
+                eval_df=test_data_path,
+                out=Path(args.out)/parent_dir,
+                model_weights=ckpt_directory,
+                batch_size=args.batch_size,
+                target_column=defaults['target'],
+                args=args,
+                model_str='DeepAR',
+                timeindex_column=args.time_idx_column,
+            )
 
             print_experiment_paths_table(df_path=df_path, train_data_path=train_data_path, val_data_path=val_data_path, test_data_path=test_data_path, ckpt_directory=ckpt_directory, exp_path=exp_path)
 
@@ -296,8 +308,6 @@ def main():
 
 
         
-
-            
 
     
 
