@@ -186,7 +186,7 @@ Currently, **DeepTune** offers only support for DeepAR model to provide predicti
     --num_epochs <int> \
     --out <str> \
     --time_idx_column <str> \
-    --target_column <str> \
+    --target <str> \
     --max_encoder_length <int> \
     --max_prediction_length <int> \
     --time_varying_known_categoricals <list> \

@@ -36,7 +36,8 @@ The following is the generic CLI structure to split the dataset:
         --val_size <float> \
         --test_size <float> \
         --out <path> \
-        --target_column <str> \
+        --modality <images_or_text_or_timeseries_or_tabular> \
+        --target <str> \
         --[fixed-seed] \
         --[disable-numerical-encoding] \
         --[disable-target-column-renaming] \
@@ -77,8 +78,10 @@ This directory will contain the split files, which will be used later for traini
      - Percentage of the testing dataset w.r.t. the whole data.
    * - ``--out <str>``
      - Path to the directory where you want to save the results.
-   * - ``--target_column <str>``
+   * - ``--target <str>``
       - The name of the target column in your dataset. Default is 'labels' if not provided by the user.
+    * - ``--modality <images_or_text_or_timeseries_or_tabular>``
+      - The modality of your dataset. It can be one of the following: images, text, timeseries, or tabular.
    * - ``--fixed-seed``
      - *(Flag)* Ensures that a fixed random seed is set for reproducibility.
    * - ``--disable-numerical-encoding``

@@ -97,7 +97,6 @@ This software package was developed as part of work done by Moayadeldin Hussain 
 
 Thanks to Xuchen for providing their parameter-efficient fine-tuned Swin implementation `SwinTransformerWithPEFT <https://github.com/XuchenGuo/SwinTransformerWithPEFT>`_.
 
-
 Citation
 --------
 If you find **DeepTune** useful in your research, support us with a star 💫 on the GitHub repo.

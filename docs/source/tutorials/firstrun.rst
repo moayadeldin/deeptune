@@ -21,6 +21,7 @@ The easiest way to get started with **DeepTune** is to use the unified pipeline 
         [--fixed-seed] \
         [--use-peft] \
         [--raw-data] \
+        [--time_idx_column] <str> \
 
 .. list-table::
    :widths: 25 75
@@ -47,7 +48,8 @@ The easiest way to get started with **DeepTune** is to use the unified pipeline 
         - *(Flag)* Indicates that the input data is in raw format (e.g., CSV, image files) and needs to be converted to Parquet format.
    * - ``--fixed-seed``
      - *(Flag)* Ensures that a fixed random seed is set for reproducibility.
-
+    * - ``--time_idx_column <str>``
+        - Name of the time index column in your time-series dataset. *Required only for time-series modality.*
 .. note::
 
    You only need to specify the ``--num_classes`` argument for image classification tasks and with Multilingual BERT. It is not needed for other time-series, tabular models, and GPT-2 as they handle this internally.
@@ -142,10 +144,10 @@ Predefined Hyperparameters
 To simplify the initial experience with **DeepTune**, a set of predefined hyperparameters is used. These hyperparameters have been chosen based on common practices and are intended to provide a good starting point for most experiments. When you run the unified CLI command without specifying certain hyperparameters, **DeepTune** will automatically apply these predefined values. The predefined hyperparameters are as follows:
 
 - **Learning Rate**: 0.0001
-- **Number of Epochs**: 5
+- **Number of Epochs**: 10
 - **Number of Added Layers**: 2
 - **Embedding Size**: 1000 (applicable when using two added layers)
-- **Train/Validation/Test Split Ratios**: 80% / 10% / 10%
+- **Train/Validation/Test Split Ratios**: 70% / 10% / 20%
 - **Task Mode**: Classification (`cls`) by default
 - **Freeze Backbone**: False (i.e., full fine-tuning by default)
 - **Disable Numerical Encoding**: False (i.e., numerical encoding is applied by default as part of preprocessing).
