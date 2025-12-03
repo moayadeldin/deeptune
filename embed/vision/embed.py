@@ -1,12 +1,12 @@
-# import joblib
 import pandas as pd
 import numpy as np
 import torch
 import torch.nn as nn
 import torchvision
-
+from embed.vision.custom_siglip_embed import embed_siglip
 from pandas import DataFrame
 from pathlib import Path
+from src.vision.siglip import load_siglip_model_offline
 from torch.utils.data import DataLoader
 from tqdm import tqdm
 from torchvision.models import ResNet18_Weights, ResNet34_Weights, ResNet50_Weights, ResNet101_Weights, ResNet152_Weights
@@ -22,32 +22,41 @@ def embed(df_path, out, model_weights, batch_size, use_case,model_version,added_
 
     EMBED_OUTPUT = out / f"embed_output_{model_str}_{UNIQUE_ID}"
     EMBED_OUTPUT.mkdir(parents=True, exist_ok=True)
-     
-
-    # if MODEL_ARCHITECTURE == "siglip" and MODEL_VERSION == "siglip":
-    #     embed_with_siglip(
-    #         dataset_path=DF_PATH,
-    #         model_weights=MODEL_PATH,
-    #         num_classes=NUM_CLASSES,
-    #         added_layers=ADDED_LAYERS,
-    #         embed_size=EMBED_SIZE,
-    #         use_case=USE_CASE,
-    #         outdir=EMBED_OUTPUT,
-    #         output=EMBED_FILE,
-    #         device=DEVICE,
-    #     )
-    #     args.save_args(EMBED_OUTPUT)
-    #     return
 
     MODEL_ARCHITECTURE = args.model_architecture
     EMBED_FILE = EMBED_OUTPUT / f"{model_str}_{mode}_embeddings.parquet"
 
-    mw = Path(model_weights)
+    if use_case in ('peft', 'finetuned'):
+        mw = Path(model_weights)
 
-    if mw.suffix == ".pth":
-        ckpt_path = mw
+        if model_version == "siglip" and MODEL_ARCHITECTURE == "siglip":
+            if mw.suffix == ".pt":
+                ckpt_path = mw
+            else:
+                ckpt_path = next(mw.glob("*.pt"))
+        else:
+            if mw.suffix == ".pth":
+                ckpt_path = mw
+            else:
+                ckpt_path = next(mw.glob("*.pth"))
     else:
-        ckpt_path = next(mw.glob("*.pth"))
+        ckpt_path = None
+
+
+    if MODEL_ARCHITECTURE == "siglip" and model_version == "siglip":
+        out, df_shape = embed_siglip(
+            dataset_path=df_path,
+            model_weights=ckpt_path,
+            num_classes=num_classes,
+            added_layers=added_layers,
+            embed_size=embed_size,
+            use_case=use_case,
+            outdir=EMBED_OUTPUT,
+            output=EMBED_FILE,
+            device=DEVICE,
+        )
+        args.save_args(EMBED_OUTPUT)
+        return out, df_shape
 
     model = load_vision_model(
         model_architecture=MODEL_ARCHITECTURE,
@@ -64,7 +73,6 @@ def embed(df_path, out, model_weights, batch_size, use_case,model_version,added_
     start_time = time.time()
 
     adjusted_model = adjust_vision_model(model, MODEL_ARCHITECTURE, use_case=use_case, added_layers=added_layers)
-
 
 
     embedding_model = EmbeddingModel(adjusted_model, MODEL_ARCHITECTURE, device=DEVICE, model_version=model_version, added_layers=added_layers, embed_size=embed_size)
@@ -232,6 +240,8 @@ def load_vision_model(
                 model = torchvision.models.vit_h_14(weights="DEFAULT")
            
             model.heads = nn.Identity()  # Remove classification layer to use as feature extractor
+                  
+                  
 
     else:
         raise ValueError('There is no fourth option other than ["finetuned", "peft", "pretrained"]')
