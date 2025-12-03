@@ -3,7 +3,7 @@ Preface
 
 Now as you installed the required packages needed for **DeepTune**, and just before running your first **DeepTune** program, you may read this preface to get more engaged on what exactly to expect from the program.
 
-**DeepTune** currently supports finetuning 6 different state-of-the-art image classification models to fine-tune your dataset with: ResNet, DenseNet, Swin, EfficientNet, VGGNet, and ViT for images, with BERT, and GPT-2 for images. More details of the supported variants is found in the documentation's supported models table.
+**DeepTune** currently supports finetuning 7 different state-of-the-art image classification models to fine-tune your dataset with: ResNet, DenseNet, Swin, EfficientNet, VGGNet, SiGLiP and ViT for images, with BERT, and GPT-2 for images. More details of the supported variants is found in the documentation's supported models table.
 
 **DeepTune** gives you also a wide flexible set of options to choose what you think would suit your case the best. The options are as follows:
 
