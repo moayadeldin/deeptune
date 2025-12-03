@@ -3,11 +3,12 @@ import torch.nn as nn
 
 from pathlib import Path
 from peft import LoraConfig, get_peft_model
-from transformers import SiglipModel, SiglipProcessor
+from transformers import SiglipModel, SiglipProcessor, SiglipConfig
 from typing import Type
 
 from utils import UseCase
 import os
+import warnings
 
 
 ROOT = Path(__file__).parent.parent.parent
@@ -103,6 +104,34 @@ class CustomSigLIPWithPeft(CustomSiglipModel):
         self.base_model = get_peft_model(base_model, peft_config)
 
 
+###################################################
+def load_tiny_siglip_model_offline() -> SiglipModel:
+    """
+    Tiny SigLIP model for debugging: same IO & vocab as real SigLIP,
+    but with drastically reduced hidden sizes and layers.
+    Works with the real SiglipProcessor.
+    """
+    # Load the original config from your local model dir
+    config = SiglipConfig.from_pretrained(SIGLIP_MODEL, local_files_only=True)
+
+    print('**************************************************************Creating TINY SigLIP model for debugging (not pretrained)...')
+
+    # Shrink the vision encoder
+    v = config.vision_config
+    v.intermediate_size = 128
+    v.num_hidden_layers = 1
+    v.num_attention_heads = 1
+
+    # Shrink the text encoder
+    t = config.text_config
+    t.intermediate_size = 128
+    t.num_hidden_layers = 1
+    t.num_attention_heads = 1
+
+    tiny_model = SiglipModel(config)
+    return tiny_model
+####################################################
+
 def download_siglip() -> None:
     print('Siglip is downloaded')
     model = SiglipModel.from_pretrained("google/siglip-so400m-patch14-384")
@@ -120,7 +149,11 @@ def load_siglip_offline() -> tuple[SiglipModel, SiglipProcessor]:
     return model, processor
 
 
-def load_siglip_model_offline() -> SiglipModel:
+def load_siglip_model_offline(tiny: bool = False) -> SiglipModel:
+
+    if tiny:
+        print("WARNING: Using TINY SigLIP model for debugging (not pretrained).")
+        return load_tiny_siglip_model_offline()
 
     if not os.path.exists(SIGLIP_MODEL):
 
@@ -157,6 +190,7 @@ def load_siglip_variant(
     freeze_backbone: bool = False,
     model_weights: Path = None,
     device: torch.device = torch.device("cpu"),
+    tiny: bool = False,
 ) -> CustomSiglipModel:
 
     print(
@@ -165,7 +199,7 @@ def load_siglip_variant(
         f"(use_case={use_case.value}, freeze_backbone={freeze_backbone})."
     )
 
-    base_model = load_siglip_model_offline()
+    base_model = load_siglip_model_offline(tiny=tiny)
     model_cls = get_siglip_cls(use_case)
     
     model = model_cls(
@@ -178,9 +212,14 @@ def load_siglip_variant(
     
     if model_weights is not None:
         print(f"Loading model weights from {model_weights} onto device {device}.")
-        model.load_state_dict(torch.load(model_weights, map_location=device))
+        state_dict = torch.load(model_weights, map_location=device)
+        model.load_state_dict(state_dict)
     else:
-        raise Warning('You did not load the fine-tuned weights for siglip. This will lead to use weights of the base model instead. ')
+        warnings.warn(
+            "No fine-tuned weights provided for SigLIP. "
+            "Using the base pretrained SigLIP weights. "
+            "If this is your first fine-tuning run, this is expected."
+        )
     
     return model
 
