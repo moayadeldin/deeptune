@@ -7,7 +7,7 @@ from helpers import transformations
 from options import UNIQUE_ID, DEVICE, NUM_WORKERS, PERSIST_WORK, PIN_MEM
 
 from cli import DeepTuneVisionOptions
-# from evaluators.vision.custom_evaluate_siglip_handler import evaluate_siglip
+from evaluators.vision.custom_siglip_evaluate import evaluate_siglip
 from utils import get_model_cls, RunType
 
 def main() -> None:
@@ -47,11 +47,45 @@ def main() -> None:
 
 def evaluate(eval_df, out, model_weights, num_classes,model_version,mode,added_layers,embed_size, batch_size, freeze_backbone, args, use_peft, model_str):
 
-        
+    mw = Path(model_weights)
+
     EVAL_OUTPUT_DIR = (out / f"eval_output_{model_str}_{UNIQUE_ID}")
     EVAL_OUTPUT_DIR.mkdir(parents=True, exist_ok=True)
 
     MODEL_ARCHITECTURE = args.model_architecture
+
+    args.save_args(EVAL_OUTPUT_DIR)
+
+    if model_version == "siglip" and MODEL_ARCHITECTURE == "siglip":
+        if mw.suffix == ".pt":
+            ckpt_path = mw
+        else:
+            ckpt_path = next(mw.glob("*.pt"))
+    else:
+        if mw.suffix == ".pth":
+            ckpt_path = mw
+        else:
+            ckpt_path = next(mw.glob("*.pth"))
+
+
+    if MODEL_ARCHITECTURE == "siglip" and model_version == "siglip":
+        metrics_dict = evaluate_siglip(
+            test_dataset_path=eval_df,
+            model_weights=ckpt_path,
+            num_classes=num_classes,
+            added_layers=added_layers,
+            embed_size=embed_size,
+            use_peft=use_peft,
+            batch_size=batch_size,
+            device=DEVICE,
+            outdir=EVAL_OUTPUT_DIR,
+        )
+
+        print(metrics_dict)
+
+        print('Test results saved successfully!')
+
+        return metrics_dict
 
     adjusted_model_cls = get_model_cls(MODEL_ARCHITECTURE, use_peft=use_peft)
     MODEL = adjusted_model_cls(num_classes, model_version, added_layers, embed_size, task_type=mode,freeze_backbone=freeze_backbone)
@@ -75,30 +109,8 @@ def evaluate(eval_df, out, model_weights, num_classes,model_version,mode,added_l
         device=DEVICE,
         mode=mode
     )
-
-    # if MODEL_ARCHITECTURE == "siglip" and MODEL_VERSION == "siglip":
-    #     evaluate_siglip(
-    #         test_dataset_path=EVAL_DF_PATH,
-    #         model_weights=MODEL_WEIGHTS,
-    #         num_classes=NUM_CLASSES,
-    #         added_layers=ADDED_LAYERS,
-    #         embed_size=EMBED_SIZE,
-    #         use_peft=USE_PEFT,
-    #         batch_size=BATCH_SIZE,
-    #         device=DEVICE,
-    #         outdir=EVAL_OUTPUT_DIR,
-    #     )
-
-    mw = Path(model_weights)
-
-    if mw.suffix == ".pth":
-        ckpt_path = mw
-    else:
-        ckpt_path = next(mw.glob("*.pth"))
     
     metrics_dict = test_trainer.test(best_model_weights_path=ckpt_path)
-    
-    args.save_args(EVAL_OUTPUT_DIR)
     
     print('Test results saved successfully!')
 
