@@ -5,7 +5,7 @@ from helpers import transformations
 from trainers.vision.trainer import Trainer
 from options import UNIQUE_ID, DEVICE, NUM_WORKERS, PERSIST_WORK, PIN_MEM
 from datasets.image_datasets import ParquetImageDataset
-
+from trainers.vision.custom_siglip_train import train_siglip
 from cli import DeepTuneVisionOptions
 from utils import get_model_cls, RunType,set_seed
 
@@ -73,7 +73,6 @@ def train(
 ):
     
     MODEL_ARCHITECTURE = args.model_architecture
-    
     if fixed_seed:
         set_seed(fixed_seed)
 
@@ -82,24 +81,23 @@ def train(
 
     TRAINVAL_OUTPUT_DIR = (out / f"trainval_output_{model_str}_{UNIQUE_ID}")
 
-    # if MODEL_ARCHITECTURE.lower() == "siglip" and MODEL_VERSION == "siglip":
-    #     from trainers.vision.custom_train_siglip_handler import train_siglip
-    #     train_siglip(
-    #         num_classes=NUM_CLASSES,
-    #         added_layers=ADDED_LAYERS,
-    #         embed_size=EMBED_SIZE,
-    #         train_dataset_path=TRAIN_DATASET_PATH,
-    #         val_dataset_path=VAL_DATASET_PATH,
-    #         outdir=TRAINVAL_OUTPUT_DIR,
-    #         device=DEVICE,
-    #         batch_size=BATCH_SIZE,
-    #         learning_rate=LEARNING_RATE,
-    #         num_epochs=NUM_EPOCHS,
-    #         use_peft=USE_PEFT,
-    #         freeze_backbone=FREEZE_BACKBONE,
-    #     )
-    #     args.save_args(TRAINVAL_OUTPUT_DIR)
-    #     return
+    if MODEL_ARCHITECTURE.lower() == "siglip" and model_version == "siglip":
+        _ = train_siglip(
+            num_classes=num_classes,
+            added_layers=added_layers,
+            embed_size=embed_size,
+            train_dataset_path=train_df,
+            val_dataset_path=val_df,
+            outdir=TRAINVAL_OUTPUT_DIR,
+            device=DEVICE,
+            batch_size=batch_size,
+            learning_rate=learning_rate,
+            num_epochs=num_epochs,
+            use_peft=use_peft,
+            freeze_backbone=freeze_backbone,
+        )
+        args.save_args(TRAINVAL_OUTPUT_DIR)
+        return TRAINVAL_OUTPUT_DIR
 
     train_dataset = ParquetImageDataset.from_parquet(parquet_file=train_df, transform=transformations)
     val_dataset = ParquetImageDataset.from_parquet(parquet_file=val_df, transform=transformations)

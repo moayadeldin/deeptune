@@ -93,6 +93,16 @@ More cross-modal video demos can be found in the documentation's [demo page](htt
       <td>Image</td>
       <td>'vit_b_16', 'vit_b_32', 'vit_l_16', 'vit_l_32' or 'vit_h_14'</td>
     <tr>
+    </tr>
+    <tr>
+      <td>SiGLiP</td>
+      <td>✅</td>
+      <td>✅</td>
+      <td>✅</td>
+      <td>Classification</td>
+      <td>Image</td>
+      <td>'siglip'</td>
+    <tr>
       <td>GPT</td>
       <td>✅</td>
       <td>—</td>
