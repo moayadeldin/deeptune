@@ -73,6 +73,7 @@ class RunType(Enum):
     GANDALF = "gandalf"
     TIMESERIES = 'timeseries'
     ONECALL = 'onecall'
+    TABPFN = 'tabpfn'
 
 
 def get_model_cls(model_architecture: str, use_peft: bool = False) -> Type[nn.Module]:

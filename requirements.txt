@@ -14,3 +14,5 @@ torchvision==0.19.1
 sentence-transformers==4.1.0
 transformers==4.41.0
 pytorch-tabular
+tabpfn
+tabpfn-extensions[hpo]

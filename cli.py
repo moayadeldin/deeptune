@@ -17,6 +17,8 @@ class DeepTuneVisionOptions:
         self.mode = run_type
         self._add_default_args()
         
+        if run_type == RunType.TABPFN:
+            self._add_tabpfn_args()
         if run_type == RunType.ONECALL:
             self._add_onecall_args()
         if run_type == RunType.TRAIN:
@@ -27,11 +29,20 @@ class DeepTuneVisionOptions:
             self._add_gandalf_args()
         if run_type == (RunType.TIMESERIES):
             self._add_timeseries_args()
+        
 
         parsed_args = self.parser.parse_args(args)
         # self.input_dir: Optional[Path] = parsed_args.input_dir.resolve() if parsed_args.input_dir else None
         self.out: Optional[Path] = parsed_args.out.resolve() if parsed_args.out else None
         self.batch_size: Optional[int] = parsed_args.batch_size
+        self.mode : Optional[str] = parsed_args.mode
+
+        if run_type == RunType.TABPFN:
+            self.target_column: Optional[str] = parsed_args.target_column
+            self.train_df: Optional[Path] = parsed_args.train_df
+            self.val_df: Optional[Path] = parsed_args.val_df
+            self.num_epochs: Optional[int] = parsed_args.num_epochs
+            self.finetuning_mode: bool = parsed_args.finetuning_mode
 
         if run_type == RunType.ONECALL:
             self.modality: str = parsed_args.modality
@@ -174,6 +185,13 @@ class DeepTuneVisionOptions:
         p.add_argument('--fixed-seed', action='store_true', help='Use fixed seed 42.')
         p.add_argument('--batch_size', type=int, help='Batch size.')
 
+    def _add_tabpfn_args(self):
+        p = self.parser
+        p.add_argument('--target_column', type=str, required=False, help="Specify the name of your target column.")
+        p.add_argument('--train_df', type=Path, help='Path to the train dataset (parquet file).', required=True)
+        p.add_argument('--val_df', type=Path, help='Path to the validation dataset (parquet file).', required=True)
+        p.add_argument('--finetuning-mode', action='store_true', help='If set, perform fine-tuning instead of training from scratch.')
+        p.add_argument('--num_epochs', type=int, help='Number of epochs.')
     def _add_onecall_args(self):
         p = self.parser
         p.add_argument('--num_classes', type=int,required=False, help='Number of classes in your dataset.')
@@ -275,6 +293,9 @@ class DeepTuneVisionOptions:
             return f"{prefix_str}"
         elif mode == RunType.ONECALL:
             prefix_str = "PEFT" if self.use_peft else "FINETUNED"
+        elif mode == RunType.TABPFN:
+            prefix_str = "TABPFN"
+            self.model_version=None
         else:
             prefix_str = self.use_case.value.upper()
 
