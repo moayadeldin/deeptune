@@ -16,11 +16,17 @@ from embed.tabular.gandalf_embeddings import embed as embed_tabular_gandalf
 ##### IV. TIMESERIES IMPORTS #####
 from trainers.timeseries.train_deepar import train as train_deepar
 from evaluators.timeseries.evaluate_deepar import evaluate as evaluate_deepar
-from embed.timeseries.deepAR_embeddings import embed as embed_deepar
-##### IV. GENERIC IMPORTS #####
+from embed.timeseries.deepAR_embeddings import embed as get_tabpfn_embeddings
+##### VI. TABPFN IMPORTS #####
+from trainers.tabular.train_tabpfn import train_tabpfn_from_scratch as train_tabular_tabpfn
+from trainers.tabular.train_tabpfn import finetune_tabpfn as finetune_tabular_tabpfn
+from evaluators.tabular.evaluate_tabpfn import evaluate_tabpfn as evaluate_tabular_tabpfn
+from embed.tabular.tabpfn_embeddings import get_tabpfn_embeddings as embed_tabpfn_embeddings
+##### VI. GENERIC IMPORTS #####
 from handlers.split_dataset import split_dataset
 from pathlib import Path
 from cli import DeepTuneVisionOptions
+import pandas as pd 
 from utils import RunType
 from helpers import date_id,print_metrics_table,print_training_log_table, print_experiment_paths_table
 from handlers.raw_to_parquet_dataset import raw_to_parquet
@@ -49,6 +55,8 @@ def main():
 
     TARGET = args.target
     RAW_DATA = args.raw_data
+    FINETUNING_MODE = args.finetuning_mode
+    MODE = args.mode
 
     df_path = args.df if not RAW_DATA else raw_to_parquet(
         dataset_dir=args.df,
@@ -73,6 +81,18 @@ def main():
     MAPPING_PATH = next((p / "label_mapping.json" 
                      for p in Path(Path(args.out)/parent_dir).glob("data_splits*") 
                      if (p / "label_mapping.json").exists()), None)
+    
+    ### For TabPFN ###
+    train_df = pd.read_parquet(train_data_path)
+    X_train_tabpfn = train_df.drop(columns=['labels'])
+    y_train_tabpfn = train_df['labels']
+    val_df = pd.read_parquet(val_data_path)
+    X_val_tabpfn = val_df.drop(columns=['labels'])
+    y_val_tabpfn = val_df['labels']
+    eval_df = pd.read_parquet(test_data_path)
+    X_eval_tabpfn = eval_df.drop(columns=['labels'])
+    y_eval_tabpfn = eval_df['labels']
+
 
     if args.modality == 'text':
     
@@ -260,6 +280,62 @@ def main():
             )
             print_experiment_paths_table(df_path=df_path, train_data_path=train_data_path, val_data_path=val_data_path, test_data_path=test_data_path, ckpt_directory=ckpt_directory, exp_path=exp_path)
             print_metrics_table(metrics_dict, embed_shape, modality='tabular',mapping_path=MAPPING_PATH)
+
+        if args.model_version == 'tabpfn':
+
+            if FINETUNING_MODE:
+
+                ckpt_directory = finetune_tabular_tabpfn(
+                    X_train = X_train_tabpfn,
+                    y_train = y_train_tabpfn,
+                    X_val = X_val_tabpfn,
+                    y_val = y_val_tabpfn,
+                    mode = MODE,
+                    out = Path(args.out)/parent_dir,
+                    num_epochs=defaults['num_epochs'],
+                    args=args,
+                    model_str='TABPFN',
+                )
+
+
+            else:
+                ckpt_directory = train_tabular_tabpfn(
+                    X_train= X_train_tabpfn,
+                    y_train= y_train_tabpfn,
+                    mode=MODE,
+                    out=Path(args.out)/parent_dir,
+                    X_val= X_val_tabpfn,
+                    y_val= y_val_tabpfn,
+                    args=args,
+                    model_str='TABPFN',
+                )
+
+            metrics_dict = evaluate_tabular_tabpfn(
+                X_eval_tabpfn,
+                y_eval_tabpfn,
+                out=Path(args.out)/parent_dir,
+                model_path=ckpt_directory,
+                mode=MODE,
+                args=args,
+                finetuning_mode=FINETUNING_MODE,
+                model_str='TABPFN',
+                )
+            
+            exp_path,embed_shape = embed_tabpfn_embeddings(
+                X_train_tabpfn,
+                y_train_tabpfn,
+                X_eval_tabpfn,
+                y_eval_tabpfn,
+                out=Path(args.out)/parent_dir,
+                args=args,
+                model_path=ckpt_directory,
+                mode=MODE,
+                finetuning_mode=FINETUNING_MODE,
+                model_str='TABPFN',
+            )
+
+            print_experiment_paths_table(df_path=df_path, train_data_path=train_data_path, val_data_path=val_data_path, test_data_path=test_data_path, ckpt_directory=ckpt_directory, exp_path=exp_path)
+            print_metrics_table(metrics_dict, embed_shape, modality='tabular')
 
     elif args.modality == 'timeseries':
         if args.model_version == 'deepAR':
