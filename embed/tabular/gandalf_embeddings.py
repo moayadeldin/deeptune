@@ -78,7 +78,9 @@ def embed(
     total_time = end_time - start_time
     args.save_args(EMBED_OUTPUT)
     save_process_times(epoch_times=1, total_duration=total_time, outdir=EMBED_OUTPUT, process="embedding")
+    print(f'The embeddings file is saved in {EMBED_OUTPUT}')
 
+    
     return out, combined_df.shape
     
 

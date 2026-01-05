@@ -392,8 +392,8 @@ def print_metrics_table(metrics_dict, embed_shape, modality, mapping_path=None):
         print(" 🎯 DeepTune's Holdout Set Metrics Report")
         print("="*50 + "\n")
         table = [
-            ["Test Loss",     f"{metrics_dict.get('loss', 0):.3f}"],
-            ["Test Accuracy", f"{metrics_dict.get('accuracy', 0) * 100:.2f}%"],
+            ["Test Loss",     f"{metrics_dict.get('loss', np.NaN):.3f}"],
+            ["Test Accuracy", f"{metrics_dict.get('accuracy', np.NaN) * 100:.2f}%"],
             ["Embedding Matrix Dimension", str(embed_shape)],
         ]
 

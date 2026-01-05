@@ -17,8 +17,12 @@ class DeepTuneVisionOptions:
         self.mode = run_type
         self._add_default_args()
         
-        if run_type == RunType.TABPFN:
-            self._add_tabpfn_args()
+        if run_type == RunType.TabPFNTRAIN:
+            self._add_tabpfn_train_args()
+        if run_type == RunType.TabPFNEVAL:
+            self._add_tabpfn_eval_args()
+        if run_type == RunType.TabPFNEMBD:
+            self._add_tabpfn_embed_args()
         if run_type == RunType.ONECALL:
             self._add_onecall_args()
         if run_type == RunType.TRAIN:
@@ -29,7 +33,6 @@ class DeepTuneVisionOptions:
             self._add_gandalf_args()
         if run_type == (RunType.TIMESERIES):
             self._add_timeseries_args()
-        
 
         parsed_args = self.parser.parse_args(args)
         # self.input_dir: Optional[Path] = parsed_args.input_dir.resolve() if parsed_args.input_dir else None
@@ -37,12 +40,31 @@ class DeepTuneVisionOptions:
         self.batch_size: Optional[int] = parsed_args.batch_size
         self.mode : Optional[str] = parsed_args.mode
 
-        if run_type == RunType.TABPFN:
+        if run_type == RunType.TabPFNTRAIN:
             self.target_column: Optional[str] = parsed_args.target_column
             self.train_df: Optional[Path] = parsed_args.train_df
             self.val_df: Optional[Path] = parsed_args.val_df
             self.num_epochs: Optional[int] = parsed_args.num_epochs
             self.finetuning_mode: bool = parsed_args.finetuning_mode
+
+        if run_type == RunType.TabPFNEVAL:
+            self.target_column: Optional[str] = parsed_args.target_column
+            self.eval_df: Optional[Path] = parsed_args.eval_df
+            self.model_weights: Optional[Path] = (
+                parsed_args.model_weights.resolve() if parsed_args.model_weights else None
+            )
+            self.finetuning_mode: bool = parsed_args.finetuning_mode
+
+        if run_type == RunType.TabPFNEMBD:
+            self.train_df = parsed_args.train_df
+            self.eval_df = parsed_args.eval_df
+            self.model_weights: Optional[Path] = (
+                parsed_args.model_weights.resolve() if parsed_args.model_weights else None
+            )
+            self.mode : Optional[str] = parsed_args.mode
+            self.target_column: Optional[str] = parsed_args.target_column
+            self.finetuning_mode: bool = parsed_args.finetuning_mode
+
 
         if run_type == RunType.ONECALL:
             self.modality: str = parsed_args.modality
@@ -52,6 +74,8 @@ class DeepTuneVisionOptions:
             self.use_peft: bool = parsed_args.use_peft
             self.target: Optional[str] = parsed_args.target
             self.raw_data: bool = parsed_args.raw_data
+            self.finetuning_mode: bool = parsed_args.finetuning_mode
+
 
             # ganadalf specific
             self.type: Optional[str] = parsed_args.type
@@ -185,13 +209,30 @@ class DeepTuneVisionOptions:
         p.add_argument('--fixed-seed', action='store_true', help='Use fixed seed 42.')
         p.add_argument('--batch_size', type=int, help='Batch size.')
 
-    def _add_tabpfn_args(self):
+    def _add_tabpfn_train_args(self):
         p = self.parser
         p.add_argument('--target_column', type=str, required=False, help="Specify the name of your target column.")
         p.add_argument('--train_df', type=Path, help='Path to the train dataset (parquet file).', required=True)
         p.add_argument('--val_df', type=Path, help='Path to the validation dataset (parquet file).', required=True)
         p.add_argument('--finetuning-mode', action='store_true', help='If set, perform fine-tuning instead of training from scratch.')
         p.add_argument('--num_epochs', type=int, help='Number of epochs.')
+
+    def _add_tabpfn_eval_args(self):
+
+        p = self.parser
+        p.add_argument('--target_column', type=str, required=False, help="Specify the name of your target column.")
+        p.add_argument('--eval_df', type=Path, help='Path to the evaluation dataset (parquet file).', required=True)
+        p.add_argument('--model_weights', type=Path, help='Path to the model weights.', required=True)
+        p.add_argument('--finetuning-mode', action='store_true', help='If set, perform fine-tuning instead of training from scratch.')
+
+    def _add_tabpfn_embed_args(self):
+        p = self.parser
+        p.add_argument('--train_df', type=Path, help='Path to the train dataset (parquet file).', required=True)
+        p.add_argument('--eval_df', type=Path, help='Path to the evaluation dataset (parquet file).', required=True)
+        p.add_argument('--model_weights', type=Path, help='Path to the model weights.', required=True)
+        p.add_argument('--target_column', type=str, required=False, help="Specify the name of your target column.")
+        p.add_argument('--finetuning-mode', action='store_true', help='If set, perform fine-tuning instead of training from scratch.')
+
     def _add_onecall_args(self):
         p = self.parser
         p.add_argument('--num_classes', type=int,required=False, help='Number of classes in your dataset.')
@@ -201,6 +242,8 @@ class DeepTuneVisionOptions:
         p.add_argument('--target', type=str, required=False, help="Specify the name of your target column. Default is 'labels'.")
         p.add_argument('--raw-data', action='store_true', help='Use raw data instead of ready-to-use parquet.')
         
+        # tabpfn specific
+        p.add_argument('--finetuning-mode', action='store_true', help='If set, perform fine-tuning instead of training from scratch for TabPFN.')
         # gandalf specific
         p.add_argument('--type', type=str, required=False, choices=['classification','regression'], help='Type: Classification or Regression for GANDALF')
         p.add_argument('--continuous_cols', nargs='+', help='List of continuous column names for GANDALF',required=False)
@@ -293,7 +336,7 @@ class DeepTuneVisionOptions:
             return f"{prefix_str}"
         elif mode == RunType.ONECALL:
             prefix_str = "PEFT" if self.use_peft else "FINETUNED"
-        elif mode == RunType.TABPFN:
+        elif mode == RunType.TabPFNTRAIN or mode == RunType.TabPFNEVAL or mode == RunType.TabPFNEMBD:
             prefix_str = "TABPFN"
             self.model_version=None
         else:

@@ -1,3 +1,4 @@
+import json
 import pandas as pd
 import os
 import time
@@ -6,6 +7,7 @@ from tqdm import tqdm
 from tabpfn import TabPFNClassifier
 from torch.optim import Adam
 from utils import RunType
+from joblib import dump
 from cli import DeepTuneVisionOptions
 from tabpfn.utils import meta_dataset_collator
 from tabpfn.finetune_utils import clone_model_for_evaluation
@@ -25,7 +27,7 @@ os.environ["HF_TOKEN"] = "PUT_YOUR_TOKEN"
 
 def main():
 
-    args = DeepTuneVisionOptions(RunType.TABPFN)
+    args = DeepTuneVisionOptions(RunType.TabPFNTRAIN)
     TARGET = args.target_column
     MODE = args.mode
     OUT = args.out
@@ -54,6 +56,7 @@ def main():
             out=OUT,
             batch_size=BATCH_SIZE,
             num_epochs=NUM_EPOCHS,
+            args=args,
             model_str="TABPFN",
         )
         
@@ -64,6 +67,7 @@ def main():
             X_val=X_val,
             y_val=y_val,
             mode = MODE,
+            args = args,
             out=OUT,
             model_str="TABPFN"
         )
@@ -77,8 +81,9 @@ def finetune_tabpfn(
     y_val: pd.Series,
     out: Path,
     mode: Path,
-    batch_size: int = 1,
-    num_epochs: int = 10,
+    args : DeepTuneVisionOptions,
+    batch_size: int,
+    num_epochs: int,
     model_str: str = "TABPFN",
 ):
     start_time = time.time()
@@ -110,6 +115,8 @@ def finetune_tabpfn(
 
         
         loss_fn = torch.nn.CrossEntropyLoss()
+
+        metrics = []  
 
         for epoch in range(num_epochs):
                 
@@ -159,10 +166,24 @@ def finetune_tabpfn(
                 val_accuracy = val_correct / val_total
                 print(f"Epoch {epoch} Validation Loss: {mean_val_loss:.4f}, Validation Accuracy: {val_accuracy:.2f}%")
 
-        save_fitted_tabpfn_model(clf, Path(f"{TRAIN_OUTPUT_DIR}/finetuned_{mode}.tabpfn_fit"))
+                metrics.append({
+                    "epoch": epoch,
+                    "train_loss": float(mean_train_loss),
+                    "val_loss": float(mean_val_loss),
+                    "train_accuracy": float(train_accuracy),
+                    "val_accuracy": float(val_accuracy),
+                })
+
+        eval_clf = clone_model_for_evaluation(clf, {}, TabPFNClassifier)
+        eval_clf.fit(X_train, y_train)
+        args.save_args(TRAIN_OUTPUT_DIR)
+        metrics_df = pd.DataFrame(metrics)
+        metrics_df.to_csv(TRAIN_OUTPUT_DIR / "training_log.csv", index=False)
+        model_path = Path(f"{TRAIN_OUTPUT_DIR}/finetuned_{model_str}_{mode}.joblib")
+        dump(eval_clf, model_path)
         end_time = time.time()
         total_time = end_time - start_time
-        save_process_times(epoch_times="For TabPFN we only track total time", total_duration=total_time, outdir=TRAIN_OUTPUT_DIR, process="finetuning")
+        print(f"Model saved to {model_path}")
 
     elif mode == 'reg':
 
@@ -191,6 +212,7 @@ def finetune_tabpfn(
 
         optimizer = Adam(reg.model_.parameters(), lr=1e-5)
 
+        metrics = [] 
         for epoch in range(num_epochs):
 
             reg.model_.train()
@@ -213,7 +235,8 @@ def finetune_tabpfn(
                 torch.nn.utils.clip_grad_norm_(reg.model_.parameters(), 1.0)
                 optimizer.step()
 
-            print(f"Epoch {epoch} Training Loss: {sum(train_losses)/len(train_losses):.6f}")
+            mean_train_loss = sum(train_losses)/len(train_losses)
+            print(f"Epoch {epoch} Training Loss: {mean_train_loss:.6f}")
 
             reg.model_.eval()
             with torch.no_grad():
@@ -228,14 +251,37 @@ def finetune_tabpfn(
                     val_loss = loss_fn(averaged_pred_logits, y_te.to(DEVICE)).mean()
                     val_losses.append(val_loss.item())
 
-            print(f"Epoch {epoch} Validation Loss: {sum(val_losses)/len(val_losses):.6f}")
+            mean_val_loss = sum(val_losses)/len(val_losses)
+            print(f"Epoch {epoch} Validation Loss: {mean_val_loss:.6f}")
 
-        save_fitted_tabpfn_model(reg, Path(f"{TRAIN_OUTPUT_DIR}/finetuned_{mode}.tabpfn_fit"))
+            metrics.append({
+                "epoch": epoch,
+                "train_loss": float(mean_train_loss),
+                "val_loss": float(mean_val_loss),
+                "train_accuracy": 0,
+                "val_accuracy": 0,
+            })
+
+        metrics_df = pd.DataFrame(metrics)
+
+        reg_clf = clone_model_for_evaluation(reg, {}, TabPFNRegressor)
+        reg_clf.fit(X_train, y_train)
+            
+        args.save_args(TRAIN_OUTPUT_DIR)
+        model_path = Path(f"{TRAIN_OUTPUT_DIR}/finetuned_{model_str}_{mode}.joblib")
+        dump(reg_clf, model_path)
+        metrics_df.to_csv(TRAIN_OUTPUT_DIR / "training_log.csv", index=False)
         end_time = time.time()
         total_time = end_time - start_time
-        save_process_times(epoch_times="For TabPFN we only track total time", total_duration=total_time, outdir=TRAIN_OUTPUT_DIR, process=" regressor finetuning")
+        print(f"Model saved to {model_path}")
 
+    else:
+        raise ValueError(f"Unsupported evaluation mode: {mode}. Supported modes are 'cls' and 'reg'.")
+    save_process_times(epoch_times="For TabPFN we only track total time", total_duration=total_time, outdir=TRAIN_OUTPUT_DIR,process='finetuning')
+    
+    output_dir = Path(f"{TRAIN_OUTPUT_DIR}/finetuned_{model_str}_{mode}.joblib")
 
+    return output_dir
 
 def train_tabpfn_from_scratch(
         X_train: pd.DataFrame,
@@ -244,6 +290,7 @@ def train_tabpfn_from_scratch(
         y_val: pd.Series,
         out: Path,
         mode:Path,
+        args : DeepTuneVisionOptions,
         model_str: str = "TABPFN"
 ):
     
@@ -262,8 +309,22 @@ def train_tabpfn_from_scratch(
         preds_train = clf.predict(X_train)
         preds_val = clf.predict(X_val)
         
-        print(f"Training Accuracy: {accuracy_score(y_train, preds_train) * 100.:.2f}%")
-        print(f"Validation Accuracy: {accuracy_score(y_val, preds_val) * 100.:.2f}%")
+        train_acc = accuracy_score(y_train, preds_train)
+        val_acc = accuracy_score(y_val, preds_val)
+        
+        print(f"Training Accuracy: {train_acc * 100.:.2f}%")
+        print(f"Validation Accuracy: {val_acc * 100.:.2f}%")
+
+        result_dic = [
+            {
+                'train_accuracy': train_acc,
+                'val_accuracy': val_acc,
+            }
+        ]
+
+        args.save_args(TRAIN_OUTPUT_DIR)
+        with open(TRAIN_OUTPUT_DIR / "training_metrics.json", 'w') as f:
+            json.dump(result_dic, f, indent=4)
 
         save_fitted_tabpfn_model(clf, Path(f"{TRAIN_OUTPUT_DIR}/trained_{mode}.tabpfn_fit"))
 
@@ -276,20 +337,43 @@ def train_tabpfn_from_scratch(
         preds_train = reg.predict(X_train)
         preds_val = reg.predict(X_val)
 
-        print(f"Training MSE: {mean_squared_error(y_train, preds_train):.4f}")
-        print(f"Validation MSE: {mean_squared_error(y_val, preds_val):.4f}")
-        print(f"Training MAE: {mean_absolute_error(y_train, preds_train):.4f}")
-        print(f"Validation MAE: {mean_absolute_error(y_val, preds_val):.4f}")
+        train_mse = mean_squared_error(y_train, preds_train)
+        val_mse = mean_squared_error(y_val, preds_val)
+        train_mae = mean_absolute_error(y_train, preds_train)
+        val_mae = mean_absolute_error(y_val, preds_val)
+
+
+        print(f"Training MSE: {train_mse:.4f}")
+        print(f"Validation MSE: {val_mse:.4f}")
+        print(f"Training MAE: {train_mae:.4f}")
+        print(f"Validation MAE: {val_mae:.4f}")
+
+        result_dic = [
+            {
+                'train_mse': train_mse,
+                'val_mse': val_mse,
+                'train_mae': train_mae,
+                'val_mae': val_mae,
+            }
+        ]
+
+        args.save_args(TRAIN_OUTPUT_DIR)
+        with open(TRAIN_OUTPUT_DIR / "training_metrics.json", 'w') as f:
+            json.dump(result_dic, f, indent=4)
 
         save_fitted_tabpfn_model(reg, Path(f"{TRAIN_OUTPUT_DIR}/trained_{mode}.tabpfn_fit"))
 
     else:
-        raise ValueError("mode must be either 'reg' or 'cls'")
+        raise ValueError(f"Unsupported evaluation mode: {mode}. Supported modes are 'cls' and 'reg'.")
 
     end_time = time.time()
     total_time = end_time - start_time
     save_process_times(epoch_times="For TabPFN we only track total time", total_duration=total_time, outdir=TRAIN_OUTPUT_DIR, process="training")
+    print(f"Model saved to {TRAIN_OUTPUT_DIR}/trained_{mode}.tabpfn_fit")
 
+    output_dir = Path(f"{TRAIN_OUTPUT_DIR}/trained_{mode}.tabpfn_fit")
+
+    return output_dir
 
 if __name__ == "__main__":
 
