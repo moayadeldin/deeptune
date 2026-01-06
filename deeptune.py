@@ -96,7 +96,7 @@ def main():
 
     if args.modality == 'text':
     
-        if args.model_version == 'bert':
+        if args.model_version == 'BERT':
 
             ckpt_directory = train_multilingualbert(
                 out=Path(args.out)/parent_dir,
