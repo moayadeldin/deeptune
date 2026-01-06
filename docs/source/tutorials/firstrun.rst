@@ -21,6 +21,7 @@ The easiest way to get started with **DeepTune** is to use the unified pipeline 
         [--fixed-seed] \
         [--use-peft] \
         [--raw-data] \
+        [--freeze_backbone] \
         [--time_idx_column] <str> \
 
 .. list-table::
@@ -48,6 +49,8 @@ The easiest way to get started with **DeepTune** is to use the unified pipeline 
         - *(Flag)* Indicates that the input data is in raw format (e.g., CSV, image files) and needs to be converted to Parquet format.
    * - ``--fixed-seed``
      - *(Flag)* Ensures that a fixed random seed is set for reproducibility.
+    * - ``--freeze_backbone``
+        - *(Flag)* Indicates whether to freeze the backbone of the model during training.
     * - ``--time_idx_column <str>``
         - Name of the time index column in your time-series dataset. *Required only for time-series modality.*
 .. note::
@@ -149,7 +152,6 @@ To simplify the initial experience with **DeepTune**, a set of predefined hyperp
 - **Embedding Size**: 1000 (applicable when using two added layers)
 - **Train/Validation/Test Split Ratios**: 70% / 10% / 20%
 - **Task Mode**: Classification (`cls`) by default
-- **Freeze Backbone**: False (i.e., full fine-tuning by default)
 - **Disable Numerical Encoding**: False (i.e., numerical encoding is applied by default as part of preprocessing).
 - **GFUL Stages**: 6 (applicable for GANDALF only)
 
