@@ -26,6 +26,7 @@ More cross-modal video demos can be found in the documentation's [demo page](htt
 ## Models *DeepTune* Supports (Up to Date)
 
 
+
 <table>
   <thead>
     <tr>
@@ -138,7 +139,6 @@ More cross-modal video demos can be found in the documentation's [demo page](htt
 </tr>
 </tbody>
 </table>
-
 
 ## Documentation
 
