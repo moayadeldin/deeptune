@@ -26,7 +26,6 @@ More cross-modal video demos can be found in the documentation's [demo page](htt
 ## Models *DeepTune* Supports (Up to Date)
 
 
-
 <table>
   <thead>
     <tr>
@@ -128,6 +127,14 @@ More cross-modal video demos can be found in the documentation's [demo page](htt
   <td>Classification & Regression</td>
   <td>Tabular</td</td>
   <td>GANDALF</td>
+</tr>
+  <tr>
+  <td>TabPFN</td>
+  <td colspan="2" style="text-align:center; font-weight:bold; font-size:16px;">Supports End-to-End Conventional and Fine-tuning Training</td>
+  <td>✅</td>
+  <td>Classification & Regression</td>
+  <td>Tabular</td</td>
+  <td>tabpfn</td>
 </tr>
 <tr>
   <td>DeepAR</td>
