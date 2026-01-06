@@ -130,7 +130,7 @@ More cross-modal video demos can be found in the documentation's [demo page](htt
 </tr>
   <tr>
   <td>TabPFN</td>
-  <td colspan="2" style="text-align:center; font-weight:bold; font-size:16px;">Supports End-to-End Conventional and Fine-tuning</td>
+  <td colspan="2" style="text-align:center; font-weight:bold; font-size:16px;">Supports Both Fine-tuning & Conventional End-to-End Training</td>
   <td>✅</td>
   <td>Classification & Regression</td>
   <td>Tabular</td</td>
@@ -138,7 +138,7 @@ More cross-modal video demos can be found in the documentation's [demo page](htt
 </tr>
 <tr>
   <td>DeepAR</td>
-  <td colspan="2" style="text-align:center; font-weight:bold; font-size:16px;">Supports Both Fine-tuning & Conventional End-to-End Training</td>
+  <td colspan="2" style="text-align:center; font-weight:bold; font-size:16px;">Supports Conventional End-to-End Training</td>
   <td>✅</td>
   <td>Time Series Forecasting</td>
   <td>Time Series</td>
