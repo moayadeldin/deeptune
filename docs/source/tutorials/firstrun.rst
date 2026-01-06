@@ -35,27 +35,27 @@ The easiest way to get started with **DeepTune** is to use the unified pipeline 
      - The data modality you are working with.
    * - ``--target <str>``
      - The name of the target column in your dataset. DeepTune will automatically rename this column to 'labels' for consistency across modalities.
-    * - ``--num_classes <int>``
-        - Number of classes in your dataset for classification tasks.
-    * - ``--model_version <model_name>``
-        - The model to use along with its respective architecture version.  
-          You may refer to the *Supported Models* table for available options.
-    * - ``--batch_size <int>``
-        - Number of samples per batch.
-    * - ``--out <str>``
-        - Path to the directory where you want to save the results.
-    * - ``--use_peft``
-        - *(Flag)* Enables the use of Parameter Efficient Fine-Tuning (PeFT) techniques during training.
-    * - ``--raw-data``
-        - *(Flag)* Indicates that the input data is in raw format (e.g., CSV, image files) and needs to be converted to Parquet format.
+   * - ``--num_classes <int>``
+     - Number of classes in your dataset for classification tasks.
+   * - ``--model_version <model_name>``
+     - The model to use along with its respective architecture version.  
+       You may refer to the *Supported Models* table for available options.
+   * - ``--batch_size <int>``
+     - Number of samples per batch.
+   * - ``--out <str>``
+     - Path to the directory where you want to save the results.
+   * - ``--use_peft``
+     - *(Flag)* Enables the use of Parameter Efficient Fine-Tuning (PeFT) techniques during training.
+   * - ``--raw-data``
+     - *(Flag)* Indicates that the input data is in raw format (e.g., CSV, image files) and needs to be converted to Parquet format.
    * - ``--fixed-seed``
      - *(Flag)* Ensures that a fixed random seed is set for reproducibility.
-    * - ``--freeze_backbone``
-        - *(Flag)* Indicates whether to freeze the backbone of the model during training.
-    * - ``--time_idx_column <str>``
-        - Name of the time index column in your time-series dataset. *Required only for time-series modality.*
-    * - ``--finetuning-mode``
-        - *(Flag)* Enables fine-tuning mode for TabPFN models. *Required only for tabular modality when using TabPFN.*
+   * - ``--freeze_backbone``
+     - *(Flag)* Indicates whether to freeze the backbone of the model during training.
+   * - ``--time_idx_column <str>``
+     - Name of the time index column in your time-series dataset. *Required only for time-series modality.*
+   * - ``--finetuning-mode``
+     - *(Flag)* Enables fine-tuning mode for TabPFN models. *Required only for tabular modality when using TabPFN.*
 .. note::
 
    You only need to specify the ``--num_classes`` argument for image classification tasks and with Multilingual BERT. It is not needed for other time-series, tabular models, and GPT-2 as they handle this internally.
