@@ -40,7 +40,6 @@ defaults={
     'val_size':0.1,
     'test_size':0.2,
     'mode':'cls',
-    'freeze_backbone': False,
     'fixed_seed':True,
     'disable_numerical_encoding':False,
     'gflu_stages':6,
@@ -57,6 +56,7 @@ def main():
     RAW_DATA = args.raw_data
     FINETUNING_MODE = args.finetuning_mode
     MODE = args.mode
+    FREEZE_BACKBONE = args.freeze_backbone
 
     df_path = args.df if not RAW_DATA else raw_to_parquet(
         dataset_dir=args.df,
@@ -107,7 +107,7 @@ def main():
                 learning_rate=defaults['learning_rate'],
                 added_layers=defaults['added_layers'],
                 embed_size=defaults['embed_size'],
-                freeze_backbone=defaults['freeze_backbone'],
+                freeze_backbone=FREEZE_BACKBONE,
                 use_peft=args.use_peft,
                 num_classes=args.num_classes,
                 fixed_seed=defaults['fixed_seed'],
@@ -127,7 +127,7 @@ def main():
                 batch_size=args.batch_size,
                 use_peft=args.use_peft,
                 args=args,
-                freeze_backbone=defaults['freeze_backbone'],
+                freeze_backbone=FREEZE_BACKBONE,
             )
 
 
@@ -140,7 +140,7 @@ def main():
                 embed_size=defaults['embed_size'],
                 batch_size=args.batch_size,
                 use_case=USE_CASE,
-                freeze_backbone=defaults['freeze_backbone'],
+                freeze_backbone=FREEZE_BACKBONE,
             )
 
 
@@ -153,7 +153,7 @@ def main():
             val_df = val_data_path,
             num_epochs=defaults['num_epochs'],
             learning_rate=defaults['learning_rate'],
-            freeze_backbone=defaults['freeze_backbone'],
+            freeze_backbone=FREEZE_BACKBONE,
             fixed_seed=defaults['fixed_seed'],
             use_peft=False,
             model_str='gpt2',
@@ -165,7 +165,7 @@ def main():
                 out=Path(args.out)/parent_dir,
                 model_weights=ckpt_directory,
                 batch_size=args.batch_size,
-                freeze_backbone=defaults['freeze_backbone'],
+                freeze_backbone=FREEZE_BACKBONE,
                 args=args,
                 use_peft=False,
                 model_str='gpt2'
@@ -194,7 +194,7 @@ def main():
             learning_rate=defaults['learning_rate'],
             added_layers=defaults['added_layers'],
             embed_size=defaults['embed_size'],
-            freeze_backbone=defaults['freeze_backbone'],
+            freeze_backbone=FREEZE_BACKBONE,
             use_peft=args.use_peft,
             num_classes=args.num_classes,
             fixed_seed=defaults['fixed_seed'],
@@ -216,7 +216,7 @@ def main():
             added_layers=defaults['added_layers'],
             embed_size=defaults['embed_size'],
             batch_size=args.batch_size,
-            freeze_backbone=defaults['freeze_backbone'],
+            freeze_backbone=FREEZE_BACKBONE,
             args=args
         )
 

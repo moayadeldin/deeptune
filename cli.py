@@ -75,6 +75,7 @@ class DeepTuneVisionOptions:
             self.target: Optional[str] = parsed_args.target
             self.raw_data: bool = parsed_args.raw_data
             self.finetuning_mode: bool = parsed_args.finetuning_mode
+            self.freeze_backbone: bool = parsed_args.freeze_backbone
 
 
             # ganadalf specific
@@ -241,7 +242,6 @@ class DeepTuneVisionOptions:
         p.add_argument('--df', type=Path, required=True, help='Path to the dataframe (parquet file) to be used for training.')
         p.add_argument('--target', type=str, required=False, help="Specify the name of your target column. Default is 'labels'.")
         p.add_argument('--raw-data', action='store_true', help='Use raw data instead of ready-to-use parquet.')
-        
         # tabpfn specific
         p.add_argument('--finetuning-mode', action='store_true', help='If set, perform fine-tuning instead of training from scratch for TabPFN.')
         # gandalf specific
