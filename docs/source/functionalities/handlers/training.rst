@@ -238,6 +238,7 @@ TabPFN Support
 Currently, **DeepTune** offers support for TabPFN (Tabular Prior-data Fitted Network) model to get fine-tuned or trained from scratch on your own tabular data. You can read more about TabPFN through the paper `here <https://arxiv.org/pdf/2511.08667>`_. We project to expand the support to include the time-series modality in the near future.
 
 In order to run TabPFN in **DeepTune**, you can use the following CLI structure:
+
 .. code-block:: console
 
     $ python -m trainers.tabular.train_tabpfn \
