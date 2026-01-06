@@ -108,6 +108,7 @@ TabPFN Support
 --------------
 
 For TabPFN embeddings extraction, the generic CLI structure is as follows:
+
 .. code-block:: console
 
     $ python -m embed.tabular.tabpfn_embeddings \
