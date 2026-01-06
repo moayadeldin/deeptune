@@ -44,7 +44,7 @@ class CustomMultilingualPeftBERT(nn.Module):
         
         if freeze_backbone:
             
-            for param in self.bert.parameters():
+            for param in base_model.parameters():
                 param.requires_grad = False
             print('Backbone Parameters are freezed!')
         
