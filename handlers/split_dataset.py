@@ -58,6 +58,8 @@ def split_dataset(train_size: float, val_size: float, test_size:float, df_path: 
     
     df = pd.read_parquet(df_path)
 
+    df = df[:10]
+
     split_dir.mkdir(parents=True, exist_ok=True)
 
     # for convenience and as part of the preprocessing, deeptune will rename the target column of prediction to labels.
