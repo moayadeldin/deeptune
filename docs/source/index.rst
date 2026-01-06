@@ -110,5 +110,5 @@ If you make use of **DeepTune**, please cite the repository as follows:
    title   = {DeepTune: Cutting-edge Tool automating state-of-the-art deep learning models for cross-modal applications},
    year = {2025},
    url = {https://github.com/moayadeldin/deeptune},
-   version = {1.0.0}
+   version = {1.1.0}
    }

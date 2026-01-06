@@ -107,6 +107,20 @@ The generic CLI structure of running **DeepTune** for evalaution of time series 
     --static_reals <list> \
     --group_ids <str> \
 
+TabPFN Support
+--------------
+
+The generic CLI structure of running **DeepTune** for evalaution of tabular datasets using TabPFN is:
+
+.. code-block:: console
+
+    $ python -m evaluators.tabular.evaluate_tabpfn \
+    --eval_df <str> \
+    --model_weights <str> \
+    --target_column <str> \
+    --out <str> \
+    [--finetuning-mode]
+
 Evaluation Output
 -----------------
 

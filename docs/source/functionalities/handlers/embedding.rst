@@ -104,9 +104,23 @@ The following is the generic CLI structure of running DeepTune for embeddings ex
 
     Similar to the tabular modality, DeepAR relies on the standard training scheme without applying transfer learning. Therefore, we do not use Parameter Efficient Fine-Tuning (PeFT), Fine-Tuning, or Pretrained options. Indeed, we only use the already trained model's weights to obtain the embeddings.
 
+TabPFN Support
+--------------
 
+For TabPFN embeddings extraction, the generic CLI structure is as follows:
+.. code-block:: console
 
+    $ python -m embed.tabular.tabpfn_embeddings \
+    --train_df <path_to_train_df> \
+    --eval_df <path_to_eval_df> \
+    --model_weights <str> \
+    --target_column <str> \
+    --out <str> \
+    --mode <cls_or_reg> \
+    [--finetuning-mode]
 
+.. note::
+    Unlike other models, TabPFN does not require specification of batch size during embeddings extraction. Moreover, the user have to feed both training and evaluation dataframes to ensure proper functioning of the model as per its design characterstics.
 
 Embeddings Output
 -----------------

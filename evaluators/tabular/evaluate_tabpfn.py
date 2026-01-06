@@ -115,10 +115,10 @@ def evaluate_tabpfn(
         
         EVAL_OUTPUT_DIR = (out / f"eval_output_{model_str}_{mode}_{UNIQUE_ID}")
         args.save_args(EVAL_OUTPUT_DIR)
-        with open(EVAL_OUTPUT_DIR / "tabpfn_metrics.json", 'w') as f:
+        with open(EVAL_OUTPUT_DIR / "full_metrics.json", 'w') as f:
             json.dump(result_dic, f, indent=4)
         save_process_times(epoch_times="For TabPFN we only track total time", total_duration="N/A", outdir=EVAL_OUTPUT_DIR, process="evaluation")
-        print(f"Evaluation results saved to {EVAL_OUTPUT_DIR / 'tabpfn_metrics.json'}")
+        print(f"Evaluation results saved to {EVAL_OUTPUT_DIR / 'full_metrics.json'}")
 
         return result_dic
 

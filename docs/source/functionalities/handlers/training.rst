@@ -118,7 +118,7 @@ Since **DeepTune** currently supports only two models for text classification, t
         --learning_rate <float> \
         --added_layers <int> \
         --embed_size <int> \
-        [--fixed-seed]
+        [--fixed-seed] \
         [--freeze_backbone]
 
 .. note::
@@ -231,6 +231,29 @@ Currently, **DeepTune** offers only support for DeepAR model to provide predicti
 .. note::
     For more information about these arguments, you may refer to the `PyTorch Forecasting documentation <https://pytorch-forecasting.readthedocs.io/en/v1.3.0/api/pytorch_forecasting.models.deepar._deepar.DeepAR.html>`_.
 
+
+TabPFN Support
+-------------
+
+Currently, **DeepTune** offers support for TabPFN (Tabular Prior-data Fitted Network) model to get fine-tuned or trained from scratch on your own tabular data. You can read more about TabPFN through the paper `here <https://arxiv.org/pdf/2511.08667>`_. We project to expand the support to include the time-series modality in the near future.
+
+In order to run TabPFN in **DeepTune**, you can use the following CLI structure:
+.. code-block:: console
+
+    $ python -m trainers.tabular.train_tabpfn \
+    --train_df <str> \
+    --val_df <str> \
+    --batch_size <int> \
+    --num_epochs <int> \
+    --out <str> \
+    --mode <cls_or_reg> \
+    --target_column <str> \
+    --[finetuning-mode] \
+
+
+.. note::
+    By default, TabPFN will be used in training from scratch mode. To enable fine-tuning on your dataset, you need to add the `--finetuning-mode` switch to the previous command.
+
 Training Output
 ---------------
 
@@ -263,7 +286,7 @@ After training completes, you may find the results in the directory specified wi
 
 
 
-For text GPT-2 and BERT models, instead of the ``model_weights.pth`` file, you may find a whole subdirectory containing the tokenizer and model weights files.
+For text GPT-2 and BERT models, instead of the ``model_weights.pth`` file, you may find a whole subdirectory containing the tokenizer and model weights files. For TabPFN models, you may find the model weights stored in `.tabpfn` (if you are training from scratch) or `.joblib` (or if you are fine-tuning) format instead of `.pth`.
 
 .. code-block:: console
 
