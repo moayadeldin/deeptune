@@ -17,6 +17,7 @@ The easiest way to get started with **DeepTune** is to use the unified pipeline 
         --num_classes <int> \
         --batch_size <int> \
         --model_version <model_name> \
+        --grouper <str> \
         --out <str> \
         [--fixed-seed] \
         [--use-peft] \
@@ -34,12 +35,14 @@ The easiest way to get started with **DeepTune** is to use the unified pipeline 
    * - ``--modality <images_or_text_or_timeseries_or_tabular>``
      - The data modality you are working with.
    * - ``--target <str>``
-     - The name of the target column in your dataset. DeepTune will automatically rename this column to 'labels' for consistency across modalities.
+     - The name of the target column in your dataset. DeepTune will automatically rename this column to ``labels`` for consistency across modalities.
    * - ``--num_classes <int>``
      - Number of classes in your dataset for classification tasks.
    * - ``--model_version <model_name>``
      - The model to use along with its respective architecture version.  
        You may refer to the *Supported Models* table for available options.
+   * - ``--grouper <str>``
+     - Name of the column to be used as grouper during dataset splitting. If not specified, no grouping will be applied.
    * - ``--batch_size <int>``
      - Number of samples per batch.
    * - ``--out <str>``

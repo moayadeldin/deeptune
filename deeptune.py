@@ -57,6 +57,7 @@ def main():
     FINETUNING_MODE = args.finetuning_mode
     MODE = args.mode
     FREEZE_BACKBONE = args.freeze_backbone
+    GROUPER = args.grouper
 
     df_path = args.df if not RAW_DATA else raw_to_parquet(
         dataset_dir=args.df,
@@ -73,7 +74,8 @@ def main():
         fixed_seed=defaults['fixed_seed'],
         disable_numerical_encoding=defaults['disable_numerical_encoding'],
         target_column=TARGET,
-        modality=args.modality
+        modality=args.modality,
+        grouper=GROUPER,
     )
 
     USE_CASE = 'peft' if args.use_peft else 'finetuned'

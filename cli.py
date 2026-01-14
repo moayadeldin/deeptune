@@ -76,6 +76,7 @@ class DeepTuneVisionOptions:
             self.raw_data: bool = parsed_args.raw_data
             self.finetuning_mode: bool = parsed_args.finetuning_mode
             self.freeze_backbone: bool = parsed_args.freeze_backbone
+            self.grouper: Optional[str] = parsed_args.grouper
 
 
             # ganadalf specific
@@ -250,6 +251,7 @@ class DeepTuneVisionOptions:
         p.add_argument('--categorical_cols', nargs='+', help='List of categorical column names for GANDALF',required=False)
         # timeseries specific
         p.add_argument('--time_idx_column', type=str, default='labels', help='integer typed column denoting the time index within data.')
+        p.add_argument('--grouper', type=str, required=False, help='Column name to be used as grouper for stratified splitting.')
     def _add_training_args(self):
         p = self.parser
         p.add_argument('--num_classes', type=int,required=False, help='Number of classes in your dataset.')
