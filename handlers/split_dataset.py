@@ -1,8 +1,6 @@
 import numpy as np
 import pandas as pd
-
 from argparse import ArgumentParser, RawTextHelpFormatter
-from datetime import datetime
 from pandas import DataFrame
 from pathlib import Path
 from sklearn.preprocessing import LabelEncoder
@@ -10,7 +8,7 @@ from sklearn.model_selection import train_test_split
 import warnings
 from options import UNIQUE_ID
 import json
-
+from sklearn.model_selection import StratifiedGroupKFold
 
 
 def main():
@@ -32,6 +30,7 @@ def main():
     DISABLE_TARGET_COLUMN_RENAMING = args.disable_target_column_renaming
     TARGET_COLUMN = args.target
     MODALITY = args.modality
+    GROUPER = args.grouper
         
     OUT_DIR: Path = args.out
 
@@ -46,27 +45,20 @@ def main():
         target_column=TARGET_COLUMN,
         disable_target_column_renaming=DISABLE_TARGET_COLUMN_RENAMING,
         modality=MODALITY,
+        grouper=GROUPER,
     )
 
     print(f"Dataset splits saved to:\n Train:{train_path}\n Validation: {val_path}\n Test: {test_path}")
 
-def split_dataset(train_size: float, val_size: float, test_size:float, df_path: Path, out_dir: Path, fixed_seed: bool, disable_numerical_encoding: bool, target_column:str,modality:str, disable_target_column_renaming: bool=False):
+def split_dataset(train_size: float, val_size: float, test_size:float, df_path: Path, out_dir: Path, fixed_seed: bool, disable_numerical_encoding: bool, target_column:str,modality:str, disable_target_column_renaming: bool=False, grouper: str=None):
     split_dir = out_dir / f"data_splits_{UNIQUE_ID}"
     train_dataset_path = split_dir / f"train_split.parquet"
     val_dataset_path = split_dir / f"val_split.parquet"
     test_dataset_path = split_dir / f"test_split.parquet"
     
     df = pd.read_parquet(df_path)
-    
-    df = df[:100]  # for try & error purposes
-    
-    
+
     split_dir.mkdir(parents=True, exist_ok=True)
-
-    # for convenience and as part of the preprocessing, deeptune will rename the target column of prediction to labels.
-
-    if not disable_target_column_renaming:
-        df = df.rename(columns={target_column:'labels'})
 
     if fixed_seed:
         SEED: int = 42
@@ -75,6 +67,49 @@ def split_dataset(train_size: float, val_size: float, test_size:float, df_path: 
 
         warnings.warn('This will set a random seed for different initialization affecting Deeptune, inclduing weights and datasets splits. You are safe to neglect this warning if you are using Deeptune for purposes other than training or generating data splits', category=UserWarning)
         warnings.warn("This is liable to increase variability across consecutive runs of DeepTune.", category=UserWarning)
+
+    if grouper is not None:
+        if target_column is None:
+            raise ValueError("When using a grouper for stratified splitting, the target column must be specified.")
+        
+        # Group the train+val and test splits using StratifiedGroupKFold
+        n_test = int(round(1 / test_size))
+        sgkf_test = StratifiedGroupKFold(n_splits=n_test, shuffle=True, random_state=SEED)
+
+        y=df[target_column].to_numpy()
+
+        trainval_idx, test_idx = next(sgkf_test.split(df,y, groups=df[grouper]))
+
+        df_trainval,y_trainval, groups_trainval = df.iloc[trainval_idx], y[trainval_idx], df.iloc[trainval_idx][grouper]
+        X_test = df.iloc[test_idx]
+        
+        # Now split train+val into train and val using StratifiedGroupKFold
+
+        val_frac_of_trainval = val_size / (train_size + val_size)
+        n_val = int(round(1 / val_frac_of_trainval))
+
+        sgkf_val =StratifiedGroupKFold(n_splits=n_val, shuffle=True, random_state=SEED)
+        train_idx, val_idx = next(sgkf_val.split(df_trainval,y_trainval, groups=groups_trainval))
+
+        X_train = df_trainval.iloc[train_idx]
+        X_val = df_trainval.iloc[val_idx]
+
+        train_data = X_train.reset_index(drop=True)
+        val_data = X_val.reset_index(drop=True)
+        test_data = X_test.reset_index(drop=True)
+
+        
+        train_data.to_parquet(train_dataset_path, index=False)
+        val_data.to_parquet(val_dataset_path, index=False)
+        test_data.to_parquet(test_dataset_path, index=False)
+
+        return train_dataset_path, val_dataset_path, test_dataset_path
+    # df = df[:100]  # for try & error purposes
+
+    # for convenience and as part of the preprocessing, deeptune will rename the target column of prediction to labels.
+
+    if not disable_target_column_renaming:
+        df = df.rename(columns={target_column:'labels'})
 
     ### NOTE THAT THE LABELS FOR DEEPTUNE MUST BE NUMERICALLY ENCODED ###
 
@@ -178,6 +213,12 @@ def make_parser() -> ArgumentParser:
         help="Disable the automatic renaming of the target column to 'labels'. By default, Deeptune renames the target column to 'labels' for consistency across modalities."
     )
 
+    parser.add_argument(
+        "--grouper",
+        type=str,
+        required=False,
+        help="Specify the name of the column to be used as grouper for StratifiedGroupKFold splitting.",
+    )
     
 
     return parser

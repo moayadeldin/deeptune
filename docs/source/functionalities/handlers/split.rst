@@ -36,6 +36,7 @@ The following is the generic CLI structure to split the dataset:
         --val_size <float> \
         --test_size <float> \
         --out <path> \
+        --grouper <str> \
         --modality <images_or_text_or_timeseries_or_tabular> \
         --target <str> \
         --[fixed-seed] \
@@ -78,16 +79,18 @@ This directory will contain the split files, which will be used later for traini
      - Percentage of the testing dataset w.r.t. the whole data.
    * - ``--out <str>``
      - Path to the directory where you want to save the results.
+   * - ``--grouper <str>``
+     - Name of the column to be used as grouper during dataset splitting. If not specified.
    * - ``--target <str>``
-      - The name of the target column in your dataset. Default is 'labels' if not provided by the user.
-    * - ``--modality <images_or_text_or_timeseries_or_tabular>``
-      - The modality of your dataset. It can be one of the following: images, text, timeseries, or tabular.
+     - The name of the target column in your dataset. Default is ``labels`` if not provided by the user.
+   * - ``--modality <images_or_text_or_timeseries_or_tabular>``
+     - The modality of your dataset. It can be one of the following: images, text, timeseries, or tabular.
    * - ``--fixed-seed``
      - *(Flag)* Ensures that a fixed random seed is set for reproducibility.
    * - ``--disable-numerical-encoding``
      - *(Flag)* Disables the default numerical label encoding when generating splits.
    * - ``--disable-target-column-renaming``
-     - *(Flag)* Disables the automatic renaming of the target column to 'labels'. By default, **Deeptune** renames the target column to 'labels' for consistency across modalities.
+     - *(Flag)* Disables the automatic renaming of the target column to ``labels``. By default, **Deeptune** renames the target column to ``labels`` for consistency across modalities.
 .. note::
 
     For the ``test_indices.csv`` file, it includes an additional indices column that maps the entry of each test sample to the original dataset, making it easier to track where they are located in ``--df`` file. While the ``label_mapping.json`` file contains the mapping between the original labels and their corresponding numerical encodings if applied.
