@@ -26,6 +26,11 @@ The easiest way to get started with **DeepTune** is to use the unified pipeline 
         [--time_idx_column] <str> \
         [--finetuning-mode]
 
+.. note::
+
+   We do not recommend running the `--grouper` option when the grouper column contains of less than 10-15 unique values, as it may lead to suboptimal splits during dataset partitioning.
+
+
 .. list-table::
    :widths: 25 75
    :header-rows: 0

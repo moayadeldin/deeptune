@@ -95,6 +95,10 @@ This directory will contain the split files, which will be used later for traini
 
     For the ``test_indices.csv`` file, it includes an additional indices column that maps the entry of each test sample to the original dataset, making it easier to track where they are located in ``--df`` file. While the ``label_mapping.json`` file contains the mapping between the original labels and their corresponding numerical encodings if applied.
 
+.. note::
+
+   We do not recommend running the `--grouper` option when the grouper column contains of less than 10-15 unique values, as it may lead to suboptimal splits during dataset partitioning.
+
 Get the Intersection Between Two Datasets
 ---------------------------------------------
 
