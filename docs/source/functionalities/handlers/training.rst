@@ -144,9 +144,9 @@ The generic CLI workflow for applying GANDALF in **DeepTune** requires specifyin
     --num_epochs <int> \
     --learning_rate <float> \
     --out <str> \
-    --mode <cls_or_reg> \
-    --categorical_cols \
-    --continuous_cols \
+    --type <classification_or_regression> \
+    --categorical_cols <str> \
+    --continuous_cols <str> \
     --tabular_target_column <str> \
     --gflu_stages <int>
 

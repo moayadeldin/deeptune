@@ -16,7 +16,7 @@ from embed.tabular.gandalf_embeddings import embed as embed_tabular_gandalf
 ##### IV. TIMESERIES IMPORTS #####
 from trainers.timeseries.train_deepar import train as train_deepar
 from evaluators.timeseries.evaluate_deepar import evaluate as evaluate_deepar
-from embed.timeseries.deepAR_embeddings import embed as get_tabpfn_embeddings
+from embed.timeseries.deepAR_embeddings import embed as embed_deepar
 ##### VI. TABPFN IMPORTS #####
 from trainers.tabular.train_tabpfn import train_tabpfn_from_scratch as train_tabular_tabpfn
 from trainers.tabular.train_tabpfn import finetune_tabpfn as finetune_tabular_tabpfn
@@ -77,6 +77,8 @@ def main():
         modality=args.modality,
         grouper=GROUPER,
     )
+
+    df = pd.read_parquet(train_data_path)
 
     USE_CASE = 'peft' if args.use_peft else 'finetuned'
 
@@ -235,6 +237,7 @@ def main():
             num_classes=args.num_classes,
             args=args,
             mode=defaults['mode'],
+            grouper=GROUPER,
         )
         csv_dir = Path(ckpt_directory).parent
         print_experiment_paths_table(df_path=df_path, train_data_path=train_data_path, val_data_path=val_data_path, test_data_path=test_data_path, ckpt_directory=ckpt_directory, exp_path=exp_path)
@@ -278,6 +281,7 @@ def main():
                 batch_size=args.batch_size,
                 target=defaults['target'],
                 args=args,
+                grouper = GROUPER,
                 model_str='GANDALF',
             )
             print_experiment_paths_table(df_path=df_path, train_data_path=train_data_path, val_data_path=val_data_path, test_data_path=test_data_path, ckpt_directory=ckpt_directory, exp_path=exp_path)
@@ -333,6 +337,7 @@ def main():
                 model_path=ckpt_directory,
                 mode=MODE,
                 finetuning_mode=FINETUNING_MODE,
+                grouper=GROUPER,
                 model_str='TABPFN',
             )
 

@@ -24,6 +24,7 @@ def embed(
         batch_size: int,
         target:str,
         args: DeepTuneVisionOptions,
+        grouper,
         model_str='GANDALF',
         device=options.DEVICE
 
@@ -72,6 +73,9 @@ def embed(
 
     combined_df = pd.concat([embeddings_df,labels_df],axis=1)
 
+    if grouper is not None and grouper in df.columns:
+        combined_df[grouper] = df[grouper]
+
     combined_df.to_parquet(EMBED_FILE,index=False)
     
     end_time = time.time()
@@ -98,6 +102,7 @@ def main():
     CONTINUOUS_COLS = args.continuous_cols
     CATEGORICAL_COLS = args.categorical_cols
     DEVICE = options.DEVICE
+    GROUPER = args.grouper
     TARGET_COLUMN = args.tabular_target_column
 
     embed(
@@ -110,7 +115,8 @@ def main():
         batch_size=BATCH_SIZE,
         target=TARGET_COLUMN,
         model_str=MODEL_STR,
-        device=DEVICE
+        device=DEVICE,
+        grouper=GROUPER
     )
 
 if __name__ == "__main__":

@@ -61,7 +61,7 @@ The following is the generic CLI structure of running **DeepTune** for embedding
 
 .. code-block:: console
 
-    $ python -m embed.vision.embed \
+    $ python -m embed.tabular.gandalf_embeddings \
     --df <path_to_df> \
     --batch_size <int> \
     --out <str> \
