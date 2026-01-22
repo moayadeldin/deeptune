@@ -18,7 +18,7 @@ import time
 from cli import DeepTuneVisionOptions
 from utils import MODEL_CLS_MAP, PEFT_MODEL_CLS_MAP, RunType,save_process_times
 
-def embed(df_path, out, model_weights, batch_size, use_case,model_version,added_layers, embed_size, num_classes, args,mode,model_str):
+def embed(df_path, out, model_weights, batch_size, use_case,model_version,added_layers, embed_size, num_classes, args,mode,grouper,model_str):
 
     EMBED_OUTPUT = out / f"embed_output_{model_str}_{UNIQUE_ID}"
     EMBED_OUTPUT.mkdir(parents=True, exist_ok=True)
@@ -81,6 +81,9 @@ def embed(df_path, out, model_weights, batch_size, use_case,model_version,added_
 
     combined_df = embedding_model(df, batch_size)
 
+    if grouper is not None and grouper in df.columns:
+        combined_df[grouper] = df[grouper]
+
     combined_df.to_parquet(EMBED_FILE, index=False)
     
     end_time = time.time()
@@ -111,6 +114,7 @@ def main():
     EMBED_SIZE = args.embed_size
     
     BATCH_SIZE = args.batch_size
+    GROUPER = args.grouper
 
     embed_output_path, _ = embed(
          df_path=DF_PATH,
@@ -124,7 +128,8 @@ def main():
          out=OUT,
          mode=MODE,
          model_str=MODEL_STR,
-         args=args
+         args=args,
+         grouper=GROUPER
     )
 
     

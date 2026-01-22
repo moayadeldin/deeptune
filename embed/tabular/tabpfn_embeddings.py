@@ -21,6 +21,7 @@ def main():
     EVAL_INPUT_PATH = args.eval_df
     MODEL_WEIGHTS = args.model_weights
     MODE = args.mode
+    GROUPER = args.grouper
 
     train_df = pd.read_parquet(TRAIN_INPUT_PATH)
     eval_df = pd.read_parquet(EVAL_INPUT_PATH)
@@ -41,6 +42,7 @@ def main():
             mode=MODE,
             args = args,
             finetuning_mode=FINETUNING_MODE,
+            grouper = GROUPER,
             model_str='TABPFN',
         )
 
@@ -56,6 +58,7 @@ def main():
             mode=MODE,
             args = args,
             finetuning_mode=FINETUNING_MODE,
+            grouper = GROUPER,
             model_str='TABPFN',
         )
 
@@ -74,7 +77,7 @@ def get_tabpfn_embeddings(
     mode,
     finetuning_mode,
     model_str='TABPFN',
-) -> pd.DataFrame:
+    grouper=None,):
     """
     Generate embeddings for the given tabular data using the provided TabPFN model.
 
@@ -111,6 +114,9 @@ def get_tabpfn_embeddings(
         labels_df = pd.DataFrame(y_eval.reset_index(drop=True), columns=["label"])
         combined_df = pd.concat([embed_df, labels_df], axis=1)
 
+        if grouper is not None and grouper in X_eval.columns:
+            combined_df[grouper] = X_eval[grouper]
+
         combined_df.to_parquet(EMBED_FILE, index=False)
 
         end_time = time.time()
@@ -146,6 +152,9 @@ def get_tabpfn_embeddings(
 
         labels_df = pd.DataFrame(y_eval.reset_index(drop=True), columns=["label"])
         combined_df = pd.concat([embed_df, labels_df], axis=1)
+
+        if grouper is not None and grouper in X_eval.columns:
+            combined_df[grouper] = X_eval[grouper].values
 
         combined_df.to_parquet(EMBED_FILE, index=False)
 

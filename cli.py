@@ -39,6 +39,7 @@ class DeepTuneVisionOptions:
         self.out: Optional[Path] = parsed_args.out.resolve() if parsed_args.out else None
         self.batch_size: Optional[int] = parsed_args.batch_size
         self.mode : Optional[str] = parsed_args.mode
+        self.grouper: Optional[str] = parsed_args.grouper
 
         if run_type == RunType.TabPFNTRAIN:
             self.target_column: Optional[str] = parsed_args.target_column
@@ -76,7 +77,6 @@ class DeepTuneVisionOptions:
             self.raw_data: bool = parsed_args.raw_data
             self.finetuning_mode: bool = parsed_args.finetuning_mode
             self.freeze_backbone: bool = parsed_args.freeze_backbone
-            self.grouper: Optional[str] = parsed_args.grouper
 
 
             # ganadalf specific
@@ -202,6 +202,7 @@ class DeepTuneVisionOptions:
         p.add_argument('--mode', type=str, required=False, choices=['reg','cls'], help='Mode: Classification or Regression')
         # p.add_argument('--num_classes', type=int,required=False, help='Number of classes in your dataset.')
         p.add_argument('--out', type=Path, required=True, help='Destination directory name for results.')
+        p.add_argument('--grouper', type=str, required=False, help='Column name to be used as grouper for stratified splitting.')
 
         # Model args
         p.add_argument('--model_version', type=str, help='Model version to use.')
@@ -251,7 +252,6 @@ class DeepTuneVisionOptions:
         p.add_argument('--categorical_cols', nargs='+', help='List of categorical column names for GANDALF',required=False)
         # timeseries specific
         p.add_argument('--time_idx_column', type=str, default='labels', help='integer typed column denoting the time index within data.')
-        p.add_argument('--grouper', type=str, required=False, help='Column name to be used as grouper for stratified splitting.')
     def _add_training_args(self):
         p = self.parser
         p.add_argument('--num_classes', type=int,required=False, help='Number of classes in your dataset.')

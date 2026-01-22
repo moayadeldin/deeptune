@@ -56,9 +56,18 @@ def split_dataset(train_size: float, val_size: float, test_size:float, df_path: 
     val_dataset_path = split_dir / f"val_split.parquet"
     test_dataset_path = split_dir / f"test_split.parquet"
     
+    split_dir.mkdir(parents=True, exist_ok=True)
+
     df = pd.read_parquet(df_path)
 
-    split_dir.mkdir(parents=True, exist_ok=True)
+    df = enable_label_numerical_encoding(
+        df=df,
+        split_dir=split_dir,
+        target_column=target_column if target_column is not None else 'labels',
+        disable_numerical_encoding=disable_numerical_encoding,
+        modality=modality,
+        disable_target_column_renaming=disable_target_column_renaming)
+
 
     if fixed_seed:
         SEED: int = 42
@@ -76,7 +85,8 @@ def split_dataset(train_size: float, val_size: float, test_size:float, df_path: 
         n_test = int(round(1 / test_size))
         sgkf_test = StratifiedGroupKFold(n_splits=n_test, shuffle=True, random_state=SEED)
 
-        y=df[target_column].to_numpy()
+
+        y=df[target_column].to_numpy() if target_column in df.columns else df['labels'].to_numpy()
 
         trainval_idx, test_idx = next(sgkf_test.split(df,y, groups=df[grouper]))
 
@@ -106,9 +116,35 @@ def split_dataset(train_size: float, val_size: float, test_size:float, df_path: 
         return train_dataset_path, val_dataset_path, test_dataset_path
     # df = df[:100]  # for try & error purposes
 
-    # for convenience and as part of the preprocessing, deeptune will rename the target column of prediction to labels.
+    # for convenience and as part of the preprocessing, deeptune will rename the target column of prediction to labels
+
+    train_data, temp_data = train_test_split(df, train_size=train_size, random_state=SEED)
+    val_data, test_data = train_test_split(temp_data, test_size=(test_size / (val_size + test_size)), random_state=SEED)
+    df_test_indices = pd.DataFrame({'Test Set Indices in the Original Dataframe': test_data.index})
+    
+    df_test_indices.to_csv(f'{split_dir}/test_indices.csv')
+
+    for part in (train_data,val_data,test_data):
+        part.reset_index(drop=True, inplace=True)
+
+    train_data.to_parquet(train_dataset_path, index=False)
+    val_data.to_parquet(val_dataset_path, index=False)
+    test_data.to_parquet(test_dataset_path, index=False)
+
+    return train_dataset_path, val_dataset_path, test_dataset_path
+
+
+def enable_label_numerical_encoding(
+        df: DataFrame,
+        split_dir:Path,
+        target_column: str,
+        disable_numerical_encoding: bool,
+        modality: str,
+        disable_target_column_renaming: bool):
+    
 
     if not disable_target_column_renaming:
+
         df = df.rename(columns={target_column:'labels'})
 
     ### NOTE THAT THE LABELS FOR DEEPTUNE MUST BE NUMERICALLY ENCODED ###
@@ -126,27 +162,8 @@ def split_dataset(train_size: float, val_size: float, test_size:float, df_path: 
 
                 json.dump(class_to_int, f, indent=4)
 
+    return df
 
-    # df = df[:50] #for try & error purposes
-
-    train_data: DataFrame
-    val_data: DataFrame
-    test_data: DataFrame
-
-    train_data, temp_data = train_test_split(df, train_size=train_size, random_state=SEED)
-    val_data, test_data = train_test_split(temp_data, test_size=(test_size / (val_size + test_size)), random_state=SEED)
-    df_test_indices = pd.DataFrame({'Test Set Indices in the Original Dataframe': test_data.index})
-    
-    df_test_indices.to_csv(f'{split_dir}/test_indices.csv')
-
-    for part in (train_data,val_data,test_data):
-        part.reset_index(drop=True, inplace=True)
-
-    train_data.to_parquet(train_dataset_path, index=False)
-    val_data.to_parquet(val_dataset_path, index=False)
-    test_data.to_parquet(test_dataset_path, index=False)
-
-    return train_dataset_path, val_dataset_path, test_dataset_path
 
 def make_parser() -> ArgumentParser:
     parser = ArgumentParser(description="Split parquet file into Train, Val, and Test splits. Allows the same splits to be used for training several deep learners. The splits maintain all features.", formatter_class=RawTextHelpFormatter)
