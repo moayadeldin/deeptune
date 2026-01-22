@@ -97,7 +97,7 @@ This directory will contain the split files, which will be used later for traini
 
 .. note::
 
-   We do not recommend running the `--grouper` option when the grouper column contains of less than 10-15 unique values, as it may lead to suboptimal splits during dataset partitioning.
+   We do not recommend running the ``--grouper`` option when the grouper column contains of less than 10-15 unique values, as it may lead to suboptimal splits during dataset partitioning.
 
 Get the Intersection Between Two Datasets
 ---------------------------------------------
