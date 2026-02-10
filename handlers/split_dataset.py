@@ -108,13 +108,15 @@ def split_dataset(train_size: float, val_size: float, test_size:float, df_path: 
         val_data = X_val.reset_index(drop=True)
         test_data = X_test.reset_index(drop=True)
 
+        df_test_indices = pd.DataFrame({'Test Set Indices in the Original Dataframe': test_data.index})
+    
+        df_test_indices.to_csv(f'{split_dir}/test_indices.csv')
         
         train_data.to_parquet(train_dataset_path, index=False)
         val_data.to_parquet(val_dataset_path, index=False)
         test_data.to_parquet(test_dataset_path, index=False)
 
         return train_dataset_path, val_dataset_path, test_dataset_path
-    # df = df[:100]  # for try & error purposes
 
     # for convenience and as part of the preprocessing, deeptune will rename the target column of prediction to labels
 

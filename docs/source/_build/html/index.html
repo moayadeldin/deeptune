@@ -6,14 +6,14 @@
   <meta charset="utf-8" /><meta name="viewport" content="width=device-width, initial-scale=1" />
 
   <meta name="viewport" content="width=device-width, initial-scale=1.0" />
-  <title>Welcome to Deeptune’s documentation! &mdash; DeepTune 1.0.0 documentation</title>
+  <title>Welcome to Deeptune’s documentation! &mdash; DeepTune 1.1.0 documentation</title>
       <link rel="stylesheet" type="text/css" href="_static/pygments.css?v=b86133f3" />
       <link rel="stylesheet" type="text/css" href="_static/css/theme.css?v=e59714d7" />
 
   
       <script src="_static/jquery.js?v=5d32c60e"></script>
       <script src="_static/_sphinx_javascript_frameworks_compat.js?v=2cd50e6c"></script>
-      <script src="_static/documentation_options.js?v=8d563738"></script>
+      <script src="_static/documentation_options.js?v=fc837d61"></script>
       <script src="_static/doctools.js?v=9bcbadda"></script>
       <script src="_static/sphinx_highlight.js?v=dc90522c"></script>
     <script src="_static/js/theme.js"></script>
@@ -49,7 +49,7 @@
 </ul>
 <p class="caption" role="heading"><span class="caption-text">Quick Start</span></p>
 <ul>
-<li class="toctree-l1"><a class="reference internal" href="tutorials/firstrun.html">Your First DeepTune Run</a></li>
+<li class="toctree-l1"><a class="reference internal" href="tutorials/firstrun.html">Your First <strong>DeepTune</strong> Run</a></li>
 </ul>
 <p class="caption" role="heading"><span class="caption-text">Functionalities</span></p>
 <ul>
@@ -58,6 +58,7 @@
 <li class="toctree-l1"><a class="reference internal" href="functionalities/handlers/evaluation.html">Using <strong>DeepTune</strong> for Evaluation</a></li>
 <li class="toctree-l1"><a class="reference internal" href="functionalities/handlers/embedding.html">Using <strong>DeepTune</strong> for Knowledge Extraction</a></li>
 <li class="toctree-l1"><a class="reference internal" href="functionalities/handlers/dfanalyze.html">[EXTRA] Integration with df-analyze</a></li>
+<li class="toctree-l1"><a class="reference internal" href="functionalities/handlers/autoencoders.html">Using Autoencoders in <strong>DeepTune</strong></a></li>
 </ul>
 
         </div>
@@ -86,7 +87,7 @@
              
   <section id="welcome-to-deeptune-s-documentation">
 <h1>Welcome to Deeptune’s documentation!<a class="headerlink" href="#welcome-to-deeptune-s-documentation" title="Link to this heading"></a></h1>
-<p><strong>DeepTune</strong> is a full compatible tool package to automate Computer Vision, Natural Language Processing, Tabular, and Time Series state-of-the-art deep learning algorithms for multimodal applications on image, text, tabular, and time series datasets. The library is designed for use in different applied machine learning domains, including but not limited to medical imaging, natural language understanding, time series analysis, providing users with powerful, ready-to-use CLI tool that unlock the full potential of their case studies through just a few simple commands.</p>
+<p><strong>DeepTune</strong> is a full compatible tool package to automate Computer Vision, Natural Language Processing, Tabular, and Time Series state-of-the-art deep learning algorithms for multimodal applications on image, text, tabular, and time series datasets. The library is designed for use in different applied machine learning domains, including but not limited to medical imaging, natural language understanding, time series analysis, providing users with powerful, ready-to-use CLI tool that unlock the full potential of their case studies through just a one simple command.</p>
 <p><strong>DeepTune</strong> is primarily presented for undergraduate and graduate computer science students community at St. Francis Xavier University (StFX) in Antigonish, Nova Scotia, Canada. We aspire to seeing this software adopted broadly across the computer science research community all over the world.</p>
 <p>Check out the <a class="reference internal" href="guides/install.html"><span class="doc">Installation</span></a> section for further information, including how to install the library.</p>
 <p>GitHub repository can be accessed through the following link: <a class="reference external" href="https://github.com/moayadeldin/deeptune">https://github.com/moayadeldin/deeptune</a></p>
@@ -144,7 +145,7 @@
 <div class="toctree-wrapper compound">
 <p class="caption" role="heading"><span class="caption-text">Quick Start</span></p>
 <ul>
-<li class="toctree-l1"><a class="reference internal" href="tutorials/firstrun.html">Your First DeepTune Run</a><ul>
+<li class="toctree-l1"><a class="reference internal" href="tutorials/firstrun.html">Your First <strong>DeepTune</strong> Run</a><ul>
 <li class="toctree-l2"><a class="reference internal" href="tutorials/firstrun.html#unified-single-cli-call-structure">Unified Single CLI Call Structure</a></li>
 <li class="toctree-l2"><a class="reference internal" href="tutorials/firstrun.html#raw-data-handling">Raw Data Handling</a></li>
 <li class="toctree-l2"><a class="reference internal" href="tutorials/firstrun.html#predefined-hyperparameters">Predefined Hyperparameters</a></li>
@@ -167,6 +168,7 @@
 <li class="toctree-l2"><a class="reference internal" href="functionalities/handlers/training.html#text">Text</a></li>
 <li class="toctree-l2"><a class="reference internal" href="functionalities/handlers/training.html#tabular">Tabular</a></li>
 <li class="toctree-l2"><a class="reference internal" href="functionalities/handlers/training.html#time-series">Time Series</a></li>
+<li class="toctree-l2"><a class="reference internal" href="functionalities/handlers/training.html#tabpfn-support">TabPFN Support</a></li>
 <li class="toctree-l2"><a class="reference internal" href="functionalities/handlers/training.html#training-output">Training Output</a></li>
 </ul>
 </li>
@@ -175,6 +177,7 @@
 <li class="toctree-l2"><a class="reference internal" href="functionalities/handlers/evaluation.html#text">Text</a></li>
 <li class="toctree-l2"><a class="reference internal" href="functionalities/handlers/evaluation.html#tabular">Tabular</a></li>
 <li class="toctree-l2"><a class="reference internal" href="functionalities/handlers/evaluation.html#time-series">Time Series</a></li>
+<li class="toctree-l2"><a class="reference internal" href="functionalities/handlers/evaluation.html#tabpfn-support">TabPFN Support</a></li>
 <li class="toctree-l2"><a class="reference internal" href="functionalities/handlers/evaluation.html#evaluation-output">Evaluation Output</a></li>
 </ul>
 </li>
@@ -182,16 +185,20 @@
 <li class="toctree-l2"><a class="reference internal" href="functionalities/handlers/embedding.html#images">Images</a></li>
 <li class="toctree-l2"><a class="reference internal" href="functionalities/handlers/embedding.html#text">Text</a></li>
 <li class="toctree-l2"><a class="reference internal" href="functionalities/handlers/embedding.html#tabular">Tabular</a></li>
+<li class="toctree-l2"><a class="reference internal" href="functionalities/handlers/embedding.html#time-series">Time Series</a></li>
+<li class="toctree-l2"><a class="reference internal" href="functionalities/handlers/embedding.html#tabpfn-support">TabPFN Support</a></li>
 <li class="toctree-l2"><a class="reference internal" href="functionalities/handlers/embedding.html#embeddings-output">Embeddings Output</a></li>
 </ul>
 </li>
 <li class="toctree-l1"><a class="reference internal" href="functionalities/handlers/dfanalyze.html">[EXTRA] Integration with df-analyze</a></li>
+<li class="toctree-l1"><a class="reference internal" href="functionalities/handlers/autoencoders.html">Using Autoencoders in <strong>DeepTune</strong></a></li>
 </ul>
 </div>
 </section>
 <section id="acknowledgements">
 <h2>Acknowledgements<a class="headerlink" href="#acknowledgements" title="Link to this heading"></a></h2>
 <p>This software package was developed as part of work done by Moayadeldin Hussain at Medical Imaging Bioinformatics lab under the supervision of Jacob Levman at St. Francis Xavier Univeristy, Nova Scotia, Canada.</p>
+<p>Thanks to Xuchen for providing their parameter-efficient fine-tuned Swin implementation <a class="reference external" href="https://github.com/XuchenGuo/SwinTransformerWithPEFT">SwinTransformerWithPEFT</a>.</p>
 </section>
 <section id="citation">
 <h2>Citation<a class="headerlink" href="#citation" title="Link to this heading"></a></h2>
@@ -202,7 +209,7 @@
 <span class="na">title</span><span class="w">   </span><span class="p">=</span><span class="w"> </span><span class="s">{DeepTune: Cutting-edge Tool automating state-of-the-art deep learning models for cross-modal applications}</span><span class="p">,</span>
 <span class="na">year</span><span class="w"> </span><span class="p">=</span><span class="w"> </span><span class="s">{2025}</span><span class="p">,</span>
 <span class="na">url</span><span class="w"> </span><span class="p">=</span><span class="w"> </span><span class="s">{https://github.com/moayadeldin/deeptune}</span><span class="p">,</span>
-<span class="na">version</span><span class="w"> </span><span class="p">=</span><span class="w"> </span><span class="s">{1.0.0}</span>
+<span class="na">version</span><span class="w"> </span><span class="p">=</span><span class="w"> </span><span class="s">{1.1.0}</span>
 <span class="p">}</span>
 </pre></div>
 </div>
@@ -219,7 +226,7 @@
   <hr/>
 
   <div role="contentinfo">
-    <p>&#169; Copyright 2025, Moayadeldin Hussain.</p>
+    <p>&#169; Copyright 2026, Moayadeldin Hussain.</p>
   </div>
 
   Built with <a href="https://www.sphinx-doc.org/">Sphinx</a> using a

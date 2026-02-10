@@ -1,9 +1,9 @@
-Using `DeepTune` for Knowledge Extraction
+Using **DeepTune** for Knowledge Extraction
 =========================================
 
 After we trained and evaluated our fine-tuned model, the user may need to obtain intermediate knowledge representation of their data for further postprocessing according to their own choice. This practice is widely adpoted in medical imaging applications, where fine-tuned deep learning models serve as encoders for both image data and associated clinical metadata.
 
-We integrate `DeepTune` with `df-analyze <https://github.com/stfxecutables/df-analyze>`_ with both being part of the MIB Lab @StFX open-source software contributions as we show in :doc:`dfanalyze` section.
+We integrate **DeepTune** with `df-analyze <https://github.com/stfxecutables/df-analyze>`_ with both being part of the MIB Lab @StFX open-source software contributions as we show in :doc:`dfanalyze` section.
 
 Images
 -------
@@ -24,15 +24,14 @@ The following is the generic CLI structure of running DeepTune for embeddings ex
     --mode <cls_or_reg> \
     --use_case <finetuned_or_pretrained_or_peft> \
 
-The ``--use_case`` argument specifies on which use case you want to use DeepTune for:
+The ``--use_case`` argument specifies on which use case you want to use **DeepTune** for:
 
-  - `pretrained`: Using the exact weights of the model as it is without any further training. This option allows you to use DeepTune with skipping the training and evaluation parts (You don't need to specify ``--added_layers``, ``--embed_size``, and ``--model_weights``).
-  - `finetuned`: If you ran DeepTune for Transfer Learning without PeFT.
-  - `peft`: If you ran DeepTune for Transfer Learning with PeFT.
+  - `pretrained`: Using the exact weights of the model as it is without any further training. This option allows you to use **DeepTune** with skipping the training and evaluation parts (You don't need to specify ``--added_layers``, ``--embed_size``, and ``--model_weights``).
+  - `finetuned`: If you ran **DeepTune** for Transfer Learning without PeFT.
+  - `peft`: If you ran **DeepTune** for Transfer Learning with PeFT.
 
   .. note::
-    You feed the evaluator here the same ``--added_layers`` and ``--embed_size`` you used for your previous training run of DeepTune. Otherwise, a mismatch error will occur.
-
+    You feed the evaluator here the same ``--added_layers`` and ``--embed_size`` you used for your previous training run of **DeepTune**. Otherwise, a mismatch error will occur.
 If everything is set correctly, and evaluation is done, you should expect an output in the same format:
 
 Text
@@ -58,11 +57,11 @@ The following is the generic CLI structure of running DeepTune for embeddings ex
 Tabular
 -------
 
-The following is the generic CLI structure of running DeepTune for embeddings extraction of text datasets:
+The following is the generic CLI structure of running **DeepTune** for embeddings extraction of text datasets:
 
 .. code-block:: console
 
-    $ python -m embed.vision.embed \
+    $ python -m embed.tabular.gandalf_embeddings \
     --df <path_to_df> \
     --batch_size <int> \
     --out <str> \
@@ -75,10 +74,59 @@ The following is the generic CLI structure of running DeepTune for embeddings ex
 
     As GANDALF relies on the standard training scheme without applying transfer learning, we do not use Parameter Efficient Fine-Tuning (PeFT), Fine-Tuning, or Pretrained options. Indeed, we only use the already trained model's weights to obtain the embeddings.
 
+
+Time Series
+------------
+
+Before going through the steps to run **DeepTune** for time series embeddings extraction, it is important to note that time series models in ``pytorch-tabular`` process the data differently compared to other modalities. Specifically, they handle sequences of data over time through sliding windows that is constructed given the encoder and decoder lengths. Therefore, when extracting embeddings for time series data, the output will correspond to these sliding windows rather than individual time points. 
+
+The expected output should be treated as embeddings for each sliding window created from the time series data, and not for each individual time point. 
+
+Hence, for each sliding window created from the time series data, **DeepTune** will generate an embedding that captures the temporal patterns and relationships within that window, with the target value corresponding to the end of the decoder window. For the rest of target values, they will be padded to maintain alignment with and the final shape of the original input. 
+
+.. note::
+
+    **DeepTune** ensures that the padded values are clearly indicated in the output embeddings with the ``is_padded`` column, allowing users to easily identify and handle these values during their analysis.
+
+The following is the generic CLI structure of running DeepTune for embeddings extraction of time series datasets:
+
+.. code-block:: console
+
+    $ python -m embed.timeseries.deepAR_embeddings \
+    --df <path_to_df> \
+    --batch_size <int> \
+    --out <str> \
+    --model_weights <str> \
+    --time_idx_column <str> \
+    --target <str> \
+
+.. note::
+
+    Similar to the tabular modality, DeepAR relies on the standard training scheme without applying transfer learning. Therefore, we do not use Parameter Efficient Fine-Tuning (PeFT), Fine-Tuning, or Pretrained options. Indeed, we only use the already trained model's weights to obtain the embeddings.
+
+TabPFN Support
+--------------
+
+For TabPFN embeddings extraction, the generic CLI structure is as follows:
+
+.. code-block:: console
+
+    $ python -m embed.tabular.tabpfn_embeddings \
+    --train_df <path_to_train_df> \
+    --eval_df <path_to_eval_df> \
+    --model_weights <str> \
+    --target_column <str> \
+    --out <str> \
+    --mode <cls_or_reg> \
+    [--finetuning-mode]
+
+.. note::
+    Unlike other models, TabPFN does not require specification of batch size during embeddings extraction. Moreover, the user have to feed both training and evaluation dataframes to ensure proper functioning of the model as per its design characterstics.
+
 Embeddings Output
 -----------------
 
-For images, text, or tabular data embeddings, you you may find the results in the directory specified with the ``--out`` or default `DeepTune` directory as follows: 
+For images, text, or tabular data embeddings, you you may find the results in the directory specified with the ``--out`` or default **DeepTune** directory as follows: 
 
 .. code-block:: console
 

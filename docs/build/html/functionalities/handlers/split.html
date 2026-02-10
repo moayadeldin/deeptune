@@ -20,7 +20,7 @@
     <link rel="index" title="Index" href="../../genindex.html" />
     <link rel="search" title="Search" href="../../search.html" />
     <link rel="next" title="Using DeepTune for Training" href="training.html" />
-    <link rel="prev" title="Demos" href="../../guides/demos.html" /> 
+    <link rel="prev" title="Your First DeepTune Run" href="../../tutorials/firstrun.html" /> 
 </head>
 
 <body class="wy-body-for-nav"> 
@@ -48,16 +48,21 @@
 <li class="toctree-l1"><a class="reference internal" href="../../guides/preface.html">Preface</a></li>
 <li class="toctree-l1"><a class="reference internal" href="../../guides/demos.html">Demos</a></li>
 </ul>
+<p class="caption" role="heading"><span class="caption-text">Quick Start</span></p>
+<ul>
+<li class="toctree-l1"><a class="reference internal" href="../../tutorials/firstrun.html">Your First <strong>DeepTune</strong> Run</a></li>
+</ul>
 <p class="caption" role="heading"><span class="caption-text">Functionalities</span></p>
 <ul class="current">
 <li class="toctree-l1 current"><a class="current reference internal" href="#">Handling Datasets</a><ul>
+<li class="toctree-l2"><a class="reference internal" href="#raw-data-conversion-to-parquet-format">Raw Data Conversion to Parquet Format</a></li>
 <li class="toctree-l2"><a class="reference internal" href="#split-your-dataset">Split Your Dataset</a></li>
 <li class="toctree-l2"><a class="reference internal" href="#get-the-intersection-between-two-datasets">Get the Intersection Between Two Datasets</a></li>
 </ul>
 </li>
-<li class="toctree-l1"><a class="reference internal" href="training.html">Using <cite>DeepTune</cite> for Training</a></li>
-<li class="toctree-l1"><a class="reference internal" href="evaluation.html">Using <cite>DeepTune</cite> for Evaluation</a></li>
-<li class="toctree-l1"><a class="reference internal" href="embedding.html">Using <cite>DeepTune</cite> for Knowledge Extraction</a></li>
+<li class="toctree-l1"><a class="reference internal" href="training.html">Using <strong>DeepTune</strong> for Training</a></li>
+<li class="toctree-l1"><a class="reference internal" href="evaluation.html">Using <strong>DeepTune</strong> for Evaluation</a></li>
+<li class="toctree-l1"><a class="reference internal" href="embedding.html">Using <strong>DeepTune</strong> for Knowledge Extraction</a></li>
 <li class="toctree-l1"><a class="reference internal" href="dfanalyze.html">[EXTRA] Integration with df-analyze</a></li>
 </ul>
 
@@ -87,9 +92,26 @@
              
   <section id="handling-datasets">
 <h1>Handling Datasets<a class="headerlink" href="#handling-datasets" title="Link to this heading"></a></h1>
+<section id="raw-data-conversion-to-parquet-format">
+<h2>Raw Data Conversion to Parquet Format<a class="headerlink" href="#raw-data-conversion-to-parquet-format" title="Link to this heading"></a></h2>
+<p>We recall that for the text, tabular, and time-series modalities, the raw data file must be in CSV or XLSX format. For the image modality, the raw data must be organized in a directory structure where each subdirectory represents the train, validation and test split. Inside each split subdirectory, it would contain the class labels containing the respective images.</p>
+<p>The following is the generic CLI structure to convert raw data into Parquet format:</p>
+<div class="highlight-console notranslate"><div class="highlight"><pre><span></span><span class="gp">$ </span>python<span class="w"> </span>-m<span class="w"> </span>handlers.raw_to_parquet_dataset<span class="w"> </span><span class="se">\</span>
+<span class="w">    </span>--modality<span class="w"> </span>&lt;images_or_text_or_timeseries_or_tabular&gt;<span class="w"> </span><span class="se">\</span>
+<span class="w">    </span>--raw_dataset_dir<span class="w"> </span>&lt;str&gt;<span class="w"> </span><span class="se">\</span>
+<span class="w">    </span>--out<span class="w"> </span>&lt;str&gt;<span class="w"> </span><span class="se">\</span>
+</pre></div>
+</div>
+<p>The output will be stored in the directory specified with the <code class="docutils literal notranslate"><span class="pre">--out</span></code> argument,
+using the following naming format: <code class="docutils literal notranslate"><span class="pre">&lt;modality&gt;_dataset_&lt;yyyymmdd_hhmm&gt;.parquet</span></code>.</p>
+<div class="admonition note">
+<p class="admonition-title">Note</p>
+<p>Images are stored in bytes format inside the Parquet file.</p>
+</div>
+</section>
 <section id="split-your-dataset">
 <h2>Split Your Dataset<a class="headerlink" href="#split-your-dataset" title="Link to this heading"></a></h2>
-<p>We assume that your dataset formatted as Parquet File will need to be splitted into train/val/test splits as you are going to conduct different experiments with different models using <em>DeepTune</em>. Given that <em>DeepTune</em> expects the labels to be numerically encoded, the <code class="docutils literal notranslate"><span class="pre">split_dataset</span></code> function automatically by default encodes your label column. If you want to disable this functionality, use the <code class="docutils literal notranslate"><span class="pre">--disable-numerical-encoding</span></code> option.</p>
+<p>We assume that your dataset (formatted as Parquet File already) will need to be splitted into train/val/test splits as you are going to conduct different experiments with different models using <strong>DeepTune</strong>. Given that <strong>DeepTune</strong> expects the labels to be numerically encoded, the <code class="docutils literal notranslate"><span class="pre">split_dataset</span></code> function automatically by default encodes your label column. If you want to disable this functionality, use the <code class="docutils literal notranslate"><span class="pre">--disable-numerical-encoding</span></code> option.</p>
 <p>The following is the generic CLI structure to split the dataset:</p>
 <div class="highlight-console notranslate"><div class="highlight"><pre><span></span><span class="gp">$ </span>python<span class="w"> </span>-m<span class="w"> </span>handlers.split_dataset<span class="w"> </span><span class="se">\</span>
 <span class="w">    </span>--df<span class="w"> </span>&lt;str&gt;<span class="w"> </span><span class="se">\</span>
@@ -97,9 +119,12 @@
 <span class="w">    </span>--val_size<span class="w"> </span>&lt;float&gt;<span class="w"> </span><span class="se">\</span>
 <span class="w">    </span>--test_size<span class="w"> </span>&lt;float&gt;<span class="w"> </span><span class="se">\</span>
 <span class="w">    </span>--out<span class="w"> </span>&lt;path&gt;<span class="w"> </span><span class="se">\</span>
+<span class="w">    </span>--grouper<span class="w"> </span>&lt;str&gt;<span class="w"> </span><span class="se">\</span>
+<span class="w">    </span>--modality<span class="w"> </span>&lt;images_or_text_or_timeseries_or_tabular&gt;<span class="w"> </span><span class="se">\</span>
+<span class="w">    </span>--target<span class="w"> </span>&lt;str&gt;<span class="w"> </span><span class="se">\</span>
 <span class="w">    </span>--<span class="o">[</span>fixed-seed<span class="o">]</span><span class="w"> </span><span class="se">\</span>
 <span class="w">    </span>--<span class="o">[</span>disable-numerical-encoding<span class="o">]</span><span class="w"> </span><span class="se">\</span>
-<span class="w">    </span>--<span class="o">[</span>disable-target-column-renaming<span class="o">]</span>
+<span class="w">    </span>--<span class="o">[</span>disable-target-column-renaming<span class="o">]</span><span class="w"> </span><span class="se">\</span>
 </pre></div>
 </div>
 <div class="admonition note">
@@ -111,12 +136,16 @@ using the following naming format: <code class="docutils literal notranslate"><s
 This directory will contain the split files, which will be used later for training and evaluation:</p>
 <div class="highlight-text notranslate"><div class="highlight"><pre><span></span>output_directory
 ├── data_splits_&lt;yyyymmdd_hhmm&gt;
-    ├── cli_arguments.json
     ├── train_split.parquet
     ├── test_split.parquet
     └── val_split.parquet
+    └── label_mapping.json
     └── test_indices.csv
 </pre></div>
+</div>
+<div class="admonition note">
+<p class="admonition-title">Note</p>
+<p>Except for timeseries datasets, <strong>DeepTune</strong> renames the target column to ‘labels’ for consistency across modalities by default. If you want to keep the original target column name, use the <code class="docutils literal notranslate"><span class="pre">--disable-target-column-renaming</span></code> option.</p>
 </div>
 <table class="docutils align-default">
 <colgroup>
@@ -139,25 +168,38 @@ This directory will contain the split files, which will be used later for traini
 <tr class="row-odd"><td><p><code class="docutils literal notranslate"><span class="pre">--out</span> <span class="pre">&lt;str&gt;</span></code></p></td>
 <td><p>Path to the directory where you want to save the results.</p></td>
 </tr>
-<tr class="row-even"><td><p><code class="docutils literal notranslate"><span class="pre">--fixed-seed</span></code></p></td>
+<tr class="row-even"><td><p><code class="docutils literal notranslate"><span class="pre">--grouper</span> <span class="pre">&lt;str&gt;</span></code></p></td>
+<td><p>Name of the column to be used as grouper during dataset splitting. If not specified.</p></td>
+</tr>
+<tr class="row-odd"><td><p><code class="docutils literal notranslate"><span class="pre">--target</span> <span class="pre">&lt;str&gt;</span></code></p></td>
+<td><p>The name of the target column in your dataset. Default is <code class="docutils literal notranslate"><span class="pre">labels</span></code> if not provided by the user.</p></td>
+</tr>
+<tr class="row-even"><td><p><code class="docutils literal notranslate"><span class="pre">--modality</span> <span class="pre">&lt;images_or_text_or_timeseries_or_tabular&gt;</span></code></p></td>
+<td><p>The modality of your dataset. It can be one of the following: images, text, timeseries, or tabular.</p></td>
+</tr>
+<tr class="row-odd"><td><p><code class="docutils literal notranslate"><span class="pre">--fixed-seed</span></code></p></td>
 <td><p><em>(Flag)</em> Ensures that a fixed random seed is set for reproducibility.</p></td>
 </tr>
-<tr class="row-odd"><td><p><code class="docutils literal notranslate"><span class="pre">--disable-numerical-encoding</span></code></p></td>
+<tr class="row-even"><td><p><code class="docutils literal notranslate"><span class="pre">--disable-numerical-encoding</span></code></p></td>
 <td><p><em>(Flag)</em> Disables the default numerical label encoding when generating splits.</p></td>
 </tr>
-<tr class="row-even"><td><p><code class="docutils literal notranslate"><span class="pre">--disable-target-column-renaming</span></code></p></td>
-<td><p><em>(Flag)</em> Disables the automatic renaming of the target column to ‘labels’. By default, Deeptune renames the target column to ‘labels’ for consistency across modalities.</p></td>
+<tr class="row-odd"><td><p><code class="docutils literal notranslate"><span class="pre">--disable-target-column-renaming</span></code></p></td>
+<td><p><em>(Flag)</em> Disables the automatic renaming of the target column to <code class="docutils literal notranslate"><span class="pre">labels</span></code>. By default, <strong>Deeptune</strong> renames the target column to <code class="docutils literal notranslate"><span class="pre">labels</span></code> for consistency across modalities.</p></td>
 </tr>
 </tbody>
 </table>
 <div class="admonition note">
 <p class="admonition-title">Note</p>
-<p>For the <code class="docutils literal notranslate"><span class="pre">test_indices.csv</span></code> file, it includes an additional indices column that maps the entry of each test sample to the original dataset, making it easier to track where they are located in <code class="docutils literal notranslate"><span class="pre">--df</span></code> file.</p>
+<p>For the <code class="docutils literal notranslate"><span class="pre">test_indices.csv</span></code> file, it includes an additional indices column that maps the entry of each test sample to the original dataset, making it easier to track where they are located in <code class="docutils literal notranslate"><span class="pre">--df</span></code> file. While the <code class="docutils literal notranslate"><span class="pre">label_mapping.json</span></code> file contains the mapping between the original labels and their corresponding numerical encodings if applied.</p>
+</div>
+<div class="admonition note">
+<p class="admonition-title">Note</p>
+<p>We do not recommend running the <code class="docutils literal notranslate"><span class="pre">--grouper</span></code> option when the grouper column contains of less than 10-15 unique values, as it may lead to suboptimal splits during dataset partitioning.</p>
 </div>
 </section>
 <section id="get-the-intersection-between-two-datasets">
 <h2>Get the Intersection Between Two Datasets<a class="headerlink" href="#get-the-intersection-between-two-datasets" title="Link to this heading"></a></h2>
-<p>This feature is mainly implemented to be integrated with <a class="reference external" href="https://github.com/stfxecutables/df-analyze">df-analyze</a>, where <a class="reference external" href="https://github.com/stfxecutables/df-analyze">df-analyze</a> relies by default on 40% of the input dataset as the test set. Since the AutoML framework uses <cite>DeepTune</cite>’s embeddings for <a class="reference external" href="https://github.com/stfxecutables/df-analyze">df-analyze</a>, it is sometimes necessary to extract the intersection between the two dataframes.</p>
+<p>This feature is mainly implemented to be integrated with <a class="reference external" href="https://github.com/stfxecutables/df-analyze">df-analyze</a>, where <a class="reference external" href="https://github.com/stfxecutables/df-analyze">df-analyze</a> relies by default on 40% of the input dataset as the test set. Since the AutoML framework uses <strong>DeepTune</strong>’s embeddings for <a class="reference external" href="https://github.com/stfxecutables/df-analyze">df-analyze</a>, it is sometimes necessary to extract the intersection between the two dataframes.</p>
 <p>In order to achieve this, we use the following command:</p>
 <div class="highlight-console notranslate"><div class="highlight"><pre><span></span><span class="gp">$ </span>python<span class="w"> </span>-m<span class="w"> </span>handlers.get_intersection<span class="w"> </span><span class="se">\</span>
 <span class="w">    </span>--df_parquet_path<span class="w"> </span>&lt;str&gt;<span class="w"> </span><span class="se">\</span>
@@ -172,7 +214,7 @@ This directory will contain the split files, which will be used later for traini
 </colgroup>
 <tbody>
 <tr class="row-odd"><td><p><code class="docutils literal notranslate"><span class="pre">--df_parquet_path</span> <span class="pre">&lt;str&gt;</span></code></p></td>
-<td><p>Path to first dataset as parquet file (usually <a href="#id3"><span class="problematic" id="id4">`</span></a>DeepTune’<a href="#id5"><span class="problematic" id="id6">`</span></a>s embeddings extracted).</p></td>
+<td><p>Path to first dataset as parquet file (usually <strong>DeepTune</strong>’s embeddings extracted).</p></td>
 </tr>
 <tr class="row-even"><td><p><code class="docutils literal notranslate"><span class="pre">--df_csv_path</span> <span class="pre">&lt;str&gt;</span></code></p></td>
 <td><p>Path to second dataset as csv file (usually the subset 40% obtained df-analyze).</p></td>
@@ -190,14 +232,14 @@ This directory will contain the split files, which will be used later for traini
            </div>
           </div>
           <footer><div class="rst-footer-buttons" role="navigation" aria-label="Footer">
-        <a href="../../guides/demos.html" class="btn btn-neutral float-left" title="Demos" accesskey="p" rel="prev"><span class="fa fa-arrow-circle-left" aria-hidden="true"></span> Previous</a>
+        <a href="../../tutorials/firstrun.html" class="btn btn-neutral float-left" title="Your First DeepTune Run" accesskey="p" rel="prev"><span class="fa fa-arrow-circle-left" aria-hidden="true"></span> Previous</a>
         <a href="training.html" class="btn btn-neutral float-right" title="Using DeepTune for Training" accesskey="n" rel="next">Next <span class="fa fa-arrow-circle-right" aria-hidden="true"></span></a>
     </div>
 
   <hr/>
 
   <div role="contentinfo">
-    <p>&#169; Copyright 2025, Moayadeldin Hussain.</p>
+    <p>&#169; Copyright 2026, Moayadeldin Hussain.</p>
   </div>
 
   Built with <a href="https://www.sphinx-doc.org/">Sphinx</a> using a

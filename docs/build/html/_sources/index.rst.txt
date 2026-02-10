@@ -1,9 +1,9 @@
 Welcome to Deeptune's documentation!
 ===================================
 
-**DeepTune** is a full compatible library to automate Computer Vision, Natural Language Processing, Tabular, and Time Series state-of-the-art deep learning algorithms for multimodal applications on image, text, tabular, and time series datasets. The library is designed for use in different applied machine learning domains, including but not limited to medical imaging, natural language understanding, time series analysis, providing users with powerful, ready-to-use CLI tool that unlock the full potential of their case studies through just a few simple commands.
+**DeepTune** is a full compatible tool package to automate Computer Vision, Natural Language Processing, Tabular, and Time Series state-of-the-art deep learning algorithms for multimodal applications on image, text, tabular, and time series datasets. The library is designed for use in different applied machine learning domains, including but not limited to medical imaging, natural language understanding, time series analysis, providing users with powerful, ready-to-use CLI tool that unlock the full potential of their case studies through just a one simple command.
 
-**DeepTune** is primarily presented for undergraduate and graduate computer science students community at St. Francis Xavier University (StFX) in NS, and we aspire to seeing this software adopted broadly across the computer science research community all over the world.
+**DeepTune** is primarily presented for undergraduate and graduate computer science students community at St. Francis Xavier University (StFX) in Antigonish, Nova Scotia, Canada. We aspire to seeing this software adopted broadly across the computer science research community all over the world.
 
 Check out the :doc:`guides/install` section for further information, including how to install the library.
 
@@ -73,6 +73,16 @@ Contents
 
 .. toctree::
    :maxdepth: 2
+   :caption: Quick Start
+
+   tutorials/firstrun
+
+
+
+   
+
+.. toctree::
+   :maxdepth: 2
    :caption: Functionalities
 
    functionalities/handlers/split
@@ -80,22 +90,25 @@ Contents
    functionalities/handlers/evaluation
    functionalities/handlers/embedding
    functionalities/handlers/dfanalyze
+   functionalities/handlers/autoencoders
 
 Acknowledgements
 ----------------
 This software package was developed as part of work done by Moayadeldin Hussain at Medical Imaging Bioinformatics lab under the supervision of Jacob Levman at St. Francis Xavier Univeristy, Nova Scotia, Canada.
 
+Thanks to Xuchen for providing their parameter-efficient fine-tuned Swin implementation `SwinTransformerWithPEFT <https://github.com/XuchenGuo/SwinTransformerWithPEFT>`_.
+
 Citation
 --------
-If you find `DeepTune` useful in your research, support us with a star 💫 on the GitHub repo.
+If you find **DeepTune** useful in your research, support us with a star 💫 on the GitHub repo.
 
-If you make use of `DeepTune`, please cite the repository as follows:
+If you make use of **DeepTune**, please cite the repository as follows:
 
 .. code-block:: bibtex
 
    @software{DeepTune,
    author  = {Moayadeldin Hussain, John Kendall and Jacob Levman},
-   title   = {DeepTune: Cutting-edge library Automating the integration of state-of-the-art deep learning models for multimodal applications},
+   title   = {DeepTune: Cutting-edge Tool automating state-of-the-art deep learning models for cross-modal applications},
    year = {2025},
    url = {https://github.com/moayadeldin/deeptune},
    version = {1.1.0}

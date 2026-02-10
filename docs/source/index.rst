@@ -90,6 +90,7 @@ Contents
    functionalities/handlers/evaluation
    functionalities/handlers/embedding
    functionalities/handlers/dfanalyze
+   functionalities/handlers/autoencoders
 
 Acknowledgements
 ----------------
