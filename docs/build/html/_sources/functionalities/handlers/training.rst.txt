@@ -1,11 +1,11 @@
-Using `DeepTune` for Training
+Using **DeepTune** for Training
 ==============================
 
 Images
 ------
 
 
-The following is the generic CLI structure of running `DeepTune` on images dataset stored in Parquet file as bytes format for training:
+The following is the generic CLI structure of running **DeepTune** on images dataset stored in Parquet file as bytes format for training:
 
 .. code-block:: console
 
@@ -102,10 +102,10 @@ If everything is set correctly, you should expect an output in the same format:
 Text
 ------
 
-Since ``DeepTune`` currently supports only two models for text classification, the way they are called in the CLI differs from that of image models. Apart from this, the CLI structure remains largely the same:
+Since **DeepTune** currently supports only two models for text classification, the way they are called in the CLI differs from that of image models. Apart from this, the CLI structure remains largely the same:
 
 .. note::
-    GPT-2 model does not support PeFT right now in ``DeepTune``.
+    GPT-2 model does not support PeFT right now in **DeepTune**.
 
 .. code-block:: bash
 
@@ -118,7 +118,7 @@ Since ``DeepTune`` currently supports only two models for text classification, t
         --learning_rate <float> \
         --added_layers <int> \
         --embed_size <int> \
-        [--fixed-seed]
+        [--fixed-seed] \
         [--freeze_backbone]
 
 .. note::
@@ -128,12 +128,12 @@ Since ``DeepTune`` currently supports only two models for text classification, t
 Tabular
 -------
 
-Currently, ``DeepTune`` offers only support for GANDALF (Gated Adaptive Network for Deep Automated Learning of Features) model to provide predictions on your own tabular data. You can read more about GANDALF through the paper `here <https://arxiv.org/abs/2207.08548>`_.
+Currently, **DeepTune** offers only support for GANDALF (Gated Adaptive Network for Deep Automated Learning of Features) model to provide predictions on your own tabular data. You can read more about GANDALF through the paper `here <https://arxiv.org/abs/2207.08548>`_.
 
-The generic CLI workflow for applying GANDALF in ``DeepTune`` requires specifying certain columns before training can begin, which is mainly determining the continuous columns in your dataset and the categorical columns as an input.
+The generic CLI workflow for applying GANDALF in **DeepTune** requires specifying certain columns before training can begin, which is mainly determining the continuous columns in your dataset and the categorical columns as an input.
 
 .. note::
-    Currently, GANDALF implementation does not support transfer learning in the way we commonly applied to images or text above. Instead, it follows the standard training scheme, starting from scratch.
+    GANDALF implementation does not support transfer learning in the way we commonly applied to images or text above. Instead, it follows the standard training scheme, starting from scratch.
 
 .. code-block:: console
 
@@ -144,9 +144,9 @@ The generic CLI workflow for applying GANDALF in ``DeepTune`` requires specifyin
     --num_epochs <int> \
     --learning_rate <float> \
     --out <str> \
-    --mode <cls_or_reg> \
-    --categorical_cols \
-    --continuous_cols \
+    --type <classification_or_regression> \
+    --categorical_cols <str> \
+    --continuous_cols <str> \
     --tabular_target_column <str> \
     --gflu_stages <int>
 
@@ -154,10 +154,10 @@ The generic CLI workflow for applying GANDALF in ``DeepTune`` requires specifyin
    :widths: 25 75
    :header-rows: 0
 
-   * - ``--categorical_cols <str> (space-separated)``
+   * - ``--categorical_cols <str>``
      - Column names of the categorical fields to treat differently.
 
-   * - ``--continuous_cols <str> (space-separated)``
+   * - ``--continuous_cols <str>``
      -  Column names of the numeric fields.
 
    * - ``--tabular_target_column <str>``
@@ -170,10 +170,95 @@ The generic CLI workflow for applying GANDALF in ``DeepTune`` requires specifyin
 .. note::
     ``--gflu_stages`` is a hyperparameter related to internal GANDALF working, according to the documentation on `PyTorch Tabular <https://pytorch-tabular.readthedocs.io/en/latest/apidocs_model/#pytorch_tabular.models.GANDALFConfig>`_, it is the number of layers in the feature abstraction layer. The documentation defaults to 6 and we advise the same.
 
+Time Series
+-----------
+Currently, **DeepTune** offers only support for DeepAR model to provide predictions on your own time-series data. You can read more about DeepAR through the paper `here <https://arxiv.org/abs/1704.04110>`_.
+
+.. note::
+    DeepAR implementation (similar to GANDALF) does not support transfer learning in the way we commonly applied to images or text above. Instead, it follows the standard training scheme, starting from scratch.
+
+.. code-block:: console
+
+    $ python -m trainers.timeseries.train_deepar \
+    --train_df <str> \
+    --val_df <str> \
+    --batch_size <int> \
+    --num_epochs <int> \
+    --out <str> \
+    --time_idx_column <str> \
+    --target <str> \
+    --max_encoder_length <int> \
+    --max_prediction_length <int> \
+    --time_varying_known_categoricals <list> \
+    --time_varying_unknown_categoricals <list> \
+    --static_categoricals <list> \
+    --time_varying_known_reals <list> \
+    --time_varying_unknown_reals <list> \
+    --static_reals <list> \
+    --group_ids <str> \
+
+.. note::
+    The columns related to categoricals, reals, and maximum prediction length are optional, you may skip them.
+
+.. list-table::
+   :widths: 25 75
+   :header-rows: 0
+
+   * - ``--time_idx_column <str>``
+     - Name of the time index column in your dataset.
+   * - ``--target_column <str>``
+     - Name of the target column in your dataset.
+   * - ``--max_encoder_length <int>``
+     - Maximum encoder length for forecasting.
+   * - ``--max_prediction_length <int>``
+     - Maximum prediction length for forecasting.
+   * - ``--time_varying_known_categoricals <str>``
+     - Column names of time-varying known categorical features.
+   * - ``--time_varying_unknown_categoricals <str>``
+     - Column names of time-varying unknown categorical features.
+   * - ``--static_categoricals <str>``
+     - Column names of static categorical features.
+   * - ``--time_varying_known_reals <str>``
+     - Column names of time-varying known real-valued features.
+   * - ``--time_varying_unknown_reals <str>``
+     - Column names of time-varying unknown real-valued features.
+   * - ``--static_reals <str>``
+     - Column names of static real-valued features.
+   * - ``--group_ids <str>``
+     - Column names used to identify different time series groups. Set to default "0".
+
+
+.. note::
+    For more information about these arguments, you may refer to the `PyTorch Forecasting documentation <https://pytorch-forecasting.readthedocs.io/en/v1.3.0/api/pytorch_forecasting.models.deepar._deepar.DeepAR.html>`_.
+
+
+TabPFN Support
+-------------
+
+Currently, **DeepTune** offers support for TabPFN (Tabular Prior-data Fitted Network) model to get fine-tuned or trained from scratch on your own tabular data. You can read more about TabPFN through the paper `here <https://arxiv.org/pdf/2511.08667>`_. We project to expand the support to include the time-series modality in the near future.
+
+In order to run TabPFN in **DeepTune**, you can use the following CLI structure:
+
+.. code-block:: console
+
+    $ python -m trainers.tabular.train_tabpfn \
+    --train_df <str> \
+    --val_df <str> \
+    --batch_size <int> \
+    --num_epochs <int> \
+    --out <str> \
+    --mode <cls_or_reg> \
+    --target_column <str> \
+    --[finetuning-mode] \
+
+
+.. note::
+    By default, TabPFN will be used in training from scratch mode. To enable fine-tuning on your dataset, you need to add the `--finetuning-mode` switch to the previous command.
+
 Training Output
 ---------------
 
-After training completes, you may find the results in the directory specified with the `--out` directory. Alternatively, ``DeepTune`` will create an output directory named  `deeptune_results` (if it does not already exist). Inside this directory, the results are organized in a subfolder using the following naming convention: ``trainval_output_<FINETUNED/PEFT>_<model_version>_<mode>_<yyyymmdd_hhmm>`` with the following output:
+After training completes, you may find the results in the directory specified with the `--out` directory. Alternatively, **DeepTune** will create an output directory named  `deeptune_results` (if it does not already exist). Inside this directory, the results are organized in a subfolder using the following naming convention: ``trainval_output_<FINETUNED/PEFT>_<model_version>_<mode>_<yyyymmdd_hhmm>`` with the following output:
 
 .. code-block:: console
 
@@ -189,7 +274,7 @@ After training completes, you may find the results in the directory specified wi
    :header-rows: 0
 
    * - ``cli_arguments.json``
-     - Records the CLI arguments you entered to run ``DeepTune``.
+     - Records the CLI arguments you entered to run **DeepTune**.
 
    * - ``model_weights.pth``
      - The fine-tuned model weights (used later for evaluation).
@@ -202,7 +287,7 @@ After training completes, you may find the results in the directory specified wi
 
 
 
-For text GPT-2 and BERT models, instead of the ``model_weights.pth`` file, you may find a whole subdirectory containing the tokenizer and model weights files.
+For text GPT-2 and BERT models, instead of the ``model_weights.pth`` file, you may find a whole subdirectory containing the tokenizer and model weights files. For TabPFN models, you may find the model weights stored in `.tabpfn` (if you are training from scratch) or `.joblib` (or if you are fine-tuning) format instead of `.pth`.
 
 .. code-block:: console
 
@@ -215,4 +300,4 @@ For text GPT-2 and BERT models, instead of the ``model_weights.pth`` file, you m
         ├── model_weights.pth
         └── training_log.csv
 
-For tabular data using GANDALF, the directory will be named as ``trainval_output_<GANDALF>_<mode>_<yyyymmdd_hhmm>`` with the weights stored in ``GANDALF_model`` subdirectory. 
+For tabular data using GANDALF, the directory will be named as ``trainval_output_<GANDALF>_<mode>_<yyyymmdd_hhmm>`` with the weights stored in ``GANDALF_model`` subdirectory. For the timeseries modality, the weights will be stored in `.ckpt` format instead of `.pth`, and ``prediction_output.json`` will be provided instead of ``training_log.csv``. 

@@ -46,16 +46,23 @@
 <ul>
 <li class="toctree-l1"><a class="reference internal" href="../../guides/install.html">Installation</a></li>
 <li class="toctree-l1"><a class="reference internal" href="../../guides/preface.html">Preface</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../guides/demos.html">Demos</a></li>
+</ul>
+<p class="caption" role="heading"><span class="caption-text">Quick Start</span></p>
+<ul>
+<li class="toctree-l1"><a class="reference internal" href="../../tutorials/firstrun.html">Your First <strong>DeepTune</strong> Run</a></li>
 </ul>
 <p class="caption" role="heading"><span class="caption-text">Functionalities</span></p>
 <ul class="current">
 <li class="toctree-l1"><a class="reference internal" href="split.html">Handling Datasets</a></li>
-<li class="toctree-l1"><a class="reference internal" href="training.html">Using <cite>DeepTune</cite> for Training</a></li>
-<li class="toctree-l1"><a class="reference internal" href="evaluation.html">Using <cite>DeepTune</cite> for Evaluation</a></li>
-<li class="toctree-l1 current"><a class="current reference internal" href="#">Using <cite>DeepTune</cite> for Knowledge Extraction</a><ul>
+<li class="toctree-l1"><a class="reference internal" href="training.html">Using <strong>DeepTune</strong> for Training</a></li>
+<li class="toctree-l1"><a class="reference internal" href="evaluation.html">Using <strong>DeepTune</strong> for Evaluation</a></li>
+<li class="toctree-l1 current"><a class="current reference internal" href="#">Using <strong>DeepTune</strong> for Knowledge Extraction</a><ul>
 <li class="toctree-l2"><a class="reference internal" href="#images">Images</a></li>
 <li class="toctree-l2"><a class="reference internal" href="#text">Text</a></li>
 <li class="toctree-l2"><a class="reference internal" href="#tabular">Tabular</a></li>
+<li class="toctree-l2"><a class="reference internal" href="#time-series">Time Series</a></li>
+<li class="toctree-l2"><a class="reference internal" href="#tabpfn-support">TabPFN Support</a></li>
 <li class="toctree-l2"><a class="reference internal" href="#embeddings-output">Embeddings Output</a></li>
 </ul>
 </li>
@@ -76,7 +83,7 @@
           <div role="navigation" aria-label="Page navigation">
   <ul class="wy-breadcrumbs">
       <li><a href="../../index.html" class="icon icon-home" aria-label="Home"></a></li>
-      <li class="breadcrumb-item active">Using <cite>DeepTune</cite> for Knowledge Extraction</li>
+      <li class="breadcrumb-item active">Using <strong>DeepTune</strong> for Knowledge Extraction</li>
       <li class="wy-breadcrumbs-aside">
             <a href="../../_sources/functionalities/handlers/embedding.rst.txt" rel="nofollow"> View page source</a>
       </li>
@@ -87,9 +94,9 @@
            <div itemprop="articleBody">
              
   <section id="using-deeptune-for-knowledge-extraction">
-<h1>Using <cite>DeepTune</cite> for Knowledge Extraction<a class="headerlink" href="#using-deeptune-for-knowledge-extraction" title="Link to this heading"></a></h1>
+<h1>Using <strong>DeepTune</strong> for Knowledge Extraction<a class="headerlink" href="#using-deeptune-for-knowledge-extraction" title="Link to this heading"></a></h1>
 <p>After we trained and evaluated our fine-tuned model, the user may need to obtain intermediate knowledge representation of their data for further postprocessing according to their own choice. This practice is widely adpoted in medical imaging applications, where fine-tuned deep learning models serve as encoders for both image data and associated clinical metadata.</p>
-<p>We integrate <cite>DeepTune</cite> with <a class="reference external" href="https://github.com/stfxecutables/df-analyze">df-analyze</a> with both being part of the MIB Lab &#64;StFX open-source software contributions as we show in <a class="reference internal" href="dfanalyze.html"><span class="doc">[EXTRA] Integration with df-analyze</span></a> section.</p>
+<p>We integrate <strong>DeepTune</strong> with <a class="reference external" href="https://github.com/stfxecutables/df-analyze">df-analyze</a> with both being part of the MIB Lab &#64;StFX open-source software contributions as we show in <a class="reference internal" href="dfanalyze.html"><span class="doc">[EXTRA] Integration with df-analyze</span></a> section.</p>
 <section id="images">
 <h2>Images<a class="headerlink" href="#images" title="Link to this heading"></a></h2>
 <p>The following is the generic CLI structure of running DeepTune for embeddings extraction of image datasets:</p>
@@ -106,16 +113,16 @@
 --use_case<span class="w"> </span>&lt;finetuned_or_pretrained_or_peft&gt;<span class="w"> </span><span class="se">\</span>
 </pre></div>
 </div>
-<p>The <code class="docutils literal notranslate"><span class="pre">--use_case</span></code> argument specifies on which use case you want to use DeepTune for:</p>
+<p>The <code class="docutils literal notranslate"><span class="pre">--use_case</span></code> argument specifies on which use case you want to use <strong>DeepTune</strong> for:</p>
 <blockquote>
 <div><ul class="simple">
-<li><p><cite>pretrained</cite>: Using the exact weights of the model as it is without any further training. This option allows you to use DeepTune with skipping the training and evaluation parts (You don’t need to specify <code class="docutils literal notranslate"><span class="pre">--added_layers</span></code>, <code class="docutils literal notranslate"><span class="pre">--embed_size</span></code>, and <code class="docutils literal notranslate"><span class="pre">--model_weights</span></code>).</p></li>
-<li><p><cite>finetuned</cite>: If you ran DeepTune for Transfer Learning without PeFT.</p></li>
-<li><p><cite>peft</cite>: If you ran DeepTune for Transfer Learning with PeFT.</p></li>
+<li><p><cite>pretrained</cite>: Using the exact weights of the model as it is without any further training. This option allows you to use <strong>DeepTune</strong> with skipping the training and evaluation parts (You don’t need to specify <code class="docutils literal notranslate"><span class="pre">--added_layers</span></code>, <code class="docutils literal notranslate"><span class="pre">--embed_size</span></code>, and <code class="docutils literal notranslate"><span class="pre">--model_weights</span></code>).</p></li>
+<li><p><cite>finetuned</cite>: If you ran <strong>DeepTune</strong> for Transfer Learning without PeFT.</p></li>
+<li><p><cite>peft</cite>: If you ran <strong>DeepTune</strong> for Transfer Learning with PeFT.</p></li>
 </ul>
 <div class="admonition note">
 <p class="admonition-title">Note</p>
-<p>You feed the evaluator here the same <code class="docutils literal notranslate"><span class="pre">--added_layers</span></code> and <code class="docutils literal notranslate"><span class="pre">--embed_size</span></code> you used for your previous training run of DeepTune. Otherwise, a mismatch error will occur.</p>
+<p>You feed the evaluator here the same <code class="docutils literal notranslate"><span class="pre">--added_layers</span></code> and <code class="docutils literal notranslate"><span class="pre">--embed_size</span></code> you used for your previous training run of <strong>DeepTune</strong>. Otherwise, a mismatch error will occur.</p>
 </div>
 </div></blockquote>
 <p>If everything is set correctly, and evaluation is done, you should expect an output in the same format:</p>
@@ -140,8 +147,8 @@
 </section>
 <section id="tabular">
 <h2>Tabular<a class="headerlink" href="#tabular" title="Link to this heading"></a></h2>
-<p>The following is the generic CLI structure of running DeepTune for embeddings extraction of text datasets:</p>
-<div class="highlight-console notranslate"><div class="highlight"><pre><span></span><span class="gp">$ </span>python<span class="w"> </span>-m<span class="w"> </span>embed.vision.embed<span class="w"> </span><span class="se">\</span>
+<p>The following is the generic CLI structure of running <strong>DeepTune</strong> for embeddings extraction of text datasets:</p>
+<div class="highlight-console notranslate"><div class="highlight"><pre><span></span><span class="gp">$ </span>python<span class="w"> </span>-m<span class="w"> </span>embed.tabular.gandalf_embeddings<span class="w"> </span><span class="se">\</span>
 --df<span class="w"> </span>&lt;path_to_df&gt;<span class="w"> </span><span class="se">\</span>
 --batch_size<span class="w"> </span>&lt;int&gt;<span class="w"> </span><span class="se">\</span>
 --out<span class="w"> </span>&lt;str&gt;<span class="w"> </span><span class="se">\</span>
@@ -156,9 +163,51 @@
 <p>As GANDALF relies on the standard training scheme without applying transfer learning, we do not use Parameter Efficient Fine-Tuning (PeFT), Fine-Tuning, or Pretrained options. Indeed, we only use the already trained model’s weights to obtain the embeddings.</p>
 </div>
 </section>
+<section id="time-series">
+<h2>Time Series<a class="headerlink" href="#time-series" title="Link to this heading"></a></h2>
+<p>Before going through the steps to run <strong>DeepTune</strong> for time series embeddings extraction, it is important to note that time series models in <code class="docutils literal notranslate"><span class="pre">pytorch-tabular</span></code> process the data differently compared to other modalities. Specifically, they handle sequences of data over time through sliding windows that is constructed given the encoder and decoder lengths. Therefore, when extracting embeddings for time series data, the output will correspond to these sliding windows rather than individual time points.</p>
+<p>The expected output should be treated as embeddings for each sliding window created from the time series data, and not for each individual time point.</p>
+<p>Hence, for each sliding window created from the time series data, <strong>DeepTune</strong> will generate an embedding that captures the temporal patterns and relationships within that window, with the target value corresponding to the end of the decoder window. For the rest of target values, they will be padded to maintain alignment with and the final shape of the original input.</p>
+<div class="admonition note">
+<p class="admonition-title">Note</p>
+<p><strong>DeepTune</strong> ensures that the padded values are clearly indicated in the output embeddings with the <code class="docutils literal notranslate"><span class="pre">is_padded</span></code> column, allowing users to easily identify and handle these values during their analysis.</p>
+</div>
+<p>The following is the generic CLI structure of running DeepTune for embeddings extraction of time series datasets:</p>
+<div class="highlight-console notranslate"><div class="highlight"><pre><span></span><span class="gp">$ </span>python<span class="w"> </span>-m<span class="w"> </span>embed.timeseries.deepAR_embeddings<span class="w"> </span><span class="se">\</span>
+--df<span class="w"> </span>&lt;path_to_df&gt;<span class="w"> </span><span class="se">\</span>
+--batch_size<span class="w"> </span>&lt;int&gt;<span class="w"> </span><span class="se">\</span>
+--out<span class="w"> </span>&lt;str&gt;<span class="w"> </span><span class="se">\</span>
+--model_weights<span class="w"> </span>&lt;str&gt;<span class="w"> </span><span class="se">\</span>
+--time_idx_column<span class="w"> </span>&lt;str&gt;<span class="w"> </span><span class="se">\</span>
+--target<span class="w"> </span>&lt;str&gt;<span class="w"> </span><span class="se">\</span>
+</pre></div>
+</div>
+<div class="admonition note">
+<p class="admonition-title">Note</p>
+<p>Similar to the tabular modality, DeepAR relies on the standard training scheme without applying transfer learning. Therefore, we do not use Parameter Efficient Fine-Tuning (PeFT), Fine-Tuning, or Pretrained options. Indeed, we only use the already trained model’s weights to obtain the embeddings.</p>
+</div>
+</section>
+<section id="tabpfn-support">
+<h2>TabPFN Support<a class="headerlink" href="#tabpfn-support" title="Link to this heading"></a></h2>
+<p>For TabPFN embeddings extraction, the generic CLI structure is as follows:</p>
+<div class="highlight-console notranslate"><div class="highlight"><pre><span></span><span class="gp">$ </span>python<span class="w"> </span>-m<span class="w"> </span>embed.tabular.tabpfn_embeddings<span class="w"> </span><span class="se">\</span>
+--train_df<span class="w"> </span>&lt;path_to_train_df&gt;<span class="w"> </span><span class="se">\</span>
+--eval_df<span class="w"> </span>&lt;path_to_eval_df&gt;<span class="w"> </span><span class="se">\</span>
+--model_weights<span class="w"> </span>&lt;str&gt;<span class="w"> </span><span class="se">\</span>
+--target_column<span class="w"> </span>&lt;str&gt;<span class="w"> </span><span class="se">\</span>
+--out<span class="w"> </span>&lt;str&gt;<span class="w"> </span><span class="se">\</span>
+--mode<span class="w"> </span>&lt;cls_or_reg&gt;<span class="w"> </span><span class="se">\</span>
+<span class="o">[</span>--finetuning-mode<span class="o">]</span>
+</pre></div>
+</div>
+<div class="admonition note">
+<p class="admonition-title">Note</p>
+<p>Unlike other models, TabPFN does not require specification of batch size during embeddings extraction. Moreover, the user have to feed both training and evaluation dataframes to ensure proper functioning of the model as per its design characterstics.</p>
+</div>
+</section>
 <section id="embeddings-output">
 <h2>Embeddings Output<a class="headerlink" href="#embeddings-output" title="Link to this heading"></a></h2>
-<p>For images, text, or tabular data embeddings, you you may find the results in the directory specified with the <code class="docutils literal notranslate"><span class="pre">--out</span></code> or default <cite>DeepTune</cite> directory as follows:</p>
+<p>For images, text, or tabular data embeddings, you you may find the results in the directory specified with the <code class="docutils literal notranslate"><span class="pre">--out</span></code> or default <strong>DeepTune</strong> directory as follows:</p>
 <div class="highlight-console notranslate"><div class="highlight"><pre><span></span><span class="go">deeptune_results</span>
 <span class="go">├── embed_output_&lt;model_details&gt;_&lt;yyyymmdd&gt;_&lt;hhmm&gt;</span>
 <span class="go">    └── &lt;model_details&gt;_embeddings.parquet</span>
@@ -194,7 +243,7 @@
   <hr/>
 
   <div role="contentinfo">
-    <p>&#169; Copyright 2025, Moayadeldin Hussain.</p>
+    <p>&#169; Copyright 2026, Moayadeldin Hussain.</p>
   </div>
 
   Built with <a href="https://www.sphinx-doc.org/">Sphinx</a> using a

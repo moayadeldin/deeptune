@@ -6,14 +6,14 @@
   <meta charset="utf-8" /><meta name="viewport" content="width=device-width, initial-scale=1" />
 
   <meta name="viewport" content="width=device-width, initial-scale=1.0" />
-  <title>Handling Datasets &mdash; DeepTune 1.0.0 documentation</title>
+  <title>Handling Datasets &mdash; DeepTune 1.1.0 documentation</title>
       <link rel="stylesheet" type="text/css" href="../../_static/pygments.css?v=b86133f3" />
       <link rel="stylesheet" type="text/css" href="../../_static/css/theme.css?v=e59714d7" />
 
   
       <script src="../../_static/jquery.js?v=5d32c60e"></script>
       <script src="../../_static/_sphinx_javascript_frameworks_compat.js?v=2cd50e6c"></script>
-      <script src="../../_static/documentation_options.js?v=8d563738"></script>
+      <script src="../../_static/documentation_options.js?v=fc837d61"></script>
       <script src="../../_static/doctools.js?v=9bcbadda"></script>
       <script src="../../_static/sphinx_highlight.js?v=dc90522c"></script>
     <script src="../../_static/js/theme.js"></script>
@@ -50,7 +50,7 @@
 </ul>
 <p class="caption" role="heading"><span class="caption-text">Quick Start</span></p>
 <ul>
-<li class="toctree-l1"><a class="reference internal" href="../../tutorials/firstrun.html">Your First DeepTune Run</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../tutorials/firstrun.html">Your First <strong>DeepTune</strong> Run</a></li>
 </ul>
 <p class="caption" role="heading"><span class="caption-text">Functionalities</span></p>
 <ul class="current">
@@ -64,6 +64,7 @@
 <li class="toctree-l1"><a class="reference internal" href="evaluation.html">Using <strong>DeepTune</strong> for Evaluation</a></li>
 <li class="toctree-l1"><a class="reference internal" href="embedding.html">Using <strong>DeepTune</strong> for Knowledge Extraction</a></li>
 <li class="toctree-l1"><a class="reference internal" href="dfanalyze.html">[EXTRA] Integration with df-analyze</a></li>
+<li class="toctree-l1"><a class="reference internal" href="autoencoders.html">Using Autoencoders in <strong>DeepTune</strong></a></li>
 </ul>
 
         </div>
@@ -119,7 +120,9 @@ using the following naming format: <code class="docutils literal notranslate"><s
 <span class="w">    </span>--val_size<span class="w"> </span>&lt;float&gt;<span class="w"> </span><span class="se">\</span>
 <span class="w">    </span>--test_size<span class="w"> </span>&lt;float&gt;<span class="w"> </span><span class="se">\</span>
 <span class="w">    </span>--out<span class="w"> </span>&lt;path&gt;<span class="w"> </span><span class="se">\</span>
-<span class="w">    </span>--target_column<span class="w"> </span>&lt;str&gt;<span class="w"> </span><span class="se">\</span>
+<span class="w">    </span>--grouper<span class="w"> </span>&lt;str&gt;<span class="w"> </span><span class="se">\</span>
+<span class="w">    </span>--modality<span class="w"> </span>&lt;images_or_text_or_timeseries_or_tabular&gt;<span class="w"> </span><span class="se">\</span>
+<span class="w">    </span>--target<span class="w"> </span>&lt;str&gt;<span class="w"> </span><span class="se">\</span>
 <span class="w">    </span>--<span class="o">[</span>fixed-seed<span class="o">]</span><span class="w"> </span><span class="se">\</span>
 <span class="w">    </span>--<span class="o">[</span>disable-numerical-encoding<span class="o">]</span><span class="w"> </span><span class="se">\</span>
 <span class="w">    </span>--<span class="o">[</span>disable-target-column-renaming<span class="o">]</span><span class="w"> </span><span class="se">\</span>
@@ -145,9 +148,54 @@ This directory will contain the split files, which will be used later for traini
 <p class="admonition-title">Note</p>
 <p>Except for timeseries datasets, <strong>DeepTune</strong> renames the target column to ‘labels’ for consistency across modalities by default. If you want to keep the original target column name, use the <code class="docutils literal notranslate"><span class="pre">--disable-target-column-renaming</span></code> option.</p>
 </div>
+<table class="docutils align-default">
+<colgroup>
+<col style="width: 25.0%" />
+<col style="width: 75.0%" />
+</colgroup>
+<tbody>
+<tr class="row-odd"><td><p><code class="docutils literal notranslate"><span class="pre">--df</span> <span class="pre">&lt;str&gt;</span></code></p></td>
+<td><p>Path to dataset to split (must be a parquet file).</p></td>
+</tr>
+<tr class="row-even"><td><p><code class="docutils literal notranslate"><span class="pre">--train_size</span> <span class="pre">&lt;float&gt;</span></code></p></td>
+<td><p>Percentage of the training dataset w.r.t. the whole data.</p></td>
+</tr>
+<tr class="row-odd"><td><p><code class="docutils literal notranslate"><span class="pre">--val_size</span> <span class="pre">&lt;float&gt;</span></code></p></td>
+<td><p>Percentage of the validation dataset w.r.t. the whole data.</p></td>
+</tr>
+<tr class="row-even"><td><p><code class="docutils literal notranslate"><span class="pre">--test_size</span> <span class="pre">&lt;float&gt;</span></code></p></td>
+<td><p>Percentage of the testing dataset w.r.t. the whole data.</p></td>
+</tr>
+<tr class="row-odd"><td><p><code class="docutils literal notranslate"><span class="pre">--out</span> <span class="pre">&lt;str&gt;</span></code></p></td>
+<td><p>Path to the directory where you want to save the results.</p></td>
+</tr>
+<tr class="row-even"><td><p><code class="docutils literal notranslate"><span class="pre">--grouper</span> <span class="pre">&lt;str&gt;</span></code></p></td>
+<td><p>Name of the column to be used as grouper during dataset splitting. If not specified.</p></td>
+</tr>
+<tr class="row-odd"><td><p><code class="docutils literal notranslate"><span class="pre">--target</span> <span class="pre">&lt;str&gt;</span></code></p></td>
+<td><p>The name of the target column in your dataset. Default is <code class="docutils literal notranslate"><span class="pre">labels</span></code> if not provided by the user.</p></td>
+</tr>
+<tr class="row-even"><td><p><code class="docutils literal notranslate"><span class="pre">--modality</span> <span class="pre">&lt;images_or_text_or_timeseries_or_tabular&gt;</span></code></p></td>
+<td><p>The modality of your dataset. It can be one of the following: images, text, timeseries, or tabular.</p></td>
+</tr>
+<tr class="row-odd"><td><p><code class="docutils literal notranslate"><span class="pre">--fixed-seed</span></code></p></td>
+<td><p><em>(Flag)</em> Ensures that a fixed random seed is set for reproducibility.</p></td>
+</tr>
+<tr class="row-even"><td><p><code class="docutils literal notranslate"><span class="pre">--disable-numerical-encoding</span></code></p></td>
+<td><p><em>(Flag)</em> Disables the default numerical label encoding when generating splits.</p></td>
+</tr>
+<tr class="row-odd"><td><p><code class="docutils literal notranslate"><span class="pre">--disable-target-column-renaming</span></code></p></td>
+<td><p><em>(Flag)</em> Disables the automatic renaming of the target column to <code class="docutils literal notranslate"><span class="pre">labels</span></code>. By default, <strong>Deeptune</strong> renames the target column to <code class="docutils literal notranslate"><span class="pre">labels</span></code> for consistency across modalities.</p></td>
+</tr>
+</tbody>
+</table>
 <div class="admonition note">
 <p class="admonition-title">Note</p>
 <p>For the <code class="docutils literal notranslate"><span class="pre">test_indices.csv</span></code> file, it includes an additional indices column that maps the entry of each test sample to the original dataset, making it easier to track where they are located in <code class="docutils literal notranslate"><span class="pre">--df</span></code> file. While the <code class="docutils literal notranslate"><span class="pre">label_mapping.json</span></code> file contains the mapping between the original labels and their corresponding numerical encodings if applied.</p>
+</div>
+<div class="admonition note">
+<p class="admonition-title">Note</p>
+<p>We do not recommend running the <code class="docutils literal notranslate"><span class="pre">--grouper</span></code> option when the grouper column contains of less than 10-15 unique values, as it may lead to suboptimal splits during dataset partitioning.</p>
 </div>
 </section>
 <section id="get-the-intersection-between-two-datasets">
@@ -192,7 +240,7 @@ This directory will contain the split files, which will be used later for traini
   <hr/>
 
   <div role="contentinfo">
-    <p>&#169; Copyright 2025, Moayadeldin Hussain.</p>
+    <p>&#169; Copyright 2026, Moayadeldin Hussain.</p>
   </div>
 
   Built with <a href="https://www.sphinx-doc.org/">Sphinx</a> using a
