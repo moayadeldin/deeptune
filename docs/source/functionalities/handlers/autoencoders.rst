@@ -9,7 +9,9 @@ Autoencoders are neural networks that learn how to compress the input images int
 We provide an oversight of the autoencoder architecture:
 
 .. important::
-    The autoencoder architecture
+    The autoencoder architecture follows an encoder-decoder structure designed to extract and reconstruct hierarchical features. The process begins with a Z-score normalization and a Gaussan blur to the input. The encoder consists of three successive stages, each stage utilizes a 3 by 3 convolutions → Group Normalization → SiLU functon, with a stride of 2 for doubling the feature channels and halving the spatial dimensions. The decoder mirrors the encoder and the model is projecting the feature maps back to the original image space dimensions.
+
+    For more information on the Group normalization and SiLU function, please refer to the following resources: `Group Normalization <https://wandb.ai/wandb_fc/GroupNorm/reports/Group-Normalization-in-Pytorch-With-Examples---VmlldzoxMzU0MzMy>`_ and `SiLU Function <https://docs.pytorch.org/docs/stable/generated/torch.nn.SiLU.html>`_ 
 
 To use autoencoders in **DeepTune**, you can follow the following command:
 
@@ -18,5 +20,11 @@ To use autoencoders in **DeepTune**, you can follow the following command:
     $ python -m trainers.vision.train \
     --train_df <str> \
     --test_df <str> \
+    -- num_epochs <int> \
+    --learning_rate <float> \
+    --if-grayscale <bool> \
+
+.. note::
+    The ``--if-grayscale`` flag is optional and can be set to `True` if the input images are grayscale, or `False` if they are RGB. By default, it is set to `False`.
 
 
