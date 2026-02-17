@@ -1,8 +1,7 @@
 import torch
-import torchvision
 import torch.nn as nn
 import torchvision.transforms as T
-from autoencoders.components.zscore import ZScore
+# from autoencoders.components.zscore import ZScore
 
 class ConvBlock(nn.Module):
     def __init__(self, in_ch, out_ch, norm="group", groups=8) -> torch.Tensor:
@@ -25,10 +24,9 @@ class AutoEncoder(nn.Module):
 
         super().__init__()
 
-        self.norm = ZScore()
+        # self.norm = ZScore()
 
-        self.blur = T.GaussianBlur(kernel_size=blur_k, sigma=blur_simga
-        )
+        self.blur = T.GaussianBlur(kernel_size=blur_k, sigma=blur_simga)
 
         # Encoder : downsample by 2x at each block 3 times
 
@@ -59,7 +57,8 @@ class AutoEncoder(nn.Module):
 
     def forward(self,x):
 
-        x_target = self.norm(x)
+        # x_target = self.norm(x)
+        x_target = x
         x_blur = self.blur(x_target)
 
         x1 = self.enc1(x_blur)
@@ -83,5 +82,6 @@ class AutoEncoder(nn.Module):
         x = self.dec1(x)
 
         out = self.out(x)
+        out = torch.sigmoid(out)
 
         return out, x_target

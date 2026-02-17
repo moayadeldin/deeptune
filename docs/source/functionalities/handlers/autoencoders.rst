@@ -9,7 +9,7 @@ Autoencoders are neural networks that learn how to compress the input images int
 We provide an oversight of the autoencoder architecture:
 
 .. important::
-    The autoencoder architecture follows an encoder-decoder structure designed to extract and reconstruct hierarchical features. The process begins with a Z-score normalization and a Gaussan blur to the input. The encoder consists of three successive stages, each stage utilizes a 3 by 3 convolutions → Group Normalization → SiLU functon, with a stride of 2 for doubling the feature channels and halving the spatial dimensions. The decoder mirrors the encoder and the model is projecting the feature maps back to the original image space dimensions.
+    The autoencoder architecture follows an encoder-decoder structure designed to extract and reconstruct hierarchical features. The process begins with a Gaussan blur to the input. The encoder consists of three successive stages, each stage utilizes a 3 by 3 convolutions → Group Normalization → SiLU functon, with a stride of 2 for doubling the feature channels and halving the spatial dimensions. The decoder mirrors the encoder and the model is projecting the feature maps back to the original image space dimensions.
 
     For more information on the Group normalization and SiLU function, please refer to the following resources: `Group Normalization <https://wandb.ai/wandb_fc/GroupNorm/reports/Group-Normalization-in-Pytorch-With-Examples---VmlldzoxMzU0MzMy>`_ and `SiLU Function <https://docs.pytorch.org/docs/stable/generated/torch.nn.SiLU.html>`_ 
 
@@ -17,14 +17,32 @@ To use autoencoders in **DeepTune**, you can follow the following command:
 
 .. code-block:: console
 
-    $ python -m trainers.vision.train \
+    $ python -m autoencoders.autoencoder \
     --train_df <str> \
     --test_df <str> \
     -- num_epochs <int> \
     --learning_rate <float> \
     --if-grayscale <bool> \
+    --out <str> \
 
 .. note::
     The ``--if-grayscale`` flag is optional and can be set to `True` if the input images are grayscale, or `False` if they are RGB. By default, it is set to `False`.
 
+After training is done, the output directory specified with the ``--out`` flag will contain the following files:
 
+.. code-block:: console
+
+    output_directory
+    ├── reconstructed_images_<yyyymmdd>_<hhmm>
+        └── Class <int>
+            └── reconstructed_image_<int>.png
+    ├── autoencoder_model.pth
+
+
+After running the command above, if the user wants to rerun the same model on another holdout set, they can use the following command:
+
+.. code-block:: console
+    $ python -m autoencoders.autoencoder \
+    --test_df <str> \
+    --model_weights <str> \
+    --out <str>

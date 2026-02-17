@@ -37,6 +37,7 @@ def main():
     NUM_EPOCHS = args.num_epochs
     LEARNING_RATE = args.learning_rate
     OUT = args.out
+    MODEL_WEIGHTS = args.model_weights
 
     IF_GRAYSCALE = args.if_grayscale
 
@@ -52,34 +53,47 @@ def main():
         num_epochs=NUM_EPOCHS,
         learning_rate=LEARNING_RATE,
         out=OUT,
+        model_weights=MODEL_WEIGHTS,
         device=DEVICE
     )
 
 
 
-def run_autoencoder(model, train_df_path, transform, test_df_path, num_epochs, learning_rate, out, device=DEVICE):
+def run_autoencoder(model, train_df_path, transform, test_df_path, num_epochs, learning_rate, out,model_weights=None, device=DEVICE):
 
-    train_df = pd.read_parquet(train_df_path)
     test_df = pd.read_parquet(test_df_path)
 
-    train_dataset = ParquetImageDataset(train_df,transform=transform)
-    test_dataset = ParquetImageDataset(test_df,transform=transform)
-
-    train_loader = DataLoader(
-    train_dataset,
-    batch_size=4,
-    shuffle=True,          
-    num_workers=0,
-    pin_memory=True,
-    drop_last=True
-    )
+    test_dataset = ParquetImageDataset(test_df, transform=transform)
 
     test_loader = DataLoader(
-    test_dataset,
-    batch_size=4,
-    shuffle=False,
-    num_workers=0,
-    pin_memory=True
+        test_dataset,
+        batch_size=4,
+        shuffle=False,
+        num_workers=0,
+        pin_memory=True
+    )
+
+    if model_weights is not None:
+        model.load_state_dict(torch.load(model_weights, map_location=device))
+        print(
+            f"Model weights loaded from {model_weights}. "
+            "Evaluating on test set without further training."
+        )
+        test_autoencoder(model, test_loader, device=device)
+        save_results(model, out, model_weights, test_loader)
+        return
+
+    train_df = pd.read_parquet(train_df_path)
+
+    train_dataset = ParquetImageDataset(train_df, transform=transform)
+
+    train_loader = DataLoader(
+        train_dataset,
+        batch_size=4,
+        shuffle=True,
+        num_workers=0,
+        pin_memory=True,
+        drop_last=True
     )
 
     optimizer = torch.optim.Adam(model.parameters(), lr=learning_rate)
@@ -88,22 +102,20 @@ def run_autoencoder(model, train_df_path, transform, test_df_path, num_epochs, l
     model.train()
 
     for _ in range(num_epochs):
-
         for images, _ in tqdm(train_loader, desc="Training"):
-
             x_hat, x_target = model(images.to(next(model.parameters()).device))
-            
-            loss = criterion(x_hat,x_target)
+
+            loss = criterion(x_hat, x_target)
 
             optimizer.zero_grad()
             loss.backward()
             optimizer.step()
 
     test_autoencoder(model, test_loader, device=device)
-    save_results(model, out, test_loader)
+    save_results(model, out, model_weights, test_loader)
 
+    print("Autoencoder training complete. Model and reconstructed images were saved to the specified output directory.")
 
-    print(f"Autoencoder training complete. Model and reconstructed images were saved to the specified output directory.")
 
 
 def test_autoencoder(model, test_loader, device=DEVICE):
@@ -112,6 +124,7 @@ def test_autoencoder(model, test_loader, device=DEVICE):
     decoded_list = []
     original_list = []
 
+    model.eval()
     with torch.no_grad():
 
         for images, _ in tqdm(test_loader, desc="Testing"):
@@ -123,10 +136,16 @@ def test_autoencoder(model, test_loader, device=DEVICE):
             original_list.append(images.cpu())
 
         return encoded_list, decoded_list, original_list
+    
+
+def load_autoencoder(model_path, device=DEVICE):
+
+    model = AutoEncoder().to(device)
+    model.load_state_dict(torch.load(model_path, map_location=device))
 
 
 
-def save_results(model, out_dir, test_loader):
+def save_results(model, out_dir, model_weights, test_loader):
     
     model.eval()
 
@@ -134,7 +153,8 @@ def save_results(model, out_dir, test_loader):
 
     os.makedirs(split_dir, exist_ok=True)
 
-    torch.save(model.state_dict(), split_dir / "autoencoder_model.pth")
+    if model_weights is None:
+        torch.save(model.state_dict(), split_dir / "autoencoder_model.pth")
 
     with torch.no_grad():
 
@@ -179,7 +199,7 @@ def make_parser():
     parser.add_argument(
         "--train_df",
         type=Path,
-        required=True,
+        required=False,
         help="Path of the parquet file containing the training data for the autoencoder."
     )
 
@@ -193,14 +213,20 @@ def make_parser():
     parser.add_argument(
         "--num_epochs",
         type=int,
-        required=True,
+        required=False,
         help="Number of epochs to train the autoencoder for."
     ) 
 
     parser.add_argument(
+        "--model_weights",
+        type=Path,
+        help="Path to the pretrained autoencoder model weights. If not specified, the autoencoder will be trained from scratch. If specified, the autoencoder will be loaded with the pretrained weights and then evaluated on the test set without further training."
+    )
+
+    parser.add_argument(
         "--learning_rate",
         type=float,
-        required=True,
+        required=False,
         help="Learning rate for training the autoencoder."
     )
 
