@@ -1,7 +1,7 @@
 Using Autoencoders in **DeepTune**
 ==================================
 
-Autoencoders are neural networks that learn how to compress the input images into a compact representation and then reconstruct the images from the compressed form. They consist of two main parts: the encoder, which compresses the input data, and the decoder, which reconstructs the original data from the compressed representation. In DeepTune, we provide the option of using autoencoders for image reconstruction tasks.
+Autoencoders are neural networks that learn how to compress the input images into a compact representation and then reconstruct the images from the compressed form. They consist of two main parts: the encoder, which compresses the input data, and the decoder, which reconstructs the original data from the compressed representation. In **DeepTune**, we provide the option of using autoencoders for image reconstruction tasks.
 
 .. note::
     The autoencoders functionality is currently in an experimental stage, with **DeepTune** providing support for basic image reconstruction without providing further details (e.g., loss values, evaluation metrics) for the time being. We recommend using it with caution and providing feedback to help us improve it. AI can produce mistakes. Please verify the results and report any issues you encounter.
@@ -22,7 +22,7 @@ To use autoencoders in **DeepTune**, you can follow the following command:
     --test_df <str> \
     -- num_epochs <int> \
     --learning_rate <float> \
-    --if-grayscale <bool> \
+    [--if-grayscale]\
     --out <str> \
 
 .. note::
@@ -36,13 +36,17 @@ After training is done, the output directory specified with the ``--out`` flag w
     ├── reconstructed_images_<yyyymmdd>_<hhmm>
         └── Class <int>
             └── reconstructed_image_<int>.png
+            └── ...
     ├── autoencoder_model.pth
 
 
 After running the command above, if the user wants to rerun the same model on another holdout set, they can use the following command:
 
 .. code-block:: console
+
     $ python -m autoencoders.autoencoder \
-    --test_df <str> \
-    --model_weights <str> \
-    --out <str>
+      --test_df <str> \
+      --model_weights <str> \
+      --out <str> \
+      --if-grayscale
+
