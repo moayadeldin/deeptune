@@ -85,8 +85,8 @@ def load_images_and_labels_mcc(dataset_dir):
       if split_dir.is_dir():
 
         for class_dir in split_dir.iterdir(): # iterate over each class
-
           if class_dir.is_dir():
+
             class_label = class_dir.name # get the name of the class
 
             for image_file in class_dir.iterdir(): # iterate over each image
@@ -95,6 +95,9 @@ def load_images_and_labels_mcc(dataset_dir):
                     combined_data["labels"].append(class_label)
                 else: # if not then throw a warning
                     print(f"Warning: File {image_file} not found or unsupported format.")
+
+          else:
+              raise ValueError(f"Expected another directory for class labels, but found a file: {class_dir}")
 
     return combined_data
 
