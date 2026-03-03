@@ -80,25 +80,32 @@ def load_images_and_labels_mcc(dataset_dir):
 
     combined_data = {"images": [], "labels": []}
 
-    for split_dir in dataset_dir.iterdir(): # iterate over each split in the three splits' directories
-
-      if split_dir.is_dir():
-
-        for class_dir in split_dir.iterdir(): # iterate over each class
-          if class_dir.is_dir():
-
-            class_label = class_dir.name # get the name of the class
-
-            for image_file in class_dir.iterdir(): # iterate over each image
-                if image_file.suffix.lower() in [".png", ".jpg", ".jpeg"]: # if format proper then append it to dictonary
-                    combined_data["images"].append(image_file.read_bytes())
-                    combined_data["labels"].append(class_label)
-                else: # if not then throw a warning
-                    print(f"Warning: File {image_file} not found or unsupported format.")
-
-          else:
-              raise ValueError(f"Expected another directory for class labels, but found a file: {class_dir}")
-
+    for split_dir in dataset_dir.iterdir(): #iterate over each split in the three splits' directories
+             
+            if split_dir.is_dir():
+              
+                if(len(list(dataset_dir.iterdir())) == 1):
+                
+                    print(f"WARNING: DeepTune will directly convert all the images inside the directory {split_dir.name} to parquet without maintaining the splits. If you intended to maintain the splits, please ensure that your dataset directory contains three subdirectories named 'train', 'val', and 'test'.")
+        
+                    for image_file in split_dir.iterdir(): # iterate over each image
+                        if image_file.suffix.lower() in [".png", ".jpg", ".jpeg"]: # if format proper then append it to dictonary
+                            combined_data["images"].append(image_file.read_bytes())
+                            combined_data["labels"].append(split_dir.name) # assign a default label since we don't have class subdirectories
+                        else: # if not then throw a warning
+                            print(f"Warning: File {image_file} not found or unsupported format.")
+                else:
+                   for class_dir in split_dir.iterdir(): # iterate over each class
+                        if class_dir.is_dir():
+                                for image_file in class_dir.iterdir(): # iterate over each image
+                                    if image_file.suffix.lower() in [".png", ".jpg", ".jpeg"]: # if format proper then append it to dictonary
+                                        combined_data["images"].append(image_file.read_bytes())
+                                        combined_data["labels"].append(class_dir.name) # assign the label as the name of the class directory
+                                    else: # if not then throw a warning
+                                        print(f"Warning: File {image_file} not found or unsupported format.")
+                        else:
+                                print(f"Warning: Class directory {class_dir} not found or is not a directory.")
+         
     return combined_data
 
 def make_parser() -> ArgumentParser:

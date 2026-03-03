@@ -1,22 +1,13 @@
 import torch
-import torchvision
-import torchvision.transforms as transforms
 import torch.nn as nn
-import numpy as np
 from torch.utils.data import DataLoader
 from torchvision.utils import save_image
-import torchvision.transforms as T
-import torch.nn.functional as F
 from argparse import ArgumentParser, RawTextHelpFormatter
 from pathlib import Path
 
 import os
-from torchvision import datasets, transforms
 from torch.utils.data import DataLoader
 import pandas as pd
-
-import matplotlib.pyplot as plt
-import matplotlib.image as mpimg
 from tqdm import tqdm
 
 from autoencoders.components.architecture import AutoEncoder
@@ -93,7 +84,7 @@ def run_autoencoder(model, train_df_path, transform, test_df_path, num_epochs, l
         shuffle=True,
         num_workers=0,
         pin_memory=True,
-        drop_last=True
+        drop_last=False
     )
 
     optimizer = torch.optim.Adam(model.parameters(), lr=learning_rate)
