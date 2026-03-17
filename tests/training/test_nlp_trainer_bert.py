@@ -19,6 +19,7 @@ class TestBERTTrainer:
 		mock_dataloader,
 		mock_dataset,
 		mock_trainer_cls,
+        tmp_path
 	):
 		model_factory = MagicMock()
 		model_instance = MagicMock()
@@ -32,16 +33,16 @@ class TestBERTTrainer:
 		mock_dataloader.return_value = MagicMock()
 
 		trainer_instance = MagicMock()
-		expected_output = Path("/fake/saved")
+		expected_output = tmp_path / "output"
 		trainer_instance.save_tunedbertmodel.return_value = expected_output
 		mock_trainer_cls.return_value = trainer_instance
 
 		mock_args = MagicMock()
 
 		result = train(
-			train_df=Path("/fake/train.parquet"),
-			val_df=Path("/fake/val.parquet"),
-			out=Path("/fake/output"),
+			train_df=tmp_path / "train.parquet",
+			val_df=tmp_path / "val.parquet",
+			out=tmp_path / "output",
 			freeze_backbone=False,
 			use_peft=False,
 			fixed_seed=123,

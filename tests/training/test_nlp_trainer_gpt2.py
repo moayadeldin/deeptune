@@ -20,7 +20,8 @@ class TestGPT2Trainer:
         mock_load_model,
         mock_adjusted_model_cls,
         mock_dataset,
-        mock_trainer_cls
+        mock_trainer_cls,
+        tmp_path
     ):
         
         mock_gpt_model = MagicMock()
@@ -35,16 +36,16 @@ class TestGPT2Trainer:
         mock_dataset.return_value = mock_dataset_instance
         mock_trainer_instance = MagicMock()
         mock_trainer_cls.return_value = mock_trainer_instance
-        mock_trainer_instance.save_tunedgpt2model.return_value = Path("/fake/output")
+        mock_trainer_instance.save_tunedgpt2model.return_value = tmp_path / "output"
         
         # Create mock args
         mock_args = MagicMock()
         
         # Call function
         result = train(
-            train_df=Path("/fake/train.parquet"),
-            val_df=Path("/fake/val.parquet"),
-            out=Path("/fake/output"),
+            train_df=tmp_path / "train.parquet",
+            val_df=tmp_path / "val.parquet",
+            out=tmp_path / "output",
             freeze_backbone=False,
             use_peft=False,
             fixed_seed=42,
@@ -56,7 +57,7 @@ class TestGPT2Trainer:
         )
         
         # Assertions
-        assert result == Path("/fake/output")
+        assert result == tmp_path / "output"
         mock_set_seed.assert_called_once_with(42)
         mock_load_model.assert_called_once()
         mock_adjusted_model_cls.assert_called_once()

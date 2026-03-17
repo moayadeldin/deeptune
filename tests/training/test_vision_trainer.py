@@ -14,7 +14,7 @@ class TestVisionTrainer:
     
     
     def test_vision_train_with_normal_parameters(
-        self,mock_set_seed,mock_trainer_class,mock_get_cls,mock_dataloader,mock_dataset
+        self,mock_set_seed,mock_trainer_class,mock_get_cls,mock_dataloader,mock_dataset, tmp_path
     ):
         
         mock_trainer_instance = MagicMock()
@@ -30,9 +30,9 @@ class TestVisionTrainer:
         mock_args = MagicMock()
         mock_args.model_architecture = "resnet"
         
-        train_path = Path("/fake/train.parquet")
-        val_path = Path("/fake/val.parquet")
-        out_path = Path("/fake/output")
+        train_path = tmp_path / "train.parquet"
+        val_path = tmp_path / "val.parquet"
+        out_path = tmp_path / "output"
         
         # call function 
         
@@ -68,6 +68,7 @@ class TestVisionTrainer:
             mock_dataloader,
             mock_get_cls,
             mock_dataset,
+            tmp_path
         ):
         
         mock_trainer_instance = MagicMock()
@@ -83,9 +84,9 @@ class TestVisionTrainer:
         mock_args = MagicMock()
         mock_args.model_architecture = "resnet"
         
-        train_path = Path("/fake/train.parquet")
-        val_path = Path("/fake/val.parquet")
-        out_path = Path("/fake/output")
+        train_path = tmp_path / "train.parquet"
+        val_path = tmp_path / "val.parquet"
+        out_path = tmp_path / "output"
         
         # call function 
         
@@ -120,6 +121,7 @@ class TestVisionTrainer:
             mock_dataloader,
             mock_get_cls,
             mock_dataset,
+            tmp_path
         ):
         
         mock_trainer_instance = MagicMock()
@@ -135,9 +137,9 @@ class TestVisionTrainer:
         mock_args = MagicMock()
         mock_args.model_architecture = "resnet"
         
-        train_path = Path("/fake/train.parquet")
-        val_path = Path("/fake/val.parquet")
-        out_path = Path("/fake/output")
+        train_path = tmp_path / "train.parquet"
+        val_path = tmp_path / "val.parquet"
+        out_path = tmp_path / "output"
         
         with pytest.raises(ValueError, match=r"please choose 1 or 2 as your preferred number of added_layers"):
             train(
@@ -160,7 +162,7 @@ class TestVisionTrainer:
             )
             
     @patch('trainers.vision.train.train_siglip')
-    def test_vision_trainer_train_siglip_model(self, mock_train_siglip, mock_set_seed, mock_trainer_class, mock_dataloader, mock_get_cls, mock_dataset):
+    def test_vision_trainer_train_siglip_model(self, mock_train_siglip, mock_set_seed, mock_trainer_class, mock_dataloader, mock_get_cls, mock_dataset, tmp_path):
         
         mock_trainer_instance = MagicMock()
         mock_train_siglip.return_value = mock_trainer_instance
@@ -170,9 +172,9 @@ class TestVisionTrainer:
         mock_args = MagicMock()
         mock_args.model_architecture = "siglip"
         
-        train_path = Path("/fake/train.parquet")
-        val_path = Path("/fake/val.parquet")
-        out_path = Path("/fake/output")
+        train_path = tmp_path / "train.parquet"
+        val_path = tmp_path / "val.parquet"
+        out_path = tmp_path / "output"
         
         result = train(
             train_df = train_path,
