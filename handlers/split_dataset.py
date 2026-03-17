@@ -67,6 +67,8 @@ def split_dataset(train_size: float, val_size: float, test_size:float, df_path: 
         disable_numerical_encoding=disable_numerical_encoding,
         modality=modality,
         disable_target_column_renaming=disable_target_column_renaming)
+    
+    df = df[:1000] # just for trying, remove this line for actual use
 
 
     if fixed_seed:
