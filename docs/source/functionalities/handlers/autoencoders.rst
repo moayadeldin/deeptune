@@ -9,7 +9,7 @@ Autoencoders are neural networks that learn how to compress the input images int
 We provide an oversight of the autoencoder architecture:
 
 .. important::
-    The autoencoder architecture follows an encoder-decoder structure designed to extract and reconstruct hierarchical features. The process begins with a Gaussan blur to the input. The encoder consists of three successive stages, each stage utilizes a 3 by 3 convolutions → Group Normalization → SiLU functon, with a stride of 2 for doubling the feature channels and halving the spatial dimensions. The decoder mirrors the encoder and the model is projecting the feature maps back to the original image space dimensions.
+    The autoencoder architecture follows an encoder-decoder structure designed to extract and reconstruct hierarchical features. The process begins with a Gaussan blur to the input. The encoder consists of three successive stages, each stage utilizes a 3 by 3 convolutions (or a 5 by 5 in the case of the deeper autoencoder) → Group Normalization → SiLU functon, with a stride of 2 for doubling the feature channels and halving the spatial dimensions. The decoder mirrors the encoder and the model is projecting the feature maps back to the original image space dimensions.
 
     For more information on the Group normalization and SiLU function, please refer to the following resources: `Group Normalization <https://wandb.ai/wandb_fc/GroupNorm/reports/Group-Normalization-in-Pytorch-With-Examples---VmlldzoxMzU0MzMy>`_ and `SiLU Function <https://docs.pytorch.org/docs/stable/generated/torch.nn.SiLU.html>`_ 
 
@@ -22,11 +22,14 @@ To use autoencoders in **DeepTune**, you can follow the following command:
     --test_df <str> \
     -- num_epochs <int> \
     --learning_rate <float> \
+    [--image_size] <int> \
     [--if-grayscale]\
+    [--use-deeper] \
     --out <str> \
 
+
 .. note::
-    The ``--if-grayscale`` flag is optional and can be set to `True` if the input images are grayscale, or `False` if they are RGB. By default, it is set to `False`.
+    The ``--if-grayscale`` flag is optional and can be set to `True` if the input images are grayscale, or `False` if they are RGB. By default, it is set to `False`. If the image size is not provided, the input images will be resized to (224, 224) by default. The ``--use-deeper`` flag is optional and can be set to `True` to use a deeper autoencoder architecture, or `False` to use the basic architecture. By default, it is set to `False`.
 
 After training is done, the output directory specified with the ``--out`` flag will contain the following files:
 
@@ -48,5 +51,7 @@ After running the command above, if the user wants to rerun the same model on an
       --test_df <str> \
       --model_weights <str> \
       --out <str> \
-      --if-grayscale
+      [--input_image_size] <int> \
+      [--if-grayscale] \
+      [--use-deeper] 
 

@@ -24,17 +24,18 @@ def main():
 
     TRAIN_DF_PATH: Path = args.train_df
     TEST_DF_PATH: Path = args.test_df
-
+    IMAGE_SIZE = args.image_size
     NUM_EPOCHS = args.num_epochs
     LEARNING_RATE = args.learning_rate
     OUT = args.out
     MODEL_WEIGHTS = args.model_weights
 
     IF_GRAYSCALE = args.if_grayscale
+    USE_DEEPER = args.use_deeper
 
-    transform = apply_transform(IF_GRAYSCALE)
+    transform = apply_transform(IMAGE_SIZE, IF_GRAYSCALE)
 
-    model = AutoEncoder(in_ch=1 if IF_GRAYSCALE else 3).to(DEVICE)
+    model = AutoEncoder(use_deeper=USE_DEEPER, in_ch=1 if IF_GRAYSCALE else 3).to(DEVICE)
 
     run_autoencoder(
         model=model,
@@ -93,7 +94,8 @@ def run_autoencoder(model, train_df_path, transform, test_df_path, num_epochs, l
     model.train()
 
     for _ in range(num_epochs):
-        for images, _ in tqdm(train_loader, desc="Training"):
+        for batch in tqdm(train_loader, desc="Training"):
+            images = batch[0]
             x_hat, x_target = model(images.to(next(model.parameters()).device))
 
             loss = criterion(x_hat, x_target)
@@ -118,7 +120,9 @@ def test_autoencoder(model, test_loader, device=DEVICE):
     model.eval()
     with torch.no_grad():
 
-        for images, _ in tqdm(test_loader, desc="Testing"):
+        for batch in tqdm(test_loader, desc="Testing"):
+
+            images = batch[0]
 
             x_hat, x_target = model(images.to(next(model.parameters()).device))
 
@@ -150,7 +154,9 @@ def save_results(model, out_dir, model_weights, test_loader):
     with torch.no_grad():
 
         counters = {}
-        for images, labels in tqdm(test_loader, desc="Saving"):
+        for batch in tqdm(test_loader, desc="Saving"):
+            images = batch[0]
+            labels = batch[1]
 
             images = images.to(DEVICE)
 
@@ -232,6 +238,21 @@ def make_parser():
         '--if-grayscale',
         action='store_true',
         help='Whether the input images are grayscale. If not specified, the default is False, meaning the input images are RGB.'
+    )
+
+    parser.add_argument(
+        "--image_size",
+        type=int,
+        required=False,
+        default=224,
+        help="The size to which the input images will be resized. The input images will be resized to square dimensions of (image_size, image_size)."
+    )
+
+    parser.add_argument(
+        '--use-deeper',
+        action='store_true',
+        required=False,
+        help='Whether to use a deeper autoencoder architecture with an additional encoding and decoding block. If not specified, the default is False, meaning the shallower architecture will be used.'
     )
 
     return parser
