@@ -20,11 +20,13 @@ class ConvBlock(nn.Module):
 
 class AutoEncoder(nn.Module):
 
-    def __init__(self, in_ch=1, base=32, blur_k=5, blur_simga=1.0) -> torch.Tensor: #change in_ch to 3 if RGB
+    def __init__(self,use_deeper=False, in_ch=1, base=32, blur_k=5, blur_simga=1.0) -> torch.Tensor: #change in_ch to 3 if RGB
 
         super().__init__()
 
         # self.norm = ZScore()
+
+        self.depth = "deep" if use_deeper else None
 
         self.blur = T.GaussianBlur(kernel_size=blur_k, sigma=blur_simga)
 
@@ -39,9 +41,24 @@ class AutoEncoder(nn.Module):
         self.enc3 = ConvBlock(base*4, base*4)
         self.down3 = nn.Conv2d(base*4, base*8, kernel_size=4, stride=2, padding=1, bias=False)
 
-        self.bottleneck = ConvBlock(base*8, base*8)
+        if self.depth == "deep":
 
-        # Decoder : upsample by 2x at each block 3 times
+            self.enc4 = ConvBlock(base*8, base*8)
+            self.down4 = nn.Conv2d(base*8, base*16, kernel_size=4, stride=2, padding=1, bias=False)
+
+            self.enc5 = ConvBlock(base*16, base*16)
+            self.down5 = nn.Conv2d(base*16, base*32, kernel_size=4, stride=2, padding=1, bias=False)
+
+            self.bottleneck = ConvBlock(base*32, base*32)
+            self.up5 = nn.ConvTranspose2d(base*32, base*16, kernel_size=4, stride=2, padding=1, bias=False)
+            self.dec5 = ConvBlock(base*16, base*16)
+            self.up4 = nn.ConvTranspose2d(base*16, base*8, kernel_size=4, stride=2, padding=1, bias=False)
+            self.dec4 = ConvBlock(base*8, base*8)
+        else:
+
+            self.bottleneck = ConvBlock(base*8, base*8)
+
+            # Decoder : upsample by 2x at each block 3 times
 
         self.up3 = nn.ConvTranspose2d(base*8, base*4, kernel_size=4, stride=2, padding=1, bias=False)
         self.dec3 = ConvBlock(base*4, base*4)
@@ -70,9 +87,21 @@ class AutoEncoder(nn.Module):
         x3 = self.enc3(x)
         x = self.down3(x3)
 
-        z = self.bottleneck(x)
+        if self.depth == "deep":
 
-        x = self.up3(z)
+            x4 = self.enc4(x)
+            x = self.down4(x4)
+            x5 = self.enc5(x)
+            x = self.down5(x5)
+            z = self.bottleneck(x)
+            x = self.up5(z)
+            x = self.dec5(x)
+            x = self.dec4(self.up4(x))
+
+        else:
+            x = self.bottleneck(x)
+
+        x = self.up3(x)
         x = self.dec3(x)
 
         x = self.up2(x)
