@@ -10,7 +10,7 @@ from src.vision.siglip import load_siglip_model_offline
 from torch.utils.data import DataLoader
 from tqdm import tqdm
 from torchvision.models import ResNet18_Weights, ResNet34_Weights, ResNet50_Weights, ResNet101_Weights, ResNet152_Weights
-from torchvision.models import Swin_T_Weights
+from torchvision.models import Swin_T_Weights, Swin_S_Weights, Swin_B_Weights
 from datasets.image_datasets import ParquetImageDataset
 from options import UNIQUE_ID, DEVICE, NUM_WORKERS, PERSIST_WORK, PIN_MEM
 from helpers import transformations
@@ -212,9 +212,9 @@ def load_vision_model(
             if model_version == 'swin_t':
                 model = torchvision.models.swin_t(weights=Swin_T_Weights.IMAGENET1K_V1)
             elif model_version == 'swin_s':
-                model = torchvision.models.swin_s(weights=Swin_T_Weights.IMAGENET1K_V1)
+                model = torchvision.models.swin_s(weights=Swin_S_Weights.IMAGENET1K_V1)
             elif model_version == 'swin_b':
-                model = torchvision.models.swin_b(weights=Swin_T_Weights.IMAGENET1K_V1)
+                model = torchvision.models.swin_b(weights=Swin_B_Weights.IMAGENET1K_V1)
        
             model.head = nn.Identity()  # Remove classification layer to use as feature extractor
        
