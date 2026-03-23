@@ -27,6 +27,7 @@ from handlers.split_dataset import split_dataset
 from pathlib import Path
 from cli import DeepTuneVisionOptions
 import pandas as pd 
+from adaptive_error.run import run_adaptive_error
 from utils import RunType
 from helpers import date_id,print_metrics_table,print_training_log_table, print_experiment_paths_table
 from handlers.raw_to_parquet_dataset import raw_to_parquet
@@ -134,6 +135,16 @@ def main():
                 freeze_backbone=FREEZE_BACKBONE,
             )
 
+            if args.adaptive_error and getattr(args, "mode", None) in (None, 'cls'):
+                run_adaptive_error(
+                    args=args,
+                    modality=args.modality,
+                    model_version=args.model_version,
+                    ckpt_directory=ckpt_directory,
+                    val_data_path=val_data_path,
+                    test_data_path=test_data_path,
+                    out_dir=Path(args.out)/parent_dir,
+                )
 
             exp_path,embed_shape = embed_multilingualbert(
                 df_path=test_data_path,
@@ -174,6 +185,17 @@ def main():
                 use_peft=False,
                 model_str='gpt2'
             )
+
+            if args.adaptive_error and getattr(args, "mode", None) in (None, 'cls'):
+                run_adaptive_error(
+                    args=args,
+                    modality=args.modality,
+                    model_version=args.model_version,
+                    ckpt_directory=ckpt_directory,
+                    val_data_path=val_data_path,
+                    test_data_path=test_data_path,
+                    out_dir=Path(args.out)/parent_dir,
+                )
 
             exp_path,embed_shape = embed_gpt2(
                 df_path=test_data_path,
@@ -224,6 +246,17 @@ def main():
             args=args
         )
 
+        if args.adaptive_error and getattr(args, "mode", None) in (None, 'cls'):
+            run_adaptive_error(
+                args=args,
+                modality=args.modality,
+                model_version=args.model_version,
+                ckpt_directory=ckpt_directory,
+                val_data_path=val_data_path,
+                test_data_path=test_data_path,
+                out_dir=Path(args.out)/parent_dir,
+            )
+
         exp_path,embed_shape = embed_images(
             df_path=test_data_path,
             out=Path(args.out)/parent_dir,
@@ -271,6 +304,16 @@ def main():
                 args=args,
             )
 
+            if args.adaptive_error and args.type == 'classification':
+                run_adaptive_error(
+                    args=args,
+                    modality=args.modality,
+                    model_version=args.model_version,
+                    ckpt_directory=ckpt_directory,
+                    val_data_path=val_data_path,
+                    test_data_path=test_data_path,
+                    out_dir=Path(args.out)/parent_dir,
+                )
 
             exp_path,embed_shape = embed_tabular_gandalf(
                 eval_df=test_data_path,
@@ -325,6 +368,17 @@ def main():
                 args=args,
                 finetuning_mode=FINETUNING_MODE,
                 model_str='TABPFN',
+                )
+
+            if args.adaptive_error and MODE == 'cls':
+                run_adaptive_error(
+                    args=args,
+                    modality=args.modality,
+                    model_version=args.model_version,
+                    ckpt_directory=ckpt_directory,
+                    val_data_path=val_data_path,
+                    test_data_path=test_data_path,
+                    out_dir=Path(args.out)/parent_dir,
                 )
             
             exp_path,embed_shape = embed_tabpfn_embeddings(
@@ -403,4 +457,3 @@ if __name__ == "__main__":
 
 
     
-

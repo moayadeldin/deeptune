@@ -73,6 +73,7 @@ class DeepTuneVisionOptions:
             self.model_version: str = parsed_args.model_version
             self.num_classes: Optional[int] = parsed_args.num_classes
             self.use_peft: bool = parsed_args.use_peft
+            self.adaptive_error: bool = parsed_args.adaptive_error
             self.target: Optional[str] = parsed_args.target
             self.raw_data: bool = parsed_args.raw_data
             self.finetuning_mode: bool = parsed_args.finetuning_mode
@@ -244,6 +245,7 @@ class DeepTuneVisionOptions:
         p.add_argument('--df', type=Path, required=True, help='Path to the dataframe (parquet file) to be used for training.')
         p.add_argument('--target', type=str, required=False, help="Specify the name of your target column. Default is 'labels'.")
         p.add_argument('--raw-data', action='store_true', help='Use raw data instead of ready-to-use parquet.')
+        p.add_argument('--adaptive-error', action='store_true', help='Run adaptive error rate post-processing after classification evaluation.')
         # tabpfn specific
         p.add_argument('--finetuning-mode', action='store_true', help='If set, perform fine-tuning instead of training from scratch for TabPFN.')
         # gandalf specific
