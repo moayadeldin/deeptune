@@ -50,6 +50,10 @@ CONFIDENCE_SOURCE_NAMES = {
 }
 
 
+class AdaptiveErrorNotApplicableError(ValueError):
+    """Raised when adaptive error rate post-processing does not apply to the run."""
+
+
 def _to_python_scalar(value: Any) -> Any:
     if isinstance(value, np.generic):
         return value.item()
@@ -161,6 +165,44 @@ def _ece_error(predicted_error: np.ndarray, incorrect: np.ndarray, *, n_bins: in
 
 def _confidence_source_name(metric_name: str) -> str:
     return CONFIDENCE_SOURCE_NAMES.get(metric_name, str(metric_name))
+
+
+def _format_label_list(labels: list[Any], *, max_items: int = 5) -> str:
+    preview = [repr(_to_python_scalar(label)) for label in labels[:max_items]]
+    if len(labels) > max_items:
+        preview.append("...")
+    return ", ".join(preview)
+
+
+def _ensure_multiple_class_labels(
+    frame: pd.DataFrame,
+    *,
+    split_name: str,
+    class_labels: list[Any] | None = None,
+) -> None:
+    if "true_label" not in frame.columns:
+        raise ValueError("Adaptive error rate requires a 'true_label' column in collected outputs.")
+
+    observed = pd.unique(frame["true_label"])
+    observed_labels = [_to_python_scalar(label) for label in observed.tolist()]
+    if len(observed_labels) < 2:
+        label_text = _format_label_list(observed_labels) if observed_labels else "<none>"
+        raise AdaptiveErrorNotApplicableError(
+            "Adaptive error rate is not applicable because the "
+            f"{split_name} split contains only one observed class label ({label_text}). "
+            "This usually means all class labels are the same, which commonly happens for "
+            "autoencoder-style projects. Classification models require at least two distinct "
+            "class labels, so adaptive error rate cannot be computed for this run."
+        )
+
+    if class_labels is not None and len(class_labels) < 2:
+        label_text = _format_label_list(class_labels)
+        raise AdaptiveErrorNotApplicableError(
+            "Adaptive error rate is not applicable because the collected "
+            f"{split_name} probabilities only cover one class ({label_text}). "
+            "This usually indicates a single-class classification setup, such as an "
+            "autoencoder-style project, where adaptive error rate cannot be computed."
+        )
 
 
 def _prepare_output_frame(
@@ -281,7 +323,13 @@ def _run_adaptive_error_impl(
     aer_dir = Path(out_dir) / "adaptive_error_rate"
 
     val_frame = _collect_outputs(args, modality, model_version, ckpt_directory, val_data_path)
+    _ensure_multiple_class_labels(val_frame, split_name="validation")
     raw_val_proba, class_labels = _extract_probability_matrix(val_frame)
+    _ensure_multiple_class_labels(
+        val_frame,
+        split_name="validation",
+        class_labels=class_labels,
+    )
     y_val = val_frame["true_label"].to_numpy()
     raw_val_predicted = val_frame["predicted_label"].to_numpy()
     validation_groups = _resolve_validation_groups(args, val_frame, val_data_path)
