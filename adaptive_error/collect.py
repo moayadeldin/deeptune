@@ -24,6 +24,88 @@ def _parse_probability_label(label: str) -> Any:
         return label
 
 
+def _to_python_scalar(value: Any) -> Any:
+    if isinstance(value, np.generic):
+        return value.item()
+    return value
+
+
+def _as_list(value: Any) -> list[Any]:
+    if value is None:
+        return []
+    if isinstance(value, (list, tuple, set)):
+        return list(value)
+    return [value]
+
+
+def _candidate_target_columns(args: Any | None) -> list[str]:
+    candidates: list[str] = []
+    for attr in ("tabular_target_column", "target_column", "target"):
+        for value in _as_list(getattr(args, attr, None) if args is not None else None):
+            text = str(_to_python_scalar(value)).strip()
+            if text and text not in candidates:
+                candidates.append(text)
+    if "labels" not in candidates:
+        candidates.append("labels")
+    return candidates
+
+
+def _resolve_tabular_label_column(df: pd.DataFrame, args: Any | None) -> str:
+    for column in _candidate_target_columns(args):
+        if column in df.columns:
+            return column
+    raise ValueError(
+        "Input split must contain a 'labels' column or the configured tabular target column."
+    )
+
+
+def _build_label_mapping(raw_labels: list[Any], normalized_labels: list[Any]) -> dict[Any, Any]:
+    mapping: dict[Any, Any] = {}
+    for raw_label, normalized_label in zip(raw_labels, normalized_labels):
+        raw_python = _to_python_scalar(raw_label)
+        mapping[raw_python] = normalized_label
+        mapping[str(raw_python)] = normalized_label
+    return mapping
+
+
+def _remap_labels(values: Any, mapping: dict[Any, Any]) -> np.ndarray:
+    arr = np.asarray(values, dtype=object).ravel()
+    remapped: list[Any] = []
+    for value in arr:
+        py_value = _to_python_scalar(value)
+        remapped.append(mapping.get(py_value, mapping.get(str(py_value), py_value)))
+    return np.asarray(remapped, dtype=object)
+
+
+def _match_score(candidate_labels: list[Any], observed_labels: list[Any]) -> int:
+    observed = {str(_to_python_scalar(label)) for label in observed_labels}
+    candidate = {str(_to_python_scalar(label)) for label in candidate_labels}
+    return int(len(candidate & observed))
+
+
+def _resolve_gandalf_class_labels(
+    raw_label_names: list[str],
+    *,
+    observed_labels: list[Any],
+    target_candidates: list[str],
+) -> tuple[list[Any], dict[Any, Any]]:
+    raw_labels = [_parse_probability_label(name) for name in raw_label_names]
+    candidate_sets: list[list[Any]] = [raw_labels]
+
+    for target in target_candidates:
+        prefix = f"{target}_"
+        if all(name.startswith(prefix) for name in raw_label_names):
+            stripped = [_parse_probability_label(name[len(prefix) :]) for name in raw_label_names]
+            if stripped not in candidate_sets:
+                candidate_sets.append(stripped)
+
+    best_labels = max(
+        candidate_sets,
+        key=lambda labels: (_match_score(labels, observed_labels), labels != raw_labels),
+    )
+    return best_labels, _build_label_mapping(raw_labels, best_labels)
+
+
 def _probability_column_name(label: Any) -> str:
     return f"prob_{label}"
 
@@ -41,15 +123,16 @@ def _resolve_checkpoint_path(path: Path | str, suffix: str) -> Path:
 def _build_output_frame(
     df: pd.DataFrame,
     *,
+    label_column: str = "labels",
     metadata_columns: list[str] | tuple[str, ...] | None = None,
 ) -> pd.DataFrame:
-    if "labels" not in df.columns:
-        raise ValueError("Input split must contain a 'labels' column.")
+    if label_column not in df.columns:
+        raise ValueError(f"Input split must contain the label column '{label_column}'.")
 
     frame = pd.DataFrame(
         {
             "row_index": df.index.to_numpy(),
-            "true_label": df["labels"].to_numpy(),
+            "true_label": df[label_column].to_numpy(),
         }
     )
 
@@ -58,6 +141,8 @@ def _build_output_frame(
         if column not in df.columns:
             continue
         column_name = str(column)
+        if column_name == label_column:
+            continue
         if column_name in frame.columns:
             continue
         if column_name.startswith("prob_") or column_name.startswith("cal_prob_"):
@@ -245,12 +330,13 @@ def collect_gandalf_outputs(
 
     split_path = Path(split_path)
     df = pd.read_parquet(split_path)
+    label_column = _resolve_tabular_label_column(df, args)
 
     model = TabularModel.load_model(str(Path(ckpt_directory) / "GANDALF_model"))
     try:
         pred_df = model.predict(df)
     except Exception:
-        pred_df = model.predict(df.drop(columns=["labels"], errors="ignore"))
+        pred_df = model.predict(df.drop(columns=[label_column], errors="ignore"))
 
     if not isinstance(pred_df, pd.DataFrame):
         pred_df = pd.DataFrame(pred_df)
@@ -259,7 +345,7 @@ def collect_gandalf_outputs(
     if not prob_cols:
         raise ValueError("GANDALF predictions did not expose probability columns.")
 
-    class_labels = [_parse_probability_label(str(col)[: -len("_probability")]) for col in prob_cols]
+    raw_label_names = [str(col)[: -len("_probability")] for col in prob_cols]
     proba = pred_df[prob_cols].to_numpy(dtype=float)
 
     if "prediction" in pred_df.columns:
@@ -269,10 +355,23 @@ def collect_gandalf_outputs(
         if pred_candidates:
             predicted = pred_df[pred_candidates[0]].to_numpy()
         else:
-            label_array = np.asarray(class_labels, dtype=object)
-            predicted = label_array[np.argmax(proba, axis=1)]
+            predicted = None
 
-    frame = _build_output_frame(df)
+    frame = _build_output_frame(df, label_column=label_column)
+    observed_labels = frame["true_label"].tolist()
+    if predicted is not None:
+        observed_labels.extend(np.asarray(predicted, dtype=object).ravel().tolist())
+    class_labels, label_mapping = _resolve_gandalf_class_labels(
+        raw_label_names,
+        observed_labels=observed_labels,
+        target_candidates=_candidate_target_columns(args),
+    )
+    if predicted is None:
+        label_array = np.asarray(class_labels, dtype=object)
+        predicted = label_array[np.argmax(proba, axis=1)]
+    else:
+        predicted = _remap_labels(predicted, label_mapping)
+
     return _attach_predictions(frame, proba=proba, predicted=predicted, class_labels=class_labels)
 
 
@@ -288,7 +387,8 @@ def collect_tabpfn_outputs(
 
     split_path = Path(split_path)
     df = pd.read_parquet(split_path)
-    features = df.drop(columns=["labels"])
+    label_column = _resolve_tabular_label_column(df, args)
+    features = df.drop(columns=[label_column])
 
     if getattr(args, "finetuning_mode", False):
         model = load(Path(ckpt_directory))
@@ -310,5 +410,5 @@ def collect_tabpfn_outputs(
         label_array = np.asarray(class_labels, dtype=object)
         predicted = label_array[np.argmax(proba, axis=1)]
 
-    frame = _build_output_frame(df)
+    frame = _build_output_frame(df, label_column=label_column)
     return _attach_predictions(frame, proba=proba, predicted=predicted, class_labels=class_labels)
