@@ -17,29 +17,6 @@ def _wilson_interval(k: int, n: int, z: float = 1.96) -> tuple[float, float]:
     return (float(max(0.0, center - half)), float(min(1.0, center + half)))
 
 
-def _to_python_scalar(value: Any) -> Any:
-    if isinstance(value, np.generic):
-        return value.item()
-    return value
-
-
-def _class_label_index(class_labels: list[Any]) -> dict[Any, int]:
-    mapping: dict[Any, int] = {}
-    for idx, label in enumerate(class_labels):
-        py_label = _to_python_scalar(label)
-        mapping.setdefault(py_label, idx)
-        mapping.setdefault(str(py_label), idx)
-        if isinstance(py_label, float) and py_label.is_integer():
-            int_label = int(py_label)
-            mapping.setdefault(int_label, idx)
-            mapping.setdefault(str(int_label), idx)
-        elif isinstance(py_label, int):
-            float_label = float(py_label)
-            mapping.setdefault(float_label, idx)
-            mapping.setdefault(str(float_label), idx)
-    return mapping
-
-
 def confidence_from_proba(proba: Any) -> np.ndarray:
     p = np.asarray(proba, dtype=float)
     if p.ndim != 2 or p.shape[1] < 2:
@@ -53,89 +30,6 @@ def confidence_from_proba(proba: Any) -> np.ndarray:
     top1 = np.max(top2, axis=1)
     second = np.min(top2, axis=1)
     return np.clip(top1 - second, 0.0, 1.0)
-
-
-def proba_for_predicted_label(
-    proba: Any,
-    predicted_labels: Any,
-    class_labels: list[Any],
-) -> np.ndarray:
-    p = np.asarray(proba, dtype=float)
-    if p.ndim != 2 or p.shape[1] < 2:
-        raise ValueError("Expected probability array with shape [n_samples, n_classes].")
-    if len(class_labels) != p.shape[1]:
-        raise ValueError("class_labels must match the number of probability columns.")
-
-    predicted = np.asarray(predicted_labels, dtype=object).ravel()
-    if predicted.shape[0] != p.shape[0]:
-        raise ValueError("predicted_labels must contain one label per sample.")
-
-    label_to_index = _class_label_index(list(class_labels))
-    pred_idx = np.empty(predicted.shape[0], dtype=int)
-    missing: list[Any] = []
-
-    for idx, label in enumerate(predicted):
-        py_label = _to_python_scalar(label)
-        column_idx = label_to_index.get(py_label)
-        if column_idx is None:
-            column_idx = label_to_index.get(str(py_label))
-        if column_idx is None:
-            missing.append(py_label)
-            continue
-        pred_idx[idx] = int(column_idx)
-
-    if missing:
-        missing_labels = sorted({str(label) for label in missing})
-        raise ValueError(
-            "predicted_labels contain values that are missing from class_labels: "
-            f"{missing_labels}"
-        )
-
-    row_idx = np.arange(p.shape[0], dtype=int)
-    return np.clip(p[row_idx, pred_idx].astype(float), 0.0, 1.0)
-
-
-def confidence_from_proba_for_pred(
-    proba: Any,
-    predicted_labels: Any,
-    class_labels: list[Any],
-) -> np.ndarray:
-    p = np.asarray(proba, dtype=float)
-    if p.ndim != 2 or p.shape[1] < 2:
-        raise ValueError("Expected probability array with shape [n_samples, n_classes].")
-    if len(class_labels) != p.shape[1]:
-        raise ValueError("class_labels must match the number of probability columns.")
-    predicted = np.asarray(predicted_labels, dtype=object).ravel()
-    if predicted.shape[0] != p.shape[0]:
-        raise ValueError("predicted_labels must contain one label per sample.")
-
-    pred_idx = np.empty(p.shape[0], dtype=int)
-    label_to_index = _class_label_index(list(class_labels))
-    for idx, label in enumerate(predicted):
-        py_label = _to_python_scalar(label)
-        column_idx = label_to_index.get(py_label)
-        if column_idx is None:
-            column_idx = label_to_index.get(str(py_label))
-        if column_idx is None:
-            raise ValueError(
-                "predicted_labels contain values that are missing from class_labels: "
-                f"{sorted({str(py_label)})}"
-            )
-        pred_idx[idx] = int(column_idx)
-
-    row_idx = np.arange(p.shape[0], dtype=int)
-    pred_proba = proba_for_predicted_label(
-        p,
-        predicted_labels,
-        class_labels,
-    )
-
-    other_proba = p.copy()
-    other_proba[row_idx, pred_idx] = -np.inf
-    max_other = np.max(other_proba, axis=1)
-    max_other[~np.isfinite(max_other)] = 0.0
-    confidence = pred_proba - max_other
-    return np.clip(confidence, 0.0, 1.0)
 
 
 class AdaptiveErrorCalculator:

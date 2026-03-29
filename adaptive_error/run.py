@@ -20,9 +20,10 @@ from .collect import (
     collect_vision_outputs,
 )
 from .confidence import (
-    build_confidence_candidates,
+    CONFIDENCE_METRIC_NAME,
+    CONFIDENCE_SOURCE_NAME,
     compute_confidence,
-    select_confidence_metric,
+    get_confidence_metric_selection,
 )
 from .core import (
     AdaptiveErrorCalculator,
@@ -42,13 +43,6 @@ DEFAULT_AER_KWARGS = {
     "prior_strength": 2.0,
     "adaptive_binning": False,
 }
-
-CONFIDENCE_SOURCE_NAMES = {
-    "margin_for_raw_pred": "calibrated_probability_margin_for_raw_prediction",
-    "pmax_for_raw_pred": "calibrated_probability_for_raw_prediction",
-    "top1_minus_top2": "calibrated_probability_top1_minus_top2",
-}
-
 
 class AdaptiveErrorNotApplicableError(ValueError):
     """Raised when adaptive error rate post-processing does not apply to the run."""
@@ -161,10 +155,6 @@ def _ece_error(predicted_error: np.ndarray, incorrect: np.ndarray, *, n_bins: in
         ece += (float(np.sum(mask)) / total) * abs(empirical - expected)
 
     return float(ece)
-
-
-def _confidence_source_name(metric_name: str) -> str:
-    return CONFIDENCE_SOURCE_NAMES.get(metric_name, str(metric_name))
 
 
 def _format_label_list(labels: list[Any], *, max_items: int = 5) -> str:
@@ -344,25 +334,11 @@ def _run_adaptive_error_impl(
 
     val_out, val_calibrated = _prepare_output_frame(val_frame, calibrator, class_labels)
     val_incorrect = (val_out["predicted_label"].to_numpy() != y_val).astype(int)
-    confidence_candidates = build_confidence_candidates(
-        val_calibrated,
-        val_out["predicted_label"].to_numpy(),
-        class_labels,
-    )
-    confidence_selection = select_confidence_metric(
-        confidence_candidates,
-        val_incorrect,
-        groups=validation_groups,
-        aer_kwargs=dict(DEFAULT_AER_KWARGS),
-    )
-    confidence_metric = confidence_selection.selected
-    confidence_source = _confidence_source_name(confidence_metric)
-    val_confidence = compute_confidence(
-        confidence_metric,
-        val_calibrated,
-        val_out["predicted_label"].to_numpy(),
-        class_labels,
-    )
+    confidence_selection = get_confidence_metric_selection()
+    confidence_selection_json = confidence_selection.to_json()
+    confidence_metric = CONFIDENCE_METRIC_NAME
+    confidence_source = CONFIDENCE_SOURCE_NAME
+    val_confidence = compute_confidence(val_calibrated)
     val_out["confidence"] = val_confidence
 
     aer = AdaptiveErrorCalculator(**DEFAULT_AER_KWARGS)
@@ -372,12 +348,7 @@ def _run_adaptive_error_impl(
 
     test_frame = _collect_outputs(args, modality, model_version, ckpt_directory, test_data_path)
     test_out, test_calibrated = _prepare_output_frame(test_frame, calibrator, class_labels)
-    test_confidence = compute_confidence(
-        confidence_metric,
-        test_calibrated,
-        test_out["predicted_label"].to_numpy(),
-        class_labels,
-    )
+    test_confidence = compute_confidence(test_calibrated)
     test_out["confidence"] = test_confidence
     test_out["adaptive_error_rate"] = aer.get_expected_error(test_confidence)
     test_incorrect_raw = 1 - test_out["correct"].to_numpy(dtype=int)
@@ -394,6 +365,8 @@ def _run_adaptive_error_impl(
     aer_lookup["class_labels"] = [_to_python_scalar(label) for label in class_labels]
     aer_lookup["calibrator"] = calibrator.to_json_dict()
     aer_lookup["confidence_metric"] = confidence_metric
+    aer_lookup["confidence_source"] = confidence_source
+    aer_lookup["confidence_metric_selection"] = confidence_selection_json
     _save_json(aer_dir / "aer_lookup.json", aer_lookup)
 
     validation_log_loss = float(log_loss(y_val, val_calibrated, labels=class_labels))
@@ -435,7 +408,11 @@ def _run_adaptive_error_impl(
         "decision_label_source": "raw_model_predictions",
         "confidence_source": confidence_source,
         "confidence_metric": confidence_metric,
-        "confidence_metric_selection": confidence_selection.to_json(),
+        "confidence_metric_family": confidence_selection_json.get("metric_family"),
+        "confidence_metric_display_name": confidence_selection_json.get("display_name"),
+        "confidence_metric_description": confidence_selection_json.get("description"),
+        "confidence_metric_definition": confidence_selection_json.get("definition"),
+        "confidence_metric_selection": confidence_selection_json,
         "adaptive_error_rate_source": "validation_fitted_confidence_to_error_rate_mapping",
         "drift_guard_threshold": drift_guard_threshold,
         "drift_guard_applied": drift_guard_applied,
@@ -467,7 +444,11 @@ def _run_adaptive_error_impl(
         "decision_label_source": "raw_model_predictions",
         "confidence_source": confidence_source,
         "confidence_metric": confidence_metric,
-        "confidence_metric_selection": confidence_selection.to_json(),
+        "confidence_metric_family": confidence_selection_json.get("metric_family"),
+        "confidence_metric_display_name": confidence_selection_json.get("display_name"),
+        "confidence_metric_description": confidence_selection_json.get("description"),
+        "confidence_metric_definition": confidence_selection_json.get("definition"),
+        "confidence_metric_selection": confidence_selection_json,
         "adaptive_error_rate_source": "validation_fitted_confidence_to_error_rate_mapping",
         "drift_guard_threshold": drift_guard_threshold,
         "drift_guard_applied": drift_guard_applied,
