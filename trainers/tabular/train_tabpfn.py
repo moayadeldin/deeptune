@@ -24,9 +24,8 @@ from tabpfn import TabPFNRegressor
 from sklearn.metrics import mean_squared_error, mean_absolute_error
 
 from adaptive_error.run import run_adaptive_error
-import os
 
-token = os.getenv("HF_TOKEN")
+os.environ["HF_TOKEN"] = "PUT_YOUR_TOKEN_HERE"
 
 def main():
 
