@@ -123,8 +123,8 @@ def _resolve_checkpoint_path(path: Path | str, suffix: str) -> Path:
 def _build_output_frame(
     df: pd.DataFrame,
     *,
-    label_column: str = "labels",
     metadata_columns: list[str] | tuple[str, ...] | None = None,
+    label_column: str = "labels",
 ) -> pd.DataFrame:
     if label_column not in df.columns:
         raise ValueError(f"Input split must contain the label column '{label_column}'.")
@@ -325,6 +325,7 @@ def collect_gandalf_outputs(
     args,
     ckpt_directory: Path | str,
     split_path: Path | str,
+    label_column: str = "labels",
 ) -> pd.DataFrame:
     from pytorch_tabular import TabularModel
 
@@ -379,6 +380,7 @@ def collect_tabpfn_outputs(
     args,
     ckpt_directory: Path | str,
     split_path: Path | str,
+    label_column: str = "labels",
 ) -> pd.DataFrame:
     from joblib import load
 

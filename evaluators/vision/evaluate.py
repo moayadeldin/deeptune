@@ -10,15 +10,18 @@ from cli import DeepTuneVisionOptions
 from evaluators.vision.custom_siglip_evaluate import evaluate_siglip
 from utils import get_model_cls, RunType
 
+from adaptive_error.run import run_adaptive_error
+
 def main() -> None:
     args = DeepTuneVisionOptions(RunType.EVAL)
     EVAL_DF_PATH: Path = args.eval_df
     MODE = args.mode
     NUM_CLASSES = args.num_classes
-    OUT = args.out
+    MODEL_STR = args.model
+    OUT = (args.out / f"eval_output_{MODEL_STR}_{UNIQUE_ID}")
 
     MODEL_VERSION = args.model_version
-    MODEL_STR = args.model
+    VAL_DF_PATH = args.val_df
 
     MODEL_WEIGHTS = args.model_weights
     USE_PEFT = args.use_peft
@@ -42,14 +45,32 @@ def main() -> None:
         freeze_backbone=FREEZE_BACKBONE,
         args=args
     )
-
+    
+    if args.adaptive_error and getattr(args, "mode", None) in (None, 'cls'):
+        
+        try:
+            print("Conducting adaptive error rate post-processing...")
+            run_adaptive_error(
+                    args=args,
+                    modality='images',
+                    model_version=MODEL_VERSION,
+                    ckpt_directory=MODEL_WEIGHTS,
+                    val_data_path=VAL_DF_PATH,
+                    test_data_path=EVAL_DF_PATH,
+                    out_dir=OUT,
+            )
+        except Exception as exc:
+            import traceback
+            tb_str = traceback.format_exc()
+            print(f"Warning: adaptive error rate post-processing failed: {exc}")
+            print(f"Error traceback:\n{tb_str}")
 
 
 def evaluate(eval_df, out, model_weights, num_classes,model_version,mode,added_layers,embed_size, batch_size, freeze_backbone, args, use_peft, model_str):
 
     mw = Path(model_weights)
 
-    EVAL_OUTPUT_DIR = (out / f"eval_output_{model_str}_{UNIQUE_ID}")
+    EVAL_OUTPUT_DIR = out
     EVAL_OUTPUT_DIR.mkdir(parents=True, exist_ok=True)
 
     MODEL_ARCHITECTURE = args.model_architecture

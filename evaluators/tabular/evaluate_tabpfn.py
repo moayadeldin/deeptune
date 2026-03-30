@@ -9,15 +9,20 @@ from joblib import load
 import json
 import pandas as pd
 from sklearn.metrics import accuracy_score, mean_squared_error, mean_absolute_error
+
+from adaptive_error.run import run_adaptive_error
+
 def main():
 
-    args = DeepTuneVisionOptions(RunType.TabPFNEVAL)
+    args = DeepTuneVisionOptions(RunType.TabPFN)
     TARGET = args.target_column
-    OUT = args.out
+    MODEL_STR = 'TABPFN'
+    MODE = args.mode
+    OUT = (args.out / f"eval_output_{MODEL_STR}_{MODE}_{UNIQUE_ID}")
     FINETUNING_MODE = args.finetuning_mode
     EVAL_PATH = args.eval_df
+    VAL_PATH = args.val_df
     MODEL_WEIGHTS = args.model_weights
-    MODE = args.mode
 
     X_eval = pd.read_parquet(EVAL_PATH).drop(columns=[TARGET])
     y_eval = pd.read_parquet(EVAL_PATH)[TARGET]
@@ -30,10 +35,10 @@ def main():
             out=OUT,
             model_path=MODEL_WEIGHTS,
             mode=MODE,
-            args = args,            finetuning_mode=FINETUNING_MODE,
+            args=args,
+            finetuning_mode=FINETUNING_MODE,
             model_str='TABPFN',
         )
-
 
     elif MODE == 'reg':
         evaluate_tabpfn(
@@ -42,13 +47,32 @@ def main():
             out=OUT,
             model_path=MODEL_WEIGHTS,
             mode=MODE,
-            args = args,
+            args=args,
             finetuning_mode=FINETUNING_MODE,
             model_str='TABPFN',
         )
 
     else:
         raise ValueError(f"Unsupported evaluation mode: {MODE}. Supported modes are 'cls' and 'reg'.")
+
+    if args.adaptive_error:
+        try:
+            print("Conducting adaptive error rate post-processing...")
+            run_adaptive_error(
+                    args=args,
+                    modality='tabular',
+                    model_version='tabpfn',
+                    ckpt_directory=MODEL_WEIGHTS,
+                    val_data_path=VAL_PATH,
+                    test_data_path=EVAL_PATH,
+                    out_dir=OUT,
+                    target_column=TARGET,
+            )
+        except Exception as exc:
+            import traceback
+            tb_str = traceback.format_exc()
+            print(f"Warning: adaptive error rate post-processing failed: {exc}")
+            print(f"Error traceback:\n{tb_str}")
     
 def evaluate_tabpfn(
         X_eval,
@@ -93,10 +117,8 @@ def evaluate_tabpfn(
                 print(f"Evaluation MAE: {mae:.4f}")
 
                 result_dic = {
-                    {
-                        "Mean Squared Error": mse,
-                        "Mean Absolute Error": mae,
-                    }
+                    "Mean Squared Error": mse,
+                    "Mean Absolute Error": mae,
                 }
             else:
                 reg = load_fitted_tabpfn_model(model_path, device=DEVICE)
@@ -113,7 +135,7 @@ def evaluate_tabpfn(
         else:
             raise ValueError(f"Unsupported evaluation mode: {mode}. Supported modes are 'cls' and 'reg'.")
         
-        EVAL_OUTPUT_DIR = (out / f"eval_output_{model_str}_{mode}_{UNIQUE_ID}")
+        EVAL_OUTPUT_DIR = out
         args.save_args(EVAL_OUTPUT_DIR)
         with open(EVAL_OUTPUT_DIR / "full_metrics.json", 'w') as f:
             json.dump(result_dic, f, indent=4)

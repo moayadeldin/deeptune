@@ -17,10 +17,8 @@ class DeepTuneVisionOptions:
         self.mode = run_type
         self._add_default_args()
         
-        if run_type == RunType.TabPFNTRAIN:
-            self._add_tabpfn_train_args()
-        if run_type == RunType.TabPFNEVAL:
-            self._add_tabpfn_eval_args()
+        if run_type == RunType.TabPFN:
+            self._add_tabpfn_traineval_args()
         if run_type == RunType.TabPFNEMBD:
             self._add_tabpfn_embed_args()
         if run_type == RunType.ONECALL:
@@ -41,20 +39,17 @@ class DeepTuneVisionOptions:
         self.mode : Optional[str] = parsed_args.mode
         self.grouper: Optional[str] = parsed_args.grouper
 
-        if run_type == RunType.TabPFNTRAIN:
+        if run_type == RunType.TabPFN:
             self.target_column: Optional[str] = parsed_args.target_column
             self.train_df: Optional[Path] = parsed_args.train_df
             self.val_df: Optional[Path] = parsed_args.val_df
             self.num_epochs: Optional[int] = parsed_args.num_epochs
             self.finetuning_mode: bool = parsed_args.finetuning_mode
-
-        if run_type == RunType.TabPFNEVAL:
-            self.target_column: Optional[str] = parsed_args.target_column
             self.eval_df: Optional[Path] = parsed_args.eval_df
             self.model_weights: Optional[Path] = (
                 parsed_args.model_weights.resolve() if parsed_args.model_weights else None
             )
-            self.finetuning_mode: bool = parsed_args.finetuning_mode
+            self.adaptive_error: bool = parsed_args.adaptive_error
 
         if run_type == RunType.TabPFNEMBD:
             self.train_df = parsed_args.train_df
@@ -87,6 +82,10 @@ class DeepTuneVisionOptions:
 
             # timeseries specific
             self.time_idx_column = parsed_args.time_idx_column
+            
+        if run_type == RunType.EVAL:
+            self.val_df: Optional[Path] = parsed_args.val_df
+            self.adaptive_error: bool = parsed_args.adaptive_error
 
         
         if run_type in (RunType.TRAIN, RunType.GANDALF, RunType.TIMESERIES):
@@ -109,6 +108,8 @@ class DeepTuneVisionOptions:
             self.learning_rate: Optional[float] = parsed_args.learning_rate
             self.train_df: Optional[Path] = parsed_args.train_df
             self.val_df:Optional[Path] = parsed_args.val_df
+            self.eval_df: Optional[Path] = parsed_args.eval_df
+            self.adaptive_error: bool = parsed_args.adaptive_error
             set_seed(self.fixed_seed)
         if run_type == RunType.GANDALF:
             self.learning_rate: Optional[float] = parsed_args.learning_rate
@@ -124,6 +125,7 @@ class DeepTuneVisionOptions:
             )
             self.eval_df: Optional[Path] = parsed_args.eval_df
             self.df: Optional[Path] = parsed_args.df
+            self.adaptive_error: bool = parsed_args.adaptive_error
             
         if run_type == RunType.TIMESERIES:
             self.df: Optional[Path] = parsed_args.df
@@ -213,21 +215,16 @@ class DeepTuneVisionOptions:
         p.add_argument('--fixed-seed', action='store_true', help='Use fixed seed 42.')
         p.add_argument('--batch_size', type=int, help='Batch size.')
 
-    def _add_tabpfn_train_args(self):
+    def _add_tabpfn_traineval_args(self):
         p = self.parser
         p.add_argument('--target_column', type=str, required=False, help="Specify the name of your target column.")
-        p.add_argument('--train_df', type=Path, help='Path to the train dataset (parquet file).', required=True)
-        p.add_argument('--val_df', type=Path, help='Path to the validation dataset (parquet file).', required=True)
+        p.add_argument('--train_df', type=Path, help='Path to the train dataset (parquet file).', required=False)
+        p.add_argument('--val_df', type=Path, help='Path to the validation dataset (parquet file).', required=False)
         p.add_argument('--finetuning-mode', action='store_true', help='If set, perform fine-tuning instead of training from scratch.')
         p.add_argument('--num_epochs', type=int, help='Number of epochs.')
-
-    def _add_tabpfn_eval_args(self):
-
-        p = self.parser
-        p.add_argument('--target_column', type=str, required=False, help="Specify the name of your target column.")
-        p.add_argument('--eval_df', type=Path, help='Path to the evaluation dataset (parquet file).', required=True)
-        p.add_argument('--model_weights', type=Path, help='Path to the model weights.', required=True)
-        p.add_argument('--finetuning-mode', action='store_true', help='If set, perform fine-tuning instead of training from scratch.')
+        p.add_argument('--eval_df', type=Path, help='Path to the evaluation dataset (parquet file).', required=False)
+        p.add_argument('--model_weights', type=Path, help='Path to the model weights.', required=False)
+        p.add_argument('--adaptive-error', action='store_true', help='Run adaptive error rate post-processing after classification evaluation.')
 
     def _add_tabpfn_embed_args(self):
         p = self.parser
@@ -262,6 +259,8 @@ class DeepTuneVisionOptions:
         p.add_argument('--learning_rate', type=float, help='Learning rate.')
         p.add_argument('--train_df', type=Path, help='PARQUET file containing train data.')
         p.add_argument('--val_df', type=Path, help='PARQUET file containing validation data.')
+        p.add_argument('--eval_df', type=Path, required=False, help='PARQUET file containing test data. Needed only in case of adaptive error being called.')
+        p.add_argument('--adaptive-error', action='store_true', help='Run adaptive error rate post-processing.')
         
     def _add_timeseries_args(self):
         
@@ -308,6 +307,8 @@ class DeepTuneVisionOptions:
 
             """
         )
+        p.add_argument('--val_df', type=Path, help='PARQUET file containing validation data. Needed for Adaptive Error rate.')
+        p.add_argument('--adaptive-error', action='store_true', help='Run adaptive error rate post-processing after classification evaluation.')
 
     def _add_gandalf_args(self):
 
@@ -324,6 +325,7 @@ class DeepTuneVisionOptions:
         p.add_argument('--eval_df', type=Path, help='PARQUET file containing testing data.')
         p.add_argument('--model_weights', type=Path, help='Path to model weights.')
         p.add_argument('--df', type=Path, help='PARQUET file containing data.')
+        p.add_argument('--adaptive-error', action='store_true', help='Run adaptive error rate post-processing after classification evaluation.')
     
         
 
@@ -340,7 +342,7 @@ class DeepTuneVisionOptions:
             return f"{prefix_str}"
         elif mode == RunType.ONECALL:
             prefix_str = "PEFT" if self.use_peft else "FINETUNED"
-        elif mode == RunType.TabPFNTRAIN or mode == RunType.TabPFNEVAL or mode == RunType.TabPFNEMBD:
+        elif mode == RunType.TabPFN or mode == RunType.TabPFNEMBD:
             prefix_str = "TABPFN"
             self.model_version=None
         else:

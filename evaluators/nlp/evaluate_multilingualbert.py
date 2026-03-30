@@ -17,6 +17,8 @@ from options import UNIQUE_ID, DEVICE
 from utils import RunType
 from datasets.text_datasets import TextDataset
 
+from adaptive_error.run import run_adaptive_error
+
 def evaluate(eval_df, out, model_weights, num_classes,added_layers,embed_size, batch_size, freeze_backbone, args, use_peft, model_str):
 
 
@@ -129,6 +131,7 @@ def main():
     MODEL_STR = 'PEFT-BERT' if USE_PEFT else 'BERT'
 
     BATCH_SIZE = args.batch_size
+    VAL_PATH = args.val_df
     
     MODEL_WEIGHTS = args.model_weights
     FREEZE_BACKBONE = args.freeze_backbone
@@ -149,6 +152,26 @@ def main():
         batch_size=BATCH_SIZE,
         model_str=MODEL_STR
     )
+    
+    if args.adaptive_error and getattr(args, "mode", None) in (None, 'cls'):
+        
+        
+        try:
+            print("Conducting adaptive error rate post-processing...")
+            run_adaptive_error(
+                    args=args,
+                    modality='text',
+                    model_version='BERT',
+                    ckpt_directory=MODEL_WEIGHTS,
+                    val_data_path=VAL_PATH,
+                    test_data_path=EVAL_PATH,
+                    out_dir=OUT,
+            )
+        except Exception as exc:
+            import traceback
+            tb_str = traceback.format_exc()
+            print(f"Warning: adaptive error rate post-processing failed: {exc}")
+            print(f"Error traceback:\n{tb_str}")
     
     
 if __name__ == "__main__":

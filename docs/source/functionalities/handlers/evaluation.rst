@@ -13,6 +13,7 @@ The following is the generic CLI structure of running **DeepTune** for evalautio
 .. code-block:: console
 
   $ python -m evaluators.vision.evaluate \
+  --val_df <str> \ // Optional, only needed in case of using the adaptive error rate post-processing.
   --eval_df <str> \
   --model_version <str> \
   --batch_size <int> \
@@ -28,7 +29,8 @@ The following is the generic CLI structure of running **DeepTune** for evalautio
 .. list-table::
    :widths: 25 75
    :header-rows: 0
-
+   * - ``--val_df <str>``
+     - Path to your validation dataset. It should be the ``val_split_<yyyymmdd>_<hhmm>.parquet`` you got from the previous **DeepTune** for splitting data run. This is an optional argument, only needed in case of using the adaptive error rate post-processing.
    * - ``--eval_df <str>``
      - Path to your test dataset. It should be the ``test_split_<yyyymmdd>_<hhmm>.parquet `` you got from the previous **DeepTune** for splitting data run.
    * - ``--model_weights <str>``
@@ -58,7 +60,8 @@ The generic CLI structure of running **DeepTune** for evalaution of text dataset
 .. code-block:: console
 
     $ python -m evaluators.nlp.evaluate_<multilingualbert/gpt> \
-     --eval_df <str> \
+    --val_df <str> \ // Optional, only needed in case of using the adaptive error rate post-processing.
+    --eval_df <str> \
     --batch_size <int> \
     --num_classes <int> \
     --model_weights <str> \
@@ -79,8 +82,11 @@ The generic CLI structure of running **DeepTune** for evalaution of text dataset
 .. code-block:: console
 
     $ python -m evaluators.tabular.evaluate_gandalf \
+    --val_df <str> \ // Optional, only needed in case of using the adaptive error rate post-processing.
     --eval_df <str> \
     --model_weights <str>
+    --tabular_target_column <str> \
+    --type <str> \
     --out <str>
 
 Time Series
@@ -115,6 +121,7 @@ The generic CLI structure of running **DeepTune** for evalaution of tabular data
 .. code-block:: console
 
     $ python -m evaluators.tabular.evaluate_tabpfn \
+    --val_df <str> \ // Optional, only needed in case of using the adaptive error rate post-processing.
     --eval_df <str> \
     --model_weights <str> \
     --target_column <str> \
@@ -134,6 +141,14 @@ After evaluation is done, you may find the results in the directory specified wi
         └── cli_arguments.json
         └── full_metrics.json
         └── evaluation_details.json
+        └── adaptive_error_rate
+            └──aer_lookup.json
+            └──predictive_confidence_vs_expected_error_rate.csv
+            └──predictive_confidence_vs_expected_error_rate.png
+            └──run_config.json
+            └──summary.json
+            └──test_per_sample.csv
+            └──val_per_sample.csv
 
 .. list-table::
    :widths: 25 75

@@ -23,16 +23,21 @@ from utils import save_process_times
 from tabpfn import TabPFNRegressor
 from sklearn.metrics import mean_squared_error, mean_absolute_error
 
-os.environ["HF_TOKEN"] = "PUT_YOUR_TOKEN"
+from adaptive_error.run import run_adaptive_error
+import os
+
+token = os.getenv("HF_TOKEN")
 
 def main():
 
-    args = DeepTuneVisionOptions(RunType.TabPFNTRAIN)
+    args = DeepTuneVisionOptions(RunType.TabPFN)
     TARGET = args.target_column
     MODE = args.mode
-    OUT = args.out
+    MODEL_STR = "TABPFN"
+    OUT = (args.out / f"train_output_{MODEL_STR}_finetuning_{UNIQUE_ID}")
     TRAIN_PATH: Path = args.train_df
     VAL_PATH: Path = args.val_df
+    TEST_PATH: Path = args.eval_df
     FINETUNING_MODE: bool = args.finetuning_mode
     BATCH_SIZE: int = args.batch_size
     NUM_EPOCHS: int = args.num_epochs
@@ -47,7 +52,7 @@ def main():
     # we want to implement the logic of training and fine-tuning both here
 
     if FINETUNING_MODE:
-        finetune_tabpfn(
+        ckpt_directory = finetune_tabpfn(
             X_train=X_train,
             y_train=y_train,
             X_val=X_val,
@@ -61,7 +66,7 @@ def main():
         )
         
     else:
-        train_tabpfn_from_scratch(
+        ckpt_directory = train_tabpfn_from_scratch(
             X_train=X_train,
             y_train=y_train,
             X_val=X_val,
@@ -71,8 +76,25 @@ def main():
             out=OUT,
             model_str="TABPFN"
         )
-
-
+        
+    if args.adaptive_error and MODE == 'cls':
+        try:
+            print("Conducting adaptive error rate post-processing...")
+            run_adaptive_error(
+            args=args,
+            modality="tabular",
+            model_version="tabpfn",
+            ckpt_directory=ckpt_directory,
+            val_data_path=VAL_PATH,
+            test_data_path=TEST_PATH,
+            out_dir=OUT,
+            target_column=TARGET,
+            )
+        except Exception as exc:
+            import traceback
+            tb_str = traceback.format_exc()
+            print(f"Warning: adaptive error rate post-processing failed: {exc}")
+            print(f"Error traceback:\n{tb_str}")
 
 def finetune_tabpfn(
     X_train: pd.DataFrame,
@@ -87,7 +109,7 @@ def finetune_tabpfn(
     model_str: str = "TABPFN",
 ):
     start_time = time.time()
-    TRAIN_OUTPUT_DIR = (out / f"train_output_{model_str}_finetuning_{UNIQUE_ID}")
+    TRAIN_OUTPUT_DIR = out
 
     if mode == 'cls':
         
@@ -125,12 +147,13 @@ def finetune_tabpfn(
                 train_total = 0
                 for X_tr, X_te, y_tr, y_te, cat_ixs, confs in tqdm(train_loader, desc=f"Epoch {epoch} [train]"):
 
+
                     optimizer.zero_grad()
 
                     clf.fit_from_preprocessed(X_tr, y_tr, cat_ixs, confs)
 
                     preds = clf.forward(X_te, return_logits=True)
-                    loss = loss_fn(preds, y_te.to(clf.device))
+                    loss = loss_fn(preds, y_te.to(clf.device).long())
                     train_losses.append(loss.item())
 
                     loss.backward()
@@ -155,7 +178,7 @@ def finetune_tabpfn(
                         clf.fit_from_preprocessed(X_tr, y_tr, cat_ixs, confs)
 
                         preds = clf.forward(X_te, return_logits=True)
-                        loss = loss_fn(preds, y_te.to(clf.device))
+                        loss = loss_fn(preds, y_te.to(clf.device).long())
                         val_losses.append(loss.item())
 
                         predicted_classes = preds.argmax(dim=1)

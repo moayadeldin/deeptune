@@ -9,16 +9,19 @@ from trainers.vision.custom_siglip_train import train_siglip
 from cli import DeepTuneVisionOptions
 from utils import get_model_cls, RunType,set_seed
 
+from adaptive_error.run import run_adaptive_error
+
 def main():
     args = DeepTuneVisionOptions(RunType.TRAIN)
     TRAIN_PATH: Path = args.train_df
     VAL_PATH: Path = args.val_df
+    TEST_PATH: Path = args.test_df
     MODE = args.mode
+    MODEL_STR = args.model
     NUM_CLASSES = args.num_classes
-    OUT = args.out
+    OUT = args.out / f"trainval_output_{MODEL_STR}_{UNIQUE_ID}"
 
     MODEL_VERSION = args.model_version
-    MODEL_STR = args.model
     
     ADDED_LAYERS = args.added_layers
     EMBED_SIZE = args.embed_size
@@ -30,7 +33,7 @@ def main():
     LEARNING_RATE = args.learning_rate
     FIXED_SEED = args.fixed_seed
 
-    train(
+    ckpt_directory = train(
         train_df=TRAIN_PATH,
         val_df=VAL_PATH,
         mode=MODE,
@@ -48,9 +51,24 @@ def main():
         fixed_seed=FIXED_SEED,
         args=args
     )
-
-
-
+    
+    if args.adaptive_error and getattr(args, "mode", None) in (None, 'cls'):
+        try:
+            print("Conducting adaptive error rate post-processing...")
+            run_adaptive_error(
+                    args=args,
+                    modality='images',
+                    model_version=MODEL_VERSION,
+                    ckpt_directory=ckpt_directory,
+                    val_data_path=VAL_PATH,
+                    test_data_path=TEST_PATH,
+                    out_dir=OUT,
+                )
+        except Exception as exc:
+            import traceback
+            tb_str = traceback.format_exc()
+            print(f"Warning: adaptive error rate post-processing failed: {exc}")
+            print(f"Error traceback:\n{tb_str}")
 
 def train(
         train_df: Path,
@@ -79,7 +97,7 @@ def train(
     if added_layers == 0:
         raise ValueError('As you apply one of transfer learning or PEFT, please choose 1 or 2 as your preferred number of added_layers.')
 
-    TRAINVAL_OUTPUT_DIR = (out / f"trainval_output_{model_str}_{UNIQUE_ID}")
+    TRAINVAL_OUTPUT_DIR = out
 
     if MODEL_ARCHITECTURE.lower() == "siglip" and model_version == "siglip":
         _ = train_siglip(

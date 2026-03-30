@@ -18,6 +18,7 @@ from pathlib import Path
 from options import UNIQUE_ID, DEVICE
 from utils import RunType,set_seed
 from datasets.text_datasets import TextDataset
+from adaptive_error.run import run_adaptive_error
 
 
 def main():
@@ -25,10 +26,11 @@ def main():
     args = DeepTuneVisionOptions(RunType.TRAIN)
     TRAIN_PATH: Path = args.train_df
     VAL_PATH: Path = args.val_df
-    OUT = args.out
-    FREEZE_BACKBONE = args.freeze_backbone
+    EVAL_PATH: Path = args.eval_df
     USE_PEFT = args.use_peft
     MODEL_STR = 'PEFT-BERT' if USE_PEFT else 'BERT'
+    OUT = (args.out / f"trainval_output_{MODEL_STR}_{UNIQUE_ID}")
+    FREEZE_BACKBONE = args.freeze_backbone
     FIXED_SEED = args.fixed_seed
     
     BATCH_SIZE = args.batch_size
@@ -38,7 +40,7 @@ def main():
     NUM_CLASSES = args.num_classes
     EMBED_SIZE = args.embed_size
 
-    train(
+    ckpt_directory = train(
         train_df=TRAIN_PATH,
         val_df=VAL_PATH,
         out=OUT,
@@ -55,6 +57,28 @@ def main():
         args=args
         
     )
+    
+    if args.adaptive_error and getattr(args, "mode", None) in (None, 'cls'):
+        
+        
+        try:
+            print("Conducting adaptive error rate post-processing...")
+            run_adaptive_error(
+                    args=args,
+                    modality='text',
+                    model_version='BERT',
+                    ckpt_directory=ckpt_directory,
+                    val_data_path=VAL_PATH,
+                    test_data_path=EVAL_PATH,
+                    out_dir=OUT,
+                )
+        except Exception as exc:
+            import traceback
+            tb_str = traceback.format_exc()
+            print(f"Warning: adaptive error rate post-processing failed: {exc}")
+            print(f"Error traceback:\n{tb_str}")
+    
+    
 
 
 def train(
@@ -82,7 +106,7 @@ def train(
     TRAIN_DATASET_PATH = train_df
     VAL_DATASET_PATH = val_df
 
-    TRAINVAL_OUTPUT_DIR = (out / f"trainval_output_{model_str}_{UNIQUE_ID}")
+    TRAINVAL_OUTPUT_DIR = out
     
     # load the tokenizer, the dataloaders
 

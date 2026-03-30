@@ -12,6 +12,7 @@ The following is the generic CLI structure of running **DeepTune** on images dat
     $ python -m trainers.vision.train \
     --train_df <str> \
     --val_df <str> \
+    --eval_df <str> \ // Optional, only needed in case of using the adaptive error rate post-processing.
     --model_version <str> \
     --batch_size <int> \
     --num_classes <int> \
@@ -23,7 +24,8 @@ The following is the generic CLI structure of running **DeepTune** on images dat
     --mode <cls_or_reg> \
     [--fixed-seed] \
     [--use-peft] \
-    [--freeze-backbone]
+    [--freeze-backbone] \
+    [--adaptive-error]
 
 .. list-table::
    :widths: 25 75
@@ -72,6 +74,8 @@ The following is the generic CLI structure of running **DeepTune** on images dat
 
    * - ``--freeze-backbone``
      - *(Flag)* Determines whether to train only the added layers or update all model parameters during training.
+   * - ``--adaptive-error``
+     - *(Flag)* Enables adaptive error rate post-processing. Applicable only for classification tasks.
 
 .. note::
     For using PeFT just add the `--use-peft` switch to the previous command.
@@ -112,6 +116,7 @@ Since **DeepTune** currently supports only two models for text classification, t
     $ python -m trainers.nlp.[train_multilingualbert/train_gpt2] \
         --train_df <str> \
         --val_df <str> \
+        --eval_df <str> \ // Optional, only needed in case of using the adaptive error rate post-processing.
         --batch_size <int> \
         --num_classes <int> \
         --num_epochs <int> \
@@ -120,6 +125,7 @@ Since **DeepTune** currently supports only two models for text classification, t
         --embed_size <int> \
         [--fixed-seed] \
         [--freeze_backbone]
+        [--adaptive-error]
 
 .. note::
     There is no need to specify the ``--added_layers`` and ``--embed_size`` switches when using GPT-2
@@ -140,6 +146,7 @@ The generic CLI workflow for applying GANDALF in **DeepTune** requires specifyin
     $ python -m trainers.tabular.train_gandalf \
     --train_df <str> \
     --val_df <str> \
+    --eval_df <str> \ // Optional, only needed in case of using the adaptive error rate post-processing.
     --batch_size <int> \
     --num_epochs <int> \
     --learning_rate <float> \
@@ -148,7 +155,9 @@ The generic CLI workflow for applying GANDALF in **DeepTune** requires specifyin
     --categorical_cols <str> \
     --continuous_cols <str> \
     --tabular_target_column <str> \
-    --gflu_stages <int>
+    --gflu_stages <int> \
+    [--adaptive-error]
+
 
 .. list-table::
    :widths: 25 75
@@ -244,12 +253,14 @@ In order to run TabPFN in **DeepTune**, you can use the following CLI structure:
     $ python -m trainers.tabular.train_tabpfn \
     --train_df <str> \
     --val_df <str> \
+    --eval_df <str> \ // Optional, only needed in case of using the adaptive error rate post-processing.
     --batch_size <int> \
     --num_epochs <int> \
     --out <str> \
     --mode <cls_or_reg> \
     --target_column <str> \
-    --[finetuning-mode] \
+    [--finetuning-mode] \
+    [--adaptive-error]
 
 
 .. note::
@@ -268,6 +279,14 @@ After training completes, you may find the results in the directory specified wi
         └── model_weights.pth
         └── training_log.csv
         └── training_details.json
+        └── adaptive_error_rate
+            └──aer_lookup.json
+            └──predictive_confidence_vs_expected_error_rate.csv
+            └──predictive_confidence_vs_expected_error_rate.png
+            └──run_config.json
+            └──summary.json
+            └──test_per_sample.csv
+            └──val_per_sample.csv
 
 .. list-table::
    :widths: 25 75

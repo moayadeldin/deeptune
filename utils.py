@@ -73,8 +73,7 @@ class RunType(Enum):
     GANDALF = "gandalf"
     TIMESERIES = 'timeseries'
     ONECALL = 'onecall'
-    TabPFNTRAIN = 'tabpfntrain'
-    TabPFNEVAL = 'tabpfneval'
+    TabPFN = 'tabpfn'
     TabPFNEMBD = 'tabpfnembed'
 
 

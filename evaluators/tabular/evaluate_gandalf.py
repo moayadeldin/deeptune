@@ -9,6 +9,7 @@ from utils import get_model_cls,RunType,set_seed,save_process_times
 import time
 import os
 
+from adaptive_error.run import run_adaptive_error
 
 def evaluate(
     eval_df: Path,
@@ -18,7 +19,7 @@ def evaluate(
     model_str='GANDALF',
 ):
     
-    TEST_OUTPUT_DIR = (out / f"test_output_{model_str}_{UNIQUE_ID}")
+    TEST_OUTPUT_DIR = out
 
     model_weights = os.path.join(model_weights, 'GANDALF_model')
 
@@ -50,21 +51,43 @@ def evaluate(
 
 def main():
 
-    args = DeepTuneVisionOptions(RunType.EVAL)
+    args = DeepTuneVisionOptions(RunType.GANDALF)
 
     TEST_PATH = args.eval_df
+    VAL_PATH = args.val_df
+    TARGET = args.tabular_target_column
     MODEL_WEIGHTS = args.model_weights
-    OUT = args.out
     MODEL_STR = 'GANDALF'
+    OUT = (args.out / f"test_output_{MODEL_STR}_{UNIQUE_ID}")
 
-
-    evaluate(
+    _ = evaluate(
         eval_df=TEST_PATH,
         model_weights=MODEL_WEIGHTS,
         out=OUT,
         args=args,
         model_str=MODEL_STR
     )
+    
+    if args.adaptive_error:
+        try:
+            print("Conducting adaptive error rate post-processing...")
+            run_adaptive_error(
+                    args=args,
+                    modality='tabular',
+                    model_version='gandalf',
+                    ckpt_directory=MODEL_WEIGHTS,
+                    val_data_path=VAL_PATH,
+                    test_data_path=TEST_PATH,
+                    out_dir=OUT,
+                    target_column=TARGET,
+            )
+        except Exception as exc:
+            import traceback
+            tb_str = traceback.format_exc()
+            print(f"Warning: adaptive error rate post-processing failed: {exc}")
+            print(f"Error traceback:\n{tb_str}")
+    
+    
 
 if __name__ == "__main__":
     

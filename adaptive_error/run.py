@@ -264,6 +264,7 @@ def _collect_outputs(
     model_version: str,
     ckpt_directory: Path | str,
     split_path: Path | str,
+    target_column: str = "labels",
 ) -> pd.DataFrame:
     if modality == "text":
         return collect_text_outputs(args, model_version, ckpt_directory, split_path)
@@ -273,9 +274,9 @@ def _collect_outputs(
         raise ValueError(f"Adaptive error is not supported for modality '{modality}'.")
 
     if model_version == "gandalf":
-        return collect_gandalf_outputs(args, ckpt_directory, split_path)
+        return collect_gandalf_outputs(args, ckpt_directory, split_path,label_column=target_column)
     if model_version == "tabpfn":
-        return collect_tabpfn_outputs(args, ckpt_directory, split_path)
+        return collect_tabpfn_outputs(args, ckpt_directory, split_path,label_column=target_column)
     raise ValueError(f"Unsupported tabular model for adaptive error: {model_version}")
 
 
@@ -309,10 +310,11 @@ def _run_adaptive_error_impl(
     val_data_path,
     test_data_path,
     out_dir,
+    target_column: str = "labels",
 ):
     aer_dir = Path(out_dir) / "adaptive_error_rate"
 
-    val_frame = _collect_outputs(args, modality, model_version, ckpt_directory, val_data_path)
+    val_frame = _collect_outputs(args, modality, model_version, ckpt_directory, val_data_path,target_column=target_column)
     _ensure_multiple_class_labels(val_frame, split_name="validation")
     raw_val_proba, class_labels = _extract_probability_matrix(val_frame)
     _ensure_multiple_class_labels(
@@ -346,7 +348,7 @@ def _run_adaptive_error_impl(
     val_out["adaptive_error_rate"] = aer.get_expected_error(val_confidence)
     bins_df = aer.bin_stats_df(drop_empty=False)
 
-    test_frame = _collect_outputs(args, modality, model_version, ckpt_directory, test_data_path)
+    test_frame = _collect_outputs(args, modality, model_version, ckpt_directory, test_data_path,target_column=target_column)
     test_out, test_calibrated = _prepare_output_frame(test_frame, calibrator, class_labels)
     test_confidence = compute_confidence(test_calibrated)
     test_out["confidence"] = test_confidence
@@ -466,6 +468,7 @@ def run_adaptive_error(
     val_data_path,
     test_data_path,
     out_dir,
+    target_column: str = "labels",
 ):
     if modality == "timeseries":
         return
@@ -490,15 +493,22 @@ def run_adaptive_error(
             val_data_path=val_data_path,
             test_data_path=test_data_path,
             out_dir=out_dir,
+            target_column=target_column,
         )
+        
+        print("Adaptive error rate post-processing completed successfully.")
     except Exception as exc:
+        import traceback
+        tb_str = traceback.format_exc()
         print(f"Warning: adaptive error rate post-processing failed: {exc}")
+        print(f"Error traceback:\n{tb_str}")
         failure_summary = {
             "status": "failed",
             "error": str(exc),
             "exception_type": type(exc).__name__,
             "modality": modality,
             "model_version": model_version,
+            "traceback":tb_str
         }
         _save_json(aer_dir / "error.json", failure_summary)
         _save_json(aer_dir / "summary.json", failure_summary)

@@ -24,7 +24,8 @@ The easiest way to get started with **DeepTune** is to use the unified pipeline 
         [--raw-data] \
         [--freeze_backbone] \
         [--time_idx_column] <str> \
-        [--finetuning-mode]
+        [--finetuning-mode] \
+        [--adaptive-error] 
 
 .. note::
 
@@ -64,6 +65,8 @@ The easiest way to get started with **DeepTune** is to use the unified pipeline 
      - Name of the time index column in your time-series dataset. *Required only for time-series modality.*
    * - ``--finetuning-mode``
      - *(Flag)* Enables fine-tuning mode for TabPFN models. *Required only for tabular modality when using TabPFN.*
+   * - ``--adaptive-error``
+     - *(Flag)* Enables adaptive error rate post-processing. Applicable only for classification tasks.
 .. note::
 
    You only need to specify the ``--num_classes`` argument for image classification tasks and with Multilingual BERT. It is not needed for other time-series, tabular models, and GPT-2 as they handle this internally.
@@ -182,6 +185,14 @@ After running the unified CLI command, **DeepTune** will generate an output dire
        │   ├── test_split.parquet
        │   └── test_indices.csv
        │   └── label_mapping.json
+       ├── adaptive_error_rate
+           ├── aer_lookup.json
+           ├── predictive_confidence_vs_expected_error_rate.csv
+           ├── predictive_confidence_vs_expected_error_rate.png
+           ├── run_config.json
+           ├── summary.json
+           ├── test_per_sample.csv
+           └── val_per_sample.csv
        ├── trainval_output_<model_version>_<yyyymmdd_hhmm>
        │   ├── cli_arguments.json
        │   ├── model_weights.pth

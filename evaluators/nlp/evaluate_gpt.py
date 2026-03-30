@@ -16,6 +16,8 @@ from utils import RunType
 from utils import save_process_times
 from datasets.text_datasets import TextDataset
 
+from adaptive_error.run import run_adaptive_error
+
 def evaluate(eval_df, out, model_weights, batch_size, freeze_backbone, args, model_str, use_peft=False):
 
     if use_peft:
@@ -57,7 +59,7 @@ def evaluate(eval_df, out, model_weights, batch_size, freeze_backbone, args, mod
     model.eval()
     with torch.no_grad():
     
-        for _, (encoding, labels, _) in test_pbar:
+        for _, (encoding, labels, *_) in test_pbar:
             input_ids = encoding['input_ids'].to(DEVICE)
             attention_mask = encoding['attention_mask'].to(DEVICE)
             labels = labels.to(DEVICE)
@@ -116,6 +118,7 @@ def main():
     args = DeepTuneVisionOptions(RunType.EVAL)
 
     EVAL_PATH = args.eval_df
+    VAL_PATH = args.val_df
     OUT = args.out
     MODEL_STR = 'GPT2'
     FREEZE_BACKBONE = args.freeze_backbone
@@ -135,6 +138,26 @@ def main():
         args=args,
         batch_size=BATCH_SIZE,
     )
+    
+    if args.adaptive_error and getattr(args, "mode", None) in (None, 'cls'):
+        
+        
+        try:
+            print("Conducting adaptive error rate post-processing...")
+            run_adaptive_error(
+                    args=args,
+                    modality='text',
+                    model_version='gpt2',
+                    ckpt_directory=MODEL_WEIGHTS,
+                    val_data_path=VAL_PATH,
+                    test_data_path=EVAL_PATH,
+                    out_dir=OUT,
+            )
+        except Exception as exc:
+            import traceback
+            tb_str = traceback.format_exc()
+            print(f"Warning: adaptive error rate post-processing failed: {exc}")
+            print(f"Error traceback:\n{tb_str}")
 
 
 

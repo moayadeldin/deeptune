@@ -17,12 +17,14 @@ from utils import RunType,set_seed
 import json, os
 from datasets.text_datasets import TextDataset
 
+from adaptive_error.run import run_adaptive_error
 
 def main():
 
     args = DeepTuneVisionOptions(RunType.TRAIN)
     TRAIN_PATH: Path = args.train_df
     VAL_PATH: Path = args.val_df
+    EVAL_PATH : Path = args.eval_df
     OUT = args.out
     MODEL_STR = 'GPT2'
     FREEZE_BACKBONE = args.freeze_backbone
@@ -34,7 +36,7 @@ def main():
     LEARNING_RATE = args.learning_rate
 
 
-    train(
+    ckpt_directory = train(
         train_df=TRAIN_PATH,
         val_df=VAL_PATH,
         out=OUT,
@@ -48,6 +50,27 @@ def main():
         args=args
         
     )
+    
+    if args.adaptive_error and getattr(args, "mode", None) in (None, 'cls'):
+        
+        
+        try:
+            print("Conducting adaptive error rate post-processing...")
+            run_adaptive_error(
+                    args=args,
+                    modality='text',
+                    model_version='gpt2',
+                    ckpt_directory=ckpt_directory,
+                    val_data_path=VAL_PATH,
+                    test_data_path=EVAL_PATH,
+                    out_dir=OUT,
+            )
+        except Exception as exc:
+            import traceback
+            tb_str = traceback.format_exc()
+            print(f"Adaptive error rate post-processing failed with error: {exc}\nTraceback:\n{tb_str}")
+    
+    
 
 
 def train(

@@ -18,6 +18,7 @@ from cli import DeepTuneVisionOptions
 from utils import RunType,set_seed
 import pandas as pd
 
+from adaptive_error.run import run_adaptive_error
 
 os.environ['TORCH_FORCE_NO_WEIGHTS_ONLY_LOAD'] = '1' # disabling weights-only loading error
 
@@ -28,9 +29,10 @@ def main():
     args = DeepTuneVisionOptions(RunType.GANDALF)
     TRAIN_PATH: Path = args.train_df
     VAL_PATH: Path = args.val_df
+    EVAL_PATH : Path = args.eval_df
     type = args.type
-    OUT = args.out
     MODEL_STR = 'GANDALF'
+    OUT = (args.out / f"trainval_output_{MODEL_STR}_{UNIQUE_ID}") 
     BATCH_SIZE=args.batch_size
     LEARNING_RATE=args.learning_rate
     NUM_EPOCHS = args.num_epochs
@@ -42,7 +44,7 @@ def main():
     CATEGORICAL_COLS = args.categorical_cols
     GFLU_STAGES = args.gflu_stages
 
-    train(
+    ckpt_directory = train(
         train_df=TRAIN_PATH,
         val_df=VAL_PATH,
         type=type,
@@ -57,6 +59,26 @@ def main():
         args=args,
         model_str=MODEL_STR
     )
+    
+    if args.adaptive_error:
+        try:
+            print("Conducting adaptive error rate post-processing...")
+            run_adaptive_error(
+                    args=args,
+                    modality='tabular',
+                    model_version='gandalf',
+                    ckpt_directory=ckpt_directory,
+                    val_data_path=VAL_PATH,
+                    test_data_path=EVAL_PATH,
+                    out_dir=OUT,
+                    target_column=TARGET,
+            )
+        except Exception as exc:
+            import traceback
+            tb_str = traceback.format_exc()
+            print(f"Warning: adaptive error rate post-processing failed: {exc}")
+            print(f"Error traceback:\n{tb_str}")
+    
 
 
 def train(
@@ -79,7 +101,7 @@ def train(
     train_dataset = pd.read_parquet(train_df)
     val_dataset = pd.read_parquet(val_df)
 
-    TRAINVAL_OUTPUT_DIR = (out / f"trainval_output_{model_str}_{UNIQUE_ID}") 
+    TRAINVAL_OUTPUT_DIR = out
 
     performance_logger = PerformanceLogger(TRAINVAL_OUTPUT_DIR)
 
