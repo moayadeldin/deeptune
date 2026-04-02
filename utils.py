@@ -22,6 +22,8 @@ from src.vision.vgg import adjustedVGGNet
 from src.vision.vgg_peft import adjustedPeftVGGNet
 from src.vision.vit import adjustedViT
 from src.vision.vit_peft import adjustedViTPeft
+from src.vision.convnext import adjustedConvNext
+from src.vision.convnext_peft import adjustedPeftConvNext
 
 from helpers import fixed_seed
 
@@ -33,6 +35,7 @@ MODEL_CLS_MAP: dict[str, Type[nn.Module]] = {
     "swin": adjustedSwin,
     "vgg": adjustedVGGNet,
     "vit": adjustedViT,
+    "convnext": adjustedConvNext,
 }
 
 PEFT_MODEL_CLS_MAP: dict[str, Type[nn.Module]] = {
@@ -42,6 +45,7 @@ PEFT_MODEL_CLS_MAP: dict[str, Type[nn.Module]] = {
     "swin": adjustedPeftSwin,
     "vgg": adjustedPeftVGGNet,
     "vit": adjustedViTPeft,
+    "convnext": adjustedPeftConvNext,
 }
 
 
