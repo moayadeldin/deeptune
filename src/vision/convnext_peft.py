@@ -123,7 +123,7 @@ class adjustedPeftConvNext(nn.Module):
         
         if self.added_layers == 2:
             x = self.fc1(x)
-            x = F.gelu(x)
+            x = F.relu(x)
             x = self.fc2(x)
             
         elif self.added_layers == 1:

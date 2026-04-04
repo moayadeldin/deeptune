@@ -102,7 +102,7 @@ class adjustedConvNext(nn.Module):
         
         if self.added_layers == 2:
             x = self.fc1(x)
-            x = F.gelu(x) # Note: Using GELU to match native ConvNeXt architecture
+            x = F.relu(x)
             x = self.fc2(x)
             
         elif self.added_layers == 1:
