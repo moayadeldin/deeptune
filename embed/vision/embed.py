@@ -269,7 +269,7 @@ def adjust_vision_model(model: nn.Module, model_architecture: str, use_case: str
     if (
          (model_architecture == "vit" and use_case == 'pretrained') or
          added_layers == 1 or
-         (model_architecture in ("efficientnet", "resnet", "swin", "vgg", "vit") and added_layers == 2)
+         (model_architecture in ("efficientnet", "resnet", "swin", "vgg", "vit", "convnext") and added_layers == 2)
     ):
         model.eval()
         return model
