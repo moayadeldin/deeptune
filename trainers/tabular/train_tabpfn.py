@@ -9,8 +9,8 @@ from torch.optim import Adam
 from utils import RunType
 from joblib import dump
 from cli import DeepTuneVisionOptions
-from tabpfn.utils import meta_dataset_collator
-from tabpfn.finetune_utils import clone_model_for_evaluation
+from tabpfn.finetuning.data_util import meta_dataset_collator
+from tabpfn.finetuning.train_util import clone_model_for_evaluation
 import torch
 from torch.utils.data import DataLoader
 from pathlib import Path
