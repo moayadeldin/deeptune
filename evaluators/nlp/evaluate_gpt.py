@@ -57,7 +57,7 @@ def evaluate(eval_df, out, model_weights, batch_size, freeze_backbone, args, mod
     model.eval()
     with torch.no_grad():
     
-        for _, (encoding, labels, _) in test_pbar:
+        for _, (encoding, labels, *_) in test_pbar:
             input_ids = encoding['input_ids'].to(DEVICE)
             attention_mask = encoding['attention_mask'].to(DEVICE)
             labels = labels.to(DEVICE)
