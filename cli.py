@@ -33,6 +33,8 @@ class DeepTuneVisionOptions:
             self._add_gandalf_args()
         if run_type == (RunType.TIMESERIES):
             self._add_timeseries_args()
+        if run_type == RunType.COORDINATE_REGRESSION:
+            self._add_coordinate_regression_args()
 
         parsed_args = self.parser.parse_args(args)
         # self.input_dir: Optional[Path] = parsed_args.input_dir.resolve() if parsed_args.input_dir else None
@@ -143,6 +145,13 @@ class DeepTuneVisionOptions:
             self.model_weights: Optional[Path] = (
                 parsed_args.model_weights.resolve() if parsed_args.model_weights else None
             )
+
+        if run_type == RunType.COORDINATE_REGRESSION:
+            self.df : Optional[Path] = parsed_args.df
+            self.learning_rate: Optional[float] = parsed_args.learning_rate
+            self.num_epochs: Optional[int] = parsed_args.num_epochs
+            self.fixed_seed: bool = parsed_args.fixed_seed
+            self.heatmap_size: Optional[int] = parsed_args.heatmap_size
             
             
         if run_type in (RunType.EVAL, RunType.EMBED):
@@ -261,6 +270,7 @@ class DeepTuneVisionOptions:
         p.add_argument('--train_df', type=Path, help='PARQUET file containing train data.')
         p.add_argument('--val_df', type=Path, help='PARQUET file containing validation data.')
         
+        
     def _add_timeseries_args(self):
         
         p = self.parser
@@ -322,8 +332,14 @@ class DeepTuneVisionOptions:
         p.add_argument('--eval_df', type=Path, help='PARQUET file containing testing data.')
         p.add_argument('--model_weights', type=Path, help='Path to model weights.')
         p.add_argument('--df', type=Path, help='PARQUET file containing data.')
-    
-        
+
+    def _add_coordinate_regression_args(self):
+        p = self.parser
+        p.add_argument('--df', type=Path, help='PARQUET file containing data.')
+        p.add_argument('--learning_rate', type=float, help='Learning rate.')
+        p.add_argument('--num_epochs', type=int, help='Number of epochs.')
+        p.add_argument('--heatmap_size', type=int, default=56, help='Size of the heatmap output for coordinate regression.')
+
 
     def _parse_model_str(self, mode: RunType) -> str:
         if mode == RunType.TRAIN or mode == RunType.EVAL:
@@ -340,6 +356,9 @@ class DeepTuneVisionOptions:
             prefix_str = "PEFT" if self.use_peft else "FINETUNED"
         elif mode == RunType.TabPFNTRAIN or mode == RunType.TabPFNEVAL or mode == RunType.TabPFNEMBD:
             prefix_str = "TABPFN"
+            self.model_version=None
+        elif mode == RunType.COORDINATE_REGRESSION:
+            prefix_str = "COORDINATE_REGRESSION"
             self.model_version=None
         else:
             prefix_str = self.use_case.value.upper()

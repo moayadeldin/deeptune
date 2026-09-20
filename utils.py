@@ -80,6 +80,7 @@ class RunType(Enum):
     TabPFNTRAIN = 'tabpfntrain'
     TabPFNEVAL = 'tabpfneval'
     TabPFNEMBD = 'tabpfnembed'
+    COORDINATE_REGRESSION = 'coordinate_regression'
 
 
 def get_model_cls(model_architecture: str, use_peft: bool = False) -> Type[nn.Module]:

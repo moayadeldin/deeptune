@@ -3,6 +3,7 @@ import numpy as np
 import os
 import pandas as pd
 import random
+import logging
 import torch
 import torchvision
 from datetime import datetime
@@ -170,6 +171,7 @@ class PerformanceLogger:
             }
           
           self.output_dir = output_dir
+          self.logger = logging.getLogger()
      
      def log_performance(self, epoch, epoch_loss, epoch_accuracy, val_loss, val_accuracy, test_loss, test_accuracy):
         """
