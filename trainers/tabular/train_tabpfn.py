@@ -23,7 +23,8 @@ from utils import save_process_times
 from tabpfn import TabPFNRegressor
 from sklearn.metrics import mean_squared_error, mean_absolute_error
 
-os.environ["HF_TOKEN"] = "PUT_YOUR_TOKEN"
+# Authentication is inherited from the environment / Hugging Face login.
+# Never overwrite the user's token when importing a training module.
 
 def main():
 

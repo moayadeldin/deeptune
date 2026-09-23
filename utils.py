@@ -24,6 +24,9 @@ from src.vision.vit import adjustedViT
 from src.vision.vit_peft import adjustedViTPeft
 from src.vision.convnext import adjustedConvNext
 from src.vision.convnext_peft import adjustedPeftConvNext
+from src.video.video3d import adjustedVideo3D, VIDEO3D_ARCHITECTURES
+from src.video.video3d_peft import adjustedPeftVideo3D
+from src.video.frame_pool import VideoFramePoolClassifier
 
 from helpers import fixed_seed
 
@@ -46,6 +49,17 @@ PEFT_MODEL_CLS_MAP: dict[str, Type[nn.Module]] = {
     "vgg": adjustedPeftVGGNet,
     "vit": adjustedViTPeft,
     "convnext": adjustedPeftConvNext,
+}
+
+# Native spatio-temporal video architectures (3D-CNNs and video transformers).
+# Any model_version NOT in this set is instead treated as a frame-sampling
+# video model built on one of the 2D backbones above (e.g. "resnet50").
+VIDEO3D_MODEL_CLS_MAP: dict[str, Type[nn.Module]] = {
+    version: adjustedVideo3D for version in VIDEO3D_ARCHITECTURES
+}
+
+VIDEO3D_PEFT_MODEL_CLS_MAP: dict[str, Type[nn.Module]] = {
+    version: adjustedPeftVideo3D for version in VIDEO3D_ARCHITECTURES
 }
 
 
@@ -108,10 +122,77 @@ def get_model_version(args: Namespace) -> str:
 
 
 def get_model_architecture(model_version: str):
+    # Native video architectures (e.g. "r3d_18") are self-describing and don't
+    # follow the "<family><depth>" naming convention (e.g. "resnet50") the
+    # regex below expects, so they're matched directly against the known set
+    # rather than falling through to it.
+    if model_version in VIDEO3D_ARCHITECTURES or model_version == "dummy_video3d":
+        return model_version
     match = re.match(r"^[a-zA-Z]+", model_version)
     if match:
         return match.group()
     raise ValueError(f"Could not identify architecture from: {model_version}")
+
+
+def is_native_video_architecture(model_version: str) -> bool:
+    """
+    True if `model_version` refers to one of DeepTune's native spatio-temporal
+    video architectures (e.g. "r3d_18"), as opposed to a frame-sampling video
+    model built on one of the 2D image backbones under src/vision/ (e.g.
+    "resnet50").
+    """
+    return model_version in VIDEO3D_ARCHITECTURES or model_version == "dummy_video3d"
+
+
+def get_video_model_cls(model_version: str, use_peft: bool = False) -> Type[nn.Module]:
+    """
+    Resolves `model_version` to the model class DeepTune should build for the
+    video modality: one of the native adjustedVideo3D/adjustedPeftVideo3D
+    classes if `model_version` names a native video architecture, otherwise
+    the same 2D adjusted*Net class the images modality would use, so it can be
+    wrapped by VideoFramePoolClassifier.
+    """
+    if is_native_video_architecture(model_version):
+        video_map = VIDEO3D_PEFT_MODEL_CLS_MAP if use_peft else VIDEO3D_MODEL_CLS_MAP
+        return video_map.get(model_version, adjustedPeftVideo3D if use_peft else adjustedVideo3D)
+
+    return get_model_cls(get_model_architecture(model_version), use_peft=use_peft)
+
+
+def build_video_model(
+    model_version: str,
+    num_classes: int,
+    added_layers: int,
+    embed_size: int,
+    freeze_backbone: bool,
+    mode: str,
+    use_peft: bool = False,
+    pooling: str = "mean",
+) -> nn.Module:
+    """
+    Builds DeepTune's video classifier for `model_version` - either a native
+    spatio-temporal model (see VIDEO3D_ARCHITECTURES) built and returned
+    directly, or a frame-sampling model wrapping one of the existing 2D vision
+    backbones via VideoFramePoolClassifier. Both accept clips shaped
+    [B, T, C, H, W] and share the same forward(x, extract_embed=False) API, so
+    the rest of DeepTune's Trainer/TestTrainer/embedding pipeline treats them
+    identically regardless of which family was chosen.
+    """
+    model_cls = get_video_model_cls(model_version, use_peft=use_peft)
+
+    if is_native_video_architecture(model_version):
+        return model_cls(num_classes, model_version, added_layers, embed_size, freeze_backbone, task_type=mode)
+
+    return VideoFramePoolClassifier(
+        frame_model_cls=model_cls,
+        frame_model_version=model_version,
+        num_classes=num_classes,
+        added_layers=added_layers,
+        embedding_layer_size=embed_size,
+        freeze_backbone=freeze_backbone,
+        task_type=mode,
+        pooling=pooling,
+    )
 
 ### DEPRECATED ###
 # def save_cli_args(args: Namespace, outdir: Path) -> None:

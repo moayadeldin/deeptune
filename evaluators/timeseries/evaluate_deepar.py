@@ -1,3 +1,4 @@
+from datasets.timeseries_data import prepare_timeseries
 from pytorch_forecasting import TimeSeriesDataSet
 import pytorch_forecasting
 import pandas as pd
@@ -53,18 +54,8 @@ def evaluate(
     
     """
     
-    df['group'] = '0'
-    
-    df[timeindex_column] = pd.to_datetime(df[timeindex_column])
-    df = df.sort_values(timeindex_column)
-    
-    time_col = df[timeindex_column]
-    df["time_idx"] = ((time_col - time_col.min()).dt.total_seconds() // 3600).astype(int)
-    
-    GROUP_IDS = ['group'] if group_ids is None else group_ids
-    
-    df[target_column] = df[target_column].astype(np.float64)
-    
+    df, GROUP_IDS = prepare_timeseries(df, timeindex_column, target_column, group_ids)
+
     train_df = df[df["__split"] == "train"].copy()
     val_df = df[df["__split"] == "val"].copy()
     eval_df = df[df["__split"] == "eval"].copy()
@@ -76,39 +67,19 @@ def evaluate(
     
     hist_for_test = (
     pd.concat([train_df, val_df], ignore_index=True)
-      .sort_values(["group", "time_idx"])
-      .groupby("group", as_index=False)
+      .sort_values([*GROUP_IDS, "time_idx"])
+      .groupby(GROUP_IDS, as_index=False)
       .tail(max_encoder_length)
     )
 
     test_plus_hist = (
         pd.concat([hist_for_test, eval_df], ignore_index=True)
-        .sort_values(["group", "time_idx"])
+        .sort_values([*GROUP_IDS, "time_idx"])
     )
     
-    training_dataset = TimeSeriesDataSet(
-    train_df,
-    time_idx = "time_idx",
-    target=target_column,
-    max_prediction_length = max_prediction_length,
-    max_encoder_length = max_encoder_length,
-    time_varying_known_categoricals = time_varying_known_categoricals,
-    time_varying_unknown_categoricals = time_varying_unknown_categoricals,
-    static_categoricals = static_categoricals,
-    time_varying_known_reals = time_varying_known_reals,
-    time_varying_unknown_reals=(time_varying_unknown_reals) + [target_column],
-    static_reals = static_reals,
-    group_ids = GROUP_IDS,
-    allow_missing_timesteps=True,
-    target_normalizer=pytorch_forecasting.data.encoders.TorchNormalizer()
-    
-    )
-
-    test_dataset = TimeSeriesDataSet.from_dataset(
-        training_dataset,
-        test_plus_hist,
-        predict=True,
-        stop_randomization=True
+    test_dataset = TimeSeriesDataSet.from_parameters(
+        model.dataset_parameters, test_plus_hist, predict=False,
+        stop_randomization=True, min_prediction_idx=int(eval_df['time_idx'].min()),
     )
 
     test_loader = test_dataset.to_dataloader(
@@ -123,11 +94,12 @@ def evaluate(
         test_loader,
         mode="prediction",
         return_x=True,
+        return_y=True,
         return_index=True,
         return_decoder_lengths=True
     )
     
-    print(f" =======> Model's prediction of the target column in the evaluation/test set is {pred.output.squeeze().item():.4f}")
+    print(f"Holdout predictions: {tuple(pred.output.shape)}")
     
     end_time = time.time()
     total_time = end_time - start_time
@@ -136,7 +108,14 @@ def evaluate(
     args.save_args(TEST_OUTPUT_DIR)
     save_process_times(epoch_times=1, total_duration=total_time, outdir=TEST_OUTPUT_DIR, process="evaluation")
     
-    return TEST_OUTPUT_DIR,pred.output.squeeze().item()
+    import json
+    import torch
+    target = pred.y[0] if isinstance(pred.y, tuple) else pred.y
+    errors = pred.output.detach().cpu() - target.detach().cpu()
+    metrics = {'mae': float(errors.abs().mean()), 'rmse': float(torch.sqrt((errors ** 2).mean())),
+               'loss': float((errors ** 2).mean()), 'predictions': int(errors.numel())}
+    (TEST_OUTPUT_DIR / 'full_metrics.json').write_text(json.dumps(metrics, indent=2), encoding='utf-8')
+    return TEST_OUTPUT_DIR, pred.output.detach().cpu().numpy()
 
 
 def main():

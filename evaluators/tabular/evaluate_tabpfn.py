@@ -93,10 +93,8 @@ def evaluate_tabpfn(
                 print(f"Evaluation MAE: {mae:.4f}")
 
                 result_dic = {
-                    {
                         "Mean Squared Error": mse,
                         "Mean Absolute Error": mae,
-                    }
                 }
             else:
                 reg = load_fitted_tabpfn_model(model_path, device=DEVICE)

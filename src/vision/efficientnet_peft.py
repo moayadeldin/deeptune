@@ -110,11 +110,16 @@ class adjustedPeftEfficientNet(nn.Module):
         # target_modules is actually the parts of the network we have applied PEFT on
         target_modules = []
         # available_types are the networks that support PEFT optimization
-        available_types = [nn.modules.conv.Conv2d, nn.modules.linear.Linear, nn.modules.Flatten]
+        available_types = [nn.modules.conv.Conv2d, nn.modules.linear.Linear]
 
         # loop through the model and check what layers in it we may apply PEFT on and them to target_modules
         for n, m in model.named_modules():
             if type(m) in available_types:
+                # Depthwise convolutions require a rank divisible by their group
+                # count. Adapt the surrounding pointwise layers instead so the
+                # user can choose any embedding/LoRA dimension.
+                if isinstance(m, nn.Conv2d) and m.groups != 1:
+                    continue
                 target_modules.append(n)
         print('Target Modules', target_modules)
 

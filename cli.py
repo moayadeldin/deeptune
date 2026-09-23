@@ -38,8 +38,11 @@ class DeepTuneVisionOptions:
         # self.input_dir: Optional[Path] = parsed_args.input_dir.resolve() if parsed_args.input_dir else None
         self.out: Optional[Path] = parsed_args.out.resolve() if parsed_args.out else None
         self.batch_size: Optional[int] = parsed_args.batch_size
+        self.num_frames: int = parsed_args.num_frames
+        self.pooling: str = parsed_args.pooling
         self.mode : Optional[str] = parsed_args.mode
         self.grouper: Optional[str] = parsed_args.grouper
+        self.fixed_seed: bool = parsed_args.fixed_seed
 
         if run_type == RunType.TabPFNTRAIN:
             self.target_column: Optional[str] = parsed_args.target_column
@@ -77,6 +80,10 @@ class DeepTuneVisionOptions:
             self.raw_data: bool = parsed_args.raw_data
             self.finetuning_mode: bool = parsed_args.finetuning_mode
             self.freeze_backbone: bool = parsed_args.freeze_backbone
+            self.num_epochs: int = parsed_args.num_epochs
+            self.learning_rate: float = parsed_args.learning_rate
+            self.added_layers: Optional[int] = parsed_args.added_layers
+            self.embed_size: Optional[int] = parsed_args.embed_size
 
 
             # ganadalf specific
@@ -177,22 +184,8 @@ class DeepTuneVisionOptions:
         """
         Save the CLI arguments to a JSON file.
         """
-        cli_dict = self.to_dict()
-
-        try:
-            outdir = Path(outdir)
-            outdir.mkdir(parents=True, exist_ok=True)
-
-            out_path = outdir / "cli_arguments.json"
-
-            with open(out_path, "w") as f:
-                json.dump(cli_dict, f, indent=4)
-
-        except Exception as e:
-            print(f"There is an Error while saving model: {e}")
-            # clean up incomplete directory
-            if os.path.exists(outdir):
-                shutil.rmtree(outdir, ignore_errors=True)
+        from desktop.config import write_json
+        write_json(Path(outdir) / 'cli_arguments.json', self.to_dict())
 
     def _add_default_args(self):
         p = self.parser
@@ -211,6 +204,10 @@ class DeepTuneVisionOptions:
         p.add_argument('--freeze-backbone', action='store_true', help='Freeze backbone.')
         p.add_argument('--fixed-seed', action='store_true', help='Use fixed seed 42.')
         p.add_argument('--batch_size', type=int, help='Batch size.')
+
+        # Video-modality args (ignored for other modalities)
+        p.add_argument('--num_frames', type=int, default=8, help='Number of frames to uniformly sample per video clip (video modality only).')
+        p.add_argument('--pooling', type=str, choices=['mean', 'attention'], default='mean', help="How per-frame outputs are pooled into a clip-level prediction for frame-sampling video models (video modality only). Ignored for DeepTune's native video architectures.")
 
     def _add_tabpfn_train_args(self):
         p = self.parser
@@ -238,12 +235,15 @@ class DeepTuneVisionOptions:
 
     def _add_onecall_args(self):
         p = self.parser
+        p.set_defaults(mode='cls', batch_size=16, model_version='resnet18')
         p.add_argument('--num_classes', type=int,required=False, help='Number of classes in your dataset.')
         p.add_argument('--use-peft', action='store_true', help='Use PEFT-adapted model.')
-        p.add_argument("--modality", help="Modality you work on", choices=["text", "images", "tabular", "timeseries"], required=True)
+        p.add_argument("--modality", help="Modality you work on", choices=["text", "images", "tabular", "timeseries", "video"], required=True)
         p.add_argument('--df', type=Path, required=True, help='Path to the dataframe (parquet file) to be used for training.')
-        p.add_argument('--target', type=str, required=False, help="Specify the name of your target column. Default is 'labels'.")
+        p.add_argument('--target', type=str, default='labels', help="Specify the name of your target column. Default is 'labels'.")
         p.add_argument('--raw-data', action='store_true', help='Use raw data instead of ready-to-use parquet.')
+        p.add_argument('--num_epochs', type=int, default=10, help='Number of epochs. Default is 10.')
+        p.add_argument('--learning_rate', type=float, default=1e-4, help='Learning rate. Default is 1e-4.')
         # tabpfn specific
         p.add_argument('--finetuning-mode', action='store_true', help='If set, perform fine-tuning instead of training from scratch for TabPFN.')
         # gandalf specific

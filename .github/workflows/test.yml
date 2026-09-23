@@ -18,7 +18,7 @@ jobs:
     - name: Set up Python
       uses: actions/setup-python@v4
       with:
-        python-version: '3.10'
+        python-version: '3.12'
 
     - name: Install dependencies
       run: |
@@ -26,18 +26,13 @@ jobs:
         pip install -r requirements.txt
         pip install pytest
 
-    - name: Debug PATH
-      run: |
-        echo $PATH
-    
-    - name: Verify pytest installation
-      run: |
-        pip list | grep pytest
-        which python
-        python -c "import pytest; print(pytest.__file__)"
-
     - name: Run tests
+      env:
+        OMP_NUM_THREADS: '2'
+        MKL_NUM_THREADS: '2'
       run: |
-        pip show pytest
-        python -m pytest tests/models/test_*.py --disable-warnings -v
-        python -m pytest tests/training/test_*.py --disable-warnings -v
+        python -m pip check
+        python -m pytest tests --disable-warnings -q
+
+    - name: Build package
+      run: python -m pip wheel . --no-deps --wheel-dir dist

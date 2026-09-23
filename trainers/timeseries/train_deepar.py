@@ -1,3 +1,4 @@
+from datasets.timeseries_data import prepare_timeseries
 from pytorch_forecasting import TimeSeriesDataSet
 import pytorch_forecasting
 import pandas as pd
@@ -11,11 +12,28 @@ from lightning.pytorch.tuner import Tuner
 import numpy as np
 from helpers import save_timeseries_prediction_to_json
 from pytorch_forecasting.metrics import MAE
-from lightning.pytorch.callbacks import ModelCheckpoint
+from lightning.pytorch.callbacks import ModelCheckpoint, Callback
 from lightning.pytorch import Trainer
 import time 
 from pathlib import Path
 from utils import save_process_times
+
+class _LossHistory(Callback):
+    def __init__(self, destination):
+        self.destination = destination
+        self.rows = []
+
+    def on_train_epoch_end(self, trainer, pl_module):
+        metrics = trainer.callback_metrics
+        def number(*keys):
+            value = next((metrics[key] for key in keys if key in metrics), None)
+            return float(value.detach().cpu()) if value is not None else None
+        self.rows.append({'epoch': trainer.current_epoch + 1,
+                          'epoch_loss': number('train_loss_epoch', 'train_loss'),
+                          'val_loss': number('val_loss')})
+        self.destination.mkdir(parents=True, exist_ok=True)
+        pd.DataFrame(self.rows).to_csv(self.destination / 'training_log.csv', index=False)
+
 
 def train(
         train_df: Path,
@@ -36,6 +54,7 @@ def train(
         time_varying_unknown_reals: list = [],
         static_reals: list = None,
         model_str='DeepAR',
+        learning_rate: float = 1e-3,
 
 ):
     
@@ -61,30 +80,20 @@ def train(
     We assume we work with a single time series.
     """
     
-    df['group'] = '0'
-    
-    df[timeindex_column] = pd.to_datetime(df[timeindex_column])
-    df = df.sort_values(timeindex_column)
-    
-    time_col = df[timeindex_column]
-    df["time_idx"] = ((time_col - time_col.min()).dt.total_seconds() // 3600).astype(int)
-    
-    GROUP_IDS = ['group'] if group_ids is None else group_ids
-    
-    df[target_column] = df[target_column].astype(np.float64)
-    
+    df, GROUP_IDS = prepare_timeseries(df, timeindex_column, target_column, group_ids)
+
     train_df = df[df["__split"] == "train"].copy()
     val_df = df[df["__split"] == "val"].copy()
     
     GRADIENT_CLIP_VAL = 1e-1
         
     # IMPORTANT: TimeSeries models needs the last "max_encoder_length" timesteps to predict the next "max_prediction_length". Hence, we must get these timesteps from the training set to initialize the encoder in validation
-    hist = train_df.sort_values(["group","time_idx"]) \
-                .groupby("group", as_index=False) \
+    hist = train_df.sort_values([*GROUP_IDS,"time_idx"]) \
+                .groupby(GROUP_IDS, as_index=False) \
                 .tail(max_encoder_length)
 
     val_plus_hist = pd.concat([hist, val_df], ignore_index=True) \
-                    .sort_values(["group","time_idx"])
+                    .sort_values([*GROUP_IDS,"time_idx"])
 
     
     training_dataset = TimeSeriesDataSet(
@@ -133,41 +142,20 @@ def train(
     total_time = 0
     start_time = time.time()
     
-    trainer = Trainer(accelerator='cpu', gradient_clip_val = GRADIENT_CLIP_VAL)
-    
-    net_lr = deepAR(
-        training_dataset,
-        learning_rate = 3e-2,
-        hidden_size=30,
-        rnn_layers=2,
-        loss=NormalDistributionLoss(),
-        optimizer="Adam"
-    )
-    
-    res = Tuner(trainer).lr_find(
-        net_lr,
-        train_dataloaders=train_dataloader,
-        val_dataloaders=val_dataloader,
-        min_lr=1e-5,
-        max_lr=1e0,
-        early_stop_threshold=100,
-    )
-    
     trainer = Trainer(
     max_epochs=num_epochs,
     accelerator="cpu",
     logger=logger,
     enable_model_summary=True,
     gradient_clip_val=GRADIENT_CLIP_VAL,
-    limit_train_batches=50,
     enable_checkpointing=True,
-    callbacks=[checkpoint_cb]
+    callbacks=[checkpoint_cb, _LossHistory(TRAINVAL_OUTPUT_DIR)]
     )
     
     
     net = deepAR(
         training_dataset,
-        learning_rate=res.suggestion(),
+        learning_rate=learning_rate,
         log_interval=10,
         log_val_interval=1,
         hidden_size=30,
@@ -201,7 +189,7 @@ def train(
     trainer_kwargs=dict(accelerator="cpu"),
     )
     
-    print(f"Model's prediction of the target {target_column} in the validation set is {pred.output.squeeze().item():.4f}")
+    print(f"Validation predictions: {tuple(pred.output.shape)}")
     
     end_time = time.time()
     total_time = end_time - start_time

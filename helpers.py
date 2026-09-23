@@ -274,7 +274,7 @@ def tensor_to_list(obj):
         return obj.detach().cpu().tolist()
     elif isinstance(obj, dict):
         return {k: tensor_to_list(v) for k, v in obj.items()}
-    elif isinstance(obj, list):
+    elif isinstance(obj, (list, tuple)):
         return [tensor_to_list(v) for v in obj]
     else:
         return obj
@@ -313,12 +313,15 @@ def date_id(prefix="deeptune", root_dir="."):
     base_prefix = f"{prefix}-{date_str}-exp"
     n = 1
 
-    # Increment until unused folder name found
-    while (Path(root_dir) / f"{base_prefix}{n}").exists():
-        n += 1
-
-    final_name = f"{base_prefix}{n}"
-    return final_name
+    # Reserve atomically so two launches never write into the same experiment.
+    Path(root_dir).mkdir(parents=True, exist_ok=True)
+    while True:
+        final_name = f"{base_prefix}{n}"
+        try:
+            (Path(root_dir) / final_name).mkdir()
+            return final_name
+        except FileExistsError:
+            n += 1
 
 
 def print_metrics_table(metrics_dict, embed_shape, modality, mapping_path=None):
@@ -333,11 +336,15 @@ def print_metrics_table(metrics_dict, embed_shape, modality, mapping_path=None):
 
             class_id_to_name = {int(v): k for k, v in mapping_data.items()}
 
-    if modality == 'text' or modality == 'images':
+    if modality == 'text' or modality == 'images' or modality == 'video':
         table = [
             ["Loss", "-", "-", "-", "-", f"{metrics_dict.get('loss', 0):.3f}"],
-            ["Accuracy", "-", "-", "-", "-", f"{metrics_dict.get('accuracy', 0) * 100:.2f} %"],
         ]
+        if 'accuracy' in metrics_dict:
+            table.append(['Accuracy', '-', '-', '-', '-', f"{metrics_dict['accuracy'] * 100:.2f} %"])
+        for key in ('mae', 'rmse', 'r2'):
+            if key in metrics_dict:
+                table.append([key.upper(), '-', '-', '-', '-', metrics_dict[key]])
 
         for cld, class_name in class_id_to_name.items():
                 key = str(cld)
@@ -374,7 +381,8 @@ def print_metrics_table(metrics_dict, embed_shape, modality, mapping_path=None):
         if auroc_value is None or (isinstance(auroc_value, float) and math.isnan(auroc_value)):
             auroc_value = "Not Supported for This Setup"
 
-        table.append(["AUROC", "-", "-", "-", "-", auroc_value])
+        if 'auroc' in metrics_dict:
+            table.append(["AUROC", "-", "-", "-", "-", auroc_value])
 
         table.append(["Embeddings Matrix Dimension", "-", "-", "-", "-", str(embed_shape)])
         print("\n" + "="*50)
@@ -391,11 +399,8 @@ def print_metrics_table(metrics_dict, embed_shape, modality, mapping_path=None):
         print("\n" + "="*50)
         print(" 🎯 DeepTune's Holdout Set Metrics Report")
         print("="*50 + "\n")
-        table = [
-            ["Test Loss",     f"{metrics_dict.get('loss', np.NaN):.3f}"],
-            ["Test Accuracy", f"{metrics_dict.get('accuracy', np.NaN) * 100:.2f}%"],
-            ["Embedding Matrix Dimension", str(embed_shape)],
-        ]
+        from desktop.config import metric_rows
+        table = [*metric_rows(metrics_dict), ('Embedding Matrix Dimension', str(embed_shape))]
 
         headers = ["Metric", "Value"]
         print(tabulate(table, headers=headers, tablefmt="github"))
