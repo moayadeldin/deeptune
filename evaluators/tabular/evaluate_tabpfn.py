@@ -9,6 +9,8 @@ from joblib import load
 import json
 import pandas as pd
 from sklearn.metrics import accuracy_score, mean_squared_error, mean_absolute_error
+
+import numpy as np
 def main():
 
     args = DeepTuneVisionOptions(RunType.TabPFNEVAL)
@@ -86,18 +88,22 @@ def evaluate_tabpfn(
         elif mode == 'reg':
             if finetuning_mode:
                 reg = load(Path(model_path))
-                eval_results = reg.predict(X_eval)
-                mse = mean_squared_error(y_eval, eval_results)
-                mae = mean_absolute_error(y_eval, eval_results)
+                eval_results = reg.predict(X_eval, output_type='mean')
+
+                eval_results = np.asarray(eval_results).reshape(-1)
+                y_eval_np = np.asarray(y_eval).reshape(-1)
+
+
+                mse = mean_squared_error(y_eval_np, eval_results)
+                mae = mean_absolute_error(y_eval_np, eval_results)
                 print(f"Evaluation MSE: {mse:.4f}")
                 print(f"Evaluation MAE: {mae:.4f}")
 
                 result_dic = {
-                    {
                         "Mean Squared Error": mse,
                         "Mean Absolute Error": mae,
                     }
-                }
+                
             else:
                 reg = load_fitted_tabpfn_model(model_path, device=DEVICE)
                 eval_results = reg.predict(X_eval)

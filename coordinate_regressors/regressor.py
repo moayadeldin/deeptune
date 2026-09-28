@@ -36,6 +36,8 @@ def main():
 
     HEATMAP_SIZE = args.heatmap_size
 
+    print(f"HEATMAAAAAAAAAAAAP, {HEATMAP_SIZE}")
+
 
     model = RegressorBackbone(backbone="resnet18", pretrained=True,heatmap_size=HEATMAP_SIZE).to(DEVICE)
 

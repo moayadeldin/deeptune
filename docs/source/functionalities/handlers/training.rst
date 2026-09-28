@@ -253,7 +253,7 @@ In order to run TabPFN in **DeepTune**, you can use the following CLI structure:
 
 
 .. note::
-    By default, TabPFN will be used in training from scratch mode. To enable fine-tuning on your dataset, you need to add the `--finetuning-mode` switch to the previous command.
+    By default, TabPFN will be used in training from scratch mode. To enable fine-tuning on your dataset, you need to add the `--finetuning-mode` switch to the previous command. Moreover, kindly note that finetuning TabPFN for regression tasks outputs a distribution over possible target values, not a single scalar prediction. So, in order to compute mean squared loss for instance, the distribution must be reduced to a single value, as the loss expects one predicted value for each target. This reduction is done by taking the mean of the distribution, which gives the expected regression value and then be compared directly with the true target using MSE.
 
 Training Output
 ---------------

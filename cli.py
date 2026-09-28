@@ -49,7 +49,6 @@ class DeepTuneVisionOptions:
             self.val_df: Optional[Path] = parsed_args.val_df
             self.num_epochs: Optional[int] = parsed_args.num_epochs
             self.finetuning_mode: bool = parsed_args.finetuning_mode
-
         if run_type == RunType.TabPFNEVAL:
             self.target_column: Optional[str] = parsed_args.target_column
             self.eval_df: Optional[Path] = parsed_args.eval_df
