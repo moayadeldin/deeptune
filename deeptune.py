@@ -78,8 +78,6 @@ def main():
         grouper=GROUPER,
     )
 
-    df = pd.read_parquet(train_data_path)
-
     USE_CASE = 'peft' if args.use_peft else 'finetuned'
 
     MAPPING_PATH = next((p / "label_mapping.json" 
@@ -95,7 +93,6 @@ def main():
     y_val_tabpfn = val_df['labels']
     eval_df = pd.read_parquet(test_data_path)
     X_eval_tabpfn = eval_df.drop(columns=['labels'])
-    y_eval_tabpfn = eval_df['labels']
 
 
     if args.modality == 'text':
@@ -294,6 +291,7 @@ def main():
                 ckpt_directory = finetune_tabular_tabpfn(
                     X_train = X_train_tabpfn,
                     y_train = y_train_tabpfn,
+                    batch_size=args.batch_size,
                     X_val = X_val_tabpfn,
                     y_val = y_val_tabpfn,
                     mode = MODE,

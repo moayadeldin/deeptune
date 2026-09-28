@@ -42,7 +42,7 @@ def main():
     BATCH_SIZE: int = args.batch_size
     NUM_EPOCHS: int = args.num_epochs
 
-    # get a sample for testing
+
     X_train = pd.read_parquet(TRAIN_PATH)
     y_train = X_train[TARGET]
     X_train = X_train.drop(columns=[TARGET])
