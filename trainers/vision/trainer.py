@@ -54,6 +54,10 @@ class Trainer:
         self.num_epochs = num_epochs
         self.learning_rate = learning_rate
         self.output_dir = output_dir
+        if mode not in ('cls', 'reg') or num_epochs < 1:
+            raise ValueError('Choose cls or reg and at least one training epoch.')
+        if len(train_loader) == 0 or len(val_loader) == 0:
+            raise ValueError('Training and validation datasets must both contain samples.')
         
         if self.mode == 'cls':    
             self.criterion = nn.CrossEntropyLoss()
@@ -89,6 +93,7 @@ class Trainer:
             """
 
             running_loss=0.0
+            samples_seen = 0
             correct_predictions=0.0
             total_predictions=0
             train_pbar = tqdm(enumerate(self.train_loader), total=len(self.train_loader))
@@ -118,7 +123,8 @@ class Trainer:
                 self.optimizer.step()
 
                 # accumulate loss
-                running_loss += loss.item()
+                running_loss += loss.item() * labels.size(0)
+                samples_seen += labels.size(0)
                 
                 if self.mode == "cls":
                 
@@ -130,9 +136,9 @@ class Trainer:
                     epoch_accuracy = 100. * correct_predictions / total_predictions
                     
                 # update tqdm progress bar
-                train_pbar.set_postfix({"loss": round(running_loss / (i+1),5)})
+                train_pbar.set_postfix({"loss": round(running_loss / samples_seen, 5)})
             # update training loss
-            epoch_loss = running_loss / len(self.train_loader)
+            epoch_loss = running_loss / samples_seen
             
             epoch_end = time.time()
             epoch_duration = epoch_end - epoch_start
@@ -148,7 +154,7 @@ class Trainer:
                 """
                 
                 self.logger.info(
-                    f"Epoch {epoch + 1}/{self.num_epochs}, Training Loss: {running_loss / len(self.train_loader):.3f}, Training Accuracy: {epoch_accuracy:.3f} % "
+                    f"Epoch {epoch + 1}/{self.num_epochs}, Training Loss: {epoch_loss:.3f}, Training Accuracy: {epoch_accuracy:.3f} % "
                 )    
                 # Then we see how validation set works 
                 val_loss, val_accuracy = self.validate()
@@ -160,7 +166,7 @@ class Trainer:
                 """
                 
                 self.logger.info(
-                    f"Epoch {epoch + 1}/{self.num_epochs}, Training Loss: {running_loss / len(self.train_loader)}"
+                    f"Epoch {epoch + 1}/{self.num_epochs}, Training Loss: {epoch_loss}"
                 )    
     
                 val_loss = self.validate()    
@@ -217,6 +223,8 @@ class Trainer:
                 self.model.eval()
                 
                 input, labels = input.to(DEVICE), labels.to(DEVICE)
+                if self.mode == 'reg':
+                    labels = labels.view(-1, 1).float()
                                 
                 # apply forward pass and accumulate loss                
                 
@@ -224,21 +232,22 @@ class Trainer:
                 
                 loss = self.criterion(output, labels)
                 
-                val_loss += loss.item()
+                val_loss += loss.item() * labels.size(0)
                 
                 # calculate accuracy
                 total += labels.size(0)
                 
-                correct += torch.sum(torch.argmax(output,dim=1)==labels).item()
+                if self.mode == 'cls':
+                    correct += torch.sum(torch.argmax(output,dim=1)==labels).item()
         
         # if mode regression then no need to return accuracy or compute it
         
         if self.mode == 'cls':
             val_accuracy =  100. * correct / total
-            val_loss = val_loss / len(self.val_loader)
+            val_loss = val_loss / total
             return val_loss, val_accuracy
         else:
-            val_loss =  100. * val_loss / len(self.val_loader)
+            val_loss = val_loss / total
             return val_loss
             
     

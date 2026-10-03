@@ -54,95 +54,49 @@ class TestTrainer:
         
         
     def test(self, best_model_weights_path=None):
-        
         start_time = time.time()
-        
-        # Load the best model weights if they are provided
-        
-        if best_model_weights_path is None:
-            pass
-        else:
-            self.model.load_state_dict(torch.load(best_model_weights_path))
-            print('Model into the path is loaded.')
-            
+        if best_model_weights_path is not None:
+            self.model.load_state_dict(torch.load(best_model_weights_path, map_location=self.device, weights_only=True))
         self.model.to(self.device)
-        # Initialize the metrics for validation
-        test_accuracy=0.0
-        test_loss=0.0
-        total,correct = 0,0
-        
-        test_pbar = tqdm(enumerate(self.test_loader), total=len(self.test_loader))
-        
-        all_labels = []
-        all_predictions=[]
-        all_probs=[]
-
+        self.model.eval()
+        total_loss, total = 0.0, 0
+        all_labels, all_predictions, all_probs = [], [], []
         with torch.no_grad():
-            for i, (inputs, labels,*_) in test_pbar:
-                
-                self.model.eval()
-                if isinstance(self.criterion, nn.MSELoss): # if regression then we must rehape the target tensor    
-                    inputs, labels = inputs.to(self.device), labels.to(self.device)
-                    labels = labels.view(-1,1).float() # [batch_size,1]
-                else:
-                    inputs, labels = inputs.to(self.device),labels.to(self.device)
-                
-                # Apply forward pass and accumulate loss
+            for inputs, labels, *_ in tqdm(self.test_loader):
+                inputs, labels = inputs.to(self.device), labels.to(self.device)
+                if self.mode == 'reg':
+                    labels = labels.view(-1, 1).float()
                 outputs = self.model(inputs)
-                
-                loss = self.criterion(outputs, labels)
-                test_loss += loss.item()
-                
-                # If mode is classification then we need to calculate accuracy
-                if self.mode == "cls":
-                    probs = torch.softmax(outputs, 1)
-                    _, predicted = torch.max(probs, 1)
-                    
-                    total += labels.size(0)
-                    correct += torch.sum(torch.argmax(outputs, dim=1) == labels).item()
-                    
-                    # Store classification outputs
-                    all_probs.append(probs)
-                    all_predictions.append(predicted)
-                    all_labels.append(labels)
-        
-        # Compute loss for both modes, if classification then we need to compute also the other metrics as accuracy, AUROC, and classification report.
-        test_loss = test_loss / len(self.test_loader)
-        metrics_dict = {"loss": test_loss}
-        
-        if self.mode == "cls":
-            test_accuracy = (correct / total) * 100
-            metrics_dict["accuracy"] = test_accuracy
-            
-            # all_probs = np.concatenate(all_probs, axis=0)
-            # all_predictions = np.concatenate(all_predictions, axis=0)
-            # all_labels = np.concatenate(all_labels, axis=0)
-            all_probs = torch.cat(all_probs, dim=0).cpu().numpy()
-            all_predictions = torch.cat(all_predictions, dim=0).cpu().numpy()
-            all_labels = torch.cat(all_labels, dim=0).cpu().numpy()
-            
-            report = classification_report(y_true=all_labels, y_pred=all_predictions, output_dict=True)
-            metrics_dict.update(report)
-            
+                total_loss += self.criterion(outputs, labels).item() * labels.size(0)
+                total += labels.size(0)
+                all_labels.append(labels.detach().cpu())
+                if self.mode == 'cls':
+                    probabilities = torch.softmax(outputs, dim=1)
+                    all_probs.append(probabilities.cpu())
+                    all_predictions.append(probabilities.argmax(dim=1).cpu())
+                else:
+                    all_predictions.append(outputs.detach().cpu())
+        if not total:
+            raise ValueError('The evaluation dataset is empty.')
+        metrics = {'loss': total_loss / total}
+        labels = torch.cat(all_labels).numpy()
+        predictions = torch.cat(all_predictions).numpy()
+        if self.mode == 'cls':
+            probabilities = torch.cat(all_probs).numpy()
+            metrics.update(classification_report(labels, predictions, output_dict=True, zero_division=0))
             try:
-                metrics_dict["auroc"] = roc_auc_score(all_labels, all_probs, multi_class="ovr")
+                scores = probabilities[:, 1] if probabilities.shape[1] == 2 else probabilities
+                metrics['auroc'] = float(roc_auc_score(labels, scores, multi_class='ovr'))
             except ValueError:
-                metrics_dict["auroc"] = "AUROC not applicable for this setup"
-            
-            # print(test_accuracy, test_loss)
-            self.logger.info(f"The test accuracy is: {test_accuracy:.3f} %. The test loss is: {test_loss:.3f}")
-
-            with open(self.output_dir / "full_metrics.json", 'w') as f:
-                json.dump(metrics_dict, f, indent=4)
-
-
-            return metrics_dict
-                
-            
-        end_time = time.time()
-        total_time = end_time - start_time
-        save_process_times(epoch_times=1, total_duration=total_time, outdir=self.output_dir, process="evaluation")
-
-
-        
-        print(metrics_dict)
+                metrics['auroc'] = None
+        else:
+            from sklearn.metrics import mean_absolute_error, r2_score
+            metrics['mae'] = float(mean_absolute_error(labels, predictions))
+            metrics['rmse'] = float(metrics['loss'] ** 0.5)
+            metrics['r2'] = float(r2_score(labels, predictions)) if total >= 2 else None
+        self.output_dir.mkdir(parents=True, exist_ok=True)
+        with open(self.output_dir / 'full_metrics.json', 'w', encoding='utf-8') as stream:
+            json.dump(metrics, stream, indent=2)
+        save_process_times(epoch_times=1, total_duration=time.time() - start_time,
+                           outdir=self.output_dir, process='evaluation')
+        return metrics

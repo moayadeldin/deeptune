@@ -350,9 +350,7 @@ class BERTrainer:
             return dir_path
         
         except Exception as e:
-            print(f"There is an Error while saving model: {e}")
-            if os.path.exists(output_dir):
-                shutil.rmtree(output_dir, ignore_errors=True)
+            raise RuntimeError(f'Could not save BERT model to {output_dir}: {e}') from e
 
                 
 def get_model(added_layers,use_peft,args):

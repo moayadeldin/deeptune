@@ -41,37 +41,29 @@ def embed(
     df = pd.read_parquet(eval_df)
 
 
-    dataset = TabularDataset(df, cont_cols=continuous_cols, cat_cols=categorical_cols, label_col=target)
-    data_loader = DataLoader(dataset, batch_size=batch_size, shuffle=False)
-
+    if df.empty:
+        raise ValueError('The embedding dataset is empty.')
     model = TabularModel.load_model(os.path.join(model_weights, 'GANDALF_model'))
     model.model = model.model.to(device)
+    model.model.eval()
     extracted_embeddings = []
-    extracted_labels = []
-    
     start_time = time.time()
 
-    for (x_cont, x_cat), labels in tqdm(data_loader):
-        new_labels = labels.numpy().tolist()
-        extracted_labels += new_labels
+    def capture(module, inputs, output):
+        extracted_embeddings.append(output.detach().cpu().numpy())
 
-        x_cont = x_cont.to(device)
-        x_cat = x_cat.to(device)
-
-        with torch.no_grad():
-            
-            embedded_input = model.model.embedding_layer({"continuous": x_cont, "categorical": x_cat})
-
-            embeddings = model.model.backbone(embedded_input)
-
-        extracted_embeddings.append(embeddings.detach().cpu().numpy())
-
-    extracted_embeddings = np.vstack(extracted_embeddings)
-
-    embeddings_df = pd.DataFrame(embeddings.cpu().numpy())
-    labels_df = pd.DataFrame(labels, columns=["label"])
-
-    combined_df = pd.concat([embeddings_df,labels_df],axis=1)
+    # predict() applies the fitted training encoders and normalization, keeping
+    # category IDs and continuous scales identical to training.
+    handle = model.model.backbone.register_forward_hook(capture)
+    try:
+        model.predict(df, progress_bar=None)
+    finally:
+        handle.remove()
+    embeddings = np.vstack(extracted_embeddings)
+    if len(embeddings) != len(df):
+        raise RuntimeError('Embedding output did not preserve the input row count.')
+    combined_df = pd.DataFrame(embeddings)
+    combined_df['label'] = df[target].to_numpy()
 
     if grouper is not None and grouper in df.columns:
         combined_df[grouper] = df[grouper]
@@ -85,7 +77,7 @@ def embed(
     print(f'The embeddings file is saved in {EMBED_OUTPUT}')
 
     
-    return out, combined_df.shape
+    return EMBED_OUTPUT, combined_df.shape
     
 
 

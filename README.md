@@ -3,7 +3,7 @@
 [![deeptune tests](https://github.com/moayadeldin/deeptune/actions/workflows/test.yml/badge.svg)](https://github.com/moayadeldin/deeptune/actions/workflows/test.yml)
 [![Documentation Status](https://readthedocs.org/projects/deeptune/badge/?version=latest)](https://deeptune.readthedocs.io/en/latest/)
 
-***DeepTune*** is a full compatible library to automate Computer Vision, Natural Language Processing, Tabular, and Time Series state-of-the-art deep learning algorithms for cross-modal applications on image, text, tabular, and time series datasets. The library is designed for use in different applied machine learning domains, including but not limited to medical imaging, natural language understanding, time series analysis, providing users with powerful, ready-to-use CLI tool that unlock the full potential of their case studies through just a one simple command.
+***DeepTune*** is a full compatible library to automate Computer Vision, Natural Language Processing, Tabular, Time Series, and Video state-of-the-art deep learning algorithms for cross-modal applications on image, text, tabular, time series, and video datasets. The library is designed for use in different applied machine learning domains, including but not limited to medical imaging, natural language understanding, time series analysis, providing users with powerful, ready-to-use CLI tool that unlock the full potential of their case studies through just a one simple command.
 
 ***DeepTune*** is primarily presented for undergraduate and graduate computer science students community at St. Francis Xavier University (StFX) in Nova Scotia, Canada. We aspire to seeing this software adopted broadly across the computer science research community all over the world.
 
@@ -15,13 +15,38 @@ https://github.com/user-attachments/assets/3a2e62a2-4715-4cab-b5ff-b23f4684f212
 
 More cross-modal video demos can be found in the documentation's [demo page](https://deeptune.readthedocs.io/en/latest/guides/demos.html).
 
+## Desktop GUI
+
+Use Python 3.12 and install the project from its repository root:
+
+```powershell
+python -m venv .venv
+.venv\Scripts\python.exe -m pip install -e ".[test]"
+```
+
+Prefer a graphical interface over the command line? Run:
+
+```powershell
+.venv\Scripts\python.exe desktop\app.py
+```
+
+to pick a modality and dataset, choose a model and its hyperparameters, launch the run, and browse results, all without typing CLI flags. The desktop app includes saved settings, automatic full logs, bounded background previews, cancellation, and metrics CSV export. See [desktop/README.md](desktop/README.md) for details and repeatable video checks.
+
+The installed commands are `deeptune` and `deeptune-desktop`. Run automated checks
+with `.venv\Scripts\python.exe -m pytest tests -q`.
+
+Don't want to set up Python at all? See [packaging/README.md](packaging/README.md)
+for building `DeepTune-Setup.exe`, a standalone Windows installer of the desktop
+app with every dependency bundled in.
+
 ## Features
 
 - Fine-tuning state-of-the-art Computer Vision algorithms (ResNet, DenseNet, etc.) for image classification.
 - Fine-tuning state-of-the-art NLP (BERT, GPT-2) algorithms for text classification.
 - End-to-end training for tabular and time-series algorithms.
-- Providing PEFT with LoRA support for Computer Vision algorithms implemented, enabling state-of-the-art models that typically require substantial computational resources to perform efficiently on lower-powered devices. This approach not only reduces computational overhead but also enhances performance.
-- Leveraging fine-tuned and pretrained state-of-the-art vision and language models to generate robust knowledge representations for downstream visual and textual tasks.
+- Fine-tuning video classifiers on raw video clips, either by sampling frames through the existing 2D vision backbones (with pooling over time), or through native spatio-temporal architectures (3D-CNNs and video transformers) that learn motion directly.
+- Providing PEFT with LoRA support for Computer Vision and Video algorithms implemented, enabling state-of-the-art models that typically require substantial computational resources to perform efficiently on lower-powered devices. This approach not only reduces computational overhead but also enhances performance.
+- Leveraging fine-tuned and pretrained state-of-the-art vision, video, and language models to generate robust knowledge representations for downstream visual, temporal, and textual tasks.
   
 ## Models *DeepTune* Supports (Up to Date)
 
@@ -102,6 +127,22 @@ More cross-modal video demos can be found in the documentation's [demo page](htt
       <td>Classification</td>
       <td>Image</td>
       <td>'siglip'</td>
+    <tr>
+      <td>Frame-Pooling Video</td>
+      <td>✅</td>
+      <td>✅</td>
+      <td>✅</td>
+      <td>Classification & Regression</td>
+      <td>Video</td>
+      <td>Any of the ResNet/DenseNet/Swin/EfficientNet/VGGNet/ViT/ConvNeXt versions above, applied frame-by-frame and pooled over time (mean or attention)</td>
+    <tr>
+      <td>Native Video (3D-CNN / Video Transformer)</td>
+      <td>✅</td>
+      <td>✅</td>
+      <td>✅</td>
+      <td>Classification & Regression</td>
+      <td>Video</td>
+      <td>'r3d_18', 'mc3_18', 'r2plus1d_18', 'mvit_v2_s', 'swin3d_t', 'swin3d_s', or 'swin3d_b'</td>
     <tr>
       <td>GPT</td>
       <td>✅</td>
