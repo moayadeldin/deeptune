@@ -111,7 +111,7 @@ def get_tabpfn_embeddings(
 
         embed_df = pd.DataFrame(test_embeddings[0])
 
-        labels_df = pd.DataFrame(y_eval.reset_index(drop=True), columns=["label"])
+        labels_df = pd.DataFrame(y_eval.reset_index(drop=True), columns=[y_eval.name])
         combined_df = pd.concat([embed_df, labels_df], axis=1)
 
         if grouper is not None and grouper in X_eval.columns:
@@ -150,7 +150,7 @@ def get_tabpfn_embeddings(
 
         embed_df = pd.DataFrame(test_embeddings[0])
 
-        labels_df = pd.DataFrame(y_eval.reset_index(drop=True), columns=["label"])
+        labels_df = pd.DataFrame(y_eval.reset_index(drop=True), columns=[y_eval.name])
         combined_df = pd.concat([embed_df, labels_df], axis=1)
 
         if grouper is not None and grouper in X_eval.columns:

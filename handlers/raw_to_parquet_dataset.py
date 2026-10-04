@@ -54,6 +54,7 @@ def raw_to_parquet(dataset_dir: Path, out: Path, modality:str):
 
         elif dataset_dir.suffix == '.csv':
             df = pd.read_csv(dataset_dir)
+            # df = df[:1000]  # Limit to first 1000 rows for large CSV files
 
         else:
             raise ValueError(f"Unsupported file type: {dataset_dir.suffix}")

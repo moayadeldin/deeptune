@@ -93,6 +93,7 @@ def main():
     y_val_tabpfn = val_df['labels']
     eval_df = pd.read_parquet(test_data_path)
     X_eval_tabpfn = eval_df.drop(columns=['labels'])
+    y_eval_tabpfn = eval_df['labels']
 
 
     if args.modality == 'text':

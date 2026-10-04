@@ -165,7 +165,9 @@ def finetune_tabpfn(
 
                     preds = clf.forward(batch.X_query, return_logits=True)
 
-                    targets = batch.y_query.to(DEVICE).long()
+                    preds = preds.squeeze(0).transpose(0,1)  # Adjust shape to (batch_size, num_classes)
+
+                    targets = batch.y_query.to(DEVICE).long().view(-1)
 
                     loss = loss_fn(preds, targets)
                     train_losses.append(loss.item())
@@ -174,13 +176,13 @@ def finetune_tabpfn(
                     optimizer.step()
 
                     predicted_classes = preds.argmax(dim=1)
-                    train_correct += (predicted_classes.cpu() == batch.y_query.cpu()).sum().item()
-                    train_total += batch.y_query.size(0)
+                    train_correct += (predicted_classes == targets).sum().item()
+                    train_total += targets.size(0)
 
-                    mean_train_loss = np.mean(train_losses)
-                    train_accuracy = train_correct / train_total
+                mean_train_loss = np.mean(train_losses)
+                train_accuracy = 100 *train_correct / train_total
 
-                    print(f"Epoch {epoch + 1} Training Loss: {mean_train_loss:.4f}, Training Accuracy: {train_accuracy:.2f}%")
+                print(f"Epoch {epoch + 1} Training Loss: {mean_train_loss:.4f}, Training Accuracy: {train_accuracy:.2f}%")
 
                 val_losses = []
                 val_correct = 0
@@ -194,13 +196,15 @@ def finetune_tabpfn(
                         preds = clf.forward(batch.X_query, return_logits=True)
                         loss = loss_fn(preds, batch.y_query.to(clf.device))
                         val_losses.append(loss.item())
+                        preds = preds.squeeze(0).transpose(0,1)  # Adjust shape to (batch_size, num_classes)
+                        targets = batch.y_query.to(clf.device).long().view(-1)
 
                         predicted_classes = preds.argmax(dim=1)
-                        val_correct += (predicted_classes.cpu() == batch.y_query).sum().item()
-                        val_total += batch.y_query.size(0)
+                        val_correct += (predicted_classes == targets).sum().item()
+                        val_total += targets.size(0)
 
                 mean_val_loss = np.mean(val_losses)
-                val_accuracy = val_correct / val_total
+                val_accuracy = 100 * val_correct / val_total
                 print(f"Epoch {epoch + 1} Validation Loss: {mean_val_loss:.4f}, Validation Accuracy: {val_accuracy:.2f}%")
 
                 metrics.append({
