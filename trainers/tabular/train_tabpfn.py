@@ -179,7 +179,7 @@ def finetune_tabpfn(
                     train_correct += (predicted_classes == targets).sum().item()
                     train_total += targets.size(0)
 
-                mean_train_loss = np.mean(train_losses)
+                mean_train_loss = sum(train_losses) / len(train_losses)
                 train_accuracy = 100 *train_correct / train_total
 
                 print(f"Epoch {epoch + 1} Training Loss: {mean_train_loss:.4f}, Training Accuracy: {train_accuracy:.2f}%")

@@ -6,6 +6,8 @@ from cli import DeepTuneVisionOptions
 from utils import save_process_times
 from utils import RunType
 from joblib import load
+import torch
+from tqdm import tqdm
 import json
 import pandas as pd
 from sklearn.metrics import accuracy_score, mean_squared_error, mean_absolute_error
@@ -55,7 +57,7 @@ def main():
 def evaluate_tabpfn(
         X_eval,
         y_eval,
-        out,
+    out,
         args,
         model_path,
         mode,
@@ -88,21 +90,36 @@ def evaluate_tabpfn(
         elif mode == 'reg':
             if finetuning_mode:
                 reg = load(Path(model_path))
+
                 eval_results = reg.predict(X_eval, output_type='mean')
 
-                eval_results = np.asarray(eval_results).reshape(-1)
-                y_eval_np = np.asarray(y_eval).reshape(-1)
+                # Convert predictions and targets to tensors
+                preds = torch.tensor(
+                    np.asarray(eval_results).reshape(-1),
+                    dtype=torch.float32,
+                    device=DEVICE
+                )
 
+                targets = torch.tensor(
+                    np.asarray(y_eval).reshape(-1),
+                    dtype=torch.float32,
+                    device=DEVICE
+                )
 
-                mse = mean_squared_error(y_eval_np, eval_results)
-                mae = mean_absolute_error(y_eval_np, eval_results)
-                print(f"Evaluation MSE: {mse:.4f}")
-                print(f"Evaluation MAE: {mae:.4f}")
+                # Same loss function used during training
+                loss_fn = torch.nn.MSELoss()
+
+                mse = loss_fn(preds, targets).item()
+
+                mae = torch.nn.functional.l1_loss(preds, targets).item()
+
+                print(f"Evaluation MSE: {mse:.6f}")
+                print(f"Evaluation MAE: {mae:.6f}")
 
                 result_dic = {
-                        "Mean Squared Error": mse,
-                        "Mean Absolute Error": mae,
-                    }
+                    "Mean Squared Error": mse,
+                    "Mean Absolute Error": mae,
+                }
                 
             else:
                 reg = load_fitted_tabpfn_model(model_path, device=DEVICE)
