@@ -250,7 +250,7 @@ class DeepTuneVisionOptions:
         p.add_argument('--df', type=Path, required=True, help='Path to the dataframe (parquet file) to be used for training.')
         p.add_argument('--target', type=str, default='labels', help="Specify the name of your target column. Default is 'labels'.")
         p.add_argument('--raw-data', action='store_true', help='Use raw data instead of ready-to-use parquet.')
-        p.add_argument('--num_epochs', type=int, default=10, help='Number of epochs. Default is 10.')
+        p.add_argument('--num_epochs', type=int,default=10, help='Number of epochs. Default is 10.')
         p.add_argument('--learning_rate', type=float, default=1e-4, help='Learning rate. Default is 1e-4.')
         # tabpfn specific
         p.add_argument('--finetuning-mode', action='store_true', help='If set, perform fine-tuning instead of training from scratch for TabPFN.')

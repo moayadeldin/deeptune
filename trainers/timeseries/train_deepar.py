@@ -44,7 +44,7 @@ def train(
         timeindex_column: str,
         target_column: str,
         args: DeepTuneVisionOptions,
-        max_encoder_length: int = 30,
+        max_encoder_length: int = 8,
         max_prediction_length: int = 1,
         time_varying_known_categoricals: list = [],
         time_varying_unknown_categoricals: list = [],

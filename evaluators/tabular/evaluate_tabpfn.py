@@ -74,7 +74,7 @@ def evaluate_tabpfn(
                 print(f"Evaluation Accuracy: {accuracy * 100:.2f}%")
 
                 result_dic ={
-                        "accuracy": accuracy
+                        "accuracy": accuracy * 100,
                     }
 
             else:
@@ -84,7 +84,7 @@ def evaluate_tabpfn(
                 print(f"Evaluation Accuracy: {accuracy * 100:.2f}%")
 
                 result_dic = {
-                        "accuracy": accuracy,
+                        "accuracy": accuracy * 100,
                     }
 
         elif mode == 'reg':

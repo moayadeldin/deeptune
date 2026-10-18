@@ -402,7 +402,14 @@ def print_metrics_table(metrics_dict, embed_shape, modality, mapping_path=None):
         print(" 🎯 DeepTune's Holdout Set Metrics Report")
         print("="*50 + "\n")
         from desktop.config import metric_rows
-        table = [*metric_rows(metrics_dict), ('Embedding Matrix Dimension', str(embed_shape))]
+        table = []
+        for metric, value in metric_rows(metrics_dict):
+            accuracy = metrics_dict.get('accuracy')
+            if metric == 'accuracy' and isinstance(accuracy, (int, float)):
+                metric = 'Accuracy'
+                value = f"{accuracy:.2f} %"
+            table.append((metric, value))
+        table.append(('Embedding Matrix Dimension', str(embed_shape)))
 
         headers = ["Metric", "Value"]
         print(tabulate(table, headers=headers, tablefmt="github"))

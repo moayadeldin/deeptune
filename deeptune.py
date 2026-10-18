@@ -57,7 +57,7 @@ def main(argv=None):
     # cleanly. --added_layers/--embed_size are shared with other run types
     # and have no CLI-level default (None unless passed), so only override
     # when the user actually supplied one, preserving defaults otherwise.
-    defaults['num_epochs'] = args.num_epochs
+    defaults['num_epochs'] = args.num_epochs if args.num_epochs is not None else defaults['num_epochs']
     defaults['learning_rate'] = args.learning_rate
     if args.added_layers is not None:
         defaults['added_layers'] = args.added_layers
