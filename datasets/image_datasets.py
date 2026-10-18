@@ -52,7 +52,8 @@ class ParquetImageDataset(Dataset):
         """
         img_bytes = row['images']
         img = Image.open(io.BytesIO(img_bytes)).convert('RGB')
-        label = torch.tensor(row['labels'],dtype=torch.long) if self.has_labels else None
+        label = torch.tensor(row['labels'], dtype=torch.float32 if pd.api.types.is_float_dtype(self.data['labels']) else torch.long) if self.has_labels else None
+        extras = row.drop(labels=['images', 'labels'], errors='ignore').to_dict()
 
         orig_w, orig_h = img.size
 

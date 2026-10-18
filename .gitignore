@@ -12,6 +12,14 @@ test_densenet121_peft.py
 convert_images_to_bytes.py
 deeptune_results
 lightning_logs
+.venv/
+.pytest_cache/
+.artifacts/
+*.egg-info/
+dist/
+build/
+.video*-console.log
+desktop-smoke-results/
 
 embed/vision/peft_siglip_embeddings.py
 convert_images_to_bytes.py
@@ -27,3 +35,8 @@ embed\vision\custom_embed_siglip_handler.py
 src\vision\siglip.py
 embed\timeseries\deepar_embeddings.py
 deeptune/
+
+# Packaging build output (see packaging/README.md) -- large, machine- and
+# version-specific, never meant to be committed.
+packaging/installer-dist/
+packaging/build.log
