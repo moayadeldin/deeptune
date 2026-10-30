@@ -1,0 +1,152 @@
+
+
+<!DOCTYPE html>
+<html class="writer-html5" lang="en" data-content_root="../../">
+<head>
+  <meta charset="utf-8" /><meta name="viewport" content="width=device-width, initial-scale=1" />
+
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>Using Coordinate Regressors for Images in DeepTune &mdash; DeepTune 1.1.0 documentation</title>
+      <link rel="stylesheet" type="text/css" href="../../_static/pygments.css?v=b86133f3" />
+      <link rel="stylesheet" type="text/css" href="../../_static/css/theme.css?v=e59714d7" />
+
+  
+      <script src="../../_static/jquery.js?v=5d32c60e"></script>
+      <script src="../../_static/_sphinx_javascript_frameworks_compat.js?v=2cd50e6c"></script>
+      <script src="../../_static/documentation_options.js?v=fc837d61"></script>
+      <script src="../../_static/doctools.js?v=9bcbadda"></script>
+      <script src="../../_static/sphinx_highlight.js?v=dc90522c"></script>
+    <script src="../../_static/js/theme.js"></script>
+    <link rel="index" title="Index" href="../../genindex.html" />
+    <link rel="search" title="Search" href="../../search.html" /> 
+</head>
+
+<body class="wy-body-for-nav"> 
+  <div class="wy-grid-for-nav">
+    <nav data-toggle="wy-nav-shift" class="wy-nav-side">
+      <div class="wy-side-scroll">
+        <div class="wy-side-nav-search" >
+
+          
+          
+          <a href="../../index.html" class="icon icon-home">
+            DeepTune
+          </a>
+<div role="search">
+  <form id="rtd-search-form" class="wy-form" action="../../search.html" method="get">
+    <input type="text" name="q" placeholder="Search docs" aria-label="Search docs" />
+    <input type="hidden" name="check_keywords" value="yes" />
+    <input type="hidden" name="area" value="default" />
+  </form>
+</div>
+        </div><div class="wy-menu wy-menu-vertical" data-spy="affix" role="navigation" aria-label="Navigation menu">
+              <p class="caption" role="heading"><span class="caption-text">User Guide</span></p>
+<ul>
+<li class="toctree-l1"><a class="reference internal" href="../../guides/install.html">Installation</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../guides/preface.html">Preface</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../guides/demos.html">Demos</a></li>
+</ul>
+<p class="caption" role="heading"><span class="caption-text">Quick Start</span></p>
+<ul>
+<li class="toctree-l1"><a class="reference internal" href="../../tutorials/firstrun.html">Your First <strong>DeepTune</strong> Run</a></li>
+</ul>
+<p class="caption" role="heading"><span class="caption-text">Functionalities</span></p>
+<ul>
+<li class="toctree-l1"><a class="reference internal" href="split.html">Handling Datasets</a></li>
+<li class="toctree-l1"><a class="reference internal" href="training.html">Using <strong>DeepTune</strong> for Training</a></li>
+<li class="toctree-l1"><a class="reference internal" href="evaluation.html">Using <strong>DeepTune</strong> for Evaluation</a></li>
+<li class="toctree-l1"><a class="reference internal" href="embedding.html">Using <strong>DeepTune</strong> for Knowledge Extraction</a></li>
+<li class="toctree-l1"><a class="reference internal" href="dfanalyze.html">[EXTRA] Integration with df-analyze</a></li>
+<li class="toctree-l1"><a class="reference internal" href="autoencoders.html">Using Autoencoders in <strong>DeepTune</strong></a></li>
+</ul>
+
+        </div>
+      </div>
+    </nav>
+
+    <section data-toggle="wy-nav-shift" class="wy-nav-content-wrap"><nav class="wy-nav-top" aria-label="Mobile navigation menu" >
+          <i data-toggle="wy-nav-top" class="fa fa-bars"></i>
+          <a href="../../index.html">DeepTune</a>
+      </nav>
+
+      <div class="wy-nav-content">
+        <div class="rst-content">
+          <div role="navigation" aria-label="Page navigation">
+  <ul class="wy-breadcrumbs">
+      <li><a href="../../index.html" class="icon icon-home" aria-label="Home"></a></li>
+      <li class="breadcrumb-item active">Using Coordinate Regressors for Images in <strong>DeepTune</strong></li>
+      <li class="wy-breadcrumbs-aside">
+            <a href="../../_sources/functionalities/handlers/coordreg.rst.txt" rel="nofollow"> View page source</a>
+      </li>
+  </ul>
+  <hr/>
+</div>
+          <div role="main" class="document" itemscope="itemscope" itemtype="http://schema.org/Article">
+           <div itemprop="articleBody">
+             
+  <section id="using-coordinate-regressors-for-images-in-deeptune">
+<h1>Using Coordinate Regressors for Images in <strong>DeepTune</strong><a class="headerlink" href="#using-coordinate-regressors-for-images-in-deeptune" title="Link to this heading"></a></h1>
+<p>Coordinate regressors are neural networks that learn to predict the coordinates of specific objects of interest in images. The regressor is built on top of a backbone ResNet18 architecture with a heatmap regression map that is dedicated to preserving the spatial information of the input images. The heatmap upsamples the 7 x 7 feature map produced by the ResNet18 backbone to by default a 56 x 56 heatmap (or the specified size by the user), through multiple deconvolutional operations, which is then used to predict the coordinates of the objects of interest. The regressor is trained using a mean squared error loss function, which measures the difference between the predicted coordinates and the ground truth coordinates.</p>
+<p>Similar to the other functionalities in DeepTune, the input is expected to be a parquet file containing the images in byte-format, and the coordinates of the objects of interest in that specfiic image (i.e., [image, coord] pair).</p>
+<p>To use the coordinate regressor in <strong>DeepTune</strong>, you can follow the following command:</p>
+<div class="highlight-console notranslate"><div class="highlight"><pre><span></span><span class="gp">$ </span>python<span class="w"> </span>-m<span class="w"> </span>coordinate_regressors.regressor<span class="w"> </span><span class="se">\</span>
+--df<span class="w"> </span>&lt;str&gt;<span class="w"> </span><span class="se">\</span>
+--train_size<span class="w"> </span>&lt;float&gt;<span class="w"> </span><span class="se">\</span>
+--val_size<span class="w"> </span>&lt;float&gt;<span class="w"> </span><span class="se">\</span>
+--test_size<span class="w"> </span>&lt;float&gt;<span class="w"> </span><span class="se">\</span>
+--num_epochs<span class="w"> </span>&lt;int&gt;<span class="w"> </span><span class="se">\</span>
+--learning_rate<span class="w"> </span>&lt;float&gt;<span class="w"> </span><span class="se">\</span>
+--heatmap_size<span class="w"> </span>&lt;int&gt;<span class="w"> </span><span class="se">\</span>
+--fixed_seed<span class="w"> </span>&lt;bool&gt;<span class="w"> </span><span class="se">\</span>
+--out<span class="w"> </span>&lt;str&gt;<span class="w"> </span><span class="se">\</span>
+</pre></div>
+</div>
+<div class="admonition note">
+<p class="admonition-title">Note</p>
+<p>The <code class="docutils literal notranslate"><span class="pre">--heatmap_size</span></code> flag is optional and can be set to any integer value to specify the size of the heatmap output for coordinate regression. By default, it is set to 56. The <code class="docutils literal notranslate"><span class="pre">--fixed_seed</span></code> flag is optional and can be set to <cite>True</cite> to use a fixed seed for reproducibility, or <cite>False</cite> to use a random seed. By default, it is set to <cite>True</cite>.</p>
+</div>
+<p>After training is done, the output directory specified with the <code class="docutils literal notranslate"><span class="pre">--out</span></code> flag will contain the following files:</p>
+<div class="highlight-console notranslate"><div class="highlight"><pre><span></span><span class="go">output_directory</span>
+<span class="go">   ├── data_splits_&lt;yyyymmdd_hhmm&gt;</span>
+<span class="go">   │   ├── train_split.parquet</span>
+<span class="go">   │   ├── val_split.parquet</span>
+<span class="go">   │   ├── test_split.parquet</span>
+<span class="go">   │   └── test_indices.csv</span>
+<span class="go">   ├── coordinate_regression_output_resnet18_&lt;yyyymmdd_hhmm&gt;</span>
+<span class="go">   │   ├── cli_arguments.json</span>
+<span class="go">   │   ├── model_weights.pth</span>
+<span class="go">   │   ├── trainval_performance_log.csv</span>
+<span class="go">   │   └── test_log.txt</span>
+</pre></div>
+</div>
+</section>
+
+
+           </div>
+          </div>
+          <footer>
+
+  <hr/>
+
+  <div role="contentinfo">
+    <p>&#169; Copyright 2026, Moayadeldin Hussain.</p>
+  </div>
+
+  Built with <a href="https://www.sphinx-doc.org/">Sphinx</a> using a
+    <a href="https://github.com/readthedocs/sphinx_rtd_theme">theme</a>
+    provided by <a href="https://readthedocs.org">Read the Docs</a>.
+   
+
+</footer>
+        </div>
+      </div>
+    </section>
+  </div>
+  <script>
+      jQuery(function () {
+          SphinxRtdTheme.Navigation.enable(true);
+      });
+  </script> 
+
+</body>
+</html>

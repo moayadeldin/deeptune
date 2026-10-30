@@ -42,6 +42,17 @@ def test_regression_preserves_fractional_targets(tmp_path):
     assert not list((tmp_path / 'out').glob('*/label_mapping.json'))
 
 
+def test_vector_regression_targets_are_preserved(tmp_path):
+    frame = pd.DataFrame({
+        'row_id': range(10),
+        'target': [np.asarray([index / 10, index / 20]) for index in range(10)],
+    })
+    parts = split(frame, tmp_path, mode='reg')
+
+    actual = pd.concat(parts).sort_values('row_id').labels.tolist()
+    np.testing.assert_array_equal(np.asarray(actual), np.asarray(frame.target.tolist()))
+
+
 @pytest.mark.parametrize('mode', ['cls', 'reg'])
 def test_group_split_has_no_leakage_and_records_original_indices(tmp_path, mode):
     frame = pd.DataFrame({'row_id': range(240), 'patient': np.repeat(range(40), 6), 'target': [0, 1] * 120})

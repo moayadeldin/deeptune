@@ -118,6 +118,7 @@ The generic CLI structure of running **DeepTune** for evalaution of tabular data
     --eval_df <str> \
     --model_weights <str> \
     --target_column <str> \
+    -- mode <cls_or_reg> \
     --out <str> \
     [--finetuning-mode]
 

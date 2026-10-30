@@ -158,6 +158,7 @@ class DeepTuneVisionOptions:
             self.num_epochs: Optional[int] = parsed_args.num_epochs
             self.fixed_seed: bool = parsed_args.fixed_seed
             self.heatmap_size: Optional[int] = parsed_args.heatmap_size
+            self.model_version: Optional[str] = parsed_args.model_version
             
             
         if run_type in (RunType.EVAL, RunType.EMBED):
@@ -358,7 +359,6 @@ class DeepTuneVisionOptions:
             self.model_version=None
         elif mode == RunType.COORDINATE_REGRESSION:
             prefix_str = "COORDINATE_REGRESSION"
-            self.model_version=None
         else:
             prefix_str = self.use_case.value.upper()
 

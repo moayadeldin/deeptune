@@ -84,10 +84,24 @@ def split_dataset(train_size: float, val_size: float, test_size:float, df_path: 
         if issues:
             raise ValueError('\n'.join(issues))
     if not classification:
-        values = pd.to_numeric(df[target_column], errors='coerce')
-        if not np.isfinite(values.to_numpy(dtype=float)).all():
-            raise ValueError('Regression and forecasting targets must be finite numeric values.')
-        df[target_column] = values
+        target_values = df[target_column]
+        contains_vector_targets = target_values.map(
+            lambda value: isinstance(value, (list, tuple, np.ndarray))
+        ).any()
+        if contains_vector_targets:
+            try:
+                values = np.asarray(target_values.tolist(), dtype=float)
+            except (TypeError, ValueError) as error:
+                raise ValueError(
+                    'Regression targets must contain finite numeric scalar or vector values.'
+                ) from error
+            if not np.isfinite(values).all():
+                raise ValueError('Regression targets must be finite numeric values.')
+        else:
+            values = pd.to_numeric(target_values, errors='coerce')
+            if not np.isfinite(values.to_numpy(dtype=float)).all():
+                raise ValueError('Regression targets must be finite numeric values.')
+            df[target_column] = values
     split_dir.mkdir(parents=True, exist_ok=True)
 
     df = enable_label_numerical_encoding(

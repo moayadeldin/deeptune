@@ -1,15 +1,8 @@
-import io
-import random
-import numpy as np
-import pandas as pd
-from PIL import Image
-
 import torch
 import torch.nn as nn
-from torch.utils.data import Dataset, DataLoader, Subset
-import torchvision.transforms.functional as TF
-from torchvision import transforms
+import torch.nn.functional as F
 from torchvision import models
+
 
 class RegressorBackbone(nn.Module):
 
@@ -17,19 +10,37 @@ class RegressorBackbone(nn.Module):
 
         super().__init__()
 
-        if backbone == "resnet18":
-            weights = models.ResNet18_Weights.DEFAULT if pretrained else None
-        else:
-            weights = None
+        self.backbone = backbone
 
+        weights = models.get_model_weights(backbone).DEFAULT if pretrained else None
         net = getattr(models,backbone)(weights=weights)
 
-        self.features = nn.Sequential(*list(net.children())[:-2])
+        if backbone.startswith("vit_"):
+            self.features = net
+            self.features.heads = nn.Identity()
+            feat_dim = net.hidden_dim
+
+        elif backbone.startswith("swin_"):
+            self.features = nn.Sequential(net.features, net.norm)
+            feat_dim = net.head.in_features
+
+        elif backbone.startswith("resnet"):
+            self.features = nn.Sequential(*list(net.children())[:-2])
+            feat_dim = net.fc.in_features
+
+        else:
+            self.features = net.features
+
+            if backbone.startswith("densenet"):
+                feat_dim = net.classifier.in_features
+            elif backbone.startswith("efficientnet"):
+                feat_dim = net.classifier[-1].in_features
+            else:
+                feat_dim = 512
+
         self.heatmap_size = heatmap_size
 
         # upsample from the backbone's feature map  (7x7 for a 224px input on resnet 18) back up to heatmap_size x heatmap_size, then collapse to a single-channel heatmap
-
-        feat_dim = net.fc.in_features if hasattr(net,"fc") else 512
 
         self.deconv = nn.Sequential(
             nn.ConvTranspose2d(feat_dim, 256, kernel_size=4, stride=2, padding=1),  # 7  -> 14
@@ -58,9 +69,37 @@ class RegressorBackbone(nn.Module):
 
     def forward(self,x):
 
-        feat = self.features(x) # (B,512,7,7) for resnet18 with 224px input 
+        if self.backbone.startswith("vit_"):
+            tokens = self.features._process_input(x)
+            B, N, C = tokens.shape
+
+            tokens = torch.cat([
+                self.features.class_token.expand(B, -1, -1),
+                tokens
+            ], dim=1)
+
+            tokens = self.features.encoder(tokens)[:, 1:]
+
+            side = int(N ** 0.5)
+            feat = tokens.transpose(1, 2).reshape(B, C, side, side)
+
+        else:
+            feat = self.features(x) # (B,512,7,7) for resnet18 with 224px input
+
+            if self.backbone.startswith("swin_"):
+                feat = feat.permute(0, 3, 1, 2)
+            elif self.backbone.startswith("densenet"):
+                feat = F.relu(feat)
+
         feat = self.deconv(feat) # (B, 64, 56, 56)
         heatmap = self.heatmap_conv(feat) # (B,1,56,56)
+
+        heatmap = F.interpolate(
+            heatmap,
+            size=(self.heatmap_size, self.heatmap_size),
+            mode="bilinear",
+            align_corners=False
+        )
 
         B = heatmap.shape[0]
         flat = heatmap.view(B,-1) # (B,H*W)

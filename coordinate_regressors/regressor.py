@@ -36,10 +36,9 @@ def main():
 
     HEATMAP_SIZE = args.heatmap_size
 
-    print(f"HEATMAAAAAAAAAAAAP, {HEATMAP_SIZE}")
+    BACKBONE_MODEL = args.model_version
 
-
-    model = RegressorBackbone(backbone="resnet18", pretrained=True,heatmap_size=HEATMAP_SIZE).to(DEVICE)
+    model_version = RegressorBackbone(backbone=BACKBONE_MODEL, pretrained=True,heatmap_size=HEATMAP_SIZE).to(DEVICE)
 
     parent_dir = date_id(prefix="deeptune_coordinate_regression", root_dir=OUT)
     run_output_dir = OUT / parent_dir
@@ -61,11 +60,12 @@ def main():
         target_column="coords",
         disable_target_column_renaming=True,
         modality="image",
-        grouper=None
+        grouper=None,
+        mode="reg",
     )
 
-    train(train_path=train_path, num_epochs=NUM_EPOCHS, learning_rate=LEARNING_RATE, batch_size=BATCH_SIZE, val_path=val_path,args=args,coordinate_regression_output=COORDINATE_REGRESSION_OUTPUT_DIR,model=model)
-    test_loss = test(test_path=test_path, batch_size=BATCH_SIZE,model=model)
+    train(train_path=train_path, num_epochs=NUM_EPOCHS, learning_rate=LEARNING_RATE, batch_size=BATCH_SIZE, val_path=val_path,args=args,coordinate_regression_output=COORDINATE_REGRESSION_OUTPUT_DIR,model=model_version)
+    test_loss = test(test_path=test_path, batch_size=BATCH_SIZE,model=BACKBONE_MODEL)
 
     file_path = COORDINATE_REGRESSION_OUTPUT_DIR / "test_log.txt"
 
