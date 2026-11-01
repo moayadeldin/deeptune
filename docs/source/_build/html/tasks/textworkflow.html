@@ -1,0 +1,287 @@
+
+
+<!DOCTYPE html>
+<html class="writer-html5" lang="en" data-content_root="../">
+<head>
+  <meta charset="utf-8" /><meta name="viewport" content="width=device-width, initial-scale=1" />
+
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>Text-based Workflow Components &mdash; DeepTune 1.1.0 documentation</title>
+      <link rel="stylesheet" type="text/css" href="../_static/pygments.css?v=b86133f3" />
+      <link rel="stylesheet" type="text/css" href="../_static/css/theme.css?v=e59714d7" />
+
+  
+      <script src="../_static/jquery.js?v=5d32c60e"></script>
+      <script src="../_static/_sphinx_javascript_frameworks_compat.js?v=2cd50e6c"></script>
+      <script src="../_static/documentation_options.js?v=fc837d61"></script>
+      <script src="../_static/doctools.js?v=9bcbadda"></script>
+      <script src="../_static/sphinx_highlight.js?v=dc90522c"></script>
+    <script src="../_static/js/theme.js"></script>
+    <link rel="index" title="Index" href="../genindex.html" />
+    <link rel="search" title="Search" href="../search.html" />
+    <link rel="next" title="Text Classification Reference" href="../configurations/textconfig.html" />
+    <link rel="prev" title="Text Classification" href="textsentiment.html" /> 
+</head>
+
+<body class="wy-body-for-nav"> 
+  <div class="wy-grid-for-nav">
+    <nav data-toggle="wy-nav-shift" class="wy-nav-side">
+      <div class="wy-side-scroll">
+        <div class="wy-side-nav-search" >
+
+          
+          
+          <a href="../index.html" class="icon icon-home">
+            DeepTune
+          </a>
+<div role="search">
+  <form id="rtd-search-form" class="wy-form" action="../search.html" method="get">
+    <input type="text" name="q" placeholder="Search docs" aria-label="Search docs" />
+    <input type="hidden" name="check_keywords" value="yes" />
+    <input type="hidden" name="area" value="default" />
+  </form>
+</div>
+        </div><div class="wy-menu wy-menu-vertical" data-spy="affix" role="navigation" aria-label="Navigation menu">
+              <p class="caption" role="heading"><span class="caption-text">User Guide</span></p>
+<ul>
+<li class="toctree-l1"><a class="reference internal" href="../guides/install.html">Installation</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../guides/getstarted.html">Getting Started</a></li>
+</ul>
+<p class="caption" role="heading"><span class="caption-text">Image Classification &amp; Regression</span></p>
+<ul>
+<li class="toctree-l1"><a class="reference internal" href="imageclassreg.html">Image Classification &amp; Regression</a></li>
+<li class="toctree-l1"><a class="reference internal" href="imageworkflow.html">Image-based Workflow Components</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../configurations/imageconfig.html">Image Classification &amp; Regression Parameters Reference</a></li>
+</ul>
+<p class="caption" role="heading"><span class="caption-text">Text Classification</span></p>
+<ul class="current">
+<li class="toctree-l1"><a class="reference internal" href="textsentiment.html">Text Classification</a></li>
+<li class="toctree-l1 current"><a class="current reference internal" href="#">Text-based Workflow Components</a><ul>
+<li class="toctree-l2"><a class="reference internal" href="#model-training">Model Training</a><ul>
+<li class="toctree-l3"><a class="reference internal" href="#multilingual-bert-training">Multilingual BERT Training</a><ul>
+<li class="toctree-l4"><a class="reference internal" href="#trainers.nlp.train_multilingualbert.BERTrainer"><code class="docutils literal notranslate"><span class="pre">BERTrainer</span></code></a></li>
+</ul>
+</li>
+<li class="toctree-l3"><a class="reference internal" href="#gpt-2-training">GPT-2 Training</a><ul>
+<li class="toctree-l4"><a class="reference internal" href="#trainers.nlp.train_gpt2.GPTrainer"><code class="docutils literal notranslate"><span class="pre">GPTrainer</span></code></a></li>
+</ul>
+</li>
+</ul>
+</li>
+<li class="toctree-l2"><a class="reference internal" href="#model-evaluation">Model Evaluation</a><ul>
+<li class="toctree-l3"><a class="reference internal" href="#multilingual-bert-evaluation">Multilingual BERT Evaluation</a></li>
+<li class="toctree-l3"><a class="reference internal" href="#gpt-2-evaluation">GPT-2 Evaluation</a></li>
+</ul>
+</li>
+<li class="toctree-l2"><a class="reference internal" href="#embedding-extraction">Embedding Extraction</a><ul>
+<li class="toctree-l3"><a class="reference internal" href="#multilingual-bert-embeddings">Multilingual BERT Embeddings</a></li>
+<li class="toctree-l3"><a class="reference internal" href="#gpt-2-embeddings">GPT-2 Embeddings</a></li>
+</ul>
+</li>
+</ul>
+</li>
+<li class="toctree-l1"><a class="reference internal" href="../configurations/textconfig.html">Text Classification Reference</a></li>
+</ul>
+
+        </div>
+      </div>
+    </nav>
+
+    <section data-toggle="wy-nav-shift" class="wy-nav-content-wrap"><nav class="wy-nav-top" aria-label="Mobile navigation menu" >
+          <i data-toggle="wy-nav-top" class="fa fa-bars"></i>
+          <a href="../index.html">DeepTune</a>
+      </nav>
+
+      <div class="wy-nav-content">
+        <div class="rst-content">
+          <div role="navigation" aria-label="Page navigation">
+  <ul class="wy-breadcrumbs">
+      <li><a href="../index.html" class="icon icon-home" aria-label="Home"></a></li>
+      <li class="breadcrumb-item active">Text-based Workflow Components</li>
+      <li class="wy-breadcrumbs-aside">
+            <a href="../_sources/tasks/textworkflow.rst.txt" rel="nofollow"> View page source</a>
+      </li>
+  </ul>
+  <hr/>
+</div>
+          <div role="main" class="document" itemscope="itemscope" itemtype="http://schema.org/Article">
+           <div itemprop="articleBody">
+             
+  <section id="text-based-workflow-components">
+<span id="textworkflow"></span><h1>Text-based Workflow Components<a class="headerlink" href="#text-based-workflow-components" title="Link to this heading"></a></h1>
+<p>DeepTune provides dedicated components for text classification
+using Multilingual BERT and GPT-2, organized into model training,
+evaluation, and embedding extraction workflows. These components
+are coordinated through the main execution module. In this page provides a class-level abstract overview of the NLP workflow components and their interfaces.</p>
+<section id="model-training">
+<h2>Model Training<a class="headerlink" href="#model-training" title="Link to this heading"></a></h2>
+<p>Both Multilingual BERT and GPT-2 use dedicated training classes
+that manage model training, validation, and evaluation with embeddings generation. Both implementations employ Cross-Entropy Loss and the Adam optimizer.</p>
+<section id="multilingual-bert-training">
+<h3>Multilingual BERT Training<a class="headerlink" href="#multilingual-bert-training" title="Link to this heading"></a></h3>
+<p><strong>Entry point:</strong> <code class="docutils literal notranslate"><span class="pre">trainers.nlp.train_multilingualbert.train</span></code></p>
+<p>The training function initializes the selected <cite>bert</cite> model and
+tokenizer, prepares the training and validation datasets, and
+delegates optimization to the <code class="docutils literal notranslate"><span class="pre">BERTrainer</span></code> class.</p>
+<dl class="py class">
+<dt class="sig sig-object py" id="trainers.nlp.train_multilingualbert.BERTrainer">
+<em class="property"><span class="pre">class</span><span class="w"> </span></em><span class="sig-prename descclassname"><span class="pre">trainers.nlp.train_multilingualbert.</span></span><span class="sig-name descname"><span class="pre">BERTrainer</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">model</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">tokenizer</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">learning_rate</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">num_epochs</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">train_loader</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">val_loader</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">trainval_output_dir</span></span></em><span class="sig-paren">)</span><a class="headerlink" href="#trainers.nlp.train_multilingualbert.BERTrainer" title="Link to this definition"></a></dt>
+<dd><p>Manages training and validation of Multilingual BERT classifiers.</p>
+<dl class="field-list simple">
+<dt class="field-odd">Parameters<span class="colon">:</span></dt>
+<dd class="field-odd"><ul class="simple">
+<li><p><strong>model</strong> – Multilingual BERT classification model.</p></li>
+<li><p><strong>tokenizer</strong> – Tokenizer used for text preprocessing.</p></li>
+<li><p><strong>learning_rate</strong> – Learning rate for the Adam optimizer.</p></li>
+<li><p><strong>num_epochs</strong> – Number of training epochs.</p></li>
+<li><p><strong>train_loader</strong> – Training data loader.</p></li>
+<li><p><strong>val_loader</strong> – Validation data loader.</p></li>
+<li><p><strong>trainval_output_dir</strong> – Directory for training outputs.</p></li>
+</ul>
+</dd>
+</dl>
+<dl class="py method">
+<dt class="sig sig-object py" id="trainers.nlp.train_multilingualbert.BERTrainer.train">
+<span class="sig-name descname"><span class="pre">train</span></span><span class="sig-paren">(</span><span class="sig-paren">)</span><a class="headerlink" href="#trainers.nlp.train_multilingualbert.BERTrainer.train" title="Link to this definition"></a></dt>
+<dd><p>Executes epoch-based training and validation, tracking
+classification loss, accuracy, and execution time.</p>
+</dd></dl>
+
+<dl class="py method">
+<dt class="sig sig-object py" id="trainers.nlp.train_multilingualbert.BERTrainer.validate">
+<span class="sig-name descname"><span class="pre">validate</span></span><span class="sig-paren">(</span><span class="sig-paren">)</span><a class="headerlink" href="#trainers.nlp.train_multilingualbert.BERTrainer.validate" title="Link to this definition"></a></dt>
+<dd><p>Computes validation loss and classification accuracy.</p>
+</dd></dl>
+
+<dl class="py method">
+<dt class="sig sig-object py" id="trainers.nlp.train_multilingualbert.BERTrainer.save_tunedbertmodel">
+<span class="sig-name descname"><span class="pre">save_tunedbertmodel</span></span><span class="sig-paren">(</span><span class="sig-paren">)</span><a class="headerlink" href="#trainers.nlp.train_multilingualbert.BERTrainer.save_tunedbertmodel" title="Link to this definition"></a></dt>
+<dd><p>Saves the model weights, BERT backbone, tokenizer,
+training configuration, and training logs.</p>
+</dd></dl>
+
+</dd></dl>
+
+</section>
+<section id="gpt-2-training">
+<h3>GPT-2 Training<a class="headerlink" href="#gpt-2-training" title="Link to this heading"></a></h3>
+<p><strong>Entry point:</strong> <code class="docutils literal notranslate"><span class="pre">trainers.nlp.train_gpt2.train</span></code></p>
+<p>The training function loads GPT-2 and its tokenizer, constructs
+the classification model, and delegates training and validation
+to the <code class="docutils literal notranslate"><span class="pre">GPTrainer</span></code> class.</p>
+<dl class="py class">
+<dt class="sig sig-object py" id="trainers.nlp.train_gpt2.GPTrainer">
+<em class="property"><span class="pre">class</span><span class="w"> </span></em><span class="sig-prename descclassname"><span class="pre">trainers.nlp.train_gpt2.</span></span><span class="sig-name descname"><span class="pre">GPTrainer</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">model</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">tokenizer</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">learning_rate</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">outdir</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">num_epochs</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">train_loader</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">val_loader</span></span></em><span class="sig-paren">)</span><a class="headerlink" href="#trainers.nlp.train_gpt2.GPTrainer" title="Link to this definition"></a></dt>
+<dd><p>Manages training and validation of GPT-2 classifiers.</p>
+<dl class="field-list simple">
+<dt class="field-odd">Parameters<span class="colon">:</span></dt>
+<dd class="field-odd"><ul class="simple">
+<li><p><strong>model</strong> – GPT-2 classification model.</p></li>
+<li><p><strong>tokenizer</strong> – Tokenizer used for text preprocessing.</p></li>
+<li><p><strong>learning_rate</strong> – Learning rate for the Adam optimizer.</p></li>
+<li><p><strong>outdir</strong> – Directory for training outputs.</p></li>
+<li><p><strong>num_epochs</strong> – Number of training epochs.</p></li>
+<li><p><strong>train_loader</strong> – Training data loader.</p></li>
+<li><p><strong>val_loader</strong> – Validation data loader.</p></li>
+</ul>
+</dd>
+</dl>
+<dl class="py method">
+<dt class="sig sig-object py" id="trainers.nlp.train_gpt2.GPTrainer.train">
+<span class="sig-name descname"><span class="pre">train</span></span><span class="sig-paren">(</span><span class="sig-paren">)</span><a class="headerlink" href="#trainers.nlp.train_gpt2.GPTrainer.train" title="Link to this definition"></a></dt>
+<dd><p>Executes epoch-based training and validation, recording
+classification loss, accuracy, and execution time.</p>
+</dd></dl>
+
+<dl class="py method">
+<dt class="sig sig-object py" id="trainers.nlp.train_gpt2.GPTrainer.validate">
+<span class="sig-name descname"><span class="pre">validate</span></span><span class="sig-paren">(</span><span class="sig-paren">)</span><a class="headerlink" href="#trainers.nlp.train_gpt2.GPTrainer.validate" title="Link to this definition"></a></dt>
+<dd><p>Computes validation loss and classification accuracy.</p>
+</dd></dl>
+
+<dl class="py method">
+<dt class="sig sig-object py" id="trainers.nlp.train_gpt2.GPTrainer.save_tunedgpt2model">
+<span class="sig-name descname"><span class="pre">save_tunedgpt2model</span></span><span class="sig-paren">(</span><span class="sig-paren">)</span><a class="headerlink" href="#trainers.nlp.train_gpt2.GPTrainer.save_tunedgpt2model" title="Link to this definition"></a></dt>
+<dd><p>Saves the model weights, tokenizer,
+model configuration, and training logs.</p>
+</dd></dl>
+
+</dd></dl>
+
+</section>
+</section>
+<section id="model-evaluation">
+<h2>Model Evaluation<a class="headerlink" href="#model-evaluation" title="Link to this heading"></a></h2>
+<section id="multilingual-bert-evaluation">
+<h3>Multilingual BERT Evaluation<a class="headerlink" href="#multilingual-bert-evaluation" title="Link to this heading"></a></h3>
+<p><strong>Entry point:</strong> <code class="docutils literal notranslate"><span class="pre">evaluators.nlp.evaluate_multilingualbert.evaluate</span></code></p>
+<p>The evaluation function initializes the corresponding BERT
+classification architecture, loads the saved tokenizer and weights, and performs inference on the evaluation dataset.</p>
+<p>The implementation supports standard and PEFT-based BERT
+classification configurations.</p>
+</section>
+<section id="gpt-2-evaluation">
+<h3>GPT-2 Evaluation<a class="headerlink" href="#gpt-2-evaluation" title="Link to this heading"></a></h3>
+<p><strong>Entry point:</strong> <code class="docutils literal notranslate"><span class="pre">evaluators.nlp.evaluate_gpt.evaluate</span></code></p>
+<p>The evaluation function loads the corresponding GPT-2
+classification model and tokenizer, then performs inference
+on the evaluation dataset.</p>
+<p>Both evaluation implementations compute classification loss,
+accuracy, precision, recall, F1-score, and AUROC where applicable.</p>
+<p>Evaluation metrics are saved to <code class="docutils literal notranslate"><span class="pre">full_metrics.json</span></code>.</p>
+</section>
+</section>
+<section id="embedding-extraction">
+<h2>Embedding Extraction<a class="headerlink" href="#embedding-extraction" title="Link to this heading"></a></h2>
+<section id="multilingual-bert-embeddings">
+<h3>Multilingual BERT Embeddings<a class="headerlink" href="#multilingual-bert-embeddings" title="Link to this heading"></a></h3>
+<p><strong>Entry point:</strong> <code class="docutils literal notranslate"><span class="pre">embed.nlp.multilingualbert_embeddings.embed</span></code></p>
+<p>The embedding function extracts sentence representations
+from the BERT <code class="docutils literal notranslate"><span class="pre">[CLS]</span></code> token’s final hidden state. The implementation supports pretrained, fine-tuned,
+and PEFT-based BERT configurations.</p>
+</section>
+<section id="gpt-2-embeddings">
+<h3>GPT-2 Embeddings<a class="headerlink" href="#gpt-2-embeddings" title="Link to this heading"></a></h3>
+<p><strong>Entry point:</strong> <code class="docutils literal notranslate"><span class="pre">embed.nlp.gpt2_embeddings.embed</span></code></p>
+<p>The embedding function generates text representations using
+the configured GPT-2 model and its tokenization pipeline.</p>
+<p>The implementation supports pretrained and fine-tuned
+configurations, without PEFT support.</p>
+<p>For both models, extracted representations are combined
+with their associated labels and available dataset metadata, then exported in Parquet format.</p>
+</section>
+</section>
+</section>
+
+
+           </div>
+          </div>
+          <footer><div class="rst-footer-buttons" role="navigation" aria-label="Footer">
+        <a href="textsentiment.html" class="btn btn-neutral float-left" title="Text Classification" accesskey="p" rel="prev"><span class="fa fa-arrow-circle-left" aria-hidden="true"></span> Previous</a>
+        <a href="../configurations/textconfig.html" class="btn btn-neutral float-right" title="Text Classification Reference" accesskey="n" rel="next">Next <span class="fa fa-arrow-circle-right" aria-hidden="true"></span></a>
+    </div>
+
+  <hr/>
+
+  <div role="contentinfo">
+    <p>&#169; Copyright 2026, Moayadeldin Hussain.</p>
+  </div>
+
+  Built with <a href="https://www.sphinx-doc.org/">Sphinx</a> using a
+    <a href="https://github.com/readthedocs/sphinx_rtd_theme">theme</a>
+    provided by <a href="https://readthedocs.org">Read the Docs</a>.
+   
+
+</footer>
+        </div>
+      </div>
+    </section>
+  </div>
+  <script>
+      jQuery(function () {
+          SphinxRtdTheme.Navigation.enable(true);
+      });
+  </script> 
+
+</body>
+</html>

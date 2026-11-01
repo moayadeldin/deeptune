@@ -42,21 +42,19 @@
               <p class="caption" role="heading"><span class="caption-text">User Guide</span></p>
 <ul>
 <li class="toctree-l1"><a class="reference internal" href="guides/install.html">Installation</a></li>
-<li class="toctree-l1"><a class="reference internal" href="guides/preface.html">Preface</a></li>
-<li class="toctree-l1"><a class="reference internal" href="guides/demos.html">Demos</a></li>
+<li class="toctree-l1"><a class="reference internal" href="guides/getstarted.html">Getting Started</a></li>
 </ul>
-<p class="caption" role="heading"><span class="caption-text">Quick Start</span></p>
+<p class="caption" role="heading"><span class="caption-text">Image Classification &amp; Regression</span></p>
 <ul>
-<li class="toctree-l1"><a class="reference internal" href="tutorials/firstrun.html">Your First <strong>DeepTune</strong> Run</a></li>
+<li class="toctree-l1"><a class="reference internal" href="tasks/imageclassreg.html">Image Classification &amp; Regression</a></li>
+<li class="toctree-l1"><a class="reference internal" href="tasks/imageworkflow.html">Image-based Workflow Components</a></li>
+<li class="toctree-l1"><a class="reference internal" href="configurations/imageconfig.html">Image Classification &amp; Regression Parameters Reference</a></li>
 </ul>
-<p class="caption" role="heading"><span class="caption-text">Functionalities</span></p>
+<p class="caption" role="heading"><span class="caption-text">Text Classification</span></p>
 <ul>
-<li class="toctree-l1"><a class="reference internal" href="functionalities/handlers/split.html">Handling Datasets</a></li>
-<li class="toctree-l1"><a class="reference internal" href="functionalities/handlers/training.html">Using <strong>DeepTune</strong> for Training</a></li>
-<li class="toctree-l1"><a class="reference internal" href="functionalities/handlers/evaluation.html">Using <strong>DeepTune</strong> for Evaluation</a></li>
-<li class="toctree-l1"><a class="reference internal" href="functionalities/handlers/embedding.html">Using <strong>DeepTune</strong> for Knowledge Extraction</a></li>
-<li class="toctree-l1"><a class="reference internal" href="functionalities/handlers/dfanalyze.html">[EXTRA] Integration with df-analyze</a></li>
-<li class="toctree-l1"><a class="reference internal" href="functionalities/handlers/autoencoders.html">Using Autoencoders in <strong>DeepTune</strong></a></li>
+<li class="toctree-l1"><a class="reference internal" href="tasks/textsentiment.html">Text Classification</a></li>
+<li class="toctree-l1"><a class="reference internal" href="tasks/textworkflow.html">Text-based Workflow Components</a></li>
+<li class="toctree-l1"><a class="reference internal" href="configurations/textconfig.html">Text Classification Reference</a></li>
 </ul>
 
         </div>
@@ -86,8 +84,102 @@
 <h1 id="index">Index</h1>
 
 <div class="genindex-jumpbox">
+ <a href="#B"><strong>B</strong></a>
+ | <a href="#E"><strong>E</strong></a>
+ | <a href="#G"><strong>G</strong></a>
+ | <a href="#S"><strong>S</strong></a>
+ | <a href="#T"><strong>T</strong></a>
+ | <a href="#V"><strong>V</strong></a>
  
 </div>
+<h2 id="B">B</h2>
+<table style="width: 100%" class="indextable genindextable"><tr>
+  <td style="width: 33%; vertical-align: top;"><ul>
+      <li><a href="tasks/textworkflow.html#trainers.nlp.train_multilingualbert.BERTrainer">BERTrainer (class in trainers.nlp.train_multilingualbert)</a>
+</li>
+  </ul></td>
+</tr></table>
+
+<h2 id="E">E</h2>
+<table style="width: 100%" class="indextable genindextable"><tr>
+  <td style="width: 33%; vertical-align: top;"><ul>
+      <li><a href="tasks/imageworkflow.html#embed.vision.embed.EmbeddingModel">EmbeddingModel (class in embed.vision.embed)</a>
+</li>
+  </ul></td>
+</tr></table>
+
+<h2 id="G">G</h2>
+<table style="width: 100%" class="indextable genindextable"><tr>
+  <td style="width: 33%; vertical-align: top;"><ul>
+      <li><a href="tasks/textworkflow.html#trainers.nlp.train_gpt2.GPTrainer">GPTrainer (class in trainers.nlp.train_gpt2)</a>
+</li>
+  </ul></td>
+</tr></table>
+
+<h2 id="S">S</h2>
+<table style="width: 100%" class="indextable genindextable"><tr>
+  <td style="width: 33%; vertical-align: top;"><ul>
+      <li><a href="tasks/textworkflow.html#trainers.nlp.train_multilingualbert.BERTrainer.save_tunedbertmodel">save_tunedbertmodel() (trainers.nlp.train_multilingualbert.BERTrainer method)</a>
+</li>
+      <li><a href="tasks/textworkflow.html#trainers.nlp.train_gpt2.GPTrainer.save_tunedgpt2model">save_tunedgpt2model() (trainers.nlp.train_gpt2.GPTrainer method)</a>
+</li>
+  </ul></td>
+  <td style="width: 33%; vertical-align: top;"><ul>
+      <li><a href="tasks/imageworkflow.html#trainers.vision.trainer.Trainer.saveModel">saveModel() (trainers.vision.trainer.Trainer method)</a>
+</li>
+      <li><a href="tasks/imageworkflow.html#trainers.vision.custom_siglip_train.SiglipTrainer">SiglipTrainer (class in trainers.vision.custom_siglip_train)</a>
+</li>
+  </ul></td>
+</tr></table>
+
+<h2 id="T">T</h2>
+<table style="width: 100%" class="indextable genindextable"><tr>
+  <td style="width: 33%; vertical-align: top;"><ul>
+      <li><a href="tasks/imageworkflow.html#evaluators.vision.custom_siglip_evaluate.TestTrainer.test">test() (evaluators.vision.custom_siglip_evaluate.TestTrainer method)</a>
+
+      <ul>
+        <li><a href="tasks/imageworkflow.html#evaluators.vision.evaluator.TestTrainer.test">(evaluators.vision.evaluator.TestTrainer method)</a>
+</li>
+      </ul></li>
+      <li><a href="tasks/imageworkflow.html#evaluators.vision.custom_siglip_evaluate.TestTrainer">TestTrainer (class in evaluators.vision.custom_siglip_evaluate)</a>
+
+      <ul>
+        <li><a href="tasks/imageworkflow.html#evaluators.vision.evaluator.TestTrainer">(class in evaluators.vision.evaluator)</a>
+</li>
+      </ul></li>
+  </ul></td>
+  <td style="width: 33%; vertical-align: top;"><ul>
+      <li><a href="tasks/textworkflow.html#trainers.nlp.train_gpt2.GPTrainer.train">train() (trainers.nlp.train_gpt2.GPTrainer method)</a>
+
+      <ul>
+        <li><a href="tasks/textworkflow.html#trainers.nlp.train_multilingualbert.BERTrainer.train">(trainers.nlp.train_multilingualbert.BERTrainer method)</a>
+</li>
+        <li><a href="tasks/imageworkflow.html#trainers.vision.custom_siglip_train.SiglipTrainer.train">(trainers.vision.custom_siglip_train.SiglipTrainer method)</a>
+</li>
+        <li><a href="tasks/imageworkflow.html#trainers.vision.trainer.Trainer.train">(trainers.vision.trainer.Trainer method)</a>
+</li>
+      </ul></li>
+      <li><a href="tasks/imageworkflow.html#trainers.vision.trainer.Trainer">Trainer (class in trainers.vision.trainer)</a>
+</li>
+  </ul></td>
+</tr></table>
+
+<h2 id="V">V</h2>
+<table style="width: 100%" class="indextable genindextable"><tr>
+  <td style="width: 33%; vertical-align: top;"><ul>
+      <li><a href="tasks/textworkflow.html#trainers.nlp.train_gpt2.GPTrainer.validate">validate() (trainers.nlp.train_gpt2.GPTrainer method)</a>
+
+      <ul>
+        <li><a href="tasks/textworkflow.html#trainers.nlp.train_multilingualbert.BERTrainer.validate">(trainers.nlp.train_multilingualbert.BERTrainer method)</a>
+</li>
+        <li><a href="tasks/imageworkflow.html#trainers.vision.custom_siglip_train.SiglipTrainer.validate">(trainers.vision.custom_siglip_train.SiglipTrainer method)</a>
+</li>
+        <li><a href="tasks/imageworkflow.html#trainers.vision.trainer.Trainer.validate">(trainers.vision.trainer.Trainer method)</a>
+</li>
+      </ul></li>
+  </ul></td>
+</tr></table>
+
 
 
            </div>

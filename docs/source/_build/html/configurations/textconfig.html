@@ -1,0 +1,280 @@
+
+
+<!DOCTYPE html>
+<html class="writer-html5" lang="en" data-content_root="../">
+<head>
+  <meta charset="utf-8" /><meta name="viewport" content="width=device-width, initial-scale=1" />
+
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>Text Classification Reference &mdash; DeepTune 1.1.0 documentation</title>
+      <link rel="stylesheet" type="text/css" href="../_static/pygments.css?v=b86133f3" />
+      <link rel="stylesheet" type="text/css" href="../_static/css/theme.css?v=e59714d7" />
+
+  
+      <script src="../_static/jquery.js?v=5d32c60e"></script>
+      <script src="../_static/_sphinx_javascript_frameworks_compat.js?v=2cd50e6c"></script>
+      <script src="../_static/documentation_options.js?v=fc837d61"></script>
+      <script src="../_static/doctools.js?v=9bcbadda"></script>
+      <script src="../_static/sphinx_highlight.js?v=dc90522c"></script>
+    <script src="../_static/js/theme.js"></script>
+    <link rel="index" title="Index" href="../genindex.html" />
+    <link rel="search" title="Search" href="../search.html" />
+    <link rel="prev" title="Text-based Workflow Components" href="../tasks/textworkflow.html" /> 
+</head>
+
+<body class="wy-body-for-nav"> 
+  <div class="wy-grid-for-nav">
+    <nav data-toggle="wy-nav-shift" class="wy-nav-side">
+      <div class="wy-side-scroll">
+        <div class="wy-side-nav-search" >
+
+          
+          
+          <a href="../index.html" class="icon icon-home">
+            DeepTune
+          </a>
+<div role="search">
+  <form id="rtd-search-form" class="wy-form" action="../search.html" method="get">
+    <input type="text" name="q" placeholder="Search docs" aria-label="Search docs" />
+    <input type="hidden" name="check_keywords" value="yes" />
+    <input type="hidden" name="area" value="default" />
+  </form>
+</div>
+        </div><div class="wy-menu wy-menu-vertical" data-spy="affix" role="navigation" aria-label="Navigation menu">
+              <p class="caption" role="heading"><span class="caption-text">User Guide</span></p>
+<ul>
+<li class="toctree-l1"><a class="reference internal" href="../guides/install.html">Installation</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../guides/getstarted.html">Getting Started</a></li>
+</ul>
+<p class="caption" role="heading"><span class="caption-text">Image Classification &amp; Regression</span></p>
+<ul>
+<li class="toctree-l1"><a class="reference internal" href="../tasks/imageclassreg.html">Image Classification &amp; Regression</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../tasks/imageworkflow.html">Image-based Workflow Components</a></li>
+<li class="toctree-l1"><a class="reference internal" href="imageconfig.html">Image Classification &amp; Regression Parameters Reference</a></li>
+</ul>
+<p class="caption" role="heading"><span class="caption-text">Text Classification</span></p>
+<ul class="current">
+<li class="toctree-l1"><a class="reference internal" href="../tasks/textsentiment.html">Text Classification</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../tasks/textworkflow.html">Text-based Workflow Components</a></li>
+<li class="toctree-l1 current"><a class="current reference internal" href="#">Text Classification Reference</a><ul>
+<li class="toctree-l2"><a class="reference internal" href="#dataset-and-task-configuration">Dataset and Task Configuration</a></li>
+<li class="toctree-l2"><a class="reference internal" href="#model-and-training-configuration">Model and Training Configuration</a></li>
+<li class="toctree-l2"><a class="reference internal" href="#optional-execution-flags">Optional Execution Flags</a></li>
+<li class="toctree-l2"><a class="reference internal" href="#raw-data-handling">Raw Data Handling</a></li>
+<li class="toctree-l2"><a class="reference internal" href="#unified-cli-output-structure">Unified CLI Output Structure</a></li>
+</ul>
+</li>
+</ul>
+
+        </div>
+      </div>
+    </nav>
+
+    <section data-toggle="wy-nav-shift" class="wy-nav-content-wrap"><nav class="wy-nav-top" aria-label="Mobile navigation menu" >
+          <i data-toggle="wy-nav-top" class="fa fa-bars"></i>
+          <a href="../index.html">DeepTune</a>
+      </nav>
+
+      <div class="wy-nav-content">
+        <div class="rst-content">
+          <div role="navigation" aria-label="Page navigation">
+  <ul class="wy-breadcrumbs">
+      <li><a href="../index.html" class="icon icon-home" aria-label="Home"></a></li>
+      <li class="breadcrumb-item active">Text Classification Reference</li>
+      <li class="wy-breadcrumbs-aside">
+            <a href="../_sources/configurations/textconfig.rst.txt" rel="nofollow"> View page source</a>
+      </li>
+  </ul>
+  <hr/>
+</div>
+          <div role="main" class="document" itemscope="itemscope" itemtype="http://schema.org/Article">
+           <div itemprop="articleBody">
+             
+  <section id="text-classification-reference">
+<span id="textconfig-rst"></span><h1>Text Classification Reference<a class="headerlink" href="#text-classification-reference" title="Link to this heading"></a></h1>
+<section id="dataset-and-task-configuration">
+<h2>Dataset and Task Configuration<a class="headerlink" href="#dataset-and-task-configuration" title="Link to this heading"></a></h2>
+<table class="docutils align-default">
+<colgroup>
+<col style="width: 25.0%" />
+<col style="width: 75.0%" />
+</colgroup>
+<thead>
+<tr class="row-odd"><th class="head"><p>Parameter</p></th>
+<th class="head"><p>Description</p></th>
+</tr>
+</thead>
+<tbody>
+<tr class="row-even"><td><p><code class="docutils literal notranslate"><span class="pre">--modality</span></code></p></td>
+<td><p>Specifies the input data modality (i.e., <code class="docutils literal notranslate"><span class="pre">text</span></code>).</p></td>
+</tr>
+<tr class="row-odd"><td><p><code class="docutils literal notranslate"><span class="pre">--mode</span></code></p></td>
+<td><p>Defines the machine learning task (i.e., <code class="docutils literal notranslate"><span class="pre">cls</span></code>
+for classification only).</p></td>
+</tr>
+<tr class="row-even"><td><p><code class="docutils literal notranslate"><span class="pre">--target</span></code></p></td>
+<td><p>Name of the target column containing the prediction labels.</p></td>
+</tr>
+<tr class="row-odd"><td><p><code class="docutils literal notranslate"><span class="pre">--num_classes</span></code></p></td>
+<td><p>Number of target classes for classification. Only needed for BERT as GPT-2 can infer the number of classes from the dataset.</p></td>
+</tr>
+</tbody>
+</table>
+</section>
+<section id="model-and-training-configuration">
+<h2>Model and Training Configuration<a class="headerlink" href="#model-and-training-configuration" title="Link to this heading"></a></h2>
+<table class="docutils align-default">
+<colgroup>
+<col style="width: 25.0%" />
+<col style="width: 75.0%" />
+</colgroup>
+<thead>
+<tr class="row-odd"><th class="head"><p>Parameter</p></th>
+<th class="head"><p>Description</p></th>
+</tr>
+</thead>
+<tbody>
+<tr class="row-even"><td><p><code class="docutils literal notranslate"><span class="pre">--model</span></code></p></td>
+<td><p>Specifies the model version. Either <code class="docutils literal notranslate"><span class="pre">bert</span></code> or <code class="docutils literal notranslate"><span class="pre">gpt2</span></code>.</p></td>
+</tr>
+<tr class="row-odd"><td><p><code class="docutils literal notranslate"><span class="pre">--batch_size</span></code></p></td>
+<td><p>Number of samples processed in each training batch.</p></td>
+</tr>
+<tr class="row-even"><td><p><code class="docutils literal notranslate"><span class="pre">--num_epochs</span></code></p></td>
+<td><p>Number of training epochs.</p></td>
+</tr>
+<tr class="row-odd"><td><p><code class="docutils literal notranslate"><span class="pre">--learning_rate</span></code></p></td>
+<td><p>Learning rate used by the optimizer.</p></td>
+</tr>
+</tbody>
+</table>
+</section>
+<section id="optional-execution-flags">
+<h2>Optional Execution Flags<a class="headerlink" href="#optional-execution-flags" title="Link to this heading"></a></h2>
+<p>The following flags enable additional execution and
+fine-tuning capabilities.</p>
+<table class="docutils align-default">
+<colgroup>
+<col style="width: 25.0%" />
+<col style="width: 75.0%" />
+</colgroup>
+<thead>
+<tr class="row-odd"><th class="head"><p>Flag</p></th>
+<th class="head"><p>Description</p></th>
+</tr>
+</thead>
+<tbody>
+<tr class="row-even"><td><p><code class="docutils literal notranslate"><span class="pre">--fixed-seed</span></code></p></td>
+<td><p>Enables fixed random seeds to improve experiment
+reproducibility.</p></td>
+</tr>
+<tr class="row-odd"><td><p><code class="docutils literal notranslate"><span class="pre">--use-peft</span></code></p></td>
+<td><p>Enables parameter-efficient fine-tuning (PEFT). Only applicable for BERT as GPT-2 does not support PEFT in DeepTune.</p></td>
+</tr>
+<tr class="row-even"><td><p><code class="docutils literal notranslate"><span class="pre">--raw-data</span></code></p></td>
+<td><p>Enables processing of CSV/XLSX (non-parquet) input data.</p></td>
+</tr>
+<tr class="row-odd"><td><p><code class="docutils literal notranslate"><span class="pre">--freeze-backbone</span></code></p></td>
+<td><p>Freezes the backbone parameters during training,
+allowing the prediction head to be trained.</p></td>
+</tr>
+</tbody>
+</table>
+<div class="admonition note">
+<p class="admonition-title">Note</p>
+<p>The predefined hyperparameters for text classification are similar to those used for image classification and regression tasks. When running the unified CLI command without specifying certain hyperparameters, <strong>DeepTune</strong> will automatically apply these predefined values.</p>
+</div>
+</section>
+<section id="raw-data-handling">
+<h2>Raw Data Handling<a class="headerlink" href="#raw-data-handling" title="Link to this heading"></a></h2>
+<p><strong>DeepTune</strong> supports CSV and XLSX formats for text classification tasks. When using raw data, the library automatically handles the conversion to Parquet format, ensuring efficient processing and compatibility with the training pipeline.</p>
+</section>
+<section id="unified-cli-output-structure">
+<h2>Unified CLI Output Structure<a class="headerlink" href="#unified-cli-output-structure" title="Link to this heading"></a></h2>
+<p>After running the unified CLI command, <strong>DeepTune</strong> will generate an output directory containing the results of your experiment. The structure of the output directory in case of GPT2 will differ from that of BERT given the training weights that are generated. The structure will be as follows:</p>
+<div class="highlight-text notranslate"><div class="highlight"><pre><span></span>output_directory
+├── deeptune-&lt;yyyymmdd&gt;-exp&lt;int&gt;
+    ├── &lt;modality&gt;_dataset_&lt;yyyymmdd_hhmm&gt;.parquet
+    ├── data_splits_&lt;yyyymmdd_hhmm&gt;
+    │   ├── train_split.parquet
+    │   ├── val_split.parquet
+    │   ├── test_split.parquet
+    │   └── test_indices.csv
+    │   └── label_mapping.json
+------------------------------------------------------------------------
+    // GPT2
+    ├── trainval_output_&lt;model_version&gt;_&lt;yyyymmdd_hhmm&gt;
+    │   ├── tokenizer
+    │      ├── merges.txt
+    │      ├── vocab.json
+    │      └── tokenizer_config.json
+    │      └── special_tokens_map.json
+    │   ├── bert_model
+    │      ├── model.safetensors
+    │      ├── config.json
+    │   ├── cli_arguments.json
+    │   ├── model_weights.pth
+    │   ├── model_config.json
+    │   ├── training_details.json
+    │   ├── training_log.csv
+
+
+    // BERT
+    │   ├── trainval_output_&lt;model_version&gt;_&lt;yyyymmdd_hhmm&gt;
+    │   ├── tokenizer
+    │      ├── merges.txt
+    │      ├── vocab.json
+    │      └── tokenizer_config.json
+    │      └── special_tokens_map.json
+    │   ├── bert_model
+    │      ├── adapter_config.json
+    │      ├── adapter_model.safetensors
+    │   ├── cli_arguments.json
+    │   ├── model_weights.pth
+    │   ├── model_config.json
+    │   ├── training_details.json
+    │   ├── training_log.csv
+------------------------------------------------------------------------
+    ├── eval_output_&lt;model_version&gt;_&lt;yyyymmdd_hhmm&gt;
+    │   ├── full_metrics.json
+    │   ├── cli_arguments.json
+    ├── embed_output_&lt;model_version&gt;_&lt;yyyymmdd_hhmm&gt;
+        ├── &lt;model_version&gt;_cls_embeddings.parquet
+        ├── cli_arguments.json
+        ├── embeddings_details.json
+</pre></div>
+</div>
+</section>
+</section>
+
+
+           </div>
+          </div>
+          <footer><div class="rst-footer-buttons" role="navigation" aria-label="Footer">
+        <a href="../tasks/textworkflow.html" class="btn btn-neutral float-left" title="Text-based Workflow Components" accesskey="p" rel="prev"><span class="fa fa-arrow-circle-left" aria-hidden="true"></span> Previous</a>
+    </div>
+
+  <hr/>
+
+  <div role="contentinfo">
+    <p>&#169; Copyright 2026, Moayadeldin Hussain.</p>
+  </div>
+
+  Built with <a href="https://www.sphinx-doc.org/">Sphinx</a> using a
+    <a href="https://github.com/readthedocs/sphinx_rtd_theme">theme</a>
+    provided by <a href="https://readthedocs.org">Read the Docs</a>.
+   
+
+</footer>
+        </div>
+      </div>
+    </section>
+  </div>
+  <script>
+      jQuery(function () {
+          SphinxRtdTheme.Navigation.enable(true);
+      });
+  </script> 
+
+</body>
+</html>

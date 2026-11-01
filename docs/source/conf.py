@@ -1,4 +1,10 @@
-# Configuration file for the Sphinx documentation builder.
+"""Sphinx configuration for the DeepTune documentation."""
+
+import os
+import sys
+
+
+sys.path.insert(0, os.path.abspath('../..'))
 
 # -- Project information
 
@@ -17,6 +23,28 @@ extensions = [
     'sphinx.ext.autodoc',
     'sphinx.ext.autosummary',
     'sphinx.ext.intersphinx',
+]
+
+autodoc_mock_imports = [
+    'PIL',
+    'cv2',
+    'datasets',
+    'numpy',
+    'pandas',
+    'peft',
+    'pyarrow',
+    'pytorch_forecasting',
+    'pytorch_lightning',
+    'pytorch_tabular',
+    'sklearn',
+    'torch',
+    'torchmetrics',
+    'torchvision',
+    'tqdm',
+    'tabpfn',
+    'tabulate',
+    'transformers',
+    'yaml',
 ]
 
 intersphinx_mapping = {

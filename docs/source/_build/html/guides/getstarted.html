@@ -1,0 +1,155 @@
+
+
+<!DOCTYPE html>
+<html class="writer-html5" lang="en" data-content_root="../">
+<head>
+  <meta charset="utf-8" /><meta name="viewport" content="width=device-width, initial-scale=1" />
+
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>Getting Started &mdash; DeepTune 1.1.0 documentation</title>
+      <link rel="stylesheet" type="text/css" href="../_static/pygments.css?v=b86133f3" />
+      <link rel="stylesheet" type="text/css" href="../_static/css/theme.css?v=e59714d7" />
+
+  
+      <script src="../_static/jquery.js?v=5d32c60e"></script>
+      <script src="../_static/_sphinx_javascript_frameworks_compat.js?v=2cd50e6c"></script>
+      <script src="../_static/documentation_options.js?v=fc837d61"></script>
+      <script src="../_static/doctools.js?v=9bcbadda"></script>
+      <script src="../_static/sphinx_highlight.js?v=dc90522c"></script>
+    <script src="../_static/js/theme.js"></script>
+    <link rel="index" title="Index" href="../genindex.html" />
+    <link rel="search" title="Search" href="../search.html" />
+    <link rel="next" title="Image Classification &amp; Regression" href="../tasks/imageclassreg.html" />
+    <link rel="prev" title="Installation" href="install.html" /> 
+</head>
+
+<body class="wy-body-for-nav"> 
+  <div class="wy-grid-for-nav">
+    <nav data-toggle="wy-nav-shift" class="wy-nav-side">
+      <div class="wy-side-scroll">
+        <div class="wy-side-nav-search" >
+
+          
+          
+          <a href="../index.html" class="icon icon-home">
+            DeepTune
+          </a>
+<div role="search">
+  <form id="rtd-search-form" class="wy-form" action="../search.html" method="get">
+    <input type="text" name="q" placeholder="Search docs" aria-label="Search docs" />
+    <input type="hidden" name="check_keywords" value="yes" />
+    <input type="hidden" name="area" value="default" />
+  </form>
+</div>
+        </div><div class="wy-menu wy-menu-vertical" data-spy="affix" role="navigation" aria-label="Navigation menu">
+              <p class="caption" role="heading"><span class="caption-text">User Guide</span></p>
+<ul class="current">
+<li class="toctree-l1"><a class="reference internal" href="install.html">Installation</a></li>
+<li class="toctree-l1 current"><a class="current reference internal" href="#">Getting Started</a><ul>
+<li class="toctree-l2"><a class="reference internal" href="#graphical-user-interface-gui">1. Graphical User Interface (GUI)</a></li>
+<li class="toctree-l2"><a class="reference internal" href="#command-line-interface-cli">2. Command Line Interface (CLI)</a></li>
+</ul>
+</li>
+</ul>
+<p class="caption" role="heading"><span class="caption-text">Image Classification &amp; Regression</span></p>
+<ul>
+<li class="toctree-l1"><a class="reference internal" href="../tasks/imageclassreg.html">Image Classification &amp; Regression</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../tasks/imageworkflow.html">Image-based Workflow Components</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../configurations/imageconfig.html">Image Classification &amp; Regression Parameters Reference</a></li>
+</ul>
+<p class="caption" role="heading"><span class="caption-text">Text Classification</span></p>
+<ul>
+<li class="toctree-l1"><a class="reference internal" href="../tasks/textsentiment.html">Text Classification</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../tasks/textworkflow.html">Text-based Workflow Components</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../configurations/textconfig.html">Text Classification Reference</a></li>
+</ul>
+
+        </div>
+      </div>
+    </nav>
+
+    <section data-toggle="wy-nav-shift" class="wy-nav-content-wrap"><nav class="wy-nav-top" aria-label="Mobile navigation menu" >
+          <i data-toggle="wy-nav-top" class="fa fa-bars"></i>
+          <a href="../index.html">DeepTune</a>
+      </nav>
+
+      <div class="wy-nav-content">
+        <div class="rst-content">
+          <div role="navigation" aria-label="Page navigation">
+  <ul class="wy-breadcrumbs">
+      <li><a href="../index.html" class="icon icon-home" aria-label="Home"></a></li>
+      <li class="breadcrumb-item active">Getting Started</li>
+      <li class="wy-breadcrumbs-aside">
+            <a href="../_sources/guides/getstarted.rst.txt" rel="nofollow"> View page source</a>
+      </li>
+  </ul>
+  <hr/>
+</div>
+          <div role="main" class="document" itemscope="itemscope" itemtype="http://schema.org/Article">
+           <div itemprop="articleBody">
+             
+  <section id="getting-started">
+<span id="getstarted"></span><h1>Getting Started<a class="headerlink" href="#getting-started" title="Link to this heading"></a></h1>
+<p><strong>DeepTune</strong> offers two distinct interfaces for users to interact with the library: a command-line interface (CLI) and a graphical user interface (GUI). Both interfaces are compatible and mostly provide access to the same functionalities (unless specified otherwise).</p>
+<section id="graphical-user-interface-gui">
+<h2>1. Graphical User Interface (GUI)<a class="headerlink" href="#graphical-user-interface-gui" title="Link to this heading"></a></h2>
+<p>You may start the GUI by executing the following command in your terminal:</p>
+<div class="highlight-console notranslate"><div class="highlight"><pre><span></span><span class="gp gp-VirtualEnv">(.deeptune)</span> <span class="gp">$ </span>python.exe<span class="w"> </span>desktop/app.py
+</pre></div>
+</div>
+<a class="reference internal image-reference" href="../_images/deeptune_gui.png"><img alt="A screenshot of the DeepTune GUI interface." src="../_images/deeptune_gui.png" style="width: 800px;" />
+</a>
+<p>The <strong>Dataset</strong> tab in the GUI allows you to explore and manage your dataset. You can browse and inspect individual images and videos directly within the interface, provided they are in supported raw formats. Additionally, you can preview or remove individual files as needed.</p>
+<a class="reference internal image-reference" href="../_images/deeptune_preview_videos.png"><img alt="A screenshot of the DeepTune GUI dataset tab for previewing videos." src="../_images/deeptune_preview_videos.png" style="width: 800px;" />
+</a>
+<p>By accessing the <strong>Model &amp; Training</strong> tab, you can select a model and configure its hyperparameters for training. The GUI provides a user-friendly interface to adjust various settings, including the model decision, tuning option, learning rate, batch size, number of epochs, and more.</p>
+<a class="reference internal image-reference" href="../_images/deeptune_model_training.png"><img alt="A screenshot of the DeepTune GUI model &amp; training tab." src="../_images/deeptune_model_training.png" style="width: 800px;" />
+</a>
+<p>In case a trained model that has been saved in the results directory is available, you can load it into the GUI for further evaluation and analysis. The <strong>Evaluation</strong> tab allows you to assess the model’s performance on your dataset.</p>
+</section>
+<section id="command-line-interface-cli">
+<h2>2. Command Line Interface (CLI)<a class="headerlink" href="#command-line-interface-cli" title="Link to this heading"></a></h2>
+<p>In case you prefer to use the command line interface, you can execute the following command to train a model:</p>
+<div class="highlight-console notranslate"><div class="highlight"><pre><span></span><span class="gp gp-VirtualEnv">(.deeptune)</span> <span class="gp">$ </span>python<span class="w"> </span>-m<span class="w"> </span>deeptune<span class="w"> </span>--modality<span class="w"> </span>&lt;model_name&gt;<span class="w"> </span>--model<span class="w"> </span>&lt;model_name&gt;<span class="w"> </span>--df<span class="w"> </span>&lt;dataset_path&gt;
+</pre></div>
+</div>
+<p>Each task (Image Classification &amp; Regression, Sentiment Analysis, Clip-Level Action Classification, …) has its own set of supported models and specific parameters that must be set in order to exeucte DeepTune properly. You can find the list of supported models with their corresponding parameters in the respective task section.</p>
+<div class="admonition note">
+<p class="admonition-title">Note</p>
+<p>The CLI <code class="docutils literal notranslate"><span class="pre">python</span> <span class="pre">-m</span> <span class="pre">deeptune</span></code> command provides access to the same functionalities as the GUI, allowing you to train, evaluate, and analyze models directly from the command line. The coordinate regression and image reconstruction tasks are currently only available through their specific respective CLI commands.</p>
+</div>
+</section>
+</section>
+
+
+           </div>
+          </div>
+          <footer><div class="rst-footer-buttons" role="navigation" aria-label="Footer">
+        <a href="install.html" class="btn btn-neutral float-left" title="Installation" accesskey="p" rel="prev"><span class="fa fa-arrow-circle-left" aria-hidden="true"></span> Previous</a>
+        <a href="../tasks/imageclassreg.html" class="btn btn-neutral float-right" title="Image Classification &amp; Regression" accesskey="n" rel="next">Next <span class="fa fa-arrow-circle-right" aria-hidden="true"></span></a>
+    </div>
+
+  <hr/>
+
+  <div role="contentinfo">
+    <p>&#169; Copyright 2026, Moayadeldin Hussain.</p>
+  </div>
+
+  Built with <a href="https://www.sphinx-doc.org/">Sphinx</a> using a
+    <a href="https://github.com/readthedocs/sphinx_rtd_theme">theme</a>
+    provided by <a href="https://readthedocs.org">Read the Docs</a>.
+   
+
+</footer>
+        </div>
+      </div>
+    </section>
+  </div>
+  <script>
+      jQuery(function () {
+          SphinxRtdTheme.Navigation.enable(true);
+      });
+  </script> 
+
+</body>
+</html>

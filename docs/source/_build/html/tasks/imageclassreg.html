@@ -1,0 +1,187 @@
+
+
+<!DOCTYPE html>
+<html class="writer-html5" lang="en" data-content_root="../">
+<head>
+  <meta charset="utf-8" /><meta name="viewport" content="width=device-width, initial-scale=1" />
+
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>Image Classification &amp; Regression &mdash; DeepTune 1.1.0 documentation</title>
+      <link rel="stylesheet" type="text/css" href="../_static/pygments.css?v=b86133f3" />
+      <link rel="stylesheet" type="text/css" href="../_static/css/theme.css?v=e59714d7" />
+
+  
+      <script src="../_static/jquery.js?v=5d32c60e"></script>
+      <script src="../_static/_sphinx_javascript_frameworks_compat.js?v=2cd50e6c"></script>
+      <script src="../_static/documentation_options.js?v=fc837d61"></script>
+      <script src="../_static/doctools.js?v=9bcbadda"></script>
+      <script src="../_static/sphinx_highlight.js?v=dc90522c"></script>
+    <script src="../_static/js/theme.js"></script>
+    <link rel="index" title="Index" href="../genindex.html" />
+    <link rel="search" title="Search" href="../search.html" />
+    <link rel="next" title="Image-based Workflow Components" href="imageworkflow.html" />
+    <link rel="prev" title="Getting Started" href="../guides/getstarted.html" /> 
+</head>
+
+<body class="wy-body-for-nav"> 
+  <div class="wy-grid-for-nav">
+    <nav data-toggle="wy-nav-shift" class="wy-nav-side">
+      <div class="wy-side-scroll">
+        <div class="wy-side-nav-search" >
+
+          
+          
+          <a href="../index.html" class="icon icon-home">
+            DeepTune
+          </a>
+<div role="search">
+  <form id="rtd-search-form" class="wy-form" action="../search.html" method="get">
+    <input type="text" name="q" placeholder="Search docs" aria-label="Search docs" />
+    <input type="hidden" name="check_keywords" value="yes" />
+    <input type="hidden" name="area" value="default" />
+  </form>
+</div>
+        </div><div class="wy-menu wy-menu-vertical" data-spy="affix" role="navigation" aria-label="Navigation menu">
+              <p class="caption" role="heading"><span class="caption-text">User Guide</span></p>
+<ul>
+<li class="toctree-l1"><a class="reference internal" href="../guides/install.html">Installation</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../guides/getstarted.html">Getting Started</a></li>
+</ul>
+<p class="caption" role="heading"><span class="caption-text">Image Classification &amp; Regression</span></p>
+<ul class="current">
+<li class="toctree-l1 current"><a class="current reference internal" href="#">Image Classification &amp; Regression</a><ul>
+<li class="toctree-l2"><a class="reference internal" href="#running-image-classification-tasks-through-the-cli">Running Image Classification Tasks through the CLI</a></li>
+<li class="toctree-l2"><a class="reference internal" href="#running-image-regression-tasks-through-the-cli">Running Image Regression Tasks through the CLI</a></li>
+</ul>
+</li>
+<li class="toctree-l1"><a class="reference internal" href="imageworkflow.html">Image-based Workflow Components</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../configurations/imageconfig.html">Image Classification &amp; Regression Parameters Reference</a></li>
+</ul>
+<p class="caption" role="heading"><span class="caption-text">Text Classification</span></p>
+<ul>
+<li class="toctree-l1"><a class="reference internal" href="textsentiment.html">Text Classification</a></li>
+<li class="toctree-l1"><a class="reference internal" href="textworkflow.html">Text-based Workflow Components</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../configurations/textconfig.html">Text Classification Reference</a></li>
+</ul>
+
+        </div>
+      </div>
+    </nav>
+
+    <section data-toggle="wy-nav-shift" class="wy-nav-content-wrap"><nav class="wy-nav-top" aria-label="Mobile navigation menu" >
+          <i data-toggle="wy-nav-top" class="fa fa-bars"></i>
+          <a href="../index.html">DeepTune</a>
+      </nav>
+
+      <div class="wy-nav-content">
+        <div class="rst-content">
+          <div role="navigation" aria-label="Page navigation">
+  <ul class="wy-breadcrumbs">
+      <li><a href="../index.html" class="icon icon-home" aria-label="Home"></a></li>
+      <li class="breadcrumb-item active">Image Classification &amp; Regression</li>
+      <li class="wy-breadcrumbs-aside">
+            <a href="../_sources/tasks/imageclassreg.rst.txt" rel="nofollow"> View page source</a>
+      </li>
+  </ul>
+  <hr/>
+</div>
+          <div role="main" class="document" itemscope="itemscope" itemtype="http://schema.org/Article">
+           <div itemprop="articleBody">
+             
+  <section id="image-classification-regression">
+<span id="imageclassreg-rst"></span><h1>Image Classification &amp; Regression<a class="headerlink" href="#image-classification-regression" title="Link to this heading"></a></h1>
+<p>Image classification and regression are fundamental tasks in computer vision, where the goal is to assign a label or a continuous value to an input image based on its content. <strong>DeepTune</strong> provides a comprehensive framework for training, evaluating, and knowledge extraction of models for these tasks, supporting a wide range of state-of-the-art architectures and training paradigms.</p>
+<section id="running-image-classification-tasks-through-the-cli">
+<h2>Running Image Classification Tasks through the CLI<a class="headerlink" href="#running-image-classification-tasks-through-the-cli" title="Link to this heading"></a></h2>
+<p><strong>DeepTune</strong> supports the following image classification models:</p>
+<ul class="simple">
+<li><p><a class="reference external" href="https://docs.pytorch.org/vision/main/models/resnet.html">ResNet</a> (PyTorch). The model versions supported are: ‘resnet18’, ‘resnet34’, ‘resnet50’, ‘resnet101’, or ‘resnet152’</p></li>
+<li><p><a class="reference external" href="https://docs.pytorch.org/vision/main/models/densenet.html">DenseNet</a> (PyTorch). The model versions supported are: ‘densenet121’, ‘densenet161’, ‘densenet169’, or ‘densenet201’</p></li>
+<li><p><a class="reference external" href="https://docs.pytorch.org/vision/main/models/efficientnet.html">EfficientNet</a> (PyTorch). The model versions supported are: ‘efficientnet_b0’, ‘efficientnet_b1’, ‘efficientnet_b2’, ‘efficientnet_b3’, ‘efficientnet_b4’, ‘efficientnet_b5’, ‘efficientnet_b6’, or ‘efficientnet_b7’.</p></li>
+<li><p><a class="reference external" href="https://docs.pytorch.org/vision/main/models/swin_transformer.html">Swin Trasnformer</a> (PyTorch) The model versions supported are: ‘swin_t’, ‘swin_s’, or ‘swin_b’.</p></li>
+<li><p><a class="reference external" href="https://docs.pytorch.org/vision/main/models/vit.html">Vision Transformer (ViT)</a> (PyTorch) The model versions supported are: ‘vit_b_16’, ‘vit_b_32’, ‘vit_l_16’, ‘vit_l_32’, or ‘vit_h_14’.</p></li>
+<li><p><a class="reference external" href="https://docs.pytorch.org/vision/main/models/vgg.html">VGGNet</a> (PyTorch). The model versions supported are: ‘vgg11’, ‘vgg13’, ‘vgg16’, or ‘vgg19’.</p></li>
+<li><p><a class="reference external" href="https://docs.pytorch.org/vision/main/models/convnext.html">ConvNeXt</a> (PyTorch). The model versions supported are: ‘convnext_tiny’, ‘convnext_small’, ‘convnext_base’, or ‘convnext_large’.</p></li>
+<li><p><a class="reference external" href="https://huggingface.co/docs/transformers/en/model_doc/siglip">Sigmoid Loss for Language Image Pre-Training (SiGLip)</a> (HuggingFace Transformers). The only supported version is ‘siglip_so400m_patch14_384’, which is called ‘siglip’ in the CLI.</p></li>
+</ul>
+<div class="highlight-console notranslate"><div class="highlight"><pre><span></span><span class="gp gp-VirtualEnv">(.deeptune)</span> <span class="gp">$ </span>python<span class="w"> </span>-m<span class="w"> </span>deeptune<span class="w"> </span><span class="se">\</span>
+<span class="w">    </span>--modality<span class="w"> </span>image<span class="w"> </span><span class="se">\</span>
+<span class="w">    </span>--mode<span class="w"> </span>cls<span class="w"> </span><span class="se">\</span>
+<span class="w">    </span>--model<span class="w"> </span>&lt;model_version&gt;<span class="w"> </span><span class="se">\</span>
+<span class="w">    </span>--df<span class="w"> </span>&lt;dataset_path&gt;<span class="w"> </span><span class="se">\</span>
+<span class="w">    </span>--target<span class="w"> </span>&lt;target_column_name&gt;<span class="w"> </span><span class="se">\</span>
+<span class="w">    </span>--batch_size<span class="w"> </span>&lt;batch_size&gt;<span class="w"> </span><span class="se">\</span>
+<span class="w">    </span>--num_classes<span class="w"> </span>&lt;num_classes&gt;<span class="w"> </span><span class="se">\</span>
+<span class="w">    </span>--num_epochs<span class="w"> </span>&lt;num_epochs&gt;<span class="w"> </span><span class="se">\</span>
+<span class="w">    </span>--learning_rate<span class="w"> </span>&lt;learning_rate&gt;<span class="w"> </span><span class="se">\</span>
+<span class="w">    </span>--grouper<span class="w"> </span>&lt;grouper_column_name&gt;<span class="w"> </span><span class="se">\ </span>//<span class="w"> </span>only<span class="w"> </span><span class="k">for</span><span class="w"> </span>grouped<span class="w"> </span>cross-validation
+<span class="go">    --out &lt;output_directory&gt; \</span>
+<span class="go">    --fixed-seed \</span>
+<span class="go">    --use-peft \</span>
+<span class="go">    --freeze-backbone \</span>
+<span class="go">    --raw-data \</span>
+</pre></div>
+</div>
+<p>After conducting a successfull experiment of <strong>DeepTune</strong> for image classification, the results will be saved in the specified output directory. The results include the dataset splits, trained model, training logs, evaluation metrics, and the knowledge embeddings extracted from the repsective test split. A summary of the experiment will be printed in the terminal, including the best model checkpoint, the evaluation metrics, and the path to the output directory as follows:</p>
+<a class="reference internal image-reference" href="../_images/image_cls.png"><img alt="A screenshot of the DeepTune CLI output for an image classification experiment, showing the best model checkpoint, evaluation metrics, and output directory path." src="../_images/image_cls.png" style="width: 800px;" />
+</a>
+</section>
+<section id="running-image-regression-tasks-through-the-cli">
+<h2>Running Image Regression Tasks through the CLI<a class="headerlink" href="#running-image-regression-tasks-through-the-cli" title="Link to this heading"></a></h2>
+<p><strong>DeepTune</strong> supports all the same image regression models as the image classification task, with the exception of the SiGLip model, which is not supported for regression tasks.</p>
+<div class="highlight-console notranslate"><div class="highlight"><pre><span></span><span class="gp gp-VirtualEnv">(.deeptune)</span> <span class="gp">$ </span>python<span class="w"> </span>-m<span class="w"> </span>deeptune<span class="w"> </span><span class="se">\</span>
+<span class="w">    </span>--modality<span class="w"> </span>image<span class="w"> </span><span class="se">\</span>
+<span class="w">    </span>--mode<span class="w"> </span>reg<span class="w"> </span><span class="se">\</span>
+<span class="w">    </span>--model<span class="w"> </span>&lt;model_version&gt;<span class="w"> </span><span class="se">\</span>
+<span class="w">    </span>--df<span class="w"> </span>&lt;dataset_path&gt;<span class="w"> </span><span class="se">\</span>
+<span class="w">    </span>--target<span class="w"> </span>&lt;target_column_name&gt;<span class="w"> </span><span class="se">\</span>
+<span class="w">    </span>--batch_size<span class="w"> </span>&lt;batch_size&gt;<span class="w"> </span><span class="se">\</span>
+<span class="w">    </span>--num_epochs<span class="w"> </span>&lt;num_epochs&gt;<span class="w"> </span><span class="se">\</span>
+<span class="w">    </span>--learning_rate<span class="w"> </span>&lt;learning_rate&gt;<span class="w"> </span><span class="se">\</span>
+<span class="w">    </span>--grouper<span class="w"> </span>&lt;grouper_column_name&gt;<span class="w"> </span><span class="se">\ </span>//<span class="w"> </span>only<span class="w"> </span><span class="k">for</span><span class="w"> </span>grouped<span class="w"> </span>cross-validation
+<span class="go">    --out &lt;output_directory&gt; \</span>
+<span class="go">    --fixed-seed \</span>
+<span class="go">    --use-peft \</span>
+<span class="go">    --freeze-backbone \</span>
+<span class="go">    --raw-data \</span>
+</pre></div>
+</div>
+<p>Similar to the image classification task, after conducting a successful experiment of <strong>DeepTune</strong> for image regression, the results will be saved in the specified output directory and shown as follows:</p>
+<a class="reference internal image-reference" href="../_images/image_reg.png"><img alt="A screenshot of the DeepTune CLI output for an image regression experiment, showing the best model checkpoint, evaluation metrics, and output directory path." src="../_images/image_reg.png" style="width: 800px;" />
+</a>
+<p>For a detailed information on the configuration parameters and execution options for image classification and regression tasks, please refer to the <a class="reference internal" href="../configurations/imageconfig.html"><span class="doc">Image Classification &amp; Regression Parameters Reference</span></a> section.</p>
+</section>
+</section>
+
+
+           </div>
+          </div>
+          <footer><div class="rst-footer-buttons" role="navigation" aria-label="Footer">
+        <a href="../guides/getstarted.html" class="btn btn-neutral float-left" title="Getting Started" accesskey="p" rel="prev"><span class="fa fa-arrow-circle-left" aria-hidden="true"></span> Previous</a>
+        <a href="imageworkflow.html" class="btn btn-neutral float-right" title="Image-based Workflow Components" accesskey="n" rel="next">Next <span class="fa fa-arrow-circle-right" aria-hidden="true"></span></a>
+    </div>
+
+  <hr/>
+
+  <div role="contentinfo">
+    <p>&#169; Copyright 2026, Moayadeldin Hussain.</p>
+  </div>
+
+  Built with <a href="https://www.sphinx-doc.org/">Sphinx</a> using a
+    <a href="https://github.com/readthedocs/sphinx_rtd_theme">theme</a>
+    provided by <a href="https://readthedocs.org">Read the Docs</a>.
+   
+
+</footer>
+        </div>
+      </div>
+    </section>
+  </div>
+  <script>
+      jQuery(function () {
+          SphinxRtdTheme.Navigation.enable(true);
+      });
+  </script> 
+
+</body>
+</html>

@@ -1,9 +1,7 @@
 Welcome to Deeptune's documentation!
-===================================
+====================================
 
-**DeepTune** is a full compatible tool package to automate Computer Vision, Natural Language Processing, Tabular, Time Series, and Video state-of-the-art deep learning algorithms for multimodal applications on image, text, tabular, time series, and video datasets. The library is designed for use in different applied machine learning domains, including but not limited to medical imaging, natural language understanding, time series analysis, providing users with powerful, ready-to-use CLI tool that unlock the full potential of their case studies through just a one simple command.
-
-**DeepTune** is primarily presented for undergraduate and graduate computer science students community at St. Francis Xavier University (StFX) in Antigonish, Nova Scotia, Canada. We aspire to seeing this software adopted broadly across the computer science research community all over the world.
+**DeepTune** is a full compatible tool package to automate Computer Vision, Natural Language Processing, Tabular, Time Series, using state-of-the-art deep learning algorithms for multimodal applications on image, text, tabular, time series, and video datasets. The library is designed for use in different applied machine learning domains, including but not limited to medical imaging, natural language understanding, action classification, and time series analysis, providing users with powerful, ready-to-use both CLI and GUI-supporting tool that unlock the full potential of their case studies through a fully-automated workflow.
 
 Check out the :doc:`guides/install` section for further information, including how to install the library.
 
@@ -16,49 +14,18 @@ GitHub repository can be accessed through the following link: https://github.com
 Main Features
 -------------
 
-- Fine-tuning state-of-the-art Computer Vision algorithms (ResNet, DenseNet, etc.) for image classification.
-- Fine-tuning state-of-the-art NLP (BERT, GPT-2) algorithms for text classification.
-- End-to-end training for tabular and time-series algorithms.
-- Fine-tuning video classifiers on raw video clips, either by sampling frames through the existing 2D vision backbones (with pooling over time), or through native spatio-temporal architectures (3D-CNNs and video transformers) that learn motion directly.
-- Enabling parameter-efficient fine-tuning of state-of-the-art vision, video, and NLP models using PEFT with LoRA, reducing computational cost while maintaining high performance.
-- Leveraging fine-tuned and pretrained state-of-the-art vision, video, and language models to generate robust knowledge representations for downstream visual, temporal, and textual tasks.
+- **Unified Pipeline**: An automated framework supporting multiple tasks across different domains.
+- **Multimodal Support**: Supports image, text, video, tabular, and time-series datasets.
+- **Extensive Model Support**: Supports a wide range of support for +40 state-of-the-art deep learning models for vision, NLP, tabular, time-series, and video tasks.
+- **Flexible Training Paradigms**: Supports multiple training and fine-tuning options, including end-to-end training, transfer learning, linear readout, and parameter-efficient fine-tuning (PEFT) with hyperparameter tuning, including projection-layer configuration.
+- **User-Friendly Interface**: Provides both command-line interface (CLI) and graphical user interface (GUI) for ease of use.
 
-
-`DeepTune` Supported Models
-----------------------
+`DeepTune` Supported Tasks
+--------------------------
 
 .. image:: deeptune_models.png
   :width: 800
-  :alt: A table illustrating DeepTune supported models for vision, NLP, and tabular data tasks.
-
-
-
-`DeepTune` Running Demos
-------------------------------
-
-The following videos demonstratee how to use **DeepTune** for medical image classification and sentiment analysis by fine-tuning ResNet18, and Multilingual BERT models without and with PEFT respectively. The singleline command automates running the entire pipeline including loading the raw images, dataset splitting, training, evaluation, and embeddings extraction.
-
-
-1. **Images Demo.** The data sample used in this demo is a subset of the Chest X-Ray Images (Pneumonia) dataset available at: `Chest X-Ray dataset <https://www.kaggle.com/datasets/paultimothymooney/chest-xray-pneumonia>`_.
-
-.. raw:: html
-
-    <video width="640" controls>
-        <source src="_static/deeptune_images_demo.mp4" type="video/mp4">
-        Your browser does not support the video tag.
-    </video>
-
-2. **Text Demo.** The data sample used in this demo is a subset of the Twitter Sentiment Analysis dataset available at: `Twitter Sentiment Analysis dataset <https://www.kaggle.com/datasets/yasserh/twitter-tweets-sentiment-dataset>`_.
-
-.. raw:: html
-
-    <video width="640" controls>
-        <source src="_static/deeptune_text_demo.mp4" type="video/mp4">
-        Your browser does not support the video tag.
-    </video>
-
-
-The tabular and time-series video demos are available in the :doc:`guides/demos` section.
+  :alt: A table illustrating DeepTune supported tasks for images, text, video, tabular, and time-series data.
 
 
 Contents
@@ -69,35 +36,27 @@ Contents
    :caption: User Guide
 
    guides/install
-   guides/preface
-   guides/demos
+   guides/getstarted
 
 .. toctree::
-   :maxdepth: 2
-   :caption: Quick Start
+   :maxdepth: 1
+   :caption: Image Classification & Regression
 
-   tutorials/firstrun
-
-
-
-   
+   tasks/imageclassreg
+   tasks/imageworkflow
+   configurations/imageconfig
 
 .. toctree::
-   :maxdepth: 2
-   :caption: Functionalities
+   :maxdepth: 1
+   :caption: Text Classification
 
-   functionalities/handlers/split
-   functionalities/handlers/training
-   functionalities/handlers/evaluation
-   functionalities/handlers/embedding
-   functionalities/handlers/dfanalyze
-   functionalities/handlers/autoencoders
+   tasks/textsentiment
+   tasks/textworkflow
+   configurations/textconfig
 
 Acknowledgements
 ----------------
-This software package was developed as part of work done by Moayadeldin Hussain at Medical Imaging Bioinformatics lab under the supervision of Jacob Levman at St. Francis Xavier Univeristy, Nova Scotia, Canada.
-
-Thanks to Xuchen for providing their parameter-efficient fine-tuned Swin implementation `SwinTransformerWithPEFT <https://github.com/XuchenGuo/SwinTransformerWithPEFT>`_.
+This software package was developed as part of collaborative research in the Medical Imaging Bioinformatics lab under the supervision of Jacob Levman at St. Francis Xavier Univeristy, Nova Scotia, Canada.
 
 Citation
 --------
@@ -108,9 +67,8 @@ If you make use of **DeepTune**, please cite the repository as follows:
 .. code-block:: bibtex
 
    @software{DeepTune,
-   author  = {Moayadeldin Hussain, John Kendall and Jacob Levman},
+   author  = {Moayadeldin Hussain, Ahmed Saad, John Kendall, Youssoff Mahfouz, Yazan Hamad, Xuchen Guo, and Jacob Levman},
    title   = {DeepTune: Cutting-edge Tool automating state-of-the-art deep learning models for cross-modal applications},
-   year = {2025},
+   year = {2026},
    url = {https://github.com/moayadeldin/deeptune},
-   version = {1.1.0}
    }

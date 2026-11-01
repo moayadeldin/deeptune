@@ -1,0 +1,152 @@
+
+.. _textworkflow:
+
+Text-based Workflow Components
+==============================
+
+DeepTune provides dedicated components for text classification
+using Multilingual BERT and GPT-2, organized into model training,
+evaluation, and embedding extraction workflows. These components
+are coordinated through the main execution module. This page provides a class-level abstract overview of the NLP workflow components and their interfaces.
+
+
+Model Training
+--------------
+
+Both Multilingual BERT and GPT-2 use dedicated training classes
+that manage model training, validation, and evaluation with embeddings generation. Both implementations employ Cross-Entropy Loss and the Adam optimizer.
+
+
+Multilingual BERT Training
+~~~~~~~~~~~~~~~~~~~~~~~~~~
+
+**Entry point:** ``trainers.nlp.train_multilingualbert.train``
+
+The training function initializes the selected `bert` model and
+tokenizer, prepares the training and validation datasets, and
+delegates optimization to the ``BERTrainer`` class.
+
+.. py:currentmodule:: trainers.nlp.train_multilingualbert
+
+.. py:class:: BERTrainer(model, tokenizer, learning_rate, num_epochs, train_loader, val_loader, trainval_output_dir)
+
+   Manages training and validation of Multilingual BERT classifiers.
+
+   :param model: Multilingual BERT classification model.
+   :param tokenizer: Tokenizer used for text preprocessing.
+   :param learning_rate: Learning rate for the Adam optimizer.
+   :param num_epochs: Number of training epochs.
+   :param train_loader: Training data loader.
+   :param val_loader: Validation data loader.
+   :param trainval_output_dir: Directory for training outputs.
+
+   .. py:method:: train()
+
+      Executes epoch-based training and validation, tracking
+      classification loss, accuracy, and execution time.
+
+   .. py:method:: validate()
+
+      Computes validation loss and classification accuracy.
+
+   .. py:method:: save_tunedbertmodel()
+
+      Saves the model weights, BERT backbone, tokenizer,
+      training configuration, and training logs.
+
+
+GPT-2 Training
+~~~~~~~~~~~~~~
+
+**Entry point:** ``trainers.nlp.train_gpt2.train``
+
+The training function loads GPT-2 and its tokenizer, constructs
+the classification model, and delegates training and validation
+to the ``GPTrainer`` class.
+
+.. py:currentmodule:: trainers.nlp.train_gpt2
+
+.. py:class:: GPTrainer(model, tokenizer, learning_rate, outdir, num_epochs, train_loader, val_loader)
+
+   Manages training and validation of GPT-2 classifiers.
+
+   :param model: GPT-2 classification model.
+   :param tokenizer: Tokenizer used for text preprocessing.
+   :param learning_rate: Learning rate for the Adam optimizer.
+   :param outdir: Directory for training outputs.
+   :param num_epochs: Number of training epochs.
+   :param train_loader: Training data loader.
+   :param val_loader: Validation data loader.
+
+   .. py:method:: train()
+
+      Executes epoch-based training and validation, recording
+      classification loss, accuracy, and execution time.
+
+   .. py:method:: validate()
+
+      Computes validation loss and classification accuracy.
+
+   .. py:method:: save_tunedgpt2model()
+
+      Saves the model weights, tokenizer,
+      model configuration, and training logs.
+
+Model Evaluation
+----------------
+
+
+Multilingual BERT Evaluation
+~~~~~~~~~~~~~~~~~~~~~~~~~~~~
+
+**Entry point:** ``evaluators.nlp.evaluate_multilingualbert.evaluate``
+
+The evaluation function initializes the corresponding BERT
+classification architecture, loads the saved tokenizer and weights, and performs inference on the evaluation dataset.
+
+The implementation supports standard and PEFT-based BERT
+classification configurations.
+
+
+GPT-2 Evaluation
+~~~~~~~~~~~~~~~~
+
+**Entry point:** ``evaluators.nlp.evaluate_gpt.evaluate``
+
+The evaluation function loads the corresponding GPT-2
+classification model and tokenizer, then performs inference
+on the evaluation dataset.
+
+Both evaluation implementations compute classification loss,
+accuracy, precision, recall, F1-score, and AUROC where applicable.
+
+Evaluation metrics are saved to ``full_metrics.json``.
+
+
+Embedding Extraction
+--------------------
+
+
+Multilingual BERT Embeddings
+~~~~~~~~~~~~~~~~~~~~~~~~~~~~
+
+**Entry point:** ``embed.nlp.multilingualbert_embeddings.embed``
+
+The embedding function extracts sentence representations
+from the BERT ``[CLS]`` token's final hidden state. The implementation supports pretrained, fine-tuned,
+and PEFT-based BERT configurations.
+
+
+GPT-2 Embeddings
+~~~~~~~~~~~~~~~~
+
+**Entry point:** ``embed.nlp.gpt2_embeddings.embed``
+
+The embedding function generates text representations using
+the configured GPT-2 model and its tokenization pipeline.
+
+The implementation supports pretrained and fine-tuned
+configurations, without PEFT support.
+
+For both models, extracted representations are combined
+with their associated labels and available dataset metadata, then exported in Parquet format.

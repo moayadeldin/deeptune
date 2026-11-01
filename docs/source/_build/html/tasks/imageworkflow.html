@@ -1,0 +1,361 @@
+
+
+<!DOCTYPE html>
+<html class="writer-html5" lang="en" data-content_root="../">
+<head>
+  <meta charset="utf-8" /><meta name="viewport" content="width=device-width, initial-scale=1" />
+
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>Image-based Workflow Components &mdash; DeepTune 1.1.0 documentation</title>
+      <link rel="stylesheet" type="text/css" href="../_static/pygments.css?v=b86133f3" />
+      <link rel="stylesheet" type="text/css" href="../_static/css/theme.css?v=e59714d7" />
+
+  
+      <script src="../_static/jquery.js?v=5d32c60e"></script>
+      <script src="../_static/_sphinx_javascript_frameworks_compat.js?v=2cd50e6c"></script>
+      <script src="../_static/documentation_options.js?v=fc837d61"></script>
+      <script src="../_static/doctools.js?v=9bcbadda"></script>
+      <script src="../_static/sphinx_highlight.js?v=dc90522c"></script>
+    <script src="../_static/js/theme.js"></script>
+    <link rel="index" title="Index" href="../genindex.html" />
+    <link rel="search" title="Search" href="../search.html" />
+    <link rel="next" title="Image Classification &amp; Regression Parameters Reference" href="../configurations/imageconfig.html" />
+    <link rel="prev" title="Image Classification &amp; Regression" href="imageclassreg.html" /> 
+</head>
+
+<body class="wy-body-for-nav"> 
+  <div class="wy-grid-for-nav">
+    <nav data-toggle="wy-nav-shift" class="wy-nav-side">
+      <div class="wy-side-scroll">
+        <div class="wy-side-nav-search" >
+
+          
+          
+          <a href="../index.html" class="icon icon-home">
+            DeepTune
+          </a>
+<div role="search">
+  <form id="rtd-search-form" class="wy-form" action="../search.html" method="get">
+    <input type="text" name="q" placeholder="Search docs" aria-label="Search docs" />
+    <input type="hidden" name="check_keywords" value="yes" />
+    <input type="hidden" name="area" value="default" />
+  </form>
+</div>
+        </div><div class="wy-menu wy-menu-vertical" data-spy="affix" role="navigation" aria-label="Navigation menu">
+              <p class="caption" role="heading"><span class="caption-text">User Guide</span></p>
+<ul>
+<li class="toctree-l1"><a class="reference internal" href="../guides/install.html">Installation</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../guides/getstarted.html">Getting Started</a></li>
+</ul>
+<p class="caption" role="heading"><span class="caption-text">Image Classification &amp; Regression</span></p>
+<ul class="current">
+<li class="toctree-l1"><a class="reference internal" href="imageclassreg.html">Image Classification &amp; Regression</a></li>
+<li class="toctree-l1 current"><a class="current reference internal" href="#">Image-based Workflow Components</a><ul>
+<li class="toctree-l2"><a class="reference internal" href="#model-training">Model Training</a><ul>
+<li class="toctree-l3"><a class="reference internal" href="#trainers.vision.trainer.Trainer"><code class="docutils literal notranslate"><span class="pre">Trainer</span></code></a><ul>
+<li class="toctree-l4"><a class="reference internal" href="#trainers.vision.trainer.Trainer.train"><code class="docutils literal notranslate"><span class="pre">Trainer.train()</span></code></a></li>
+<li class="toctree-l4"><a class="reference internal" href="#trainers.vision.trainer.Trainer.validate"><code class="docutils literal notranslate"><span class="pre">Trainer.validate()</span></code></a></li>
+<li class="toctree-l4"><a class="reference internal" href="#trainers.vision.trainer.Trainer.saveModel"><code class="docutils literal notranslate"><span class="pre">Trainer.saveModel()</span></code></a></li>
+</ul>
+</li>
+</ul>
+</li>
+<li class="toctree-l2"><a class="reference internal" href="#model-evaluation">Model Evaluation</a><ul>
+<li class="toctree-l3"><a class="reference internal" href="#evaluators.vision.evaluator.TestTrainer"><code class="docutils literal notranslate"><span class="pre">TestTrainer</span></code></a><ul>
+<li class="toctree-l4"><a class="reference internal" href="#evaluators.vision.evaluator.TestTrainer.test"><code class="docutils literal notranslate"><span class="pre">TestTrainer.test()</span></code></a></li>
+</ul>
+</li>
+</ul>
+</li>
+<li class="toctree-l2"><a class="reference internal" href="#embedding-extraction">Embedding Extraction</a><ul>
+<li class="toctree-l3"><a class="reference internal" href="#embed.vision.embed.EmbeddingModel"><code class="docutils literal notranslate"><span class="pre">EmbeddingModel</span></code></a></li>
+</ul>
+</li>
+<li class="toctree-l2"><a class="reference internal" href="#specialized-siglip-implementation">Specialized SiGLiP Implementation</a><ul>
+<li class="toctree-l3"><a class="reference internal" href="#siglip-training">SiGLiP Training</a><ul>
+<li class="toctree-l4"><a class="reference internal" href="#trainers.vision.custom_siglip_train.SiglipTrainer"><code class="docutils literal notranslate"><span class="pre">SiglipTrainer</span></code></a></li>
+</ul>
+</li>
+<li class="toctree-l3"><a class="reference internal" href="#siglip-evaluation">SiGLiP Evaluation</a><ul>
+<li class="toctree-l4"><a class="reference internal" href="#evaluators.vision.custom_siglip_evaluate.TestTrainer"><code class="docutils literal notranslate"><span class="pre">TestTrainer</span></code></a></li>
+</ul>
+</li>
+<li class="toctree-l3"><a class="reference internal" href="#siglip-embedding-extraction">SiGLiP Embedding Extraction</a></li>
+</ul>
+</li>
+</ul>
+</li>
+<li class="toctree-l1"><a class="reference internal" href="../configurations/imageconfig.html">Image Classification &amp; Regression Parameters Reference</a></li>
+</ul>
+<p class="caption" role="heading"><span class="caption-text">Text Classification</span></p>
+<ul>
+<li class="toctree-l1"><a class="reference internal" href="textsentiment.html">Text Classification</a></li>
+<li class="toctree-l1"><a class="reference internal" href="textworkflow.html">Text-based Workflow Components</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../configurations/textconfig.html">Text Classification Reference</a></li>
+</ul>
+
+        </div>
+      </div>
+    </nav>
+
+    <section data-toggle="wy-nav-shift" class="wy-nav-content-wrap"><nav class="wy-nav-top" aria-label="Mobile navigation menu" >
+          <i data-toggle="wy-nav-top" class="fa fa-bars"></i>
+          <a href="../index.html">DeepTune</a>
+      </nav>
+
+      <div class="wy-nav-content">
+        <div class="rst-content">
+          <div role="navigation" aria-label="Page navigation">
+  <ul class="wy-breadcrumbs">
+      <li><a href="../index.html" class="icon icon-home" aria-label="Home"></a></li>
+      <li class="breadcrumb-item active">Image-based Workflow Components</li>
+      <li class="wy-breadcrumbs-aside">
+            <a href="../_sources/tasks/imageworkflow.rst.txt" rel="nofollow"> View page source</a>
+      </li>
+  </ul>
+  <hr/>
+</div>
+          <div role="main" class="document" itemscope="itemscope" itemtype="http://schema.org/Article">
+           <div itemprop="articleBody">
+             
+  <section id="image-based-workflow-components">
+<span id="imageworkflow"></span><h1>Image-based Workflow Components<a class="headerlink" href="#image-based-workflow-components" title="Link to this heading"></a></h1>
+<p>DeepTune provides dedicated components for image classification
+and regression, organized into model training, evaluation, and
+embedding extraction workflows. These components are coordinated
+through the main execution module. In this page, we provide a class-level abstract
+overview of the image base workflow components.</p>
+<section id="model-training">
+<h2>Model Training<a class="headerlink" href="#model-training" title="Link to this heading"></a></h2>
+<p><strong>Entry point:</strong> <code class="docutils literal notranslate"><span class="pre">trainers.vision.train.train</span></code></p>
+<p>The training function initializes the selected vision architecture,
+prepares the training and validation data loaders, and delegates
+model optimization to the <code class="docutils literal notranslate"><span class="pre">Trainer</span></code> class.</p>
+<dl class="py class">
+<dt class="sig sig-object py" id="trainers.vision.trainer.Trainer">
+<em class="property"><span class="pre">class</span><span class="w"> </span></em><span class="sig-prename descclassname"><span class="pre">trainers.vision.trainer.</span></span><span class="sig-name descname"><span class="pre">Trainer</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">model</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">train_loader</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">val_loader</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">learning_rate</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">mode</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">num_epochs</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">output_dir</span></span></em><span class="sig-paren">)</span><a class="headerlink" href="#trainers.vision.trainer.Trainer" title="Link to this definition"></a></dt>
+<dd><p>Manages training and validation of PyTorch vision models.</p>
+<dl class="field-list simple">
+<dt class="field-odd">Parameters<span class="colon">:</span></dt>
+<dd class="field-odd"><ul class="simple">
+<li><p><strong>model</strong> – PyTorch model to be trained.</p></li>
+<li><p><strong>train_loader</strong> – DataLoader containing the training samples.</p></li>
+<li><p><strong>val_loader</strong> – DataLoader containing the validation samples.</p></li>
+<li><p><strong>learning_rate</strong> – Learning rate for the Adam optimizer.</p></li>
+<li><p><strong>mode</strong> – Task type, either <code class="docutils literal notranslate"><span class="pre">cls</span></code> or <code class="docutils literal notranslate"><span class="pre">reg</span></code>.</p></li>
+<li><p><strong>num_epochs</strong> – Number of training epochs.</p></li>
+<li><p><strong>output_dir</strong> – Directory for training logs and model checkpoints.</p></li>
+</ul>
+</dd>
+</dl>
+<p>Classification uses Cross-Entropy Loss, while regression uses
+Mean Squared Error (MSE).</p>
+<dl class="py method">
+<dt class="sig sig-object py" id="trainers.vision.trainer.Trainer.train">
+<span class="sig-name descname"><span class="pre">train</span></span><span class="sig-paren">(</span><span class="sig-paren">)</span><a class="headerlink" href="#trainers.vision.trainer.Trainer.train" title="Link to this definition"></a></dt>
+<dd><p>Executes the training loop, including validation,
+metric logging, and execution-time tracking.</p>
+</dd></dl>
+
+<dl class="py method">
+<dt class="sig sig-object py" id="trainers.vision.trainer.Trainer.validate">
+<span class="sig-name descname"><span class="pre">validate</span></span><span class="sig-paren">(</span><span class="sig-paren">)</span><a class="headerlink" href="#trainers.vision.trainer.Trainer.validate" title="Link to this definition"></a></dt>
+<dd><p>Evaluates the model on the validation dataset and
+returns task-specific validation results.</p>
+</dd></dl>
+
+<dl class="py method">
+<dt class="sig sig-object py" id="trainers.vision.trainer.Trainer.saveModel">
+<span class="sig-name descname"><span class="pre">saveModel</span></span><span class="sig-paren">(</span><span class="sig-paren">)</span><a class="headerlink" href="#trainers.vision.trainer.Trainer.saveModel" title="Link to this definition"></a></dt>
+<dd><p>Saves the trained model parameters.</p>
+</dd></dl>
+
+</dd></dl>
+
+</section>
+<section id="model-evaluation">
+<h2>Model Evaluation<a class="headerlink" href="#model-evaluation" title="Link to this heading"></a></h2>
+<p><strong>Entry point:</strong> <code class="docutils literal notranslate"><span class="pre">evaluators.vision.evaluate.evaluate</span></code></p>
+<p>The evaluation function reconstructs the selected architecture
+and delegates evaluation to the <code class="docutils literal notranslate"><span class="pre">TestTrainer</span></code> class.</p>
+<dl class="py class">
+<dt class="sig sig-object py" id="evaluators.vision.evaluator.TestTrainer">
+<em class="property"><span class="pre">class</span><span class="w"> </span></em><span class="sig-prename descclassname"><span class="pre">evaluators.vision.evaluator.</span></span><span class="sig-name descname"><span class="pre">TestTrainer</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">model</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">batch_size</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">test_loader</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">mode</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">output_dir</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">device</span></span></em><span class="sig-paren">)</span><a class="headerlink" href="#evaluators.vision.evaluator.TestTrainer" title="Link to this definition"></a></dt>
+<dd><p>Evaluates trained vision models on a held-out Evaluation dataset.</p>
+<dl class="field-list simple">
+<dt class="field-odd">Parameters<span class="colon">:</span></dt>
+<dd class="field-odd"><ul class="simple">
+<li><p><strong>model</strong> – PyTorch model to evaluate.</p></li>
+<li><p><strong>batch_size</strong> – Configured evaluation batch size.</p></li>
+<li><p><strong>test_loader</strong> – DataLoader containing the Evaluation samples.</p></li>
+<li><p><strong>mode</strong> – Task type, either <code class="docutils literal notranslate"><span class="pre">cls</span></code> or <code class="docutils literal notranslate"><span class="pre">reg</span></code>.</p></li>
+<li><p><strong>output_dir</strong> – Directory for evaluation outputs.</p></li>
+<li><p><strong>device</strong> – Device used for inference.</p></li>
+</ul>
+</dd>
+</dl>
+<dl class="py method">
+<dt class="sig sig-object py" id="evaluators.vision.evaluator.TestTrainer.test">
+<span class="sig-name descname"><span class="pre">test</span></span><span class="sig-paren">(</span><span class="sig-paren">)</span><a class="headerlink" href="#evaluators.vision.evaluator.TestTrainer.test" title="Link to this definition"></a></dt>
+<dd><p>Loads the specified checkpoint, performs inference, and
+computes task-specific evaluation metrics.</p>
+<ul class="simple">
+<li><p><strong>Classification:</strong> Classification report and AUROC,
+when applicable.</p></li>
+<li><p><strong>Regression:</strong> MAE, RMSE, and R-squared.</p></li>
+</ul>
+<p>Results are saved to <code class="docutils literal notranslate"><span class="pre">full_metrics.json</span></code>.</p>
+</dd></dl>
+
+</dd></dl>
+
+</section>
+<section id="embedding-extraction">
+<h2>Embedding Extraction<a class="headerlink" href="#embedding-extraction" title="Link to this heading"></a></h2>
+<p><strong>Entry point:</strong> <code class="docutils literal notranslate"><span class="pre">embed.vision.embed.embed</span></code></p>
+<p>The embedding workflow loads the selected model and prepares its
+feature extraction pathway according to the architecture and
+model configuration.</p>
+<dl class="py class">
+<dt class="sig sig-object py" id="embed.vision.embed.EmbeddingModel">
+<em class="property"><span class="pre">class</span><span class="w"> </span></em><span class="sig-prename descclassname"><span class="pre">embed.vision.embed.</span></span><span class="sig-name descname"><span class="pre">EmbeddingModel</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">model</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">model_name</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">model_version</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">added_layers</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">embed_size</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">task_type</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">device</span></span></em><span class="sig-paren">)</span><a class="headerlink" href="#embed.vision.embed.EmbeddingModel" title="Link to this definition"></a></dt>
+<dd><p>Extracts numerical feature representations from image datasets.</p>
+<dl class="field-list simple">
+<dt class="field-odd">Parameters<span class="colon">:</span></dt>
+<dd class="field-odd"><ul class="simple">
+<li><p><strong>model</strong> – Model configured for embedding extraction.</p></li>
+<li><p><strong>model_name</strong> – Model architecture identifier.</p></li>
+<li><p><strong>model_version</strong> – Specific model variant.</p></li>
+<li><p><strong>added_layers</strong> – Number of additional model layers.</p></li>
+<li><p><strong>embed_size</strong> – Configured intermediate embedding dimension.</p></li>
+<li><p><strong>task_type</strong> – Task identifier.</p></li>
+<li><p><strong>device</strong> – Device used for embedding extraction.</p></li>
+</ul>
+</dd>
+</dl>
+<p>An <code class="docutils literal notranslate"><span class="pre">EmbeddingModel</span></code> instance accepts a dataset DataFrame
+and an optional batch size through its callable interface.
+It returns a DataFrame containing extracted feature
+representations and associated labels.</p>
+</dd></dl>
+
+<p>The embedding workflow saves the resulting DataFrame in
+Parquet format.</p>
+</section>
+<section id="specialized-siglip-implementation">
+<h2>Specialized SiGLiP Implementation<a class="headerlink" href="#specialized-siglip-implementation" title="Link to this heading"></a></h2>
+<p>SiGLiP uses dedicated components for image classification,
+with specialized preprocessing, model training, evaluation,
+and embedding extraction.</p>
+<section id="siglip-training">
+<h3>SiGLiP Training<a class="headerlink" href="#siglip-training" title="Link to this heading"></a></h3>
+<p><strong>Entry point:</strong> <code class="docutils literal notranslate"><span class="pre">trainers.vision.custom_siglip_train.train_siglip</span></code></p>
+<dl class="py class">
+<dt class="sig sig-object py" id="trainers.vision.custom_siglip_train.SiglipTrainer">
+<em class="property"><span class="pre">class</span><span class="w"> </span></em><span class="sig-prename descclassname"><span class="pre">trainers.vision.custom_siglip_train.</span></span><span class="sig-name descname"><span class="pre">SiglipTrainer</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">model</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">train_loader</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">val_loader</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">num_epochs</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">learning_rate</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">outdir</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">device</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">use_peft</span></span></em><span class="sig-paren">)</span><a class="headerlink" href="#trainers.vision.custom_siglip_train.SiglipTrainer" title="Link to this definition"></a></dt>
+<dd><p>Manages SiGLiP classification training using Adam,
+Cross-Entropy Loss, and automatic mixed precision.</p>
+<dl class="field-list simple">
+<dt class="field-odd">Parameters<span class="colon">:</span></dt>
+<dd class="field-odd"><ul class="simple">
+<li><p><strong>model</strong> – SiGLiP classification model.</p></li>
+<li><p><strong>train_loader</strong> – Training data loader.</p></li>
+<li><p><strong>val_loader</strong> – Validation data loader.</p></li>
+<li><p><strong>num_epochs</strong> – Number of training epochs.</p></li>
+<li><p><strong>learning_rate</strong> – Optimizer learning rate.</p></li>
+<li><p><strong>outdir</strong> – Directory for training outputs.</p></li>
+<li><p><strong>device</strong> – Training device.</p></li>
+<li><p><strong>use_peft</strong> – Whether PEFT is enabled.</p></li>
+</ul>
+</dd>
+</dl>
+<dl class="py method">
+<dt class="sig sig-object py" id="trainers.vision.custom_siglip_train.SiglipTrainer.train">
+<span class="sig-name descname"><span class="pre">train</span></span><span class="sig-paren">(</span><span class="sig-paren">)</span><a class="headerlink" href="#trainers.vision.custom_siglip_train.SiglipTrainer.train" title="Link to this definition"></a></dt>
+<dd><p>Executes training and saves the model checkpoint,
+configuration, and training logs.</p>
+</dd></dl>
+
+<dl class="py method">
+<dt class="sig sig-object py" id="trainers.vision.custom_siglip_train.SiglipTrainer.validate">
+<span class="sig-name descname"><span class="pre">validate</span></span><span class="sig-paren">(</span><span class="sig-paren">)</span><a class="headerlink" href="#trainers.vision.custom_siglip_train.SiglipTrainer.validate" title="Link to this definition"></a></dt>
+<dd><p>Computes validation loss and classification accuracy.</p>
+</dd></dl>
+
+</dd></dl>
+
+</section>
+<section id="siglip-evaluation">
+<h3>SiGLiP Evaluation<a class="headerlink" href="#siglip-evaluation" title="Link to this heading"></a></h3>
+<p><strong>Entry point:</strong> <code class="docutils literal notranslate"><span class="pre">evaluators.vision.custom_siglip_evaluate.evaluate_siglip</span></code></p>
+<dl class="py class">
+<dt class="sig sig-object py" id="evaluators.vision.custom_siglip_evaluate.TestTrainer">
+<em class="property"><span class="pre">class</span><span class="w"> </span></em><span class="sig-prename descclassname"><span class="pre">evaluators.vision.custom_siglip_evaluate.</span></span><span class="sig-name descname"><span class="pre">TestTrainer</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">model</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">data_loader</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">output_dir</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">device</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">use_peft</span></span></em><span class="sig-paren">)</span><a class="headerlink" href="#evaluators.vision.custom_siglip_evaluate.TestTrainer" title="Link to this definition"></a></dt>
+<dd><p>Evaluates a trained SiGLiP classifier.</p>
+<dl class="field-list simple">
+<dt class="field-odd">Parameters<span class="colon">:</span></dt>
+<dd class="field-odd"><ul class="simple">
+<li><p><strong>model</strong> – Trained SiGLiP model.</p></li>
+<li><p><strong>data_loader</strong> – Evaluation data loader.</p></li>
+<li><p><strong>output_dir</strong> – Evaluation output directory.</p></li>
+<li><p><strong>device</strong> – Inference device.</p></li>
+<li><p><strong>use_peft</strong> – Whether the PEFT configuration is used.</p></li>
+</ul>
+</dd>
+</dl>
+<dl class="py method">
+<dt class="sig sig-object py" id="evaluators.vision.custom_siglip_evaluate.TestTrainer.test">
+<span class="sig-name descname"><span class="pre">test</span></span><span class="sig-paren">(</span><span class="sig-paren">)</span><a class="headerlink" href="#evaluators.vision.custom_siglip_evaluate.TestTrainer.test" title="Link to this definition"></a></dt>
+<dd><p>Computes classification metrics, confusion matrix,
+and AUROC where applicable, saving the results
+to <code class="docutils literal notranslate"><span class="pre">full_metrics.json</span></code>.</p>
+</dd></dl>
+
+</dd></dl>
+
+</section>
+<section id="siglip-embedding-extraction">
+<h3>SiGLiP Embedding Extraction<a class="headerlink" href="#siglip-embedding-extraction" title="Link to this heading"></a></h3>
+<p><strong>Entry point:</strong> <code class="docutils literal notranslate"><span class="pre">embed.vision.custom_siglip_embed.embed_siglip</span></code></p>
+<p>The <code class="docutils literal notranslate"><span class="pre">embed_siglip</span></code> function extracts image representations
+using the SiGLiP feature extraction interface.</p>
+<p>It supports pretrained, fine-tuned, and PEFT configurations
+and accepts the dataset path, model checkpoint, model
+configuration, execution device, and output paths.</p>
+<p>Extracted representations are saved in Parquet format.</p>
+</section>
+</section>
+</section>
+
+
+           </div>
+          </div>
+          <footer><div class="rst-footer-buttons" role="navigation" aria-label="Footer">
+        <a href="imageclassreg.html" class="btn btn-neutral float-left" title="Image Classification &amp; Regression" accesskey="p" rel="prev"><span class="fa fa-arrow-circle-left" aria-hidden="true"></span> Previous</a>
+        <a href="../configurations/imageconfig.html" class="btn btn-neutral float-right" title="Image Classification &amp; Regression Parameters Reference" accesskey="n" rel="next">Next <span class="fa fa-arrow-circle-right" aria-hidden="true"></span></a>
+    </div>
+
+  <hr/>
+
+  <div role="contentinfo">
+    <p>&#169; Copyright 2026, Moayadeldin Hussain.</p>
+  </div>
+
+  Built with <a href="https://www.sphinx-doc.org/">Sphinx</a> using a
+    <a href="https://github.com/readthedocs/sphinx_rtd_theme">theme</a>
+    provided by <a href="https://readthedocs.org">Read the Docs</a>.
+   
+
+</footer>
+        </div>
+      </div>
+    </section>
+  </div>
+  <script>
+      jQuery(function () {
+          SphinxRtdTheme.Navigation.enable(true);
+      });
+  </script> 
+
+</body>
+</html>
