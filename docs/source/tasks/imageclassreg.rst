@@ -5,8 +5,8 @@ Image Classification & Regression
 
 Image classification and regression are fundamental tasks in computer vision, where the goal is to assign a label or a continuous value to an input image based on its content. **DeepTune** provides a comprehensive framework for training, evaluating, and knowledge extraction of models for these tasks, supporting a wide range of state-of-the-art architectures and training paradigms.
 
-Running Image Classification Tasks through the CLI
-~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
+Running Image Classification Tasks through Deeptune
+~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
 
 **DeepTune** supports the following image classification models:
 

@@ -1,0 +1,311 @@
+
+
+<!DOCTYPE html>
+<html class="writer-html5" lang="en" data-content_root="../">
+<head>
+  <meta charset="utf-8" /><meta name="viewport" content="width=device-width, initial-scale=1" />
+
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>Tabular Workflow Components &mdash; DeepTune 1.1.0 documentation</title>
+      <link rel="stylesheet" type="text/css" href="../_static/pygments.css?v=b86133f3" />
+      <link rel="stylesheet" type="text/css" href="../_static/css/theme.css?v=e59714d7" />
+
+  
+      <script src="../_static/jquery.js?v=5d32c60e"></script>
+      <script src="../_static/_sphinx_javascript_frameworks_compat.js?v=2cd50e6c"></script>
+      <script src="../_static/documentation_options.js?v=fc837d61"></script>
+      <script src="../_static/doctools.js?v=9bcbadda"></script>
+      <script src="../_static/sphinx_highlight.js?v=dc90522c"></script>
+    <script src="../_static/js/theme.js"></script>
+    <link rel="index" title="Index" href="../genindex.html" />
+    <link rel="search" title="Search" href="../search.html" />
+    <link rel="next" title="Tabular Classification &amp; Regression Parameters Reference" href="../configurations/tabularconfig.html" />
+    <link rel="prev" title="Tabular Classification &amp; Regression" href="tabularclassreg.html" /> 
+</head>
+
+<body class="wy-body-for-nav"> 
+  <div class="wy-grid-for-nav">
+    <nav data-toggle="wy-nav-shift" class="wy-nav-side">
+      <div class="wy-side-scroll">
+        <div class="wy-side-nav-search" >
+
+          
+          
+          <a href="../index.html" class="icon icon-home">
+            DeepTune
+          </a>
+<div role="search">
+  <form id="rtd-search-form" class="wy-form" action="../search.html" method="get">
+    <input type="text" name="q" placeholder="Search docs" aria-label="Search docs" />
+    <input type="hidden" name="check_keywords" value="yes" />
+    <input type="hidden" name="area" value="default" />
+  </form>
+</div>
+        </div><div class="wy-menu wy-menu-vertical" data-spy="affix" role="navigation" aria-label="Navigation menu">
+              <p class="caption" role="heading"><span class="caption-text">User Guide</span></p>
+<ul>
+<li class="toctree-l1"><a class="reference internal" href="../guides/install.html">Installation</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../guides/getstarted.html">Getting Started</a></li>
+</ul>
+<p class="caption" role="heading"><span class="caption-text">Image Classification &amp; Regression</span></p>
+<ul>
+<li class="toctree-l1"><a class="reference internal" href="imageclassreg.html">Image Classification &amp; Regression</a></li>
+<li class="toctree-l1"><a class="reference internal" href="imageworkflow.html">Image-based Workflow Components</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../configurations/imageconfig.html">Image Classification &amp; Regression Parameters Reference</a></li>
+</ul>
+<p class="caption" role="heading"><span class="caption-text">Text Classification</span></p>
+<ul>
+<li class="toctree-l1"><a class="reference internal" href="textsentiment.html">Text Classification</a></li>
+<li class="toctree-l1"><a class="reference internal" href="textworkflow.html">Text-based Workflow Components</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../configurations/textconfig.html">Text Classification Parameters Reference</a></li>
+</ul>
+<p class="caption" role="heading"><span class="caption-text">Clip-Level Action Classification</span></p>
+<ul>
+<li class="toctree-l1"><a class="reference internal" href="videoclass.html">Clip-Level Action Classification</a></li>
+<li class="toctree-l1"><a class="reference internal" href="videoworkflow.html">Video-based Workflow Components</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../configurations/videoconfig.html">Video Classification Parameters Reference</a></li>
+</ul>
+<p class="caption" role="heading"><span class="caption-text">Tabular Classification &amp; Regression</span></p>
+<ul class="current">
+<li class="toctree-l1"><a class="reference internal" href="tabularclassreg.html">Tabular Classification &amp; Regression</a></li>
+<li class="toctree-l1 current"><a class="current reference internal" href="#">Tabular Workflow Components</a><ul>
+<li class="toctree-l2"><a class="reference internal" href="#model-training">Model Training</a><ul>
+<li class="toctree-l3"><a class="reference internal" href="#gandalf">GANDALF</a><ul>
+<li class="toctree-l4"><a class="reference internal" href="#src.tabular.gandalf.GANDALF"><code class="docutils literal notranslate"><span class="pre">GANDALF</span></code></a></li>
+</ul>
+</li>
+<li class="toctree-l3"><a class="reference internal" href="#tabpfn">TabPFN</a><ul>
+<li class="toctree-l4"><a class="reference internal" href="#train_tabpfn.finetune_tabpfn"><code class="docutils literal notranslate"><span class="pre">finetune_tabpfn()</span></code></a></li>
+<li class="toctree-l4"><a class="reference internal" href="#train_tabpfn.train_tabpfn_in_context_learning"><code class="docutils literal notranslate"><span class="pre">train_tabpfn_in_context_learning()</span></code></a></li>
+</ul>
+</li>
+</ul>
+</li>
+<li class="toctree-l2"><a class="reference internal" href="#model-evaluation">Model Evaluation</a><ul>
+<li class="toctree-l3"><a class="reference internal" href="#evaluate_gandalf.evaluate"><code class="docutils literal notranslate"><span class="pre">evaluate()</span></code></a></li>
+<li class="toctree-l3"><a class="reference internal" href="#evaluate_tabpfn.evaluate_tabpfn"><code class="docutils literal notranslate"><span class="pre">evaluate_tabpfn()</span></code></a></li>
+</ul>
+</li>
+<li class="toctree-l2"><a class="reference internal" href="#embedding-extraction">Embedding Extraction</a><ul>
+<li class="toctree-l3"><a class="reference internal" href="#gandalf-embeddings">GANDALF Embeddings</a><ul>
+<li class="toctree-l4"><a class="reference internal" href="#gandalf_embeddings.embed"><code class="docutils literal notranslate"><span class="pre">embed()</span></code></a></li>
+</ul>
+</li>
+<li class="toctree-l3"><a class="reference internal" href="#tabpfn-embeddings">TabPFN Embeddings</a><ul>
+<li class="toctree-l4"><a class="reference internal" href="#tabpfn_embeddings.get_tabpfn_embeddings"><code class="docutils literal notranslate"><span class="pre">get_tabpfn_embeddings()</span></code></a></li>
+</ul>
+</li>
+</ul>
+</li>
+</ul>
+</li>
+<li class="toctree-l1"><a class="reference internal" href="../configurations/tabularconfig.html">Tabular Classification &amp; Regression Parameters Reference</a></li>
+</ul>
+<p class="caption" role="heading"><span class="caption-text">Time Series Forecasting</span></p>
+<ul>
+<li class="toctree-l1"><a class="reference internal" href="timeseries.html">Time Series Forecasting</a></li>
+<li class="toctree-l1"><a class="reference internal" href="timeseriesworkflow.html">Time-Series Workflow Components</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../configurations/timeseriesconfig.html">Time Series Forecasting Parameters Reference</a></li>
+</ul>
+<p class="caption" role="heading"><span class="caption-text">Image Reconstruction</span></p>
+<ul>
+<li class="toctree-l1"><a class="reference internal" href="autoencoder.html">Image Reconstruction with Autoencoders</a></li>
+<li class="toctree-l1"><a class="reference internal" href="autoencoderworkflow.html">Autoencoder Workflow Components</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../configurations/autoencoder_config.html">Autoencoder Configuration Parameters Reference</a></li>
+</ul>
+
+        </div>
+      </div>
+    </nav>
+
+    <section data-toggle="wy-nav-shift" class="wy-nav-content-wrap"><nav class="wy-nav-top" aria-label="Mobile navigation menu" >
+          <i data-toggle="wy-nav-top" class="fa fa-bars"></i>
+          <a href="../index.html">DeepTune</a>
+      </nav>
+
+      <div class="wy-nav-content">
+        <div class="rst-content">
+          <div role="navigation" aria-label="Page navigation">
+  <ul class="wy-breadcrumbs">
+      <li><a href="../index.html" class="icon icon-home" aria-label="Home"></a></li>
+      <li class="breadcrumb-item active">Tabular Workflow Components</li>
+      <li class="wy-breadcrumbs-aside">
+            <a href="../_sources/tasks/tabularworkflow.rst.txt" rel="nofollow"> View page source</a>
+      </li>
+  </ul>
+  <hr/>
+</div>
+          <div role="main" class="document" itemscope="itemscope" itemtype="http://schema.org/Article">
+           <div itemprop="articleBody">
+             
+  <section id="tabular-workflow-components">
+<h1>Tabular Workflow Components<a class="headerlink" href="#tabular-workflow-components" title="Link to this heading"></a></h1>
+<p>DeepTune provides dedicated components for tabular classification
+and regression using GANDALF and TabPFN. These components support
+model training, evaluation, and embedding extraction. This page
+provides a high-level overview of the tabular workflow components.</p>
+<section id="model-training">
+<h2>Model Training<a class="headerlink" href="#model-training" title="Link to this heading"></a></h2>
+<p><strong>Entry points:</strong> <code class="docutils literal notranslate"><span class="pre">train_gandalf.train</span></code> and <code class="docutils literal notranslate"><span class="pre">train_tabpfn.main</span></code></p>
+<p>The training workflows prepare tabular datasets, configure the
+selected model, and perform training or fine-tuning according
+to the specified task.</p>
+<section id="gandalf">
+<h3>GANDALF<a class="headerlink" href="#gandalf" title="Link to this heading"></a></h3>
+<dl class="py class">
+<dt class="sig sig-object py" id="src.tabular.gandalf.GANDALF">
+<em class="property"><span class="pre">class</span><span class="w"> </span></em><span class="sig-prename descclassname"><span class="pre">src.tabular.gandalf.</span></span><span class="sig-name descname"><span class="pre">GANDALF</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">data_config</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">optimizer_config</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">trainer_config</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">task</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">gflu_stages</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">gflu_feature_init_sparsity</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">gflu_dropout</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">learning_rate</span></span></em><span class="sig-paren">)</span><a class="headerlink" href="#src.tabular.gandalf.GANDALF" title="Link to this definition"></a></dt>
+<dd><p>Configures the GANDALF architecture using PyTorch Tabular.</p>
+<dl class="field-list simple">
+<dt class="field-odd">Parameters<span class="colon">:</span></dt>
+<dd class="field-odd"><ul class="simple">
+<li><p><strong>data_config</strong> – Configuration of input features and targets.</p></li>
+<li><p><strong>optimizer_config</strong> – Optimizer configuration.</p></li>
+<li><p><strong>trainer_config</strong> – Training configuration.</p></li>
+<li><p><strong>task</strong> – Classification or regression task.</p></li>
+<li><p><strong>gflu_stages</strong> – Number of GFLU stages.</p></li>
+<li><p><strong>gflu_feature_init_sparsity</strong> – Initial feature sparsity.</p></li>
+<li><p><strong>gflu_dropout</strong> – Dropout rate.</p></li>
+<li><p><strong>learning_rate</strong> – Model learning rate.</p></li>
+</ul>
+</dd>
+</dl>
+<p>The training workflow initializes a <code class="docutils literal notranslate"><span class="pre">TabularModel</span></code>, fits it
+on training and validation datasets, and saves the model
+alongside training metrics and configuration parameters.</p>
+</dd></dl>
+
+</section>
+<section id="tabpfn">
+<h3>TabPFN<a class="headerlink" href="#tabpfn" title="Link to this heading"></a></h3>
+<p><strong>Entry point:</strong> <code class="docutils literal notranslate"><span class="pre">train_tabpfn.main</span></code></p>
+<p>The TabPFN workflow supports classification and regression
+through two execution modes.</p>
+<dl class="py function">
+<dt class="sig sig-object py" id="train_tabpfn.finetune_tabpfn">
+<span class="sig-prename descclassname"><span class="pre">train_tabpfn.</span></span><span class="sig-name descname"><span class="pre">finetune_tabpfn</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">X_train</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">y_train</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">X_val</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">y_val</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">out</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">mode</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">args</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">batch_size</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">num_epochs</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">model_str</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">'TABPFN'</span></span></em><span class="sig-paren">)</span><a class="headerlink" href="#train_tabpfn.finetune_tabpfn" title="Link to this definition"></a></dt>
+<dd><p>Fine-tunes a pretrained TabPFN model using preprocessed
+training batches and the Adam optimizer.</p>
+<ul class="simple">
+<li><p><strong>Classification:</strong> Cross-Entropy Loss and accuracy.</p></li>
+<li><p><strong>Regression:</strong> Mean Squared Error (MSE) loss.</p></li>
+</ul>
+<p>Training and validation metrics are recorded in
+<code class="docutils literal notranslate"><span class="pre">training_log.csv</span></code>, and the fine-tuned model is saved
+in Joblib format.</p>
+</dd></dl>
+
+<dl class="py function">
+<dt class="sig sig-object py" id="train_tabpfn.train_tabpfn_in_context_learning">
+<span class="sig-prename descclassname"><span class="pre">train_tabpfn.</span></span><span class="sig-name descname"><span class="pre">train_tabpfn_in_context_learning</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">X_train</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">y_train</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">X_val</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">y_val</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">out</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">mode</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">args</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">model_str</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">'TABPFN'</span></span></em><span class="sig-paren">)</span><a class="headerlink" href="#train_tabpfn.train_tabpfn_in_context_learning" title="Link to this definition"></a></dt>
+<dd><p>Fits a pretrained TabPFN estimator to the training data
+without gradient-based fine-tuning.</p>
+<p>Computes classification accuracy and log loss, or regression
+MSE and MAE, on the training and validation datasets.</p>
+<p>Results are saved to <code class="docutils literal notranslate"><span class="pre">training_metrics.json</span></code>, and the
+fitted model is saved in <code class="docutils literal notranslate"><span class="pre">.tabpfn_fit</span></code> format.</p>
+</dd></dl>
+
+</section>
+</section>
+<section id="model-evaluation">
+<h2>Model Evaluation<a class="headerlink" href="#model-evaluation" title="Link to this heading"></a></h2>
+<p><strong>Entry points:</strong> <code class="docutils literal notranslate"><span class="pre">evaluate_gandalf.evaluate</span></code> and
+<code class="docutils literal notranslate"><span class="pre">evaluate_tabpfn.evaluate_tabpfn</span></code></p>
+<p>The evaluation workflows load the fitted models and evaluate
+their predictions on held-out tabular datasets.</p>
+<dl class="py function">
+<dt class="sig sig-object py" id="evaluate_gandalf.evaluate">
+<span class="sig-prename descclassname"><span class="pre">evaluate_gandalf.</span></span><span class="sig-name descname"><span class="pre">evaluate</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">eval_df</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">model_weights</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">out</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">args</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">model_str</span></span></em><span class="sig-paren">)</span><a class="headerlink" href="#evaluate_gandalf.evaluate" title="Link to this definition"></a></dt>
+<dd><p>Loads the saved GANDALF model using PyTorch Tabular and
+evaluates it on the provided dataset.</p>
+<p>Returns the evaluation metrics and saves them to
+<code class="docutils literal notranslate"><span class="pre">full_metrics.json</span></code>.</p>
+</dd></dl>
+
+<dl class="py function">
+<dt class="sig sig-object py" id="evaluate_tabpfn.evaluate_tabpfn">
+<span class="sig-prename descclassname"><span class="pre">evaluate_tabpfn.</span></span><span class="sig-name descname"><span class="pre">evaluate_tabpfn</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">X_eval</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">y_eval</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">out</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">args</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">model_path</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">mode</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">finetuning_mode</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">model_str</span></span></em><span class="sig-paren">)</span><a class="headerlink" href="#evaluate_tabpfn.evaluate_tabpfn" title="Link to this definition"></a></dt>
+<dd><p>Loads the fitted or fine-tuned TabPFN model and performs
+inference on the evaluation dataset.</p>
+<ul class="simple">
+<li><p><strong>Classification:</strong> Accuracy.</p></li>
+<li><p><strong>Regression:</strong> MSE and MAE.</p></li>
+</ul>
+<p>Results are saved to <code class="docutils literal notranslate"><span class="pre">full_metrics.json</span></code>.</p>
+</dd></dl>
+
+</section>
+<section id="embedding-extraction">
+<h2>Embedding Extraction<a class="headerlink" href="#embedding-extraction" title="Link to this heading"></a></h2>
+<p><strong>Entry points:</strong> <code class="docutils literal notranslate"><span class="pre">gandalf_embeddings.embed</span></code> and
+<code class="docutils literal notranslate"><span class="pre">tabpfn_embeddings.get_tabpfn_embeddings</span></code></p>
+<p>The embedding workflows extract numerical feature
+representations from tabular datasets using trained models.</p>
+<section id="gandalf-embeddings">
+<h3>GANDALF Embeddings<a class="headerlink" href="#gandalf-embeddings" title="Link to this heading"></a></h3>
+<dl class="py function">
+<dt class="sig sig-object py" id="gandalf_embeddings.embed">
+<span class="sig-prename descclassname"><span class="pre">gandalf_embeddings.</span></span><span class="sig-name descname"><span class="pre">embed</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">eval_df</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">out</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">model_weights</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">cont_cols</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">cat_cols</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">batch_size</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">target</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">args</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">grouper</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">model_str</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">device</span></span></em><span class="sig-paren">)</span><a class="headerlink" href="#gandalf_embeddings.embed" title="Link to this definition"></a></dt>
+<dd><p>Loads a trained GANDALF model and extracts intermediate
+feature representations through a forward hook on the
+model backbone.</p>
+<p>The embeddings are combined with their corresponding labels
+and optional grouping information.</p>
+<p>Results are saved to <code class="docutils literal notranslate"><span class="pre">GANDALF_embeddings.parquet</span></code>.</p>
+</dd></dl>
+
+</section>
+<section id="tabpfn-embeddings">
+<h3>TabPFN Embeddings<a class="headerlink" href="#tabpfn-embeddings" title="Link to this heading"></a></h3>
+<dl class="py function">
+<dt class="sig sig-object py" id="tabpfn_embeddings.get_tabpfn_embeddings">
+<span class="sig-prename descclassname"><span class="pre">tabpfn_embeddings.</span></span><span class="sig-name descname"><span class="pre">get_tabpfn_embeddings</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">X_train</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">y_train</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">X_eval</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">y_eval</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">out</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">args</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">model_path</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">mode</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">finetuning_mode</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">model_str</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">grouper</span></span></em><span class="sig-paren">)</span><a class="headerlink" href="#tabpfn_embeddings.get_tabpfn_embeddings" title="Link to this definition"></a></dt>
+<dd><p>Extracts tabular feature representations using the
+<code class="docutils literal notranslate"><span class="pre">TabPFNEmbedding</span></code> utility from a fitted or fine-tuned
+TabPFN classifier or regressor.</p>
+<p>The extraction process uses training data as context
+and generates embeddings for evaluation samples.</p>
+<p>The resulting DataFrame includes extracted embeddings,
+target labels, and optional grouping information.</p>
+<p>Embeddings are saved in Parquet format as
+<code class="docutils literal notranslate"><span class="pre">TABPFN_cls_embeddings.parquet</span></code> or
+<code class="docutils literal notranslate"><span class="pre">TABPFN_reg_embeddings.parquet</span></code>.</p>
+</dd></dl>
+
+</section>
+</section>
+</section>
+
+
+           </div>
+          </div>
+          <footer><div class="rst-footer-buttons" role="navigation" aria-label="Footer">
+        <a href="tabularclassreg.html" class="btn btn-neutral float-left" title="Tabular Classification &amp; Regression" accesskey="p" rel="prev"><span class="fa fa-arrow-circle-left" aria-hidden="true"></span> Previous</a>
+        <a href="../configurations/tabularconfig.html" class="btn btn-neutral float-right" title="Tabular Classification &amp; Regression Parameters Reference" accesskey="n" rel="next">Next <span class="fa fa-arrow-circle-right" aria-hidden="true"></span></a>
+    </div>
+
+  <hr/>
+
+  <div role="contentinfo">
+    <p>&#169; Copyright 2026, Moayadeldin Hussain.</p>
+  </div>
+
+  Built with <a href="https://www.sphinx-doc.org/">Sphinx</a> using a
+    <a href="https://github.com/readthedocs/sphinx_rtd_theme">theme</a>
+    provided by <a href="https://readthedocs.org">Read the Docs</a>.
+   
+
+</footer>
+        </div>
+      </div>
+    </section>
+  </div>
+  <script>
+      jQuery(function () {
+          SphinxRtdTheme.Navigation.enable(true);
+      });
+  </script> 
+
+</body>
+</html>

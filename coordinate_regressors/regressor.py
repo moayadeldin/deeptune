@@ -43,7 +43,7 @@ def main():
     parent_dir = date_id(prefix="deeptune_coordinate_regression", root_dir=OUT)
     run_output_dir = OUT / parent_dir
     COORDINATE_REGRESSION_OUTPUT_DIR = (
-        run_output_dir / f"coordinate_regression_output_resnet18_{UNIQUE_ID}"
+        run_output_dir / f"coordinate_regression_output_{BACKBONE_MODEL}_{UNIQUE_ID}"
     )
     COORDINATE_REGRESSION_OUTPUT_DIR.mkdir(parents=True, exist_ok=True)
 
@@ -65,7 +65,7 @@ def main():
     )
 
     train(train_path=train_path, num_epochs=NUM_EPOCHS, learning_rate=LEARNING_RATE, batch_size=BATCH_SIZE, val_path=val_path,args=args,coordinate_regression_output=COORDINATE_REGRESSION_OUTPUT_DIR,model=model_version)
-    test_loss = test(test_path=test_path, batch_size=BATCH_SIZE,model=BACKBONE_MODEL)
+    test_loss = test(test_path=test_path, batch_size=BATCH_SIZE,model=model_version)
 
     file_path = COORDINATE_REGRESSION_OUTPUT_DIR / "test_log.txt"
 

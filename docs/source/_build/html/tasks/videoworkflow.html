@@ -1,0 +1,343 @@
+
+
+<!DOCTYPE html>
+<html class="writer-html5" lang="en" data-content_root="../">
+<head>
+  <meta charset="utf-8" /><meta name="viewport" content="width=device-width, initial-scale=1" />
+
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>Video-based Workflow Components &mdash; DeepTune 1.1.0 documentation</title>
+      <link rel="stylesheet" type="text/css" href="../_static/pygments.css?v=b86133f3" />
+      <link rel="stylesheet" type="text/css" href="../_static/css/theme.css?v=e59714d7" />
+
+  
+      <script src="../_static/jquery.js?v=5d32c60e"></script>
+      <script src="../_static/_sphinx_javascript_frameworks_compat.js?v=2cd50e6c"></script>
+      <script src="../_static/documentation_options.js?v=fc837d61"></script>
+      <script src="../_static/doctools.js?v=9bcbadda"></script>
+      <script src="../_static/sphinx_highlight.js?v=dc90522c"></script>
+    <script src="../_static/js/theme.js"></script>
+    <link rel="index" title="Index" href="../genindex.html" />
+    <link rel="search" title="Search" href="../search.html" />
+    <link rel="next" title="Video Classification Parameters Reference" href="../configurations/videoconfig.html" />
+    <link rel="prev" title="Clip-Level Action Classification" href="videoclass.html" /> 
+</head>
+
+<body class="wy-body-for-nav"> 
+  <div class="wy-grid-for-nav">
+    <nav data-toggle="wy-nav-shift" class="wy-nav-side">
+      <div class="wy-side-scroll">
+        <div class="wy-side-nav-search" >
+
+          
+          
+          <a href="../index.html" class="icon icon-home">
+            DeepTune
+          </a>
+<div role="search">
+  <form id="rtd-search-form" class="wy-form" action="../search.html" method="get">
+    <input type="text" name="q" placeholder="Search docs" aria-label="Search docs" />
+    <input type="hidden" name="check_keywords" value="yes" />
+    <input type="hidden" name="area" value="default" />
+  </form>
+</div>
+        </div><div class="wy-menu wy-menu-vertical" data-spy="affix" role="navigation" aria-label="Navigation menu">
+              <p class="caption" role="heading"><span class="caption-text">User Guide</span></p>
+<ul>
+<li class="toctree-l1"><a class="reference internal" href="../guides/install.html">Installation</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../guides/getstarted.html">Getting Started</a></li>
+</ul>
+<p class="caption" role="heading"><span class="caption-text">Image Classification &amp; Regression</span></p>
+<ul>
+<li class="toctree-l1"><a class="reference internal" href="imageclassreg.html">Image Classification &amp; Regression</a></li>
+<li class="toctree-l1"><a class="reference internal" href="imageworkflow.html">Image-based Workflow Components</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../configurations/imageconfig.html">Image Classification &amp; Regression Parameters Reference</a></li>
+</ul>
+<p class="caption" role="heading"><span class="caption-text">Text Classification</span></p>
+<ul>
+<li class="toctree-l1"><a class="reference internal" href="textsentiment.html">Text Classification</a></li>
+<li class="toctree-l1"><a class="reference internal" href="textworkflow.html">Text-based Workflow Components</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../configurations/textconfig.html">Text Classification Parameters Reference</a></li>
+</ul>
+<p class="caption" role="heading"><span class="caption-text">Clip-Level Action Classification</span></p>
+<ul class="current">
+<li class="toctree-l1"><a class="reference internal" href="videoclass.html">Clip-Level Action Classification</a></li>
+<li class="toctree-l1 current"><a class="current reference internal" href="#">Video-based Workflow Components</a><ul>
+<li class="toctree-l2"><a class="reference internal" href="#model-training">Model Training</a><ul>
+<li class="toctree-l3"><a class="reference internal" href="#src.video.video3d.adjustedVideo3D"><code class="docutils literal notranslate"><span class="pre">adjustedVideo3D</span></code></a></li>
+<li class="toctree-l3"><a class="reference internal" href="#src.video.video3d_peft.adjustedPeftVideo3D"><code class="docutils literal notranslate"><span class="pre">adjustedPeftVideo3D</span></code></a></li>
+<li class="toctree-l3"><a class="reference internal" href="#src.video.frame_pool.VideoFramePoolClassifier"><code class="docutils literal notranslate"><span class="pre">VideoFramePoolClassifier</span></code></a><ul>
+<li class="toctree-l4"><a class="reference internal" href="#src.video.frame_pool.VideoFramePoolClassifier.forward"><code class="docutils literal notranslate"><span class="pre">VideoFramePoolClassifier.forward()</span></code></a></li>
+</ul>
+</li>
+<li class="toctree-l3"><a class="reference internal" href="#trainers.vision.trainer.Trainer"><code class="docutils literal notranslate"><span class="pre">Trainer</span></code></a><ul>
+<li class="toctree-l4"><a class="reference internal" href="#trainers.vision.trainer.Trainer.train"><code class="docutils literal notranslate"><span class="pre">Trainer.train()</span></code></a></li>
+<li class="toctree-l4"><a class="reference internal" href="#trainers.vision.trainer.Trainer.validate"><code class="docutils literal notranslate"><span class="pre">Trainer.validate()</span></code></a></li>
+<li class="toctree-l4"><a class="reference internal" href="#trainers.vision.trainer.Trainer.saveModel"><code class="docutils literal notranslate"><span class="pre">Trainer.saveModel()</span></code></a></li>
+</ul>
+</li>
+</ul>
+</li>
+<li class="toctree-l2"><a class="reference internal" href="#model-evaluation">Model Evaluation</a><ul>
+<li class="toctree-l3"><a class="reference internal" href="#evaluators.vision.evaluator.TestTrainer"><code class="docutils literal notranslate"><span class="pre">TestTrainer</span></code></a><ul>
+<li class="toctree-l4"><a class="reference internal" href="#evaluators.vision.evaluator.TestTrainer.test"><code class="docutils literal notranslate"><span class="pre">TestTrainer.test()</span></code></a></li>
+</ul>
+</li>
+</ul>
+</li>
+<li class="toctree-l2"><a class="reference internal" href="#embedding-extraction">Embedding Extraction</a><ul>
+<li class="toctree-l3"><a class="reference internal" href="#embed.video.embed.VideoEmbeddingModel"><code class="docutils literal notranslate"><span class="pre">VideoEmbeddingModel</span></code></a><ul>
+<li class="toctree-l4"><a class="reference internal" href="#embed.video.embed.VideoEmbeddingModel.__call__"><code class="docutils literal notranslate"><span class="pre">VideoEmbeddingModel.__call__()</span></code></a></li>
+</ul>
+</li>
+</ul>
+</li>
+</ul>
+</li>
+<li class="toctree-l1"><a class="reference internal" href="../configurations/videoconfig.html">Video Classification Parameters Reference</a></li>
+</ul>
+<p class="caption" role="heading"><span class="caption-text">Tabular Classification &amp; Regression</span></p>
+<ul>
+<li class="toctree-l1"><a class="reference internal" href="tabularclassreg.html">Tabular Classification &amp; Regression</a></li>
+<li class="toctree-l1"><a class="reference internal" href="tabularworkflow.html">Tabular Workflow Components</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../configurations/tabularconfig.html">Tabular Classification &amp; Regression Parameters Reference</a></li>
+</ul>
+<p class="caption" role="heading"><span class="caption-text">Time Series Forecasting</span></p>
+<ul>
+<li class="toctree-l1"><a class="reference internal" href="timeseries.html">Time Series Forecasting</a></li>
+<li class="toctree-l1"><a class="reference internal" href="timeseriesworkflow.html">Time-Series Workflow Components</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../configurations/timeseriesconfig.html">Time Series Forecasting Parameters Reference</a></li>
+</ul>
+<p class="caption" role="heading"><span class="caption-text">Image Reconstruction</span></p>
+<ul>
+<li class="toctree-l1"><a class="reference internal" href="autoencoder.html">Image Reconstruction with Autoencoders</a></li>
+<li class="toctree-l1"><a class="reference internal" href="autoencoderworkflow.html">Autoencoder Workflow Components</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../configurations/autoencoder_config.html">Autoencoder Configuration Parameters Reference</a></li>
+</ul>
+
+        </div>
+      </div>
+    </nav>
+
+    <section data-toggle="wy-nav-shift" class="wy-nav-content-wrap"><nav class="wy-nav-top" aria-label="Mobile navigation menu" >
+          <i data-toggle="wy-nav-top" class="fa fa-bars"></i>
+          <a href="../index.html">DeepTune</a>
+      </nav>
+
+      <div class="wy-nav-content">
+        <div class="rst-content">
+          <div role="navigation" aria-label="Page navigation">
+  <ul class="wy-breadcrumbs">
+      <li><a href="../index.html" class="icon icon-home" aria-label="Home"></a></li>
+      <li class="breadcrumb-item active">Video-based Workflow Components</li>
+      <li class="wy-breadcrumbs-aside">
+            <a href="../_sources/tasks/videoworkflow.rst.txt" rel="nofollow"> View page source</a>
+      </li>
+  </ul>
+  <hr/>
+</div>
+          <div role="main" class="document" itemscope="itemscope" itemtype="http://schema.org/Article">
+           <div itemprop="articleBody">
+             
+  <section id="video-based-workflow-components">
+<span id="videoworkflow"></span><h1>Video-based Workflow Components<a class="headerlink" href="#video-based-workflow-components" title="Link to this heading"></a></h1>
+<p>DeepTune provides clip-level video classification through
+model training, evaluation, and embedding extraction workflows. Video
+models use either native spatio-temporal architectures or shared 2D
+image backbones with temporal frame pooling. The workflows reuse
+DeepTune’s existing vision training and evaluation components.</p>
+<section id="model-training">
+<h2>Model Training<a class="headerlink" href="#model-training" title="Link to this heading"></a></h2>
+<p><strong>Entry point:</strong> <code class="docutils literal notranslate"><span class="pre">trainers.video.train.train</span></code></p>
+<p>The training function constructs the selected video model using
+<code class="docutils literal notranslate"><span class="pre">utils.build_video_model</span></code>, prepares video clips from Parquet datasets,
+and delegates optimization to the vision <code class="docutils literal notranslate"><span class="pre">Trainer</span></code> class. Each clip
+has shape <code class="docutils literal notranslate"><span class="pre">[B,</span> <span class="pre">T,</span> <span class="pre">C,</span> <span class="pre">H,</span> <span class="pre">W]</span></code>, where <code class="docutils literal notranslate"><span class="pre">T</span></code> is the number of sampled frames.</p>
+<dl class="py class">
+<dt class="sig sig-object py" id="src.video.video3d.adjustedVideo3D">
+<em class="property"><span class="pre">class</span><span class="w"> </span></em><span class="sig-prename descclassname"><span class="pre">src.video.video3d.</span></span><span class="sig-name descname"><span class="pre">adjustedVideo3D</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">num_classes</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">video_version</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">added_layers</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">embedding_layer_size</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">freeze_backbone</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">task_type</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">output_dim</span></span></em><span class="sig-paren">)</span><a class="headerlink" href="#src.video.video3d.adjustedVideo3D" title="Link to this definition"></a></dt>
+<dd><p>Wraps a Kinetics-400-pretrained spatio-temporal backbone, using 3D
+convolutions or video-transformer attention across frames.</p>
+<dl class="field-list simple">
+<dt class="field-odd">Parameters<span class="colon">:</span></dt>
+<dd class="field-odd"><ul class="simple">
+<li><p><strong>num_classes</strong> – Number of output classes for classification.</p></li>
+<li><p><strong>video_version</strong> – Architecture identifier (<code class="docutils literal notranslate"><span class="pre">r3d_18</span></code>, <code class="docutils literal notranslate"><span class="pre">mc3_18</span></code>,
+<code class="docutils literal notranslate"><span class="pre">r2plus1d_18</span></code>, <code class="docutils literal notranslate"><span class="pre">mvit_v2_s</span></code>, <code class="docutils literal notranslate"><span class="pre">swin3d_t</span></code>, <code class="docutils literal notranslate"><span class="pre">swin3d_s</span></code>, or <code class="docutils literal notranslate"><span class="pre">swin3d_b</span></code>).</p></li>
+<li><p><strong>added_layers</strong> – Number of added prediction layers (one or two).</p></li>
+<li><p><strong>embedding_layer_size</strong> – Intermediate feature dimension when using two layers.</p></li>
+<li><p><strong>freeze_backbone</strong> – Whether to freeze the pretrained backbone.</p></li>
+<li><p><strong>task_type</strong> – <code class="docutils literal notranslate"><span class="pre">cls</span></code> for classification.</p></li>
+<li><p><strong>output_dim</strong> – Number of outputs; defaults to one.</p></li>
+</ul>
+</dd>
+</dl>
+<p>Native models accept clips in <code class="docutils literal notranslate"><span class="pre">[B,</span> <span class="pre">T,</span> <span class="pre">C,</span> <span class="pre">H,</span> <span class="pre">W]</span></code> order and internally
+convert them to <code class="docutils literal notranslate"><span class="pre">[B,</span> <span class="pre">C,</span> <span class="pre">T,</span> <span class="pre">H,</span> <span class="pre">W]</span></code> for the backbone.</p>
+</dd></dl>
+
+<dl class="py class">
+<dt class="sig sig-object py" id="src.video.video3d_peft.adjustedPeftVideo3D">
+<em class="property"><span class="pre">class</span><span class="w"> </span></em><span class="sig-prename descclassname"><span class="pre">src.video.video3d_peft.</span></span><span class="sig-name descname"><span class="pre">adjustedPeftVideo3D</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">num_classes</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">video_version</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">added_layers</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">lora_attention_dimension</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">freeze_backbone</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">task_type</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">output_dim</span></span></em><span class="sig-paren">)</span><a class="headerlink" href="#src.video.video3d_peft.adjustedPeftVideo3D" title="Link to this definition"></a></dt>
+<dd><p>Provides a LoRA-based parameter-efficient variant of the native video
+models. LoRA targets supported convolutional and linear layers of the
+spatio-temporal backbone.</p>
+<dl class="field-list simple">
+<dt class="field-odd">Parameters<span class="colon">:</span></dt>
+<dd class="field-odd"><p><strong>lora_attention_dimension</strong> – LoRA rank and, when two prediction
+layers are used, the intermediate feature dimension.</p>
+</dd>
+</dl>
+<p>The remaining parameters follow <code class="docutils literal notranslate"><span class="pre">adjustedVideo3D</span></code>.</p>
+</dd></dl>
+
+<dl class="py class">
+<dt class="sig sig-object py" id="src.video.frame_pool.VideoFramePoolClassifier">
+<em class="property"><span class="pre">class</span><span class="w"> </span></em><span class="sig-prename descclassname"><span class="pre">src.video.frame_pool.</span></span><span class="sig-name descname"><span class="pre">VideoFramePoolClassifier</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">frame_model_cls</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">frame_model_version</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">num_classes</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">added_layers</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">embedding_layer_size</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">freeze_backbone</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">task_type</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">pooling</span></span></em><span class="sig-paren">)</span><a class="headerlink" href="#src.video.frame_pool.VideoFramePoolClassifier" title="Link to this definition"></a></dt>
+<dd><p>Applies a single shared 2D vision backbone independently to every
+sampled frame, then combines per-frame predictions into a clip-level
+output. Supports standard and PEFT-enabled image backbones.</p>
+<dl class="field-list simple">
+<dt class="field-odd">Parameters<span class="colon">:</span></dt>
+<dd class="field-odd"><ul class="simple">
+<li><p><strong>frame_model_cls</strong> – Class implementing the shared 2D backbone.</p></li>
+<li><p><strong>frame_model_version</strong> – Selected 2D architecture variant.</p></li>
+<li><p><strong>num_classes</strong> – Number of output classes for classification.</p></li>
+<li><p><strong>added_layers</strong> – Number of added layers on the frame backbone.</p></li>
+<li><p><strong>embedding_layer_size</strong> – Intermediate feature dimension.</p></li>
+<li><p><strong>freeze_backbone</strong> – Whether to freeze the frame backbone.</p></li>
+<li><p><strong>task_type</strong> – <code class="docutils literal notranslate"><span class="pre">cls</span></code> for classification.</p></li>
+<li><p><strong>pooling</strong> – <code class="docutils literal notranslate"><span class="pre">mean</span></code> or learned <code class="docutils literal notranslate"><span class="pre">attention</span></code> pooling of
+per-frame predictions.</p></li>
+</ul>
+</dd>
+</dl>
+<dl class="py method">
+<dt class="sig sig-object py" id="src.video.frame_pool.VideoFramePoolClassifier.forward">
+<span class="sig-name descname"><span class="pre">forward</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">x</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">extract_embed</span></span></em><span class="sig-paren">)</span><a class="headerlink" href="#src.video.frame_pool.VideoFramePoolClassifier.forward" title="Link to this definition"></a></dt>
+<dd><p>Produces clip-level predictions from a video batch. When
+<code class="docutils literal notranslate"><span class="pre">extract_embed=True</span></code>, returns mean-pooled frame embeddings,
+regardless of the prediction pooling setting.</p>
+</dd></dl>
+
+</dd></dl>
+
+<dl class="py class">
+<dt class="sig sig-object py" id="trainers.vision.trainer.Trainer">
+<em class="property"><span class="pre">class</span><span class="w"> </span></em><span class="sig-prename descclassname"><span class="pre">trainers.vision.trainer.</span></span><span class="sig-name descname"><span class="pre">Trainer</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">model</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">train_loader</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">val_loader</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">learning_rate</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">mode</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">num_epochs</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">output_dir</span></span></em><span class="sig-paren">)</span><a class="headerlink" href="#trainers.vision.trainer.Trainer" title="Link to this definition"></a></dt>
+<dd><p>Trains and validates either video model family using the shared
+vision training loop. Classification uses Cross-Entropy Loss;
+regression uses Mean Squared Error (MSE).</p>
+<dl class="py method">
+<dt class="sig sig-object py" id="trainers.vision.trainer.Trainer.train">
+<span class="sig-name descname"><span class="pre">train</span></span><span class="sig-paren">(</span><span class="sig-paren">)</span><a class="headerlink" href="#trainers.vision.trainer.Trainer.train" title="Link to this definition"></a></dt>
+<dd><p>Runs optimization and training-time logging.</p>
+</dd></dl>
+
+<dl class="py method">
+<dt class="sig sig-object py" id="trainers.vision.trainer.Trainer.validate">
+<span class="sig-name descname"><span class="pre">validate</span></span><span class="sig-paren">(</span><span class="sig-paren">)</span><a class="headerlink" href="#trainers.vision.trainer.Trainer.validate" title="Link to this definition"></a></dt>
+<dd><p>Computes task-specific validation results.</p>
+</dd></dl>
+
+<dl class="py method">
+<dt class="sig sig-object py" id="trainers.vision.trainer.Trainer.saveModel">
+<span class="sig-name descname"><span class="pre">saveModel</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">path</span></span></em><span class="sig-paren">)</span><a class="headerlink" href="#trainers.vision.trainer.Trainer.saveModel" title="Link to this definition"></a></dt>
+<dd><p>Saves model parameters to a checkpoint.</p>
+</dd></dl>
+
+</dd></dl>
+
+</section>
+<section id="model-evaluation">
+<h2>Model Evaluation<a class="headerlink" href="#model-evaluation" title="Link to this heading"></a></h2>
+<p><strong>Entry point:</strong> <code class="docutils literal notranslate"><span class="pre">evaluators.video.evaluate.evaluate</span></code></p>
+<p>The evaluation function reconstructs the selected video model, loads
+its checkpoint through the shared vision <code class="docutils literal notranslate"><span class="pre">TestTrainer</span></code>, and evaluates
+clips from a held-out Parquet dataset.</p>
+<dl class="py class">
+<dt class="sig sig-object py" id="evaluators.vision.evaluator.TestTrainer">
+<em class="property"><span class="pre">class</span><span class="w"> </span></em><span class="sig-prename descclassname"><span class="pre">evaluators.vision.evaluator.</span></span><span class="sig-name descname"><span class="pre">TestTrainer</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">model</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">batch_size</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">test_loader</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">mode</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">output_dir</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">device</span></span></em><span class="sig-paren">)</span><a class="headerlink" href="#evaluators.vision.evaluator.TestTrainer" title="Link to this definition"></a></dt>
+<dd><p>Evaluates video models using the existing vision evaluation workflow.</p>
+<dl class="py method">
+<dt class="sig sig-object py" id="evaluators.vision.evaluator.TestTrainer.test">
+<span class="sig-name descname"><span class="pre">test</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">best_model_weights_path</span></span></em><span class="sig-paren">)</span><a class="headerlink" href="#evaluators.vision.evaluator.TestTrainer.test" title="Link to this definition"></a></dt>
+<dd><p>Runs inference and computes task-specific evaluation metrics:</p>
+<ul class="simple">
+<li><p><strong>Classification:</strong> Classification report and AUROC, when applicable.</p></li>
+</ul>
+<p>Evaluation results are saved through the vision evaluator.</p>
+</dd></dl>
+
+</dd></dl>
+
+</section>
+<section id="embedding-extraction">
+<h2>Embedding Extraction<a class="headerlink" href="#embedding-extraction" title="Link to this heading"></a></h2>
+<p><strong>Entry point:</strong> <code class="docutils literal notranslate"><span class="pre">embed.video.embed.embed</span></code></p>
+<p>The embedding function constructs the selected video model, loads a
+checkpoint for fine-tuned or PEFT models, and extracts clip-level
+features using the model’s <code class="docutils literal notranslate"><span class="pre">forward(x,</span> <span class="pre">extract_embed=True)</span></code> interface.</p>
+<dl class="py class">
+<dt class="sig sig-object py" id="embed.video.embed.VideoEmbeddingModel">
+<em class="property"><span class="pre">class</span><span class="w"> </span></em><span class="sig-prename descclassname"><span class="pre">embed.video.embed.</span></span><span class="sig-name descname"><span class="pre">VideoEmbeddingModel</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">model</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">model_version</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">added_layers</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">embed_size</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">num_frames</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">device</span></span></em><span class="sig-paren">)</span><a class="headerlink" href="#embed.video.embed.VideoEmbeddingModel" title="Link to this definition"></a></dt>
+<dd><p>Extracts representations from clips sampled from a video dataset.</p>
+<dl class="field-list simple">
+<dt class="field-odd">Parameters<span class="colon">:</span></dt>
+<dd class="field-odd"><ul class="simple">
+<li><p><strong>model</strong> – Native spatio-temporal or frame-pooling video model.</p></li>
+<li><p><strong>model_version</strong> – Selected architecture variant.</p></li>
+<li><p><strong>added_layers</strong> – Number of added prediction layers.</p></li>
+<li><p><strong>embed_size</strong> – Configured intermediate embedding dimension.</p></li>
+<li><p><strong>num_frames</strong> – Number of frames sampled per clip.</p></li>
+<li><p><strong>device</strong> – Device used for embedding extraction.</p></li>
+</ul>
+</dd>
+</dl>
+<dl class="py method">
+<dt class="sig sig-object py" id="embed.video.embed.VideoEmbeddingModel.__call__">
+<span class="sig-name descname"><span class="pre">__call__</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">df</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">batch_size</span></span></em><span class="sig-paren">)</span><a class="headerlink" href="#embed.video.embed.VideoEmbeddingModel.__call__" title="Link to this definition"></a></dt>
+<dd><p>Returns a DataFrame with extracted clip embeddings, labels when
+available, and additional dataset columns. Frame-pooling models
+always average per-frame embeddings over time.</p>
+</dd></dl>
+
+</dd></dl>
+
+<p>The embedding workflow saves the resulting DataFrame in Parquet format
+as <code class="docutils literal notranslate"><span class="pre">&lt;model_str&gt;_&lt;mode&gt;_embeddings.parquet</span></code>.</p>
+</section>
+</section>
+
+
+           </div>
+          </div>
+          <footer><div class="rst-footer-buttons" role="navigation" aria-label="Footer">
+        <a href="videoclass.html" class="btn btn-neutral float-left" title="Clip-Level Action Classification" accesskey="p" rel="prev"><span class="fa fa-arrow-circle-left" aria-hidden="true"></span> Previous</a>
+        <a href="../configurations/videoconfig.html" class="btn btn-neutral float-right" title="Video Classification Parameters Reference" accesskey="n" rel="next">Next <span class="fa fa-arrow-circle-right" aria-hidden="true"></span></a>
+    </div>
+
+  <hr/>
+
+  <div role="contentinfo">
+    <p>&#169; Copyright 2026, Moayadeldin Hussain.</p>
+  </div>
+
+  Built with <a href="https://www.sphinx-doc.org/">Sphinx</a> using a
+    <a href="https://github.com/readthedocs/sphinx_rtd_theme">theme</a>
+    provided by <a href="https://readthedocs.org">Read the Docs</a>.
+   
+
+</footer>
+        </div>
+      </div>
+    </section>
+  </div>
+  <script>
+      jQuery(function () {
+          SphinxRtdTheme.Navigation.enable(true);
+      });
+  </script> 
+
+</body>
+</html>

@@ -1,0 +1,175 @@
+
+
+<!DOCTYPE html>
+<html class="writer-html5" lang="en" data-content_root="../">
+<head>
+  <meta charset="utf-8" /><meta name="viewport" content="width=device-width, initial-scale=1" />
+
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>Coordinate Regression &mdash; DeepTune 1.1.0 documentation</title>
+      <link rel="stylesheet" type="text/css" href="../_static/pygments.css?v=b86133f3" />
+      <link rel="stylesheet" type="text/css" href="../_static/css/theme.css?v=e59714d7" />
+
+  
+      <script src="../_static/jquery.js?v=5d32c60e"></script>
+      <script src="../_static/_sphinx_javascript_frameworks_compat.js?v=2cd50e6c"></script>
+      <script src="../_static/documentation_options.js?v=fc837d61"></script>
+      <script src="../_static/doctools.js?v=9bcbadda"></script>
+      <script src="../_static/sphinx_highlight.js?v=dc90522c"></script>
+    <script src="../_static/js/theme.js"></script>
+    <link rel="index" title="Index" href="../genindex.html" />
+    <link rel="search" title="Search" href="../search.html" /> 
+</head>
+
+<body class="wy-body-for-nav"> 
+  <div class="wy-grid-for-nav">
+    <nav data-toggle="wy-nav-shift" class="wy-nav-side">
+      <div class="wy-side-scroll">
+        <div class="wy-side-nav-search" >
+
+          
+          
+          <a href="../index.html" class="icon icon-home">
+            DeepTune
+          </a>
+<div role="search">
+  <form id="rtd-search-form" class="wy-form" action="../search.html" method="get">
+    <input type="text" name="q" placeholder="Search docs" aria-label="Search docs" />
+    <input type="hidden" name="check_keywords" value="yes" />
+    <input type="hidden" name="area" value="default" />
+  </form>
+</div>
+        </div><div class="wy-menu wy-menu-vertical" data-spy="affix" role="navigation" aria-label="Navigation menu">
+              <p class="caption" role="heading"><span class="caption-text">User Guide</span></p>
+<ul>
+<li class="toctree-l1"><a class="reference internal" href="../guides/install.html">Installation</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../guides/getstarted.html">Getting Started</a></li>
+</ul>
+<p class="caption" role="heading"><span class="caption-text">Image Classification &amp; Regression</span></p>
+<ul>
+<li class="toctree-l1"><a class="reference internal" href="imageclassreg.html">Image Classification &amp; Regression</a></li>
+<li class="toctree-l1"><a class="reference internal" href="imageworkflow.html">Image-based Workflow Components</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../configurations/imageconfig.html">Image Classification &amp; Regression Parameters Reference</a></li>
+</ul>
+<p class="caption" role="heading"><span class="caption-text">Text Classification</span></p>
+<ul>
+<li class="toctree-l1"><a class="reference internal" href="textsentiment.html">Text Classification</a></li>
+<li class="toctree-l1"><a class="reference internal" href="textworkflow.html">Text-based Workflow Components</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../configurations/textconfig.html">Text Classification Parameters Reference</a></li>
+</ul>
+<p class="caption" role="heading"><span class="caption-text">Clip-Level Action Classification</span></p>
+<ul>
+<li class="toctree-l1"><a class="reference internal" href="videoclass.html">Clip-Level Action Classification</a></li>
+<li class="toctree-l1"><a class="reference internal" href="videoworkflow.html">Video-based Workflow Components</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../configurations/videoconfig.html">Video Classification Parameters Reference</a></li>
+</ul>
+<p class="caption" role="heading"><span class="caption-text">Tabular Classification &amp; Regression</span></p>
+<ul>
+<li class="toctree-l1"><a class="reference internal" href="tabularclassreg.html">Tabular Classification &amp; Regression</a></li>
+<li class="toctree-l1"><a class="reference internal" href="tabularworkflow.html">Tabular Workflow Components</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../configurations/tabularconfig.html">Tabular Classification &amp; Regression Parameters Reference</a></li>
+</ul>
+<p class="caption" role="heading"><span class="caption-text">Time Series Forecasting</span></p>
+<ul>
+<li class="toctree-l1"><a class="reference internal" href="timeseries.html">Time Series Forecasting</a></li>
+<li class="toctree-l1"><a class="reference internal" href="timeseriesworkflow.html">Time-Series Workflow Components</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../configurations/timeseriesconfig.html">Time Series Forecasting Parameters Reference</a></li>
+</ul>
+<p class="caption" role="heading"><span class="caption-text">Image Reconstruction</span></p>
+<ul>
+<li class="toctree-l1"><a class="reference internal" href="autoencoder.html">Image Reconstruction with Autoencoders</a></li>
+<li class="toctree-l1"><a class="reference internal" href="autoencoderworkflow.html">Autoencoder Workflow Components</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../configurations/autoencoder_config.html">Autoencoder Configuration Parameters Reference</a></li>
+</ul>
+
+        </div>
+      </div>
+    </nav>
+
+    <section data-toggle="wy-nav-shift" class="wy-nav-content-wrap"><nav class="wy-nav-top" aria-label="Mobile navigation menu" >
+          <i data-toggle="wy-nav-top" class="fa fa-bars"></i>
+          <a href="../index.html">DeepTune</a>
+      </nav>
+
+      <div class="wy-nav-content">
+        <div class="rst-content">
+          <div role="navigation" aria-label="Page navigation">
+  <ul class="wy-breadcrumbs">
+      <li><a href="../index.html" class="icon icon-home" aria-label="Home"></a></li>
+      <li class="breadcrumb-item active">Coordinate Regression</li>
+      <li class="wy-breadcrumbs-aside">
+            <a href="../_sources/tasks/coordinateregression.rst.txt" rel="nofollow"> View page source</a>
+      </li>
+  </ul>
+  <hr/>
+</div>
+          <div role="main" class="document" itemscope="itemscope" itemtype="http://schema.org/Article">
+           <div itemprop="articleBody">
+             
+  <section id="coordinate-regression">
+<span id="coordinateregression"></span><h1>Coordinate Regression<a class="headerlink" href="#coordinate-regression" title="Link to this heading"></a></h1>
+<p>Coordinate regression is a computer vision task that involves predicting the coordinates of the center of an object in an image. It is commonly used in applications such as object tracking, pose estimation, and robotics, where accurate localization of objects is crucial for decision-making and control.</p>
+<div class="admonition note">
+<p class="admonition-title">Note</p>
+<p>The coordinate regression task is currently in development and is yet to be heavily tested in <strong>DeepTune</strong>, and it is not supported in the current GUI version. The following information provides an overview of the task and its configuration parameters, but please note that the implementation may be subject to change.</p>
+</div>
+<section id="running-coordinate-regression-tasks-through-the-deeptune-cli">
+<h2>Running Coordinate Regression Tasks through the DeepTune CLI<a class="headerlink" href="#running-coordinate-regression-tasks-through-the-deeptune-cli" title="Link to this heading"></a></h2>
+<p><strong>DeepTune</strong> supports the same image regression models as the image classification task, with the exception of the SiGLip model, which is not supported for the regression tasks.</p>
+<ul class="simple">
+<li><p><a class="reference external" href="https://docs.pytorch.org/vision/main/models/resnet.html">ResNet</a> (PyTorch). The model versions supported are: ‘resnet18’, ‘resnet34’, ‘resnet50’, ‘resnet101’, or ‘resnet152’</p></li>
+<li><p><a class="reference external" href="https://docs.pytorch.org/vision/main/models/densenet.html">DenseNet</a> (PyTorch). The model versions supported are: ‘densenet121’, ‘densenet161’, ‘densenet169’, or ‘densenet201’</p></li>
+<li><p><a class="reference external" href="https://docs.pytorch.org/vision/main/models/efficientnet.html">EfficientNet</a> (PyTorch). The model versions supported are: ‘efficientnet_b0’, ‘efficientnet_b1’, ‘efficientnet_b2’, ‘efficientnet_b3’, ‘efficientnet_b4’, ‘efficientnet_b5’, ‘efficientnet_b6’, or ‘efficientnet_b7’.</p></li>
+<li><p><a class="reference external" href="https://docs.pytorch.org/vision/main/models/swin_transformer.html">Swin Trasnformer</a> (PyTorch) The model versions supported are: ‘swin_t’, ‘swin_s’, or ‘swin_b’.</p></li>
+<li><p><a class="reference external" href="https://docs.pytorch.org/vision/main/models/vit.html">Vision Transformer (ViT)</a> (PyTorch) The model versions supported are: ‘vit_b_16’, ‘vit_b_32’, ‘vit_l_16’, ‘vit_l_32’, or ‘vit_h_14’.</p></li>
+<li><p><a class="reference external" href="https://docs.pytorch.org/vision/main/models/vgg.html">VGGNet</a> (PyTorch). The model versions supported are: ‘vgg11’, ‘vgg13’, ‘vgg16’, or ‘vgg19’.</p></li>
+<li><p><a class="reference external" href="https://docs.pytorch.org/vision/main/models/convnext.html">ConvNeXt</a> (PyTorch). The model versions supported are: ‘convnext_tiny’, ‘convnext_small’, ‘convnext_base’, or ‘convnext_large’.</p></li>
+<li><p><a class="reference external" href="https://huggingface.co/docs/transformers/en/model_doc/siglip">Sigmoid Loss for Language Image Pre-Training (SiGLip)</a> (HuggingFace Transformers). The only supported version is ‘siglip_so400m_patch14_384’, which is called ‘siglip’ in the CLI.</p></li>
+</ul>
+<div class="highlight-console notranslate"><div class="highlight"><pre><span></span><span class="gp gp-VirtualEnv">(.deeptune)</span> <span class="gp">$ </span>python<span class="w"> </span>-m<span class="w"> </span>coordinate_regressors.regressor<span class="w"> </span><span class="se">\</span>
+--df<span class="w"> </span>&lt;dataset_path&gt;<span class="w"> </span><span class="se">\</span>
+--batch_size<span class="w"> </span>&lt;batch_size&gt;<span class="w"> </span><span class="se">\</span>
+--num_epochs<span class="w"> </span>&lt;num_epochs&gt;<span class="w"> </span><span class="se">\</span>
+--learning_rate<span class="w"> </span>&lt;learning_rate&gt;<span class="w"> </span><span class="se">\</span>
+--heatmap_size<span class="w"> </span>&lt;heatmap_size&gt;<span class="w"> </span><span class="se">\ </span>//<span class="w"> </span>only<span class="w"> </span><span class="k">for</span><span class="w"> </span>coordinate<span class="w"> </span>regression<span class="w"> </span>tasks
+<span class="go">--model &lt;model_name&gt; \</span>
+<span class="go">--out &lt;output_directory&gt; \</span>
+<span class="go">--fixed-seed \</span>
+</pre></div>
+</div>
+<p>After conducting a successful experiment of <strong>DeepTune</strong> for coordinate regression, the results will be saved in the specified output directory. The results include the dataset splits, trained model, and the train/val/evalauation metrics.</p>
+<a class="reference internal image-reference" href="tasks/coord_reg_image.png"><img alt="A screenshot of the DeepTune CLI output for a coordinate regression experiment, showing the metrics with the output directory path." src="tasks/coord_reg_image.png" style="width: 800px;" />
+</a>
+<p>For a detailed information on the coordinate regression configuration parameters and execution options for image classification and regression tasks, please refer to the <a class="reference internal" href="../configurations/coordinate_regression_config.html"><span class="doc">Coordinate Regression Configuration Parameters</span></a> section.</p>
+</section>
+</section>
+
+
+           </div>
+          </div>
+          <footer>
+
+  <hr/>
+
+  <div role="contentinfo">
+    <p>&#169; Copyright 2026, Moayadeldin Hussain.</p>
+  </div>
+
+  Built with <a href="https://www.sphinx-doc.org/">Sphinx</a> using a
+    <a href="https://github.com/readthedocs/sphinx_rtd_theme">theme</a>
+    provided by <a href="https://readthedocs.org">Read the Docs</a>.
+   
+
+</footer>
+        </div>
+      </div>
+    </section>
+  </div>
+  <script>
+      jQuery(function () {
+          SphinxRtdTheme.Navigation.enable(true);
+      });
+  </script> 
+
+</body>
+</html>

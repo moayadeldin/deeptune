@@ -7,7 +7,7 @@ Text-based Workflow Components
 DeepTune provides dedicated components for text classification
 using Multilingual BERT and GPT-2, organized into model training,
 evaluation, and embedding extraction workflows. These components
-are coordinated through the main execution module. In this page provides a class-level abstract overview of the NLP workflow components and their interfaces.
+are coordinated through the main execution module. This page provides a class-level abstract overview of the NLP workflow components and their interfaces.
 
 
 Model Training

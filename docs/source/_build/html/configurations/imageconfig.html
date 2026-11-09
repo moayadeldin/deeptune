@@ -65,7 +65,31 @@
 <ul>
 <li class="toctree-l1"><a class="reference internal" href="../tasks/textsentiment.html">Text Classification</a></li>
 <li class="toctree-l1"><a class="reference internal" href="../tasks/textworkflow.html">Text-based Workflow Components</a></li>
-<li class="toctree-l1"><a class="reference internal" href="textconfig.html">Text Classification Reference</a></li>
+<li class="toctree-l1"><a class="reference internal" href="textconfig.html">Text Classification Parameters Reference</a></li>
+</ul>
+<p class="caption" role="heading"><span class="caption-text">Clip-Level Action Classification</span></p>
+<ul>
+<li class="toctree-l1"><a class="reference internal" href="../tasks/videoclass.html">Clip-Level Action Classification</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../tasks/videoworkflow.html">Video-based Workflow Components</a></li>
+<li class="toctree-l1"><a class="reference internal" href="videoconfig.html">Video Classification Parameters Reference</a></li>
+</ul>
+<p class="caption" role="heading"><span class="caption-text">Tabular Classification &amp; Regression</span></p>
+<ul>
+<li class="toctree-l1"><a class="reference internal" href="../tasks/tabularclassreg.html">Tabular Classification &amp; Regression</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../tasks/tabularworkflow.html">Tabular Workflow Components</a></li>
+<li class="toctree-l1"><a class="reference internal" href="tabularconfig.html">Tabular Classification &amp; Regression Parameters Reference</a></li>
+</ul>
+<p class="caption" role="heading"><span class="caption-text">Time Series Forecasting</span></p>
+<ul>
+<li class="toctree-l1"><a class="reference internal" href="../tasks/timeseries.html">Time Series Forecasting</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../tasks/timeseriesworkflow.html">Time-Series Workflow Components</a></li>
+<li class="toctree-l1"><a class="reference internal" href="timeseriesconfig.html">Time Series Forecasting Parameters Reference</a></li>
+</ul>
+<p class="caption" role="heading"><span class="caption-text">Image Reconstruction</span></p>
+<ul>
+<li class="toctree-l1"><a class="reference internal" href="../tasks/autoencoder.html">Image Reconstruction with Autoencoders</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../tasks/autoencoderworkflow.html">Autoencoder Workflow Components</a></li>
+<li class="toctree-l1"><a class="reference internal" href="autoencoder_config.html">Autoencoder Configuration Parameters Reference</a></li>
 </ul>
 
         </div>
@@ -257,6 +281,7 @@ allowing the prediction head to be trained.</p></td>
     │   ├── test_split.parquet
     │   └── test_indices.csv
     │   └── label_mapping.json
+    │   └── split_summary.json
     ├── trainval_output_&lt;model_version&gt;_&lt;yyyymmdd_hhmm&gt;
     │   ├── cli_arguments.json
     │   ├── model_weights.pth
@@ -265,6 +290,7 @@ allowing the prediction head to be trained.</p></td>
     ├── eval_output_&lt;model_version&gt;_&lt;yyyymmdd_hhmm&gt;
     │   ├── full_metrics.json
     │   ├── cli_arguments.json
+    │   └── evaluation_details.json
     ├── embed_output_&lt;model_version&gt;_&lt;yyyymmdd_hhmm&gt;
         ├── &lt;model_version&gt;_cls_embeddings.parquet
         ├── cli_arguments.json

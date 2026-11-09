@@ -6,6 +6,8 @@ Prerequisites
 
 Kindly note that you have to install PyTorch version that matches your CUDA and GPU specifications. You can find the corresponding versions for your GPU `here <https://pytorch.org/get-started/locally/>`_.
 
+The software was heavily tested on Windows 11 with Python 3.8, and Ubuntu 20.04 with Python 3.10. We expect **DeepTune** to function properly on either of these two operating systems.
+
 Creating Virtual Environment (Recommended)
 -------------------------------------------
 .. note::
@@ -20,7 +22,7 @@ On Windows 11, Python 3.8 and Conda 24.9.2:
     $ conda create -n deeptune
     $ conda activate deeptune
 
-or using venv:
+or using venv on Ubuntu 20.04:
 
 .. code-block:: console
 
@@ -33,6 +35,4 @@ Install dependencies
 .. code-block:: console
 
     (.deeptune) $ pip install -r requirements.txt
-
-You can now explore how state-of-the-art image or text classification models perform on your own case studies using DeepTune .
 

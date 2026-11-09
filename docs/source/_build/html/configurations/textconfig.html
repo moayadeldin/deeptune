@@ -6,7 +6,7 @@
   <meta charset="utf-8" /><meta name="viewport" content="width=device-width, initial-scale=1" />
 
   <meta name="viewport" content="width=device-width, initial-scale=1.0" />
-  <title>Text Classification Reference &mdash; DeepTune 1.1.0 documentation</title>
+  <title>Text Classification Parameters Reference &mdash; DeepTune 1.1.0 documentation</title>
       <link rel="stylesheet" type="text/css" href="../_static/pygments.css?v=b86133f3" />
       <link rel="stylesheet" type="text/css" href="../_static/css/theme.css?v=e59714d7" />
 
@@ -19,6 +19,7 @@
     <script src="../_static/js/theme.js"></script>
     <link rel="index" title="Index" href="../genindex.html" />
     <link rel="search" title="Search" href="../search.html" />
+    <link rel="next" title="Clip-Level Action Classification" href="../tasks/videoclass.html" />
     <link rel="prev" title="Text-based Workflow Components" href="../tasks/textworkflow.html" /> 
 </head>
 
@@ -56,7 +57,7 @@
 <ul class="current">
 <li class="toctree-l1"><a class="reference internal" href="../tasks/textsentiment.html">Text Classification</a></li>
 <li class="toctree-l1"><a class="reference internal" href="../tasks/textworkflow.html">Text-based Workflow Components</a></li>
-<li class="toctree-l1 current"><a class="current reference internal" href="#">Text Classification Reference</a><ul>
+<li class="toctree-l1 current"><a class="current reference internal" href="#">Text Classification Parameters Reference</a><ul>
 <li class="toctree-l2"><a class="reference internal" href="#dataset-and-task-configuration">Dataset and Task Configuration</a></li>
 <li class="toctree-l2"><a class="reference internal" href="#model-and-training-configuration">Model and Training Configuration</a></li>
 <li class="toctree-l2"><a class="reference internal" href="#optional-execution-flags">Optional Execution Flags</a></li>
@@ -64,6 +65,30 @@
 <li class="toctree-l2"><a class="reference internal" href="#unified-cli-output-structure">Unified CLI Output Structure</a></li>
 </ul>
 </li>
+</ul>
+<p class="caption" role="heading"><span class="caption-text">Clip-Level Action Classification</span></p>
+<ul>
+<li class="toctree-l1"><a class="reference internal" href="../tasks/videoclass.html">Clip-Level Action Classification</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../tasks/videoworkflow.html">Video-based Workflow Components</a></li>
+<li class="toctree-l1"><a class="reference internal" href="videoconfig.html">Video Classification Parameters Reference</a></li>
+</ul>
+<p class="caption" role="heading"><span class="caption-text">Tabular Classification &amp; Regression</span></p>
+<ul>
+<li class="toctree-l1"><a class="reference internal" href="../tasks/tabularclassreg.html">Tabular Classification &amp; Regression</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../tasks/tabularworkflow.html">Tabular Workflow Components</a></li>
+<li class="toctree-l1"><a class="reference internal" href="tabularconfig.html">Tabular Classification &amp; Regression Parameters Reference</a></li>
+</ul>
+<p class="caption" role="heading"><span class="caption-text">Time Series Forecasting</span></p>
+<ul>
+<li class="toctree-l1"><a class="reference internal" href="../tasks/timeseries.html">Time Series Forecasting</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../tasks/timeseriesworkflow.html">Time-Series Workflow Components</a></li>
+<li class="toctree-l1"><a class="reference internal" href="timeseriesconfig.html">Time Series Forecasting Parameters Reference</a></li>
+</ul>
+<p class="caption" role="heading"><span class="caption-text">Image Reconstruction</span></p>
+<ul>
+<li class="toctree-l1"><a class="reference internal" href="../tasks/autoencoder.html">Image Reconstruction with Autoencoders</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../tasks/autoencoderworkflow.html">Autoencoder Workflow Components</a></li>
+<li class="toctree-l1"><a class="reference internal" href="autoencoder_config.html">Autoencoder Configuration Parameters Reference</a></li>
 </ul>
 
         </div>
@@ -80,7 +105,7 @@
           <div role="navigation" aria-label="Page navigation">
   <ul class="wy-breadcrumbs">
       <li><a href="../index.html" class="icon icon-home" aria-label="Home"></a></li>
-      <li class="breadcrumb-item active">Text Classification Reference</li>
+      <li class="breadcrumb-item active">Text Classification Parameters Reference</li>
       <li class="wy-breadcrumbs-aside">
             <a href="../_sources/configurations/textconfig.rst.txt" rel="nofollow"> View page source</a>
       </li>
@@ -90,8 +115,8 @@
           <div role="main" class="document" itemscope="itemscope" itemtype="http://schema.org/Article">
            <div itemprop="articleBody">
              
-  <section id="text-classification-reference">
-<span id="textconfig-rst"></span><h1>Text Classification Reference<a class="headerlink" href="#text-classification-reference" title="Link to this heading"></a></h1>
+  <section id="text-classification-parameters-reference">
+<span id="textconfig-rst"></span><h1>Text Classification Parameters Reference<a class="headerlink" href="#text-classification-parameters-reference" title="Link to this heading"></a></h1>
 <section id="dataset-and-task-configuration">
 <h2>Dataset and Task Configuration<a class="headerlink" href="#dataset-and-task-configuration" title="Link to this heading"></a></h2>
 <table class="docutils align-default">
@@ -201,6 +226,7 @@ allowing the prediction head to be trained.</p></td>
     │   ├── test_split.parquet
     │   └── test_indices.csv
     │   └── label_mapping.json
+    │   └── split_summary.json
 ------------------------------------------------------------------------
     // GPT2
     ├── trainval_output_&lt;model_version&gt;_&lt;yyyymmdd_hhmm&gt;
@@ -238,6 +264,7 @@ allowing the prediction head to be trained.</p></td>
     ├── eval_output_&lt;model_version&gt;_&lt;yyyymmdd_hhmm&gt;
     │   ├── full_metrics.json
     │   ├── cli_arguments.json
+    │   └── evaluation_details.json
     ├── embed_output_&lt;model_version&gt;_&lt;yyyymmdd_hhmm&gt;
         ├── &lt;model_version&gt;_cls_embeddings.parquet
         ├── cli_arguments.json
@@ -252,6 +279,7 @@ allowing the prediction head to be trained.</p></td>
           </div>
           <footer><div class="rst-footer-buttons" role="navigation" aria-label="Footer">
         <a href="../tasks/textworkflow.html" class="btn btn-neutral float-left" title="Text-based Workflow Components" accesskey="p" rel="prev"><span class="fa fa-arrow-circle-left" aria-hidden="true"></span> Previous</a>
+        <a href="../tasks/videoclass.html" class="btn btn-neutral float-right" title="Clip-Level Action Classification" accesskey="n" rel="next">Next <span class="fa fa-arrow-circle-right" aria-hidden="true"></span></a>
     </div>
 
   <hr/>

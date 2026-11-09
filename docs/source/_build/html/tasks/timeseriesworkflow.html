@@ -1,0 +1,272 @@
+
+
+<!DOCTYPE html>
+<html class="writer-html5" lang="en" data-content_root="../">
+<head>
+  <meta charset="utf-8" /><meta name="viewport" content="width=device-width, initial-scale=1" />
+
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>Time-Series Workflow Components &mdash; DeepTune 1.1.0 documentation</title>
+      <link rel="stylesheet" type="text/css" href="../_static/pygments.css?v=b86133f3" />
+      <link rel="stylesheet" type="text/css" href="../_static/css/theme.css?v=e59714d7" />
+
+  
+      <script src="../_static/jquery.js?v=5d32c60e"></script>
+      <script src="../_static/_sphinx_javascript_frameworks_compat.js?v=2cd50e6c"></script>
+      <script src="../_static/documentation_options.js?v=fc837d61"></script>
+      <script src="../_static/doctools.js?v=9bcbadda"></script>
+      <script src="../_static/sphinx_highlight.js?v=dc90522c"></script>
+    <script src="../_static/js/theme.js"></script>
+    <link rel="index" title="Index" href="../genindex.html" />
+    <link rel="search" title="Search" href="../search.html" />
+    <link rel="next" title="Time Series Forecasting Parameters Reference" href="../configurations/timeseriesconfig.html" />
+    <link rel="prev" title="Time Series Forecasting" href="timeseries.html" /> 
+</head>
+
+<body class="wy-body-for-nav"> 
+  <div class="wy-grid-for-nav">
+    <nav data-toggle="wy-nav-shift" class="wy-nav-side">
+      <div class="wy-side-scroll">
+        <div class="wy-side-nav-search" >
+
+          
+          
+          <a href="../index.html" class="icon icon-home">
+            DeepTune
+          </a>
+<div role="search">
+  <form id="rtd-search-form" class="wy-form" action="../search.html" method="get">
+    <input type="text" name="q" placeholder="Search docs" aria-label="Search docs" />
+    <input type="hidden" name="check_keywords" value="yes" />
+    <input type="hidden" name="area" value="default" />
+  </form>
+</div>
+        </div><div class="wy-menu wy-menu-vertical" data-spy="affix" role="navigation" aria-label="Navigation menu">
+              <p class="caption" role="heading"><span class="caption-text">User Guide</span></p>
+<ul>
+<li class="toctree-l1"><a class="reference internal" href="../guides/install.html">Installation</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../guides/getstarted.html">Getting Started</a></li>
+</ul>
+<p class="caption" role="heading"><span class="caption-text">Image Classification &amp; Regression</span></p>
+<ul>
+<li class="toctree-l1"><a class="reference internal" href="imageclassreg.html">Image Classification &amp; Regression</a></li>
+<li class="toctree-l1"><a class="reference internal" href="imageworkflow.html">Image-based Workflow Components</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../configurations/imageconfig.html">Image Classification &amp; Regression Parameters Reference</a></li>
+</ul>
+<p class="caption" role="heading"><span class="caption-text">Text Classification</span></p>
+<ul>
+<li class="toctree-l1"><a class="reference internal" href="textsentiment.html">Text Classification</a></li>
+<li class="toctree-l1"><a class="reference internal" href="textworkflow.html">Text-based Workflow Components</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../configurations/textconfig.html">Text Classification Parameters Reference</a></li>
+</ul>
+<p class="caption" role="heading"><span class="caption-text">Clip-Level Action Classification</span></p>
+<ul>
+<li class="toctree-l1"><a class="reference internal" href="videoclass.html">Clip-Level Action Classification</a></li>
+<li class="toctree-l1"><a class="reference internal" href="videoworkflow.html">Video-based Workflow Components</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../configurations/videoconfig.html">Video Classification Parameters Reference</a></li>
+</ul>
+<p class="caption" role="heading"><span class="caption-text">Tabular Classification &amp; Regression</span></p>
+<ul>
+<li class="toctree-l1"><a class="reference internal" href="tabularclassreg.html">Tabular Classification &amp; Regression</a></li>
+<li class="toctree-l1"><a class="reference internal" href="tabularworkflow.html">Tabular Workflow Components</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../configurations/tabularconfig.html">Tabular Classification &amp; Regression Parameters Reference</a></li>
+</ul>
+<p class="caption" role="heading"><span class="caption-text">Time Series Forecasting</span></p>
+<ul class="current">
+<li class="toctree-l1"><a class="reference internal" href="timeseries.html">Time Series Forecasting</a></li>
+<li class="toctree-l1 current"><a class="current reference internal" href="#">Time-Series Workflow Components</a><ul>
+<li class="toctree-l2"><a class="reference internal" href="#model-training">Model Training</a><ul>
+<li class="toctree-l3"><a class="reference internal" href="#src.timeseries.deepAR.deepAR"><code class="docutils literal notranslate"><span class="pre">deepAR</span></code></a><ul>
+<li class="toctree-l4"><a class="reference internal" href="#src.timeseries.deepAR.deepAR.load_from_checkpoint"><code class="docutils literal notranslate"><span class="pre">deepAR.load_from_checkpoint()</span></code></a></li>
+</ul>
+</li>
+<li class="toctree-l3"><a class="reference internal" href="#train_deepar.train"><code class="docutils literal notranslate"><span class="pre">train()</span></code></a></li>
+</ul>
+</li>
+<li class="toctree-l2"><a class="reference internal" href="#model-evaluation">Model Evaluation</a><ul>
+<li class="toctree-l3"><a class="reference internal" href="#evaluate_deepar.evaluate"><code class="docutils literal notranslate"><span class="pre">evaluate()</span></code></a></li>
+</ul>
+</li>
+<li class="toctree-l2"><a class="reference internal" href="#embedding-extraction">Embedding Extraction</a><ul>
+<li class="toctree-l3"><a class="reference internal" href="#deepAR_embeddings.embed"><code class="docutils literal notranslate"><span class="pre">embed()</span></code></a></li>
+</ul>
+</li>
+</ul>
+</li>
+<li class="toctree-l1"><a class="reference internal" href="../configurations/timeseriesconfig.html">Time Series Forecasting Parameters Reference</a></li>
+</ul>
+<p class="caption" role="heading"><span class="caption-text">Image Reconstruction</span></p>
+<ul>
+<li class="toctree-l1"><a class="reference internal" href="autoencoder.html">Image Reconstruction with Autoencoders</a></li>
+<li class="toctree-l1"><a class="reference internal" href="autoencoderworkflow.html">Autoencoder Workflow Components</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../configurations/autoencoder_config.html">Autoencoder Configuration Parameters Reference</a></li>
+</ul>
+
+        </div>
+      </div>
+    </nav>
+
+    <section data-toggle="wy-nav-shift" class="wy-nav-content-wrap"><nav class="wy-nav-top" aria-label="Mobile navigation menu" >
+          <i data-toggle="wy-nav-top" class="fa fa-bars"></i>
+          <a href="../index.html">DeepTune</a>
+      </nav>
+
+      <div class="wy-nav-content">
+        <div class="rst-content">
+          <div role="navigation" aria-label="Page navigation">
+  <ul class="wy-breadcrumbs">
+      <li><a href="../index.html" class="icon icon-home" aria-label="Home"></a></li>
+      <li class="breadcrumb-item active">Time-Series Workflow Components</li>
+      <li class="wy-breadcrumbs-aside">
+            <a href="../_sources/tasks/timeseriesworkflow.rst.txt" rel="nofollow"> View page source</a>
+      </li>
+  </ul>
+  <hr/>
+</div>
+          <div role="main" class="document" itemscope="itemscope" itemtype="http://schema.org/Article">
+           <div itemprop="articleBody">
+             
+  <section id="time-series-workflow-components">
+<h1>Time-Series Workflow Components<a class="headerlink" href="#time-series-workflow-components" title="Link to this heading"></a></h1>
+<p>DeepTune provides dedicated components for time-series forecasting
+using DeepAR, organized into model training, evaluation, and embedding
+extraction workflows. These components leverage PyTorch Forecasting
+for probabilistic forecasting and temporal feature representation.</p>
+<section id="model-training">
+<h2>Model Training<a class="headerlink" href="#model-training" title="Link to this heading"></a></h2>
+<p><strong>Entry point:</strong> <code class="docutils literal notranslate"><span class="pre">train_deepar.train</span></code></p>
+<p>The training function prepares time-series datasets, configures
+the DeepAR architecture, and delegates model optimization to
+the PyTorch Lightning <code class="docutils literal notranslate"><span class="pre">Trainer</span></code>.</p>
+<dl class="py class">
+<dt class="sig sig-object py" id="src.timeseries.deepAR.deepAR">
+<em class="property"><span class="pre">class</span><span class="w"> </span></em><span class="sig-prename descclassname"><span class="pre">src.timeseries.deepAR.</span></span><span class="sig-name descname"><span class="pre">deepAR</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">dataset</span></span></em>, <em class="sig-param"><span class="o"><span class="pre">**</span></span><span class="n"><span class="pre">kwargs</span></span></em><span class="sig-paren">)</span><a class="headerlink" href="#src.timeseries.deepAR.deepAR" title="Link to this definition"></a></dt>
+<dd><p>Wraps the PyTorch Forecasting DeepAR architecture.</p>
+<dl class="field-list simple">
+<dt class="field-odd">Parameters<span class="colon">:</span></dt>
+<dd class="field-odd"><ul class="simple">
+<li><p><strong>dataset</strong> – Configured <code class="docutils literal notranslate"><span class="pre">TimeSeriesDataSet</span></code>.</p></li>
+<li><p><strong>kwargs</strong> – Additional DeepAR model configuration parameters.</p></li>
+</ul>
+</dd>
+</dl>
+<p>The wrapper initializes the model using
+<code class="docutils literal notranslate"><span class="pre">DeepAR.from_dataset</span></code> with the specified configuration.</p>
+<dl class="py method">
+<dt class="sig sig-object py" id="src.timeseries.deepAR.deepAR.load_from_checkpoint">
+<em class="property"><span class="pre">classmethod</span><span class="w"> </span></em><span class="sig-name descname"><span class="pre">load_from_checkpoint</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">path</span></span></em><span class="sig-paren">)</span><a class="headerlink" href="#src.timeseries.deepAR.deepAR.load_from_checkpoint" title="Link to this definition"></a></dt>
+<dd><p>Loads a trained DeepAR model from a checkpoint.</p>
+</dd></dl>
+
+</dd></dl>
+
+<p>The training workflow uses an RNN-based DeepAR architecture
+with two recurrent layers, a hidden size of 30, and
+<code class="docutils literal notranslate"><span class="pre">NormalDistributionLoss</span></code> for probabilistic forecasting.</p>
+<dl class="py function">
+<dt class="sig sig-object py" id="train_deepar.train">
+<span class="sig-prename descclassname"><span class="pre">train_deepar.</span></span><span class="sig-name descname"><span class="pre">train</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">train_df</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">val_df</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">num_epochs</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">out</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">batch_size</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">timeindex_column</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">target_column</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">args</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">max_encoder_length</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">8</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">max_prediction_length</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">1</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">time_varying_known_categoricals</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">[]</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">time_varying_unknown_categoricals</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">[]</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">static_categoricals</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">[]</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">time_varying_known_reals</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">[]</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">group_ids</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">None</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">time_varying_unknown_reals</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">[]</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">static_reals</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">None</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">model_str</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">'DeepAR'</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">learning_rate</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">1e-3</span></span></em><span class="sig-paren">)</span><a class="headerlink" href="#train_deepar.train" title="Link to this definition"></a></dt>
+<dd><p>Prepares training and validation DataLoaders using
+<code class="docutils literal notranslate"><span class="pre">TimeSeriesDataSet</span></code> and optimizes the model with Adam.</p>
+<p>The validation dataset includes historical observations
+from the training set to provide the required encoder context.</p>
+<p>Training and validation losses are recorded in
+<code class="docutils literal notranslate"><span class="pre">training_log.csv</span></code>.</p>
+<p>The best-performing checkpoint is selected according to
+validation loss and saved in <code class="docutils literal notranslate"><span class="pre">.ckpt</span></code> format.</p>
+</dd></dl>
+
+</section>
+<section id="model-evaluation">
+<h2>Model Evaluation<a class="headerlink" href="#model-evaluation" title="Link to this heading"></a></h2>
+<p><strong>Entry point:</strong> <code class="docutils literal notranslate"><span class="pre">evaluate_deepar.evaluate</span></code></p>
+<p>The evaluation function reconstructs the time-series dataset
+using the trained model’s dataset parameters and performs
+forecasting on held-out observations.</p>
+<dl class="py function">
+<dt class="sig sig-object py" id="evaluate_deepar.evaluate">
+<span class="sig-prename descclassname"><span class="pre">evaluate_deepar.</span></span><span class="sig-name descname"><span class="pre">evaluate</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">train_df_path</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">val_df_path</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">eval_df_path</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">out</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">batch_size</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">timeindex_column</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">target_column</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">model_weights</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">max_encoder_length</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">30</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">max_prediction_length</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">1</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">group_ids</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">None</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">time_varying_known_categoricals</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">[]</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">time_varying_unknown_categoricals</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">[]</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">static_categoricals</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">[]</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">time_varying_known_reals</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">[]</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">time_varying_unknown_reals</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">[]</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">static_reals</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">[]</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">args</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">None</span></span></em><span class="sig-paren">)</span><a class="headerlink" href="#evaluate_deepar.evaluate" title="Link to this definition"></a></dt>
+<dd><p>Loads the trained DeepAR checkpoint and generates forecasts
+using historical observations from the training and validation
+datasets as encoder context.</p>
+<p>Computes the following evaluation metrics:</p>
+<ul class="simple">
+<li><p><strong>MAE:</strong> Mean Absolute Error.</p></li>
+<li><p><strong>RMSE:</strong> Root Mean Squared Error.</p></li>
+<li><p><strong>Loss:</strong> Mean Squared Error (MSE).</p></li>
+<li><p><strong>Predictions:</strong> Number of evaluated prediction values.</p></li>
+</ul>
+<p>Evaluation metrics are saved to <code class="docutils literal notranslate"><span class="pre">full_metrics.json</span></code>,
+alongside the forecasting outputs.</p>
+</dd></dl>
+
+</section>
+<section id="embedding-extraction">
+<h2>Embedding Extraction<a class="headerlink" href="#embedding-extraction" title="Link to this heading"></a></h2>
+<p><strong>Entry point:</strong> <code class="docutils literal notranslate"><span class="pre">deepAR_embeddings.embed</span></code></p>
+<p>The embedding workflow loads a trained DeepAR model and
+extracts temporal feature representations from its encoder.</p>
+<dl class="py function">
+<dt class="sig sig-object py" id="deepAR_embeddings.embed">
+<span class="sig-prename descclassname"><span class="pre">deepAR_embeddings.</span></span><span class="sig-name descname"><span class="pre">embed</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">eval_df</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">out</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">batch_size</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">timeindex_column</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">target_column</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">model_weights</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">max_encoder_length</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">30</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">max_prediction_length</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">1</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">group_ids</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">None</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">time_varying_known_categoricals</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">[]</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">time_varying_unknown_categoricals</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">[]</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">static_categoricals</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">[]</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">time_varying_known_reals</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">[]</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">time_varying_unknown_reals</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">[]</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">static_reals</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">[]</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">model_str</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">'deepAR'</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">args</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">None</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">history_df_paths</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">None</span></span></em><span class="sig-paren">)</span><a class="headerlink" href="#deepAR_embeddings.embed" title="Link to this definition"></a></dt>
+<dd><p>Extracts numerical representations from time-series data
+using the trained DeepAR encoder.</p>
+<dl class="field-list simple">
+<dt class="field-odd">Parameters<span class="colon">:</span></dt>
+<dd class="field-odd"><ul class="simple">
+<li><p><strong>eval_df</strong> – Path to the evaluation dataset.</p></li>
+<li><p><strong>out</strong> – Directory for embedding outputs.</p></li>
+<li><p><strong>batch_size</strong> – Batch size for embedding extraction.</p></li>
+<li><p><strong>timeindex_column</strong> – Column identifying temporal order.</p></li>
+<li><p><strong>target_column</strong> – Target variable for forecasting.</p></li>
+<li><p><strong>model_weights</strong> – Path to the trained model checkpoint.</p></li>
+<li><p><strong>history_df_paths</strong> – Optional historical datasets used
+to provide encoder context.</p></li>
+</ul>
+</dd>
+</dl>
+<p>The workflow extracts the encoder’s final hidden-state
+representations and associates them with evaluation samples.</p>
+<p>Samples without sufficient historical context receive
+zero-filled embeddings and are identified through the
+<code class="docutils literal notranslate"><span class="pre">is_padded</span></code> column.</p>
+<p>The resulting DataFrame contains extracted embeddings,
+target values, optional group identifiers, and padding flags.</p>
+<p>Embeddings are saved to <code class="docutils literal notranslate"><span class="pre">deepAR_embeddings.parquet</span></code>.</p>
+</dd></dl>
+
+</section>
+</section>
+
+
+           </div>
+          </div>
+          <footer><div class="rst-footer-buttons" role="navigation" aria-label="Footer">
+        <a href="timeseries.html" class="btn btn-neutral float-left" title="Time Series Forecasting" accesskey="p" rel="prev"><span class="fa fa-arrow-circle-left" aria-hidden="true"></span> Previous</a>
+        <a href="../configurations/timeseriesconfig.html" class="btn btn-neutral float-right" title="Time Series Forecasting Parameters Reference" accesskey="n" rel="next">Next <span class="fa fa-arrow-circle-right" aria-hidden="true"></span></a>
+    </div>
+
+  <hr/>
+
+  <div role="contentinfo">
+    <p>&#169; Copyright 2026, Moayadeldin Hussain.</p>
+  </div>
+
+  Built with <a href="https://www.sphinx-doc.org/">Sphinx</a> using a
+    <a href="https://github.com/readthedocs/sphinx_rtd_theme">theme</a>
+    provided by <a href="https://readthedocs.org">Read the Docs</a>.
+   
+
+</footer>
+        </div>
+      </div>
+    </section>
+  </div>
+  <script>
+      jQuery(function () {
+          SphinxRtdTheme.Navigation.enable(true);
+      });
+  </script> 
+
+</body>
+</html>

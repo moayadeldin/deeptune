@@ -53,6 +53,37 @@ Contents
    tasks/textsentiment
    tasks/textworkflow
    configurations/textconfig
+.. toctree::
+   :maxdepth: 1
+   :caption: Clip-Level Action Classification
+
+   tasks/videoclass
+   tasks/videoworkflow
+   configurations/videoconfig
+
+.. toctree::
+   :maxdepth: 1
+   :caption: Tabular Classification & Regression
+
+   tasks/tabularclassreg
+   tasks/tabularworkflow
+   configurations/tabularconfig
+
+.. toctree::
+   :maxdepth: 1
+   :caption: Time Series Forecasting
+
+   tasks/timeseries
+   tasks/timeseriesworkflow
+   configurations/timeseriesconfig
+
+.. toctree::
+   :maxdepth: 1
+   :caption: Image Reconstruction
+   
+   tasks/autoencoder
+   tasks/autoencoderworkflow
+   configurations/autoencoder_config
 
 Acknowledgements
 ----------------

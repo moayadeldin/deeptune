@@ -5,6 +5,8 @@ import time
 from itertools import chain
 from sklearn.model_selection import train_test_split
 from tqdm import tqdm
+from tabpfn.finetuning.data_util import get_preprocessed_dataset_chunks, meta_dataset_collator
+from tabpfn.architectures.interface import PerformanceOptions
 from tabpfn import TabPFNClassifier
 from torch.optim import Adam
 from utils import RunType
@@ -66,7 +68,7 @@ def main():
         )
         
     else:
-        train_tabpfn_from_scratch(
+        train_tabpfn_in_context_learning(
             X_train=X_train,
             y_train=y_train,
             X_val=X_val,
@@ -357,7 +359,7 @@ def finetune_tabpfn(
 
     return output_dir
 
-def train_tabpfn_from_scratch(
+def train_tabpfn_in_context_learning(
         X_train: pd.DataFrame,
         y_train: pd.Series,
         X_val: pd.DataFrame,

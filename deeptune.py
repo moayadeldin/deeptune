@@ -269,7 +269,6 @@ def main(argv=None):
         if csv_dir.is_file():
             csv_dir = csv_dir.parent.parent
         print_experiment_paths_table(df_path=df_path, train_data_path=train_data_path, val_data_path=val_data_path, test_data_path=test_data_path, ckpt_directory=ckpt_directory, exp_path=exp_path)
-        print_training_log_table(csv_dir/"training_log.csv")
         print_metrics_table(metrics_dict, embed_shape, modality='images',mapping_path=MAPPING_PATH)
 
     elif args.modality == 'video':
@@ -337,7 +336,7 @@ def main(argv=None):
         if csv_dir.is_file():
             csv_dir = csv_dir.parent.parent
         print_experiment_paths_table(df_path=df_path, train_data_path=train_data_path, val_data_path=val_data_path, test_data_path=test_data_path, ckpt_directory=ckpt_directory, exp_path=exp_path)
-        print_training_log_table(csv_dir/"training_log.csv")
+        # print_training_log_table(csv_dir/"training_log.csv")
         print_metrics_table(metrics_dict, embed_shape, modality='video',mapping_path=MAPPING_PATH)
 
     elif args.modality == 'tabular':
@@ -399,7 +398,7 @@ def main(argv=None):
             y_eval_tabpfn = eval_df['labels']
 
 
-            from trainers.tabular.train_tabpfn import train_tabpfn_from_scratch as train_tabular_tabpfn
+            from trainers.tabular.train_tabpfn import train_tabpfn_in_context_learning as train_tabular_tabpfn
             from trainers.tabular.train_tabpfn import finetune_tabpfn as finetune_tabular_tabpfn
             from evaluators.tabular.evaluate_tabpfn import evaluate_tabpfn as evaluate_tabular_tabpfn
             from embed.tabular.tabpfn_embeddings import get_tabpfn_embeddings as embed_tabpfn_embeddings

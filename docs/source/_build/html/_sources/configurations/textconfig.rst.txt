@@ -1,6 +1,6 @@
 .. _textconfig.rst:
 
-Text Classification Reference
+Text Classification Parameters Reference
 ------------------------------------------------------
 
 Dataset and Task Configuration
@@ -85,6 +85,7 @@ After running the unified CLI command, **DeepTune** will generate an output dire
        │   ├── test_split.parquet
        │   └── test_indices.csv
        │   └── label_mapping.json
+       │   └── split_summary.json
    ------------------------------------------------------------------------
        // GPT2
        ├── trainval_output_<model_version>_<yyyymmdd_hhmm>
@@ -122,6 +123,7 @@ After running the unified CLI command, **DeepTune** will generate an output dire
        ├── eval_output_<model_version>_<yyyymmdd_hhmm>
        │   ├── full_metrics.json
        │   ├── cli_arguments.json
+       │   └── evaluation_details.json
        ├── embed_output_<model_version>_<yyyymmdd_hhmm>
            ├── <model_version>_cls_embeddings.parquet
            ├── cli_arguments.json 

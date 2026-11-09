@@ -91,8 +91,8 @@ class adjustedVideo3D(nn.Module):
             added_layers (int): Number of additional layers you want to add while finetuning your model.
             embedding_layer_size (int): If you chose added_layers to be 2, this specifies the size of the intermediate layer in between.
             freeze_backbone (bool): Determine whether you want to apply transfer learning on the backbone weights or the whole model.
-            task_type (str): Determine whether you want classification or regression.
-            output_dim (int): The dimension of the output of the regression model, default = 1.
+            task_type (str): Determine whether you want classification.
+            output_dim (int): The dimension of the output of the model.
 
         Input:
             Expects clips of shape [B, T, C, H, W] - the layout DeepTune's
@@ -102,7 +102,7 @@ class adjustedVideo3D(nn.Module):
 
         super(adjustedVideo3D, self).__init__()
 
-        assert task_type in ["cls", "reg"], "task_type must be 'cls' or 'reg'"
+        assert task_type in ["cls"], "task_type must be 'cls'"
 
         self.num_classes = num_classes
         self.added_layers = added_layers

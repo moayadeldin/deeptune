@@ -142,6 +142,7 @@ After running the unified CLI command, **DeepTune** will generate an output dire
        │   ├── test_split.parquet
        │   └── test_indices.csv
        │   └── label_mapping.json
+       │   └── split_summary.json
        ├── trainval_output_<model_version>_<yyyymmdd_hhmm>
        │   ├── cli_arguments.json
        │   ├── model_weights.pth
@@ -150,6 +151,7 @@ After running the unified CLI command, **DeepTune** will generate an output dire
        ├── eval_output_<model_version>_<yyyymmdd_hhmm>
        │   ├── full_metrics.json
        │   ├── cli_arguments.json
+       │   └── evaluation_details.json
        ├── embed_output_<model_version>_<yyyymmdd_hhmm>
            ├── <model_version>_cls_embeddings.parquet
            ├── cli_arguments.json 
