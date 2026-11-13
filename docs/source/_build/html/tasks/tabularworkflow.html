@@ -72,18 +72,25 @@
 <li class="toctree-l2"><a class="reference internal" href="#model-training">Model Training</a><ul>
 <li class="toctree-l3"><a class="reference internal" href="#gandalf">GANDALF</a><ul>
 <li class="toctree-l4"><a class="reference internal" href="#src.tabular.gandalf.GANDALF"><code class="docutils literal notranslate"><span class="pre">GANDALF</span></code></a></li>
+<li class="toctree-l4"><a class="reference internal" href="#train_gandalf.train"><code class="docutils literal notranslate"><span class="pre">train()</span></code></a></li>
 </ul>
 </li>
 <li class="toctree-l3"><a class="reference internal" href="#tabpfn">TabPFN</a><ul>
-<li class="toctree-l4"><a class="reference internal" href="#train_tabpfn.finetune_tabpfn"><code class="docutils literal notranslate"><span class="pre">finetune_tabpfn()</span></code></a></li>
-<li class="toctree-l4"><a class="reference internal" href="#train_tabpfn.train_tabpfn_in_context_learning"><code class="docutils literal notranslate"><span class="pre">train_tabpfn_in_context_learning()</span></code></a></li>
+<li class="toctree-l4"><a class="reference internal" href="#fine-tuning">Fine-Tuning</a></li>
+<li class="toctree-l4"><a class="reference internal" href="#in-context-learning">In-Context Learning</a></li>
 </ul>
 </li>
 </ul>
 </li>
 <li class="toctree-l2"><a class="reference internal" href="#model-evaluation">Model Evaluation</a><ul>
-<li class="toctree-l3"><a class="reference internal" href="#evaluate_gandalf.evaluate"><code class="docutils literal notranslate"><span class="pre">evaluate()</span></code></a></li>
-<li class="toctree-l3"><a class="reference internal" href="#evaluate_tabpfn.evaluate_tabpfn"><code class="docutils literal notranslate"><span class="pre">evaluate_tabpfn()</span></code></a></li>
+<li class="toctree-l3"><a class="reference internal" href="#gandalf-evaluation">GANDALF Evaluation</a><ul>
+<li class="toctree-l4"><a class="reference internal" href="#evaluate_gandalf.evaluate"><code class="docutils literal notranslate"><span class="pre">evaluate()</span></code></a></li>
+</ul>
+</li>
+<li class="toctree-l3"><a class="reference internal" href="#tabpfn-evaluation">TabPFN Evaluation</a><ul>
+<li class="toctree-l4"><a class="reference internal" href="#evaluate_tabpfn.evaluate_tabpfn"><code class="docutils literal notranslate"><span class="pre">evaluate_tabpfn()</span></code></a></li>
+</ul>
+</li>
 </ul>
 </li>
 <li class="toctree-l2"><a class="reference internal" href="#embedding-extraction">Embedding Extraction</a><ul>
@@ -100,6 +107,12 @@
 </ul>
 </li>
 <li class="toctree-l1"><a class="reference internal" href="../configurations/tabularconfig.html">Tabular Classification &amp; Regression Parameters Reference</a></li>
+</ul>
+<p class="caption" role="heading"><span class="caption-text">Coordinate Regression</span></p>
+<ul>
+<li class="toctree-l1"><a class="reference internal" href="coordinateregression.html">Coordinate Regression</a></li>
+<li class="toctree-l1"><a class="reference internal" href="coordinateregressionworkflow.html">Coordinate Regression Workflow Components</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../configurations/coordinate_regression_config.html">Coordinate Regression Configuration Parameters</a></li>
 </ul>
 <p class="caption" role="heading"><span class="caption-text">Time Series Forecasting</span></p>
 <ul>
@@ -142,20 +155,29 @@
 <h1>Tabular Workflow Components<a class="headerlink" href="#tabular-workflow-components" title="Link to this heading"></a></h1>
 <p>DeepTune provides dedicated components for tabular classification
 and regression using GANDALF and TabPFN. These components support
-model training, evaluation, and embedding extraction. This page
-provides a high-level overview of the tabular workflow components.</p>
+model training, evaluation, and embedding extraction through
+separate workflows.</p>
+<p>GANDALF uses the PyTorch Tabular framework for
+model training, while TabPFN supports both fine-tuning
+and in-context learning using pretrained models.</p>
+<p>This page provides a high-level abstract overview of the tabular
+workflow components and their implementation.</p>
 <section id="model-training">
 <h2>Model Training<a class="headerlink" href="#model-training" title="Link to this heading"></a></h2>
-<p><strong>Entry points:</strong> <code class="docutils literal notranslate"><span class="pre">train_gandalf.train</span></code> and <code class="docutils literal notranslate"><span class="pre">train_tabpfn.main</span></code></p>
-<p>The training workflows prepare tabular datasets, configure the
-selected model, and perform training or fine-tuning according
-to the specified task.</p>
+<p>The training workflow is implemented separately for GANDALF
+and TabPFN. Both workflows accept tabular datasets stored in
+Parquet format and support classification and regression.</p>
 <section id="gandalf">
 <h3>GANDALF<a class="headerlink" href="#gandalf" title="Link to this heading"></a></h3>
+<p><strong>Entry point:</strong> <code class="docutils literal notranslate"><span class="pre">train_gandalf.train</span></code></p>
+<p>The GANDALF training workflow prepares the training and validation
+datasets, configures the model architecture, and delegates optimization
+to the PyTorch Tabular <code class="docutils literal notranslate"><span class="pre">TabularModel</span></code> framework.</p>
 <dl class="py class">
 <dt class="sig sig-object py" id="src.tabular.gandalf.GANDALF">
 <em class="property"><span class="pre">class</span><span class="w"> </span></em><span class="sig-prename descclassname"><span class="pre">src.tabular.gandalf.</span></span><span class="sig-name descname"><span class="pre">GANDALF</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">data_config</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">optimizer_config</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">trainer_config</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">task</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">gflu_stages</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">gflu_feature_init_sparsity</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">gflu_dropout</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">learning_rate</span></span></em><span class="sig-paren">)</span><a class="headerlink" href="#src.tabular.gandalf.GANDALF" title="Link to this definition"></a></dt>
-<dd><p>Configures the GANDALF architecture using PyTorch Tabular.</p>
+<dd><p>Configures the GANDALF architecture by extending the PyTorch
+Tabular <code class="docutils literal notranslate"><span class="pre">GANDALFConfig</span></code> class.</p>
 <dl class="field-list simple">
 <dt class="field-odd">Parameters<span class="colon">:</span></dt>
 <dd class="field-odd"><ul class="simple">
@@ -170,107 +192,305 @@ to the specified task.</p>
 </ul>
 </dd>
 </dl>
-<p>The training workflow initializes a <code class="docutils literal notranslate"><span class="pre">TabularModel</span></code>, fits it
-on training and validation datasets, and saves the model
-alongside training metrics and configuration parameters.</p>
+<p>The configuration specifies the Gated Feature Learning Unit
+(GFLU) architecture and its training hyperparameters.</p>
+</dd></dl>
+
+<dl class="py function">
+<dt class="sig sig-object py" id="train_gandalf.train">
+<span class="sig-prename descclassname"><span class="pre">train_gandalf.</span></span><span class="sig-name descname"><span class="pre">train</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">train_df</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">val_df</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">out</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">type</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">batch_size</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">num_epochs</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">learning_rate</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">gflu_stages</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">target</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">continuous_cols</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">categorical_cols</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">model_str</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">args</span></span></em><span class="sig-paren">)</span><a class="headerlink" href="#train_gandalf.train" title="Link to this definition"></a></dt>
+<dd><p>Trains a GANDALF model using the PyTorch Tabular framework.</p>
+<dl class="field-list simple">
+<dt class="field-odd">Parameters<span class="colon">:</span></dt>
+<dd class="field-odd"><ul class="simple">
+<li><p><strong>train_df</strong> – Path to the training Parquet dataset.</p></li>
+<li><p><strong>val_df</strong> – Path to the validation Parquet dataset.</p></li>
+<li><p><strong>out</strong> – Directory for training outputs.</p></li>
+<li><p><strong>type</strong> – Model task type, either <code class="docutils literal notranslate"><span class="pre">classification</span></code> or <code class="docutils literal notranslate"><span class="pre">regression</span></code>.</p></li>
+<li><p><strong>batch_size</strong> – Number of samples per training batch.</p></li>
+<li><p><strong>num_epochs</strong> – Maximum number of training epochs.</p></li>
+<li><p><strong>learning_rate</strong> – Model learning rate.</p></li>
+<li><p><strong>gflu_stages</strong> – Number of GFLU stages.</p></li>
+<li><p><strong>target</strong> – Name of the target column.</p></li>
+<li><p><strong>continuous_cols</strong> – Names of continuous input features.</p></li>
+<li><p><strong>categorical_cols</strong> – Names of categorical input features.</p></li>
+<li><p><strong>model_str</strong> – Model identifier.</p></li>
+<li><p><strong>args</strong> – Parsed configuration arguments.</p></li>
+</ul>
+</dd>
+</dl>
+<p>The function constructs <code class="docutils literal notranslate"><span class="pre">DataConfig</span></code>, <code class="docutils literal notranslate"><span class="pre">OptimizerConfig</span></code>,
+and <code class="docutils literal notranslate"><span class="pre">TrainerConfig</span></code> objects before initializing the
+<code class="docutils literal notranslate"><span class="pre">TabularModel</span></code> with the GANDALF configuration.</p>
+<p>Model training is performed through <code class="docutils literal notranslate"><span class="pre">TabularModel.fit()</span></code>,
+using the training and validation datasets.</p>
+<p>A <code class="docutils literal notranslate"><span class="pre">PerformanceLoggerCallback</span></code> records training progress,
+and the fitted model is saved under <code class="docutils literal notranslate"><span class="pre">GANDALF_model</span></code>.</p>
+<p>Training metrics are saved to <code class="docutils literal notranslate"><span class="pre">training_log.csv</span></code>.</p>
 </dd></dl>
 
 </section>
 <section id="tabpfn">
 <h3>TabPFN<a class="headerlink" href="#tabpfn" title="Link to this heading"></a></h3>
-<p><strong>Entry point:</strong> <code class="docutils literal notranslate"><span class="pre">train_tabpfn.main</span></code></p>
-<p>The TabPFN workflow supports classification and regression
-through two execution modes.</p>
+<p><strong>Entry points:</strong> <code class="docutils literal notranslate"><span class="pre">train_tabpfn.finetune_tabpfn</span></code> and
+<code class="docutils literal notranslate"><span class="pre">train_tabpfn.train_tabpfn_in_context_learning</span></code></p>
+<p>The TabPFN training workflow supports two distinct approaches:
+gradient-based fine-tuning and in-context learning.</p>
+<p>The <code class="docutils literal notranslate"><span class="pre">train_tabpfn.main</span></code> function handles argument parsing and
+dispatches execution to the appropriate function according to
+the <code class="docutils literal notranslate"><span class="pre">finetuning_mode</span></code> configuration.</p>
+<p>Both approaches use pretrained TabPFN estimators and support
+classification (<code class="docutils literal notranslate"><span class="pre">cls</span></code>) and regression (<code class="docutils literal notranslate"><span class="pre">reg</span></code>).</p>
+<section id="fine-tuning">
+<h4>Fine-Tuning<a class="headerlink" href="#fine-tuning" title="Link to this heading"></a></h4>
 <dl class="py function">
 <dt class="sig sig-object py" id="train_tabpfn.finetune_tabpfn">
-<span class="sig-prename descclassname"><span class="pre">train_tabpfn.</span></span><span class="sig-name descname"><span class="pre">finetune_tabpfn</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">X_train</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">y_train</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">X_val</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">y_val</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">out</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">mode</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">args</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">batch_size</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">num_epochs</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">model_str</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">'TABPFN'</span></span></em><span class="sig-paren">)</span><a class="headerlink" href="#train_tabpfn.finetune_tabpfn" title="Link to this definition"></a></dt>
-<dd><p>Fine-tunes a pretrained TabPFN model using preprocessed
-training batches and the Adam optimizer.</p>
-<ul class="simple">
-<li><p><strong>Classification:</strong> Cross-Entropy Loss and accuracy.</p></li>
-<li><p><strong>Regression:</strong> Mean Squared Error (MSE) loss.</p></li>
+<span class="sig-prename descclassname"><span class="pre">train_tabpfn.</span></span><span class="sig-name descname"><span class="pre">finetune_tabpfn</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">X_train</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">y_train</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">X_val</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">y_val</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">out</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">mode</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">args</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">batch_size</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">num_epochs</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">model_str</span></span></em><span class="sig-paren">)</span><a class="headerlink" href="#train_tabpfn.finetune_tabpfn" title="Link to this definition"></a></dt>
+<dd><p>Fine-tunes pretrained TabPFN models by updating their neural
+network parameters using gradient-based optimization.</p>
+<dl class="field-list simple">
+<dt class="field-odd">Parameters<span class="colon">:</span></dt>
+<dd class="field-odd"><ul class="simple">
+<li><p><strong>X_train</strong> – Training feature DataFrame.</p></li>
+<li><p><strong>y_train</strong> – Training target values.</p></li>
+<li><p><strong>X_val</strong> – Validation feature DataFrame.</p></li>
+<li><p><strong>y_val</strong> – Validation target values.</p></li>
+<li><p><strong>out</strong> – Directory for training outputs.</p></li>
+<li><p><strong>mode</strong> – Task mode, either <code class="docutils literal notranslate"><span class="pre">cls</span></code> or <code class="docutils literal notranslate"><span class="pre">reg</span></code>.</p></li>
+<li><p><strong>args</strong> – Parsed configuration arguments.</p></li>
+<li><p><strong>batch_size</strong> – Number of samples per training batch.</p></li>
+<li><p><strong>num_epochs</strong> – Number of fine-tuning epochs.</p></li>
+<li><p><strong>model_str</strong> – Model identifier.</p></li>
 </ul>
-<p>Training and validation metrics are recorded in
-<code class="docutils literal notranslate"><span class="pre">training_log.csv</span></code>, and the fine-tuned model is saved
-in Joblib format.</p>
+</dd>
+</dl>
+<p>The function initializes a pretrained <code class="docutils literal notranslate"><span class="pre">TabPFNClassifier</span></code>
+or <code class="docutils literal notranslate"><span class="pre">TabPFNRegressor</span></code> according to the selected task.</p>
+<p>Training and validation data are converted into preprocessed
+context-query batches using <code class="docutils literal notranslate"><span class="pre">get_preprocessed_dataset_chunks</span></code>
+and <code class="docutils literal notranslate"><span class="pre">meta_dataset_collator</span></code>.</p>
+<p>During each training iteration, the model uses the context
+samples to generate predictions for the query samples.</p>
+<p>The prediction loss is backpropagated through the pretrained
+network, and its parameters are updated using the Adam
+optimizer.</p>
+<p>The optimization objective depends on the selected task:</p>
+<ul class="simple">
+<li><p><strong>Classification:</strong> Cross-Entropy Loss, with classification
+accuracy tracked during training and validation.</p></li>
+<li><p><strong>Regression:</strong> Mean Squared Error (MSE), computed using
+the mean of the predicted probability distribution.</p></li>
+</ul>
+<p>Regression fine-tuning additionally applies gradient clipping
+with a maximum norm of 1.0 to stabilize training.</p>
+<p>After fine-tuning, the model is prepared for inference using
+<code class="docutils literal notranslate"><span class="pre">clone_model_for_evaluation</span></code> and fitted on the training data.</p>
+<p>Training and validation metrics are saved to
+<code class="docutils literal notranslate"><span class="pre">training_log.csv</span></code>, and the fine-tuned estimator is
+serialized as <code class="docutils literal notranslate"><span class="pre">finetuned_TABPFN_&lt;mode&gt;.joblib</span></code>.</p>
 </dd></dl>
 
+</section>
+<section id="in-context-learning">
+<h4>In-Context Learning<a class="headerlink" href="#in-context-learning" title="Link to this heading"></a></h4>
 <dl class="py function">
 <dt class="sig sig-object py" id="train_tabpfn.train_tabpfn_in_context_learning">
-<span class="sig-prename descclassname"><span class="pre">train_tabpfn.</span></span><span class="sig-name descname"><span class="pre">train_tabpfn_in_context_learning</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">X_train</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">y_train</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">X_val</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">y_val</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">out</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">mode</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">args</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">model_str</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">'TABPFN'</span></span></em><span class="sig-paren">)</span><a class="headerlink" href="#train_tabpfn.train_tabpfn_in_context_learning" title="Link to this definition"></a></dt>
-<dd><p>Fits a pretrained TabPFN estimator to the training data
-without gradient-based fine-tuning.</p>
-<p>Computes classification accuracy and log loss, or regression
-MSE and MAE, on the training and validation datasets.</p>
-<p>Results are saved to <code class="docutils literal notranslate"><span class="pre">training_metrics.json</span></code>, and the
-fitted model is saved in <code class="docutils literal notranslate"><span class="pre">.tabpfn_fit</span></code> format.</p>
+<span class="sig-prename descclassname"><span class="pre">train_tabpfn.</span></span><span class="sig-name descname"><span class="pre">train_tabpfn_in_context_learning</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">X_train</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">y_train</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">X_val</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">y_val</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">out</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">mode</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">args</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">model_str</span></span></em><span class="sig-paren">)</span><a class="headerlink" href="#train_tabpfn.train_tabpfn_in_context_learning" title="Link to this definition"></a></dt>
+<dd><p>Fits a pretrained TabPFN estimator using in-context learning,
+without performing gradient-based optimization.</p>
+<dl class="field-list simple">
+<dt class="field-odd">Parameters<span class="colon">:</span></dt>
+<dd class="field-odd"><ul class="simple">
+<li><p><strong>X_train</strong> – Training feature DataFrame.</p></li>
+<li><p><strong>y_train</strong> – Training target values.</p></li>
+<li><p><strong>X_val</strong> – Validation feature DataFrame.</p></li>
+<li><p><strong>y_val</strong> – Validation target values.</p></li>
+<li><p><strong>out</strong> – Directory for training outputs.</p></li>
+<li><p><strong>mode</strong> – Task mode, either <code class="docutils literal notranslate"><span class="pre">cls</span></code> or <code class="docutils literal notranslate"><span class="pre">reg</span></code>.</p></li>
+<li><p><strong>args</strong> – Parsed configuration arguments.</p></li>
+<li><p><strong>model_str</strong> – Model identifier.</p></li>
+</ul>
+</dd>
+</dl>
+<p>The function initializes a pretrained <code class="docutils literal notranslate"><span class="pre">TabPFNClassifier</span></code>
+or <code class="docutils literal notranslate"><span class="pre">TabPFNRegressor</span></code> and calls <code class="docutils literal notranslate"><span class="pre">fit(X_train,</span> <span class="pre">y_train)</span></code>.</p>
+<p>Unlike fine-tuning, this operation prepares the training
+observations as context for subsequent predictions without
+updating the pretrained neural network weights.</p>
+<p>The fitted estimator performs inference on both the
+training and validation datasets.</p>
+<p>The evaluation metrics depend on the selected task:</p>
+<ul class="simple">
+<li><p><strong>Classification:</strong> Accuracy and logarithmic loss.</p></li>
+<li><p><strong>Regression:</strong> Mean Squared Error (MSE) and
+Mean Absolute Error (MAE).</p></li>
+</ul>
+<p>Classification accuracy and regression metrics are saved
+to <code class="docutils literal notranslate"><span class="pre">training_metrics.json</span></code>.</p>
+<p>The fitted estimator is saved in <code class="docutils literal notranslate"><span class="pre">.tabpfn_fit</span></code> format
+using <code class="docutils literal notranslate"><span class="pre">save_fitted_tabpfn_model</span></code>.</p>
+<p>This approach does not require an explicit epoch-based
+training loop or backpropagation.</p>
 </dd></dl>
 
+</section>
 </section>
 </section>
 <section id="model-evaluation">
 <h2>Model Evaluation<a class="headerlink" href="#model-evaluation" title="Link to this heading"></a></h2>
-<p><strong>Entry points:</strong> <code class="docutils literal notranslate"><span class="pre">evaluate_gandalf.evaluate</span></code> and
-<code class="docutils literal notranslate"><span class="pre">evaluate_tabpfn.evaluate_tabpfn</span></code></p>
-<p>The evaluation workflows load the fitted models and evaluate
-their predictions on held-out tabular datasets.</p>
+<p>The evaluation workflows load previously fitted models and
+perform inference on held-out tabular datasets.</p>
+<p>Evaluation results are stored in <code class="docutils literal notranslate"><span class="pre">full_metrics.json</span></code>.</p>
+<section id="gandalf-evaluation">
+<h3>GANDALF Evaluation<a class="headerlink" href="#gandalf-evaluation" title="Link to this heading"></a></h3>
+<p><strong>Entry point:</strong> <code class="docutils literal notranslate"><span class="pre">evaluate_gandalf.evaluate</span></code></p>
 <dl class="py function">
 <dt class="sig sig-object py" id="evaluate_gandalf.evaluate">
 <span class="sig-prename descclassname"><span class="pre">evaluate_gandalf.</span></span><span class="sig-name descname"><span class="pre">evaluate</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">eval_df</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">model_weights</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">out</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">args</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">model_str</span></span></em><span class="sig-paren">)</span><a class="headerlink" href="#evaluate_gandalf.evaluate" title="Link to this definition"></a></dt>
-<dd><p>Loads the saved GANDALF model using PyTorch Tabular and
-evaluates it on the provided dataset.</p>
-<p>Returns the evaluation metrics and saves them to
+<dd><p>Evaluates a trained GANDALF model on a held-out dataset.</p>
+<dl class="field-list simple">
+<dt class="field-odd">Parameters<span class="colon">:</span></dt>
+<dd class="field-odd"><ul class="simple">
+<li><p><strong>eval_df</strong> – Path to the evaluation Parquet dataset.</p></li>
+<li><p><strong>model_weights</strong> – Directory containing the saved model.</p></li>
+<li><p><strong>out</strong> – Directory for evaluation outputs.</p></li>
+<li><p><strong>args</strong> – Parsed configuration arguments.</p></li>
+<li><p><strong>model_str</strong> – Model identifier.</p></li>
+</ul>
+</dd>
+</dl>
+<p>The function reconstructs the trained model using
+<code class="docutils literal notranslate"><span class="pre">TabularModel.load_model()</span></code> and performs evaluation
+through <code class="docutils literal notranslate"><span class="pre">TabularModel.evaluate()</span></code>.</p>
+<p>The resulting task-specific metrics are collected,
+standardized where applicable, and saved to
 <code class="docutils literal notranslate"><span class="pre">full_metrics.json</span></code>.</p>
+<p>The function also records the evaluation execution time.</p>
 </dd></dl>
 
+</section>
+<section id="tabpfn-evaluation">
+<h3>TabPFN Evaluation<a class="headerlink" href="#tabpfn-evaluation" title="Link to this heading"></a></h3>
+<p><strong>Entry point:</strong> <code class="docutils literal notranslate"><span class="pre">evaluate_tabpfn.evaluate_tabpfn</span></code></p>
 <dl class="py function">
 <dt class="sig sig-object py" id="evaluate_tabpfn.evaluate_tabpfn">
 <span class="sig-prename descclassname"><span class="pre">evaluate_tabpfn.</span></span><span class="sig-name descname"><span class="pre">evaluate_tabpfn</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">X_eval</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">y_eval</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">out</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">args</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">model_path</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">mode</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">finetuning_mode</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">model_str</span></span></em><span class="sig-paren">)</span><a class="headerlink" href="#evaluate_tabpfn.evaluate_tabpfn" title="Link to this definition"></a></dt>
-<dd><p>Loads the fitted or fine-tuned TabPFN model and performs
-inference on the evaluation dataset.</p>
+<dd><p>Evaluates a fitted or fine-tuned TabPFN model on a
+held-out dataset.</p>
+<dl class="field-list simple">
+<dt class="field-odd">Parameters<span class="colon">:</span></dt>
+<dd class="field-odd"><ul class="simple">
+<li><p><strong>X_eval</strong> – Evaluation feature DataFrame.</p></li>
+<li><p><strong>y_eval</strong> – Evaluation target values.</p></li>
+<li><p><strong>out</strong> – Directory for evaluation outputs.</p></li>
+<li><p><strong>args</strong> – Parsed configuration arguments.</p></li>
+<li><p><strong>model_path</strong> – Path to the saved TabPFN model.</p></li>
+<li><p><strong>mode</strong> – Task mode, either <code class="docutils literal notranslate"><span class="pre">cls</span></code> or <code class="docutils literal notranslate"><span class="pre">reg</span></code>.</p></li>
+<li><p><strong>finetuning_mode</strong> – Whether the model was fine-tuned.</p></li>
+<li><p><strong>model_str</strong> – Model identifier.</p></li>
+</ul>
+</dd>
+</dl>
+<p>Model loading depends on the training approach:</p>
 <ul class="simple">
-<li><p><strong>Classification:</strong> Accuracy.</p></li>
-<li><p><strong>Regression:</strong> MSE and MAE.</p></li>
+<li><p><strong>Fine-tuning:</strong> Loads the serialized Joblib estimator.</p></li>
+<li><p><strong>In-context learning:</strong> Loads the fitted TabPFN estimator
+using <code class="docutils literal notranslate"><span class="pre">load_fitted_tabpfn_model</span></code>.</p></li>
+</ul>
+<p>The loaded model performs inference on the evaluation
+dataset, and the following metrics are computed:</p>
+<ul class="simple">
+<li><p><strong>Classification:</strong> Prediction accuracy.</p></li>
+<li><p><strong>Regression:</strong> Mean Squared Error (MSE) and
+Mean Absolute Error (MAE).</p></li>
 </ul>
 <p>Results are saved to <code class="docutils literal notranslate"><span class="pre">full_metrics.json</span></code>.</p>
 </dd></dl>
 
 </section>
+</section>
 <section id="embedding-extraction">
 <h2>Embedding Extraction<a class="headerlink" href="#embedding-extraction" title="Link to this heading"></a></h2>
-<p><strong>Entry points:</strong> <code class="docutils literal notranslate"><span class="pre">gandalf_embeddings.embed</span></code> and
-<code class="docutils literal notranslate"><span class="pre">tabpfn_embeddings.get_tabpfn_embeddings</span></code></p>
 <p>The embedding workflows extract numerical feature
-representations from tabular datasets using trained models.</p>
+representations from tabular datasets using previously
+fitted GANDALF or TabPFN models.</p>
+<p>The resulting embeddings are stored in Parquet format,
+together with target labels and optional grouping information.</p>
 <section id="gandalf-embeddings">
 <h3>GANDALF Embeddings<a class="headerlink" href="#gandalf-embeddings" title="Link to this heading"></a></h3>
+<p><strong>Entry point:</strong> <code class="docutils literal notranslate"><span class="pre">gandalf_embeddings.embed</span></code></p>
 <dl class="py function">
 <dt class="sig sig-object py" id="gandalf_embeddings.embed">
 <span class="sig-prename descclassname"><span class="pre">gandalf_embeddings.</span></span><span class="sig-name descname"><span class="pre">embed</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">eval_df</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">out</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">model_weights</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">cont_cols</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">cat_cols</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">batch_size</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">target</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">args</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">grouper</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">model_str</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">device</span></span></em><span class="sig-paren">)</span><a class="headerlink" href="#gandalf_embeddings.embed" title="Link to this definition"></a></dt>
-<dd><p>Loads a trained GANDALF model and extracts intermediate
-feature representations through a forward hook on the
-model backbone.</p>
-<p>The embeddings are combined with their corresponding labels
-and optional grouping information.</p>
-<p>Results are saved to <code class="docutils literal notranslate"><span class="pre">GANDALF_embeddings.parquet</span></code>.</p>
+<dd><p>Extracts intermediate feature representations from a
+trained GANDALF model.</p>
+<dl class="field-list simple">
+<dt class="field-odd">Parameters<span class="colon">:</span></dt>
+<dd class="field-odd"><ul class="simple">
+<li><p><strong>eval_df</strong> – Path to the input Parquet dataset.</p></li>
+<li><p><strong>out</strong> – Directory for embedding outputs.</p></li>
+<li><p><strong>model_weights</strong> – Directory containing the trained model.</p></li>
+<li><p><strong>cont_cols</strong> – Continuous feature columns.</p></li>
+<li><p><strong>cat_cols</strong> – Categorical feature columns.</p></li>
+<li><p><strong>batch_size</strong> – Configured batch size.</p></li>
+<li><p><strong>target</strong> – Name of the target column.</p></li>
+<li><p><strong>args</strong> – Parsed configuration arguments.</p></li>
+<li><p><strong>grouper</strong> – Optional grouping column.</p></li>
+<li><p><strong>model_str</strong> – Model identifier.</p></li>
+<li><p><strong>device</strong> – Device used for inference.</p></li>
+</ul>
+</dd>
+</dl>
+<p>The function loads the trained model using
+<code class="docutils literal notranslate"><span class="pre">TabularModel.load_model()</span></code> and registers a forward hook
+on the model’s backbone.</p>
+<p>Embeddings are captured from the backbone outputs during
+<code class="docutils literal notranslate"><span class="pre">TabularModel.predict()</span></code>.</p>
+<p>Using the fitted model’s prediction interface preserves
+the categorical encodings and continuous feature
+transformations established during training.</p>
+<p>The extracted feature representations are combined with
+their corresponding target labels and optional grouping
+information.</p>
+<p>The resulting DataFrame is saved to
+<code class="docutils literal notranslate"><span class="pre">GANDALF_embeddings.parquet</span></code>.</p>
 </dd></dl>
 
 </section>
 <section id="tabpfn-embeddings">
 <h3>TabPFN Embeddings<a class="headerlink" href="#tabpfn-embeddings" title="Link to this heading"></a></h3>
+<p><strong>Entry point:</strong> <code class="docutils literal notranslate"><span class="pre">tabpfn_embeddings.get_tabpfn_embeddings</span></code></p>
 <dl class="py function">
 <dt class="sig sig-object py" id="tabpfn_embeddings.get_tabpfn_embeddings">
 <span class="sig-prename descclassname"><span class="pre">tabpfn_embeddings.</span></span><span class="sig-name descname"><span class="pre">get_tabpfn_embeddings</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">X_train</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">y_train</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">X_eval</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">y_eval</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">out</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">args</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">model_path</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">mode</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">finetuning_mode</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">model_str</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">grouper</span></span></em><span class="sig-paren">)</span><a class="headerlink" href="#tabpfn_embeddings.get_tabpfn_embeddings" title="Link to this definition"></a></dt>
-<dd><p>Extracts tabular feature representations using the
-<code class="docutils literal notranslate"><span class="pre">TabPFNEmbedding</span></code> utility from a fitted or fine-tuned
-TabPFN classifier or regressor.</p>
-<p>The extraction process uses training data as context
-and generates embeddings for evaluation samples.</p>
-<p>The resulting DataFrame includes extracted embeddings,
-target labels, and optional grouping information.</p>
-<p>Embeddings are saved in Parquet format as
-<code class="docutils literal notranslate"><span class="pre">TABPFN_cls_embeddings.parquet</span></code> or
-<code class="docutils literal notranslate"><span class="pre">TABPFN_reg_embeddings.parquet</span></code>.</p>
+<dd><p>Extracts numerical feature representations using a
+fitted or fine-tuned TabPFN classifier or regressor.</p>
+<dl class="field-list simple">
+<dt class="field-odd">Parameters<span class="colon">:</span></dt>
+<dd class="field-odd"><ul class="simple">
+<li><p><strong>X_train</strong> – Training features used as context.</p></li>
+<li><p><strong>y_train</strong> – Training target values.</p></li>
+<li><p><strong>X_eval</strong> – Features for embedding extraction.</p></li>
+<li><p><strong>y_eval</strong> – Corresponding evaluation target values.</p></li>
+<li><p><strong>out</strong> – Directory for embedding outputs.</p></li>
+<li><p><strong>args</strong> – Parsed configuration arguments.</p></li>
+<li><p><strong>model_path</strong> – Path to the saved TabPFN model.</p></li>
+<li><p><strong>mode</strong> – Task mode, either <code class="docutils literal notranslate"><span class="pre">cls</span></code> or <code class="docutils literal notranslate"><span class="pre">reg</span></code>.</p></li>
+<li><p><strong>finetuning_mode</strong> – Whether the model was fine-tuned.</p></li>
+<li><p><strong>model_str</strong> – Model identifier.</p></li>
+<li><p><strong>grouper</strong> – Optional grouping column.</p></li>
+</ul>
+</dd>
+</dl>
+<p>The function loads the appropriate TabPFN estimator
+according to the fine-tuning configuration.</p>
+<p>A <code class="docutils literal notranslate"><span class="pre">TabPFNEmbedding</span></code> instance is initialized using the
+loaded classifier or regressor, with <code class="docutils literal notranslate"><span class="pre">n_fold=0</span></code>.</p>
+<p>Embeddings are generated through <code class="docutils literal notranslate"><span class="pre">get_embeddings()</span></code>,
+which receives the training observations as context
+and extracts representations for the evaluation samples.</p>
+<p>The extracted embeddings are combined with target labels
+and optional grouping information to be saved as a Parquet DataFrame.</p>
 </dd></dl>
 
 </section>

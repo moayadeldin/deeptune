@@ -12,11 +12,13 @@ Running Text Classification with DeepTune
 
 - `Bidirectional Encoder Representations from Transformers (BERT) <https://arxiv.org/abs/1810.04805>`_ (HuggingFace Transformers). The model versions supported are: 'bert_multilingual_uncased' which is called 'bert' in the CLI.
 
-- `Generative Pre-trained Transformer 2 (GPT-2) <https://huggingface.co/docs/transformers/en/model_doc/gpt2>`_ (HuggingFace Transformers). The model versions supported are: 'gpt2' which is called 'gpt2' in the CLI.
+- `Generative Pre-trained Transformer 2 (GPT-2) <https://huggingface.co/docs/transformers/en/model_doc/gpt2>`_ (Transformers). The model versions supported are: 'gpt2' which is called 'gpt2' in the CLI.
 
-.. note ::
+.. note::
 
-For BERT, the number of classes must be specified in the CLI command, while for GPT-2, it is not required as it is a generative model that can handle multiple classes without explicit specification. Execute the following command to run sentiment analysis using BERT in **DeepTune**:
+   For BERT, the number of classes must be specified in the CLI command, while for GPT-2, it is not required as it is a generative model that can handle multiple classes without explicit specification. 
+   
+Execute the following command to run sentiment analysis using BERT in **DeepTune**:
 
 .. code-block:: console
 

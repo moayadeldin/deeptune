@@ -75,6 +75,12 @@
 <li class="toctree-l1"><a class="reference internal" href="tabularworkflow.html">Tabular Workflow Components</a></li>
 <li class="toctree-l1"><a class="reference internal" href="../configurations/tabularconfig.html">Tabular Classification &amp; Regression Parameters Reference</a></li>
 </ul>
+<p class="caption" role="heading"><span class="caption-text">Coordinate Regression</span></p>
+<ul>
+<li class="toctree-l1"><a class="reference internal" href="coordinateregression.html">Coordinate Regression</a></li>
+<li class="toctree-l1"><a class="reference internal" href="coordinateregressionworkflow.html">Coordinate Regression Workflow Components</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../configurations/coordinate_regression_config.html">Coordinate Regression Configuration Parameters</a></li>
+</ul>
 <p class="caption" role="heading"><span class="caption-text">Time Series Forecasting</span></p>
 <ul>
 <li class="toctree-l1"><a class="reference internal" href="timeseries.html">Time Series Forecasting</a></li>
@@ -128,7 +134,8 @@
 <li><p><a class="reference external" href="https://docs.pytorch.org/vision/main/models/convnext.html">ConvNeXt</a> (PyTorch). The model versions supported are: ‘convnext_tiny’, ‘convnext_small’, ‘convnext_base’, or ‘convnext_large’.</p></li>
 <li><p><a class="reference external" href="https://huggingface.co/docs/transformers/en/model_doc/siglip">Sigmoid Loss for Language Image Pre-Training (SiGLip)</a> (HuggingFace Transformers). The only supported version is ‘siglip_so400m_patch14_384’, which is called ‘siglip’ in the CLI.</p></li>
 </ul>
-<div class="highlight-console notranslate"><div class="highlight"><pre><span></span><span class="gp gp-VirtualEnv">(.deeptune)</span> <span class="gp">$ </span>python<span class="w"> </span>-m<span class="w"> </span>deeptune<span class="w"> </span><span class="se">\</span>
+<div class="highlight-console notranslate"><div class="highlight"><pre><span></span><span class="gp"># </span>--grouper<span class="w"> </span>&lt;grouper_column_name&gt;<span class="w"> </span>is<span class="w"> </span>only<span class="w"> </span>applicable<span class="w"> </span>with<span class="w"> </span>grouped<span class="w"> </span>cross-validation<span class="w"> </span>tasks
+<span class="gp gp-VirtualEnv">(.deeptune)</span> <span class="gp">$ </span>python<span class="w"> </span>-m<span class="w"> </span>deeptune<span class="w"> </span><span class="se">\</span>
 <span class="w">    </span>--modality<span class="w"> </span>image<span class="w"> </span><span class="se">\</span>
 <span class="w">    </span>--mode<span class="w"> </span>cls<span class="w"> </span><span class="se">\</span>
 <span class="w">    </span>--model<span class="w"> </span>&lt;model_version&gt;<span class="w"> </span><span class="se">\</span>
@@ -138,12 +145,12 @@
 <span class="w">    </span>--num_classes<span class="w"> </span>&lt;num_classes&gt;<span class="w"> </span><span class="se">\</span>
 <span class="w">    </span>--num_epochs<span class="w"> </span>&lt;num_epochs&gt;<span class="w"> </span><span class="se">\</span>
 <span class="w">    </span>--learning_rate<span class="w"> </span>&lt;learning_rate&gt;<span class="w"> </span><span class="se">\</span>
-<span class="w">    </span>--grouper<span class="w"> </span>&lt;grouper_column_name&gt;<span class="w"> </span><span class="se">\ </span>//<span class="w"> </span>only<span class="w"> </span><span class="k">for</span><span class="w"> </span>grouped<span class="w"> </span>cross-validation
-<span class="go">    --out &lt;output_directory&gt; \</span>
-<span class="go">    --fixed-seed \</span>
-<span class="go">    --use-peft \</span>
-<span class="go">    --freeze-backbone \</span>
-<span class="go">    --raw-data \</span>
+<span class="w">    </span>--grouper<span class="w"> </span>&lt;grouper_column_name&gt;<span class="w"> </span><span class="se">\</span>
+<span class="w">    </span>--out<span class="w"> </span>&lt;output_directory&gt;<span class="w"> </span><span class="se">\</span>
+<span class="w">    </span>--fixed-seed<span class="w"> </span><span class="se">\</span>
+<span class="w">    </span>--use-peft<span class="w"> </span><span class="se">\</span>
+<span class="w">    </span>--freeze-backbone<span class="w"> </span><span class="se">\</span>
+<span class="w">    </span>--raw-data<span class="w"> </span><span class="se">\</span>
 </pre></div>
 </div>
 <p>After conducting a successfull experiment of <strong>DeepTune</strong> for image classification, the results will be saved in the specified output directory. The results include the dataset splits, trained model, training logs, evaluation metrics, and the knowledge embeddings extracted from the repsective test split. A summary of the experiment will be printed in the terminal, including the best model checkpoint, the evaluation metrics, and the path to the output directory as follows:</p>
@@ -153,7 +160,8 @@
 <section id="running-image-regression-tasks-through-the-cli">
 <h2>Running Image Regression Tasks through the CLI<a class="headerlink" href="#running-image-regression-tasks-through-the-cli" title="Link to this heading"></a></h2>
 <p><strong>DeepTune</strong> supports all the same image regression models as the image classification task, with the exception of the SiGLip model, which is not supported for regression tasks.</p>
-<div class="highlight-console notranslate"><div class="highlight"><pre><span></span><span class="gp gp-VirtualEnv">(.deeptune)</span> <span class="gp">$ </span>python<span class="w"> </span>-m<span class="w"> </span>deeptune<span class="w"> </span><span class="se">\</span>
+<div class="highlight-console notranslate"><div class="highlight"><pre><span></span><span class="gp"># </span>--grouper<span class="w"> </span>&lt;grouper_column_name&gt;<span class="w"> </span>is<span class="w"> </span>only<span class="w"> </span>applicable<span class="w"> </span>with<span class="w"> </span>grouped<span class="w"> </span>cross-validation<span class="w"> </span>tasks
+<span class="gp gp-VirtualEnv">(.deeptune)</span> <span class="gp">$ </span>python<span class="w"> </span>-m<span class="w"> </span>deeptune<span class="w"> </span><span class="se">\</span>
 <span class="w">    </span>--modality<span class="w"> </span>image<span class="w"> </span><span class="se">\</span>
 <span class="w">    </span>--mode<span class="w"> </span>reg<span class="w"> </span><span class="se">\</span>
 <span class="w">    </span>--model<span class="w"> </span>&lt;model_version&gt;<span class="w"> </span><span class="se">\</span>
@@ -162,12 +170,12 @@
 <span class="w">    </span>--batch_size<span class="w"> </span>&lt;batch_size&gt;<span class="w"> </span><span class="se">\</span>
 <span class="w">    </span>--num_epochs<span class="w"> </span>&lt;num_epochs&gt;<span class="w"> </span><span class="se">\</span>
 <span class="w">    </span>--learning_rate<span class="w"> </span>&lt;learning_rate&gt;<span class="w"> </span><span class="se">\</span>
-<span class="w">    </span>--grouper<span class="w"> </span>&lt;grouper_column_name&gt;<span class="w"> </span><span class="se">\ </span>//<span class="w"> </span>only<span class="w"> </span><span class="k">for</span><span class="w"> </span>grouped<span class="w"> </span>cross-validation
-<span class="go">    --out &lt;output_directory&gt; \</span>
-<span class="go">    --fixed-seed \</span>
-<span class="go">    --use-peft \</span>
-<span class="go">    --freeze-backbone \</span>
-<span class="go">    --raw-data \</span>
+<span class="w">    </span>--grouper<span class="w"> </span>&lt;grouper_column_name&gt;<span class="w"> </span><span class="se">\</span>
+<span class="w">    </span>--out<span class="w"> </span>&lt;output_directory&gt;<span class="w"> </span><span class="se">\</span>
+<span class="w">    </span>--fixed-seed<span class="w"> </span><span class="se">\</span>
+<span class="w">    </span>--use-peft<span class="w"> </span><span class="se">\</span>
+<span class="w">    </span>--freeze-backbone<span class="w"> </span><span class="se">\</span>
+<span class="w">    </span>--raw-data<span class="w"> </span><span class="se">\</span>
 </pre></div>
 </div>
 <p>Similar to the image classification task, after conducting a successful experiment of <strong>DeepTune</strong> for image regression, the results will be saved in the specified output directory and shown as follows:</p>

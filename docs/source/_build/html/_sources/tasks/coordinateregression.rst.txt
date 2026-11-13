@@ -38,7 +38,7 @@ Running Coordinate Regression Tasks through the DeepTune CLI
 
 After conducting a successful experiment of **DeepTune** for coordinate regression, the results will be saved in the specified output directory. The results include the dataset splits, trained model, and the train/val/evalauation metrics.
 
-.. image:: coord_reg_image.png
+.. image:: coord_reg_img.png
     :width: 800
     :alt: A screenshot of the DeepTune CLI output for a coordinate regression experiment, showing the metrics with the output directory path.
 

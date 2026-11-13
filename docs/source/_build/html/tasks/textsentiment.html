@@ -74,6 +74,12 @@
 <li class="toctree-l1"><a class="reference internal" href="tabularworkflow.html">Tabular Workflow Components</a></li>
 <li class="toctree-l1"><a class="reference internal" href="../configurations/tabularconfig.html">Tabular Classification &amp; Regression Parameters Reference</a></li>
 </ul>
+<p class="caption" role="heading"><span class="caption-text">Coordinate Regression</span></p>
+<ul>
+<li class="toctree-l1"><a class="reference internal" href="coordinateregression.html">Coordinate Regression</a></li>
+<li class="toctree-l1"><a class="reference internal" href="coordinateregressionworkflow.html">Coordinate Regression Workflow Components</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../configurations/coordinate_regression_config.html">Coordinate Regression Configuration Parameters</a></li>
+</ul>
 <p class="caption" role="heading"><span class="caption-text">Time Series Forecasting</span></p>
 <ul>
 <li class="toctree-l1"><a class="reference internal" href="timeseries.html">Time Series Forecasting</a></li>
@@ -119,9 +125,13 @@
 <p><strong>DeepTune</strong> supports the following Text Classification models:</p>
 <ul class="simple">
 <li><p><a class="reference external" href="https://arxiv.org/abs/1810.04805">Bidirectional Encoder Representations from Transformers (BERT)</a> (HuggingFace Transformers). The model versions supported are: ‘bert_multilingual_uncased’ which is called ‘bert’ in the CLI.</p></li>
-<li><p><a class="reference external" href="https://huggingface.co/docs/transformers/en/model_doc/gpt2">Generative Pre-trained Transformer 2 (GPT-2)</a> (HuggingFace Transformers). The model versions supported are: ‘gpt2’ which is called ‘gpt2’ in the CLI.</p></li>
+<li><p><a class="reference external" href="https://huggingface.co/docs/transformers/en/model_doc/gpt2">Generative Pre-trained Transformer 2 (GPT-2)</a> (Transformers). The model versions supported are: ‘gpt2’ which is called ‘gpt2’ in the CLI.</p></li>
 </ul>
-<p>For BERT, the number of classes must be specified in the CLI command, while for GPT-2, it is not required as it is a generative model that can handle multiple classes without explicit specification. Execute the following command to run sentiment analysis using BERT in <strong>DeepTune</strong>:</p>
+<div class="admonition note">
+<p class="admonition-title">Note</p>
+<p>For BERT, the number of classes must be specified in the CLI command, while for GPT-2, it is not required as it is a generative model that can handle multiple classes without explicit specification.</p>
+</div>
+<p>Execute the following command to run sentiment analysis using BERT in <strong>DeepTune</strong>:</p>
 <div class="highlight-console notranslate"><div class="highlight"><pre><span></span><span class="gp gp-VirtualEnv">(.deeptune)</span> <span class="gp">$ </span>python<span class="w"> </span>-m<span class="w"> </span>deeptune<span class="w"> </span><span class="se">\</span>
 <span class="w">    </span>--modality<span class="w"> </span>text<span class="w"> </span><span class="se">\</span>
 <span class="w">    </span>--mode<span class="w"> </span>cls<span class="w"> </span><span class="se">\</span>

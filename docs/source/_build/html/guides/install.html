@@ -76,6 +76,12 @@
 <li class="toctree-l1"><a class="reference internal" href="../tasks/tabularworkflow.html">Tabular Workflow Components</a></li>
 <li class="toctree-l1"><a class="reference internal" href="../configurations/tabularconfig.html">Tabular Classification &amp; Regression Parameters Reference</a></li>
 </ul>
+<p class="caption" role="heading"><span class="caption-text">Coordinate Regression</span></p>
+<ul>
+<li class="toctree-l1"><a class="reference internal" href="../tasks/coordinateregression.html">Coordinate Regression</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../tasks/coordinateregressionworkflow.html">Coordinate Regression Workflow Components</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../configurations/coordinate_regression_config.html">Coordinate Regression Configuration Parameters</a></li>
+</ul>
 <p class="caption" role="heading"><span class="caption-text">Time Series Forecasting</span></p>
 <ul>
 <li class="toctree-l1"><a class="reference internal" href="../tasks/timeseries.html">Time Series Forecasting</a></li>
@@ -118,7 +124,7 @@
 <section id="prerequisites">
 <h2>Prerequisites<a class="headerlink" href="#prerequisites" title="Link to this heading"></a></h2>
 <p>Kindly note that you have to install PyTorch version that matches your CUDA and GPU specifications. You can find the corresponding versions for your GPU <a class="reference external" href="https://pytorch.org/get-started/locally/">here</a>.</p>
-<p>The software was heavily tested on Windows 11 with Python 3.8, and Ubuntu 20.04 with Python 3.10. We expect <strong>DeepTune</strong> to function properly on either of these two operating systems.</p>
+<p>The software was heavily tested on both Windows 11 and Ubuntu 22.04 with Python 3.10. We expect <strong>DeepTune</strong> to function properly on either of these two operating systems. <strong>DeepTune</strong> was not tested on MacOS, consider using a virtual machine or Docker container if you are using MacOS.</p>
 </section>
 <section id="creating-virtual-environment-recommended">
 <h2>Creating Virtual Environment (Recommended)<a class="headerlink" href="#creating-virtual-environment-recommended" title="Link to this heading"></a></h2>
@@ -126,12 +132,12 @@
 <p class="admonition-title">Note</p>
 <p>It is recommended to use a virtual environment to avoid dependencies issues. You can directly install the <code class="docutils literal notranslate"><span class="pre">requirements.txt</span></code> if you want to avoid using virtual envs.</p>
 </div>
-<p>On Windows 11, Python 3.8 and Conda 24.9.2:</p>
-<div class="highlight-console notranslate"><div class="highlight"><pre><span></span><span class="gp">$ </span>conda<span class="w"> </span>create<span class="w"> </span>-n<span class="w"> </span>deeptune
+<p>On Windows 11, Python 3.10 and Conda:</p>
+<div class="highlight-console notranslate"><div class="highlight"><pre><span></span><span class="gp">$ </span>conda<span class="w"> </span>create<span class="w"> </span>-n<span class="w"> </span>deeptune<span class="w"> </span><span class="nv">python</span><span class="o">=</span><span class="m">3</span>.10
 <span class="gp">$ </span>conda<span class="w"> </span>activate<span class="w"> </span>deeptune
 </pre></div>
 </div>
-<p>or using venv on Ubuntu 20.04:</p>
+<p>or using venv ensuring that you have Python 3.10 installed:</p>
 <div class="highlight-console notranslate"><div class="highlight"><pre><span></span><span class="gp">$ </span>python<span class="w"> </span>-m<span class="w"> </span>venv<span class="w"> </span>deeptune
 <span class="gp">$ </span><span class="nb">source</span><span class="w"> </span>deeptune/bin/activate
 </pre></div>

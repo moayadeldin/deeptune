@@ -19,6 +19,7 @@ The following are the configuration parameters for the Time Series Forecasting t
 Model and Training Configuration
 ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
 
+
 .. list-table::
    :header-rows: 1
    :widths: 25 75
@@ -32,7 +33,8 @@ Model and Training Configuration
    * - ``--time_idx_column``
      - The column index of the time series data.
    * - ``--target``
-    - The column index of the target variable in the time series data.
+     - The column index of the target variable in the time series data.
+
 
 Optional Execution Flags
 ~~~~~~~~~~~~~~~~~~~~~~~~

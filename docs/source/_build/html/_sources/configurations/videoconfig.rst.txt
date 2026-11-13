@@ -13,7 +13,7 @@ Dataset and Task Configuration
    * - Parameter
      - Description
    * - ``--modality``
-     - Specifies the input data modality (e.g., ``video``).
+     - Specifies the input data modality (i.e., ``video``).
    * - ``--mode``
      - Defines the machine learning task (i.e., ``cls`` for classification).
    * - ``--target``
@@ -48,6 +48,7 @@ Optional Execution Flags
 
 The following flags enable additional execution and fine-tuning capabilities.
 
+
 .. list-table::
    :header-rows: 1
    :widths: 25 75
@@ -60,8 +61,9 @@ The following flags enable additional execution and fine-tuning capabilities.
      - Enables parameter-efficient fine-tuning (PEFT) for the model.
    * - ``--freeze-backbone``
      - Freezes the backbone of the model during training, allowing only the added layers to be trained.
-    * - ``--raw-data``
+   * - ``--raw-data``
      - Enables processing of raw (non-parquet) input data.
+
 
 Predefined Hyperparameters
 ~~~~~~~~~~~~~~~~~~~~~~~~~~~
@@ -108,25 +110,26 @@ After running the unified CLI command, **DeepTune** will generate an output dire
 .. code-block:: text
 
    output_directory
-   ├── deeptune-<yyyymmdd>-exp<int>
+   └── deeptune-<yyyymmdd>-exp<int>
        ├── <modality>_dataset_<yyyymmdd_hhmm>.parquet
        ├── data_splits_<yyyymmdd_hhmm>
        │   ├── train_split.parquet
        │   ├── val_split.parquet
        │   ├── test_split.parquet
-       │   └── test_indices.csv
-       │   └── split_summary.json
+       │   ├── test_indices.csv
+       │   ├── split_summary.json
        │   └── label_mapping.json
        ├── trainval_output_<model_version>_<yyyymmdd_hhmm>
        │   ├── cli_arguments.json
        │   ├── model_weights.pth
        │   ├── training_details.json
-       │   ├── training_log.csv
+       │   └── training_log.csv
        ├── eval_output_<model_version>_<yyyymmdd_hhmm>
        │   ├── full_metrics.json
        │   ├── cli_arguments.json
        │   └── evaluation_details.json
-       ├── embed_output_<model_version>_<yyyymmdd_hhmm>
+       └── embed_output_<model_version>_<yyyymmdd_hhmm>
            ├── <model_version>_cls_embeddings.parquet
-           ├── cli_arguments.json 
-           ├── embeddings_details.json
+           ├── cli_arguments.json
+           └── embeddings_details.json
+

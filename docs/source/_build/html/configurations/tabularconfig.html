@@ -19,7 +19,7 @@
     <script src="../_static/js/theme.js"></script>
     <link rel="index" title="Index" href="../genindex.html" />
     <link rel="search" title="Search" href="../search.html" />
-    <link rel="next" title="Time Series Forecasting" href="../tasks/timeseries.html" />
+    <link rel="next" title="Coordinate Regression" href="../tasks/coordinateregression.html" />
     <link rel="prev" title="Tabular Workflow Components" href="../tasks/tabularworkflow.html" /> 
 </head>
 
@@ -78,6 +78,12 @@
 </ul>
 </li>
 </ul>
+<p class="caption" role="heading"><span class="caption-text">Coordinate Regression</span></p>
+<ul>
+<li class="toctree-l1"><a class="reference internal" href="../tasks/coordinateregression.html">Coordinate Regression</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../tasks/coordinateregressionworkflow.html">Coordinate Regression Workflow Components</a></li>
+<li class="toctree-l1"><a class="reference internal" href="coordinate_regression_config.html">Coordinate Regression Configuration Parameters</a></li>
+</ul>
 <p class="caption" role="heading"><span class="caption-text">Time Series Forecasting</span></p>
 <ul>
 <li class="toctree-l1"><a class="reference internal" href="../tasks/timeseries.html">Time Series Forecasting</a></li>
@@ -119,9 +125,70 @@
 <span id="tabularconfig"></span><h1>Tabular Classification &amp; Regression Parameters Reference<a class="headerlink" href="#tabular-classification-regression-parameters-reference" title="Link to this heading"></a></h1>
 <section id="dataset-and-task-configuration">
 <h2>Dataset and Task Configuration<a class="headerlink" href="#dataset-and-task-configuration" title="Link to this heading"></a></h2>
+<table class="docutils align-default">
+<colgroup>
+<col style="width: 25.0%" />
+<col style="width: 75.0%" />
+</colgroup>
+<thead>
+<tr class="row-odd"><th class="head"><p>Parameter</p></th>
+<th class="head"><p>Description</p></th>
+</tr>
+</thead>
+<tbody>
+<tr class="row-even"><td><p><code class="docutils literal notranslate"><span class="pre">--modality</span></code></p></td>
+<td><p>Specifies the input data modality (i.e., <code class="docutils literal notranslate"><span class="pre">tabular</span></code>).</p></td>
+</tr>
+<tr class="row-odd"><td><p><code class="docutils literal notranslate"><span class="pre">--mode</span></code></p></td>
+<td><p>Defines the machine learning task for TabPFN (i.e., <code class="docutils literal notranslate"><span class="pre">cls</span></code>
+for classification and <code class="docutils literal notranslate"><span class="pre">reg</span></code> for regression).</p></td>
+</tr>
+<tr class="row-even"><td><p><code class="docutils literal notranslate"><span class="pre">--type</span></code></p></td>
+<td><p>Defines the machine learning task for GANDALF (i.e., <code class="docutils literal notranslate"><span class="pre">classification</span></code>
+for classification and <code class="docutils literal notranslate"><span class="pre">regression</span></code> for regression).</p></td>
+</tr>
+<tr class="row-odd"><td><p><code class="docutils literal notranslate"><span class="pre">--target</span></code></p></td>
+<td><p>Name of the target column containing the prediction labels.</p></td>
+</tr>
+</tbody>
+</table>
 </section>
 <section id="model-and-training-configuration">
 <h2>Model and Training Configuration<a class="headerlink" href="#model-and-training-configuration" title="Link to this heading"></a></h2>
+<table class="docutils align-default">
+<colgroup>
+<col style="width: 25.0%" />
+<col style="width: 75.0%" />
+</colgroup>
+<thead>
+<tr class="row-odd"><th class="head"><p>Parameter</p></th>
+<th class="head"><p>Description</p></th>
+</tr>
+</thead>
+<tbody>
+<tr class="row-even"><td><p><code class="docutils literal notranslate"><span class="pre">--model</span></code></p></td>
+<td><p>Specifies the model version.</p></td>
+</tr>
+<tr class="row-odd"><td><p><code class="docutils literal notranslate"><span class="pre">--batch_size</span></code></p></td>
+<td><p>Number of samples processed in each training batch.</p></td>
+</tr>
+<tr class="row-even"><td><p><code class="docutils literal notranslate"><span class="pre">--num_epochs</span></code></p></td>
+<td><p>Number of training epochs.</p></td>
+</tr>
+<tr class="row-odd"><td><p><code class="docutils literal notranslate"><span class="pre">--learning_rate</span></code></p></td>
+<td><p>Learning rate used by the optimizer.</p></td>
+</tr>
+<tr class="row-even"><td><p><code class="docutils literal notranslate"><span class="pre">--continuous_cols</span></code></p></td>
+<td><p>Names of the continuous columns in the dataset (only for GANDALF).</p></td>
+</tr>
+<tr class="row-odd"><td><p><code class="docutils literal notranslate"><span class="pre">--categorical_cols</span></code></p></td>
+<td><p>Names of the categorical columns in the dataset (only for GANDALF).</p></td>
+</tr>
+<tr class="row-even"><td><p><code class="docutils literal notranslate"><span class="pre">-gflu_stages</span></code></p></td>
+<td><p>Number of Gated Feature Learning Unit (GFLU) stages in the GANDALF model (only for GANDALF).</p></td>
+</tr>
+</tbody>
+</table>
 </section>
 <section id="optional-execution-flags">
 <h2>Optional Execution Flags<a class="headerlink" href="#optional-execution-flags" title="Link to this heading"></a></h2>
@@ -165,51 +232,44 @@ reproducibility.</p></td>
 <section id="unified-cli-output-structure">
 <h2>Unified CLI Output Structure<a class="headerlink" href="#unified-cli-output-structure" title="Link to this heading"></a></h2>
 <p>After running the unified CLI command, <strong>DeepTune</strong> will generate an output directory containing the results of your experiment. The structure of the output will differ whether you are using TabPFN or GANDALF. The output directory will be as follows:</p>
-<blockquote>
-<div><p>output_directory
-├── deeptune-&lt;yyyymmdd&gt;-exp&lt;int&gt;</p>
-<blockquote>
-<div><p>├── &lt;modality&gt;_dataset_&lt;yyyymmdd_hhmm&gt;.parquet
-├── data_splits_&lt;yyyymmdd_hhmm&gt;
-│   ├── train_split.parquet
-│   ├── val_split.parquet
-│   ├── test_split.parquet
-│   └── test_indices.csv
-│   └── label_mapping.json
-│   └── split_summary.json</p>
-</div></blockquote>
-<blockquote>
-<div><p>// GANDALF
-├── trainval_output_&lt;model_version&gt;_&lt;yyyymmdd_hhmm&gt;
-│   ├── GANDALF_model
-│      ├── callbacks.sav
-│      ├── config
-│      └── custom_params.sav
-│      └── datamodule.sav
-│      └── model.ckpt
-│   ├── cli_arguments.json
-│   ├── training_details.json
-│   ├── training_log.csv
-// TabPFN
-├── train_output_&lt;model_version&gt;_&lt;yyyymmdd_hhmm&gt;
-│   ├── cli_arguments.json
-│   ├── &lt;training_or_finetuninig&gt;_details.json
-│   ├── &lt;trained_or_finetuned&gt;_TABPFN_&lt;cls_or_reg&gt;.joblib
-│   ├── training_log.csv</p>
-</div></blockquote>
-<blockquote>
-<div><p>├── eval_output_&lt;model_version&gt;_&lt;yyyymmdd_hhmm&gt;
-│   ├── full_metrics.json
-│   ├── cli_arguments.json
-│   └── evaluation_details.json
-├── embed_output_&lt;model_version&gt;_&lt;yyyymmdd_hhmm&gt;</p>
-<blockquote>
-<div><p>├── &lt;model_version&gt;_&lt;cls_or_reg&gt;_embeddings.parquet
-├── cli_arguments.json
-├── embeddings_details.json</p>
-</div></blockquote>
-</div></blockquote>
-</div></blockquote>
+<div class="highlight-text notranslate"><div class="highlight"><pre><span></span>output_directory
+└── deeptune-&lt;yyyymmdd&gt;-exp&lt;int&gt;
+    ├── &lt;modality&gt;_dataset_&lt;yyyymmdd_hhmm&gt;.parquet
+    ├── data_splits_&lt;yyyymmdd_hhmm&gt;
+    │   ├── train_split.parquet
+    │   ├── val_split.parquet
+    │   ├── test_split.parquet
+    │   ├── test_indices.csv
+    │   ├── label_mapping.json
+    │   └── split_summary.json
+    │   // GANDALF
+    ├── trainval_output_&lt;model_version&gt;_&lt;yyyymmdd_hhmm&gt;
+    │   ├── GANDALF_model
+    │   │   ├── callbacks.sav
+    │   │   ├── config
+    │   │   ├── custom_params.sav
+    │   │   ├── datamodule.sav
+    │   │   └── model.ckpt
+    │   ├── cli_arguments.json
+    │   ├── training_details.json
+    │   └── training_log.csv
+    │   // TabPFN
+    ├── train_output_&lt;model_version&gt;_&lt;yyyymmdd_hhmm&gt;
+    │   ├── cli_arguments.json
+    │   ├── &lt;training_or_finetuning&gt;_details.json
+    │   ├── &lt;trained_or_finetuned&gt;_TABPFN_&lt;cls_or_reg&gt;.joblib
+    │   └── training_log.csv
+    │
+    ├── eval_output_&lt;model_version&gt;_&lt;yyyymmdd_hhmm&gt;
+    │   ├── full_metrics.json
+    │   ├── cli_arguments.json
+    │   └── evaluation_details.json
+    └── embed_output_&lt;model_version&gt;_&lt;yyyymmdd_hhmm&gt;
+        ├── &lt;model_version&gt;_&lt;cls_or_reg&gt;_embeddings.parquet
+        ├── cli_arguments.json
+        └── embeddings_details.json
+</pre></div>
+</div>
 </section>
 </section>
 
@@ -218,7 +278,7 @@ reproducibility.</p></td>
           </div>
           <footer><div class="rst-footer-buttons" role="navigation" aria-label="Footer">
         <a href="../tasks/tabularworkflow.html" class="btn btn-neutral float-left" title="Tabular Workflow Components" accesskey="p" rel="prev"><span class="fa fa-arrow-circle-left" aria-hidden="true"></span> Previous</a>
-        <a href="../tasks/timeseries.html" class="btn btn-neutral float-right" title="Time Series Forecasting" accesskey="n" rel="next">Next <span class="fa fa-arrow-circle-right" aria-hidden="true"></span></a>
+        <a href="../tasks/coordinateregression.html" class="btn btn-neutral float-right" title="Coordinate Regression" accesskey="n" rel="next">Next <span class="fa fa-arrow-circle-right" aria-hidden="true"></span></a>
     </div>
 
   <hr/>

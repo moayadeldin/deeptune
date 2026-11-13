@@ -78,6 +78,12 @@
 <li class="toctree-l1"><a class="reference internal" href="../tasks/tabularworkflow.html">Tabular Workflow Components</a></li>
 <li class="toctree-l1"><a class="reference internal" href="tabularconfig.html">Tabular Classification &amp; Regression Parameters Reference</a></li>
 </ul>
+<p class="caption" role="heading"><span class="caption-text">Coordinate Regression</span></p>
+<ul>
+<li class="toctree-l1"><a class="reference internal" href="../tasks/coordinateregression.html">Coordinate Regression</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../tasks/coordinateregressionworkflow.html">Coordinate Regression Workflow Components</a></li>
+<li class="toctree-l1"><a class="reference internal" href="coordinate_regression_config.html">Coordinate Regression Configuration Parameters</a></li>
+</ul>
 <p class="caption" role="heading"><span class="caption-text">Time Series Forecasting</span></p>
 <ul>
 <li class="toctree-l1"><a class="reference internal" href="../tasks/timeseries.html">Time Series Forecasting</a></li>
@@ -194,7 +200,7 @@ fine-tuning capabilities.</p>
 reproducibility.</p></td>
 </tr>
 <tr class="row-odd"><td><p><code class="docutils literal notranslate"><span class="pre">--use-peft</span></code></p></td>
-<td><p>Enables parameter-efficient fine-tuning (PEFT). Only applicable for BERT as GPT-2 does not support PEFT in DeepTune.</p></td>
+<td><p>Enables parameter-efficient fine-tuning (PEFT). Only applicable for BERT as GPT-2 does not support PEFT in <strong>DeepTune</strong>.</p></td>
 </tr>
 <tr class="row-even"><td><p><code class="docutils literal notranslate"><span class="pre">--raw-data</span></code></p></td>
 <td><p>Enables processing of CSV/XLSX (non-parquet) input data.</p></td>
@@ -217,58 +223,60 @@ allowing the prediction head to be trained.</p></td>
 <section id="unified-cli-output-structure">
 <h2>Unified CLI Output Structure<a class="headerlink" href="#unified-cli-output-structure" title="Link to this heading"></a></h2>
 <p>After running the unified CLI command, <strong>DeepTune</strong> will generate an output directory containing the results of your experiment. The structure of the output directory in case of GPT2 will differ from that of BERT given the training weights that are generated. The structure will be as follows:</p>
+<div class="highlight-text notranslate"><div class="highlight"><pre><span></span>
+</pre></div>
+</div>
 <div class="highlight-text notranslate"><div class="highlight"><pre><span></span>output_directory
-├── deeptune-&lt;yyyymmdd&gt;-exp&lt;int&gt;
+└── deeptune-&lt;yyyymmdd&gt;-exp&lt;int&gt;
     ├── &lt;modality&gt;_dataset_&lt;yyyymmdd_hhmm&gt;.parquet
     ├── data_splits_&lt;yyyymmdd_hhmm&gt;
     │   ├── train_split.parquet
     │   ├── val_split.parquet
     │   ├── test_split.parquet
-    │   └── test_indices.csv
-    │   └── label_mapping.json
+    │   ├── test_indices.csv
+    │   ├── label_mapping.json
     │   └── split_summary.json
-------------------------------------------------------------------------
+    │
     // GPT2
     ├── trainval_output_&lt;model_version&gt;_&lt;yyyymmdd_hhmm&gt;
     │   ├── tokenizer
-    │      ├── merges.txt
-    │      ├── vocab.json
-    │      └── tokenizer_config.json
-    │      └── special_tokens_map.json
+    │   │   ├── merges.txt
+    │   │   ├── vocab.json
+    │   │   ├── tokenizer_config.json
+    │   │   └── special_tokens_map.json
     │   ├── bert_model
-    │      ├── model.safetensors
-    │      ├── config.json
+    │   │   ├── model.safetensors
+    │   │   └── config.json
     │   ├── cli_arguments.json
     │   ├── model_weights.pth
     │   ├── model_config.json
     │   ├── training_details.json
-    │   ├── training_log.csv
-
-
+    │   └── training_log.csv
+    │
     // BERT
-    │   ├── trainval_output_&lt;model_version&gt;_&lt;yyyymmdd_hhmm&gt;
+    ├── trainval_output_&lt;model_version&gt;_&lt;yyyymmdd_hhmm&gt;
     │   ├── tokenizer
-    │      ├── merges.txt
-    │      ├── vocab.json
-    │      └── tokenizer_config.json
-    │      └── special_tokens_map.json
+    │   │   ├── merges.txt
+    │   │   ├── vocab.json
+    │   │   ├── tokenizer_config.json
+    │   │   └── special_tokens_map.json
     │   ├── bert_model
-    │      ├── adapter_config.json
-    │      ├── adapter_model.safetensors
+    │   │   ├── adapter_config.json
+    │   │   └── adapter_model.safetensors
     │   ├── cli_arguments.json
     │   ├── model_weights.pth
     │   ├── model_config.json
     │   ├── training_details.json
-    │   ├── training_log.csv
-------------------------------------------------------------------------
+    │   └── training_log.csv
+    │
     ├── eval_output_&lt;model_version&gt;_&lt;yyyymmdd_hhmm&gt;
     │   ├── full_metrics.json
     │   ├── cli_arguments.json
     │   └── evaluation_details.json
-    ├── embed_output_&lt;model_version&gt;_&lt;yyyymmdd_hhmm&gt;
+    └── embed_output_&lt;model_version&gt;_&lt;yyyymmdd_hhmm&gt;
         ├── &lt;model_version&gt;_cls_embeddings.parquet
         ├── cli_arguments.json
-        ├── embeddings_details.json
+        └── embeddings_details.json
 </pre></div>
 </div>
 </section>

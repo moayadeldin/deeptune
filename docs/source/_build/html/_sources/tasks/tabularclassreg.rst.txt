@@ -18,18 +18,21 @@ For the tabular classification/regression task using Gandalf, the following comm
 
 .. code-block:: console
 
+    # --continuous_cols <continuous_column_names> is only applicable with GANDALF
+    # --categorical_cols <categorical_column_names> is only applicable with GANDALF
+    # --gflu_stages <int> is only applicable with GANDALF
     (.deeptune) $ python -m deeptune \
         --modality tabular \
         --type <classification_or_regression> \
         --model gandalf \
         --df <dataset_path> \
         --target <target_column_name> \
-        --continuous_cols <continuous_column_names> \ // only for GANDALF
-        --categorical_cols <categorical_column_names> \ // only for GANDALF
+        --continuous_cols <continuous_column_names> \
+        --categorical_cols <categorical_column_names> \
         --batch_size <batch_size> \
         --num_epochs <num_epochs> \
         --learning_rate <learning_rate> \
-        --gflu_stages <int> \ // only for GANDALF
+        --gflu_stages <int> \
         --out <output_directory> \
         --fixed-seed \
 

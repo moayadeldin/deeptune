@@ -1,7 +1,7 @@
 .. _tabularconfig:
 
 Tabular Classification & Regression Parameters Reference
-------------------------------------------------------
+----------------------------------------------------------
 
 Dataset and Task Configuration
 ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
@@ -17,11 +17,12 @@ Dataset and Task Configuration
    * - ``--mode``
      - Defines the machine learning task for TabPFN (i.e., ``cls``
        for classification and ``reg`` for regression).
-    * - ``--type``
-        - Defines the machine learning task for GANDALF (i.e., ``classification``
-        for classification and ``regression`` for regression).
+   * - ``--type``
+     - Defines the machine learning task for GANDALF (i.e., ``classification``
+       for classification and ``regression`` for regression).
    * - ``--target``
      - Name of the target column containing the prediction labels.
+
 
 Model and Training Configuration
 ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
@@ -40,12 +41,13 @@ Model and Training Configuration
      - Number of training epochs.
    * - ``--learning_rate``
      - Learning rate used by the optimizer.
-    * - ``--continuous_cols``
-        - Names of the continuous columns in the dataset (only for GANDALF).
-    * - ``--categorical_cols``
-        - Names of the categorical columns in the dataset (only for GANDALF).
-    * - ``-gflu_stages``
-        - Number of Gated Feature Learning Unit (GFLU) stages in the GANDALF model (only for GANDALF).
+   * - ``--continuous_cols``
+     - Names of the continuous columns in the dataset (only for GANDALF).
+   * - ``--categorical_cols``
+     - Names of the categorical columns in the dataset (only for GANDALF).
+   * - ``-gflu_stages``
+     - Number of Gated Feature Learning Unit (GFLU) stages in the GANDALF model (only for GANDALF).
+
 
 Optional Execution Flags
 ~~~~~~~~~~~~~~~~~~~~~~~~
@@ -81,40 +83,46 @@ Unified CLI Output Structure
 ~~~~~~~~~~~~~~~~~~~~~~~~~~~~
 After running the unified CLI command, **DeepTune** will generate an output directory containing the results of your experiment. The structure of the output will differ whether you are using TabPFN or GANDALF. The output directory will be as follows:
 
+
+
+.. code-block:: text
+
    output_directory
-   ├── deeptune-<yyyymmdd>-exp<int>
+   └── deeptune-<yyyymmdd>-exp<int>
        ├── <modality>_dataset_<yyyymmdd_hhmm>.parquet
        ├── data_splits_<yyyymmdd_hhmm>
        │   ├── train_split.parquet
        │   ├── val_split.parquet
        │   ├── test_split.parquet
-       │   └── test_indices.csv
-       │   └── label_mapping.json
+       │   ├── test_indices.csv
+       │   ├── label_mapping.json
        │   └── split_summary.json
-   ------------------------------------------------------------------------
-       // GANDALF
+       
+       │   // GANDALF
        ├── trainval_output_<model_version>_<yyyymmdd_hhmm>
        │   ├── GANDALF_model
-       │      ├── callbacks.sav
-       │      ├── config
-       │      └── custom_params.sav
-       │      └── datamodule.sav
-       │      └── model.ckpt
+       │   │   ├── callbacks.sav
+       │   │   ├── config
+       │   │   ├── custom_params.sav
+       │   │   ├── datamodule.sav
+       │   │   └── model.ckpt
        │   ├── cli_arguments.json
        │   ├── training_details.json
-       │   ├── training_log.csv
-       // TabPFN
+       │   └── training_log.csv
+
+       │   // TabPFN
        ├── train_output_<model_version>_<yyyymmdd_hhmm>
        │   ├── cli_arguments.json
-       │   ├── <training_or_finetuninig>_details.json
+       │   ├── <training_or_finetuning>_details.json
        │   ├── <trained_or_finetuned>_TABPFN_<cls_or_reg>.joblib
-       │   ├── training_log.csv   
-   ------------------------------------------------------------------------
+       │   └── training_log.csv
+       │
        ├── eval_output_<model_version>_<yyyymmdd_hhmm>
        │   ├── full_metrics.json
        │   ├── cli_arguments.json
        │   └── evaluation_details.json
-       ├── embed_output_<model_version>_<yyyymmdd_hhmm>
+       └── embed_output_<model_version>_<yyyymmdd_hhmm>
            ├── <model_version>_<cls_or_reg>_embeddings.parquet
-           ├── cli_arguments.json 
-           ├── embeddings_details.json
+           ├── cli_arguments.json
+           └── embeddings_details.json
+

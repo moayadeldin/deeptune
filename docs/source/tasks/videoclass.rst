@@ -22,6 +22,8 @@ Running Clip-Level Action Classification Tasks through Deeptune
 
 .. code-block:: console
 
+    # --num_frames <num_frames> is only applicable with video models that support frame sampling
+    # --pooling <pooling_method> is only applicable with video models that support pooling
     (.deeptune) $ python -m deeptune \
         --modality video \
         --mode cls \
@@ -32,8 +34,8 @@ Running Clip-Level Action Classification Tasks through Deeptune
         --num_classes <num_classes> \
         --num_epochs <num_epochs> \
         --learning_rate <learning_rate> \
-        --num_frames <num_frames> \ // only for video models that support frame sampling
-        --pooling <pooling_method> \ // only for video models that support pooling. DeepTune supports 'mean' and 'attention' pooling methods.
+        --num_frames <num_frames> \
+        --pooling <pooling_method> \
         --out <output_directory> \
         --fixed-seed \
         --use-peft \

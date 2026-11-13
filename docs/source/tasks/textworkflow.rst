@@ -149,4 +149,4 @@ The implementation supports pretrained and fine-tuned
 configurations, without PEFT support.
 
 For both models, extracted representations are combined
-with their associated labels and available dataset metadata, then exported in Parquet format.
+with their associated labels then exported in Parquet format.

@@ -56,7 +56,7 @@ fine-tuning capabilities.
      - Enables fixed random seeds to improve experiment
        reproducibility.
    * - ``--use-peft``
-     - Enables parameter-efficient fine-tuning (PEFT). Only applicable for BERT as GPT-2 does not support PEFT in DeepTune.
+     - Enables parameter-efficient fine-tuning (PEFT). Only applicable for BERT as GPT-2 does not support PEFT in **DeepTune**.
    * - ``--raw-data``
      - Enables processing of CSV/XLSX (non-parquet) input data.
    * - ``--freeze-backbone``
@@ -76,55 +76,57 @@ After running the unified CLI command, **DeepTune** will generate an output dire
 
 .. code-block:: text
 
+
+.. code-block:: text
+
    output_directory
-   ├── deeptune-<yyyymmdd>-exp<int>
+   └── deeptune-<yyyymmdd>-exp<int>
        ├── <modality>_dataset_<yyyymmdd_hhmm>.parquet
        ├── data_splits_<yyyymmdd_hhmm>
        │   ├── train_split.parquet
        │   ├── val_split.parquet
        │   ├── test_split.parquet
-       │   └── test_indices.csv
-       │   └── label_mapping.json
+       │   ├── test_indices.csv
+       │   ├── label_mapping.json
        │   └── split_summary.json
-   ------------------------------------------------------------------------
+       │
        // GPT2
        ├── trainval_output_<model_version>_<yyyymmdd_hhmm>
        │   ├── tokenizer
-       │      ├── merges.txt
-       │      ├── vocab.json
-       │      └── tokenizer_config.json
-       │      └── special_tokens_map.json
+       │   │   ├── merges.txt
+       │   │   ├── vocab.json
+       │   │   ├── tokenizer_config.json
+       │   │   └── special_tokens_map.json
        │   ├── bert_model
-       │      ├── model.safetensors
-       │      ├── config.json
+       │   │   ├── model.safetensors
+       │   │   └── config.json
        │   ├── cli_arguments.json
        │   ├── model_weights.pth
        │   ├── model_config.json
        │   ├── training_details.json
-       │   ├── training_log.csv
-
-       
+       │   └── training_log.csv
+       │
        // BERT
-       │   ├── trainval_output_<model_version>_<yyyymmdd_hhmm>
+       ├── trainval_output_<model_version>_<yyyymmdd_hhmm>
        │   ├── tokenizer
-       │      ├── merges.txt
-       │      ├── vocab.json
-       │      └── tokenizer_config.json
-       │      └── special_tokens_map.json
+       │   │   ├── merges.txt
+       │   │   ├── vocab.json
+       │   │   ├── tokenizer_config.json
+       │   │   └── special_tokens_map.json
        │   ├── bert_model
-       │      ├── adapter_config.json
-       │      ├── adapter_model.safetensors
+       │   │   ├── adapter_config.json
+       │   │   └── adapter_model.safetensors
        │   ├── cli_arguments.json
        │   ├── model_weights.pth
        │   ├── model_config.json
        │   ├── training_details.json
-       │   ├── training_log.csv   
-   ------------------------------------------------------------------------
+       │   └── training_log.csv
+       │
        ├── eval_output_<model_version>_<yyyymmdd_hhmm>
        │   ├── full_metrics.json
        │   ├── cli_arguments.json
        │   └── evaluation_details.json
-       ├── embed_output_<model_version>_<yyyymmdd_hhmm>
+       └── embed_output_<model_version>_<yyyymmdd_hhmm>
            ├── <model_version>_cls_embeddings.parquet
-           ├── cli_arguments.json 
-           ├── embeddings_details.json
+           ├── cli_arguments.json
+           └── embeddings_details.json

@@ -81,8 +81,7 @@ has shape ``[B, T, C, H, W]``, where ``T`` is the number of sampled frames.
 .. py:class:: Trainer(model, train_loader, val_loader, learning_rate, mode, num_epochs, output_dir)
 
    Trains and validates either video model family using the shared
-   vision training loop. Classification uses Cross-Entropy Loss;
-   regression uses Mean Squared Error (MSE).
+   vision training loop. Classification uses Cross-Entropy Loss.
 
    .. py:method:: train()
 

@@ -21,6 +21,7 @@ Running Image Classification Tasks through Deeptune
 
 .. code-block:: console
 
+    # --grouper <grouper_column_name> is only applicable with grouped cross-validation tasks
     (.deeptune) $ python -m deeptune \
         --modality image \
         --mode cls \
@@ -31,7 +32,7 @@ Running Image Classification Tasks through Deeptune
         --num_classes <num_classes> \
         --num_epochs <num_epochs> \
         --learning_rate <learning_rate> \
-        --grouper <grouper_column_name> \ // only for grouped cross-validation
+        --grouper <grouper_column_name> \
         --out <output_directory> \
         --fixed-seed \
         --use-peft \
@@ -51,6 +52,7 @@ Running Image Regression Tasks through the CLI
 
 .. code-block:: console
 
+    # --grouper <grouper_column_name> is only applicable with grouped cross-validation tasks
     (.deeptune) $ python -m deeptune \
         --modality image \
         --mode reg \
@@ -60,7 +62,7 @@ Running Image Regression Tasks through the CLI
         --batch_size <batch_size> \
         --num_epochs <num_epochs> \
         --learning_rate <learning_rate> \
-        --grouper <grouper_column_name> \ // only for grouped cross-validation
+        --grouper <grouper_column_name> \ 
         --out <output_directory> \
         --fixed-seed \
         --use-peft \

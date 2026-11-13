@@ -14,7 +14,7 @@ Dataset and Task Configuration
    * - Parameter
      - Description
    * - ``--modality``
-     - Specifies the input data modality (e.g., ``image``).
+     - Specifies the input data modality (i.e., ``image``).
    * - ``--mode``
      - Defines the machine learning task (i.e., ``cls``
        for classification and ``reg`` for regression).
@@ -133,26 +133,27 @@ After running the unified CLI command, **DeepTune** will generate an output dire
 
 .. code-block:: text
 
+
    output_directory
-   ├── deeptune-<yyyymmdd>-exp<int>
+   └── deeptune-<yyyymmdd>-exp<int>
        ├── <modality>_dataset_<yyyymmdd_hhmm>.parquet
        ├── data_splits_<yyyymmdd_hhmm>
        │   ├── train_split.parquet
        │   ├── val_split.parquet
        │   ├── test_split.parquet
-       │   └── test_indices.csv
-       │   └── label_mapping.json
+       │   ├── test_indices.csv
+       │   ├── label_mapping.json
        │   └── split_summary.json
        ├── trainval_output_<model_version>_<yyyymmdd_hhmm>
        │   ├── cli_arguments.json
        │   ├── model_weights.pth
        │   ├── training_details.json
-       │   ├── training_log.csv
+       │   └── training_log.csv
        ├── eval_output_<model_version>_<yyyymmdd_hhmm>
        │   ├── full_metrics.json
        │   ├── cli_arguments.json
        │   └── evaluation_details.json
-       ├── embed_output_<model_version>_<yyyymmdd_hhmm>
+       └── embed_output_<model_version>_<yyyymmdd_hhmm>
            ├── <model_version>_cls_embeddings.parquet
-           ├── cli_arguments.json 
-           ├── embeddings_details.json
+           ├── cli_arguments.json
+           └── embeddings_details.json

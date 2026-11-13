@@ -74,6 +74,12 @@
 <li class="toctree-l1"><a class="reference internal" href="tabularworkflow.html">Tabular Workflow Components</a></li>
 <li class="toctree-l1"><a class="reference internal" href="../configurations/tabularconfig.html">Tabular Classification &amp; Regression Parameters Reference</a></li>
 </ul>
+<p class="caption" role="heading"><span class="caption-text">Coordinate Regression</span></p>
+<ul>
+<li class="toctree-l1"><a class="reference internal" href="coordinateregression.html">Coordinate Regression</a></li>
+<li class="toctree-l1"><a class="reference internal" href="coordinateregressionworkflow.html">Coordinate Regression Workflow Components</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../configurations/coordinate_regression_config.html">Coordinate Regression Configuration Parameters</a></li>
+</ul>
 <p class="caption" role="heading"><span class="caption-text">Time Series Forecasting</span></p>
 <ul>
 <li class="toctree-l1"><a class="reference internal" href="timeseries.html">Time Series Forecasting</a></li>
@@ -122,20 +128,23 @@
 <li><p><a class="reference external" href="https://docs.priorlabs.ai/models#tabpfn-3-5-family">TabPFN3.5</a> (TabPFN3.5). The only supported version is ‘tabpfn3.5’.</p></li>
 </ul>
 <p>For the tabular classification/regression task using Gandalf, the following command can be used to run the experiment through the CLI:</p>
-<div class="highlight-console notranslate"><div class="highlight"><pre><span></span><span class="gp gp-VirtualEnv">(.deeptune)</span> <span class="gp">$ </span>python<span class="w"> </span>-m<span class="w"> </span>deeptune<span class="w"> </span><span class="se">\</span>
+<div class="highlight-console notranslate"><div class="highlight"><pre><span></span><span class="gp"># </span>--continuous_cols<span class="w"> </span>&lt;continuous_column_names&gt;<span class="w"> </span>is<span class="w"> </span>only<span class="w"> </span>applicable<span class="w"> </span>with<span class="w"> </span>GANDALF
+<span class="gp"># </span>--categorical_cols<span class="w"> </span>&lt;categorical_column_names&gt;<span class="w"> </span>is<span class="w"> </span>only<span class="w"> </span>applicable<span class="w"> </span>with<span class="w"> </span>GANDALF
+<span class="gp"># </span>--gflu_stages<span class="w"> </span>&lt;int&gt;<span class="w"> </span>is<span class="w"> </span>only<span class="w"> </span>applicable<span class="w"> </span>with<span class="w"> </span>GANDALF
+<span class="gp gp-VirtualEnv">(.deeptune)</span> <span class="gp">$ </span>python<span class="w"> </span>-m<span class="w"> </span>deeptune<span class="w"> </span><span class="se">\</span>
 <span class="w">    </span>--modality<span class="w"> </span>tabular<span class="w"> </span><span class="se">\</span>
 <span class="w">    </span>--type<span class="w"> </span>&lt;classification_or_regression&gt;<span class="w"> </span><span class="se">\</span>
 <span class="w">    </span>--model<span class="w"> </span>gandalf<span class="w"> </span><span class="se">\</span>
 <span class="w">    </span>--df<span class="w"> </span>&lt;dataset_path&gt;<span class="w"> </span><span class="se">\</span>
 <span class="w">    </span>--target<span class="w"> </span>&lt;target_column_name&gt;<span class="w"> </span><span class="se">\</span>
-<span class="w">    </span>--continuous_cols<span class="w"> </span>&lt;continuous_column_names&gt;<span class="w"> </span><span class="se">\ </span>//<span class="w"> </span>only<span class="w"> </span><span class="k">for</span><span class="w"> </span>GANDALF
-<span class="go">    --categorical_cols &lt;categorical_column_names&gt; \ // only for GANDALF</span>
-<span class="go">    --batch_size &lt;batch_size&gt; \</span>
-<span class="go">    --num_epochs &lt;num_epochs&gt; \</span>
-<span class="go">    --learning_rate &lt;learning_rate&gt; \</span>
-<span class="go">    --gflu_stages &lt;int&gt; \ // only for GANDALF</span>
-<span class="go">    --out &lt;output_directory&gt; \</span>
-<span class="go">    --fixed-seed \</span>
+<span class="w">    </span>--continuous_cols<span class="w"> </span>&lt;continuous_column_names&gt;<span class="w"> </span><span class="se">\</span>
+<span class="w">    </span>--categorical_cols<span class="w"> </span>&lt;categorical_column_names&gt;<span class="w"> </span><span class="se">\</span>
+<span class="w">    </span>--batch_size<span class="w"> </span>&lt;batch_size&gt;<span class="w"> </span><span class="se">\</span>
+<span class="w">    </span>--num_epochs<span class="w"> </span>&lt;num_epochs&gt;<span class="w"> </span><span class="se">\</span>
+<span class="w">    </span>--learning_rate<span class="w"> </span>&lt;learning_rate&gt;<span class="w"> </span><span class="se">\</span>
+<span class="w">    </span>--gflu_stages<span class="w"> </span>&lt;int&gt;<span class="w"> </span><span class="se">\</span>
+<span class="w">    </span>--out<span class="w"> </span>&lt;output_directory&gt;<span class="w"> </span><span class="se">\</span>
+<span class="w">    </span>--fixed-seed<span class="w"> </span><span class="se">\</span>
 </pre></div>
 </div>
 <p>After conducting a successfull experiment of <strong>DeepTune</strong> for tabular tasks, the results will be saved in the specified output directory. The results include the dataset splits, trained model, training logs, evaluation metrics, and the knowledge embeddings extracted from the repsective test split. A summary of the experiment will be printed in the terminal, including the best model checkpoint, the evaluation metrics, and the path to the output directory as follows:</p>
