@@ -19,7 +19,7 @@ and coordinates model training and evaluation.
 
 .. py:currentmodule:: coordinate_regressors.components.backbone
 
-.. py:class:: RegressorBackbone(backbone="resnet18", pretrained=True, heatmap_size=28)
+.. py:class:: RegressorBackbone(backbone, pretrained, heatmap_size)
 
    Constructs a coordinate regression model using a configurable
    torchvision vision backbone and a heatmap prediction head.
@@ -50,7 +50,7 @@ Coordinate Regression Loss
 
 .. py:currentmodule:: coordinate_regressors.components.loss
 
-.. py:function:: coord_loss(pred_coords, target_coords, loss_mode="mse")
+.. py:function:: coord_loss(pred_coords, target_coords, loss_mode)
 
    Computes the regression loss between predicted and target
    coordinates.

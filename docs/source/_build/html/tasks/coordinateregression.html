@@ -6,14 +6,14 @@
   <meta charset="utf-8" /><meta name="viewport" content="width=device-width, initial-scale=1" />
 
   <meta name="viewport" content="width=device-width, initial-scale=1.0" />
-  <title>Coordinate Regression &mdash; DeepTune 1.1.0 documentation</title>
+  <title>Coordinate Regression &mdash; DeepTune 2.0.0 documentation</title>
       <link rel="stylesheet" type="text/css" href="../_static/pygments.css?v=b86133f3" />
       <link rel="stylesheet" type="text/css" href="../_static/css/theme.css?v=e59714d7" />
 
   
       <script src="../_static/jquery.js?v=5d32c60e"></script>
       <script src="../_static/_sphinx_javascript_frameworks_compat.js?v=2cd50e6c"></script>
-      <script src="../_static/documentation_options.js?v=fc837d61"></script>
+      <script src="../_static/documentation_options.js?v=51b770b3"></script>
       <script src="../_static/doctools.js?v=9bcbadda"></script>
       <script src="../_static/sphinx_highlight.js?v=dc90522c"></script>
     <script src="../_static/js/theme.js"></script>
@@ -122,7 +122,7 @@
 <p>Coordinate regression is a computer vision task that involves predicting the coordinates of the center of an object in an image. It is commonly used in applications such as object tracking, pose estimation, and robotics, where accurate localization of objects is crucial for decision-making and control.</p>
 <div class="admonition note">
 <p class="admonition-title">Note</p>
-<p>The coordinate regression task is currently in development and is yet to be heavily tested in <strong>DeepTune</strong>, and it is not supported in the current GUI version. The following information provides an overview of the task and its configuration parameters, but please note that the implementation may be subject to change.</p>
+<p>The coordinate regression task is currently in development and is yet to be heavily tested in <strong>DeepTune</strong>, and it is not supported in the current GUI version. The following information provides an overview of the task and its configuration parameters. Note that the implementation may be subject to change.</p>
 </div>
 <section id="running-coordinate-regression-tasks-through-the-deeptune-cli">
 <h2>Running Coordinate Regression Tasks through the DeepTune CLI<a class="headerlink" href="#running-coordinate-regression-tasks-through-the-deeptune-cli" title="Link to this heading"></a></h2>
@@ -137,15 +137,16 @@
 <li><p><a class="reference external" href="https://docs.pytorch.org/vision/main/models/convnext.html">ConvNeXt</a> (PyTorch). The model versions supported are: ‘convnext_tiny’, ‘convnext_small’, ‘convnext_base’, or ‘convnext_large’.</p></li>
 <li><p><a class="reference external" href="https://huggingface.co/docs/transformers/en/model_doc/siglip">Sigmoid Loss for Language Image Pre-Training (SiGLip)</a> (HuggingFace Transformers). The only supported version is ‘siglip_so400m_patch14_384’, which is called ‘siglip’ in the CLI.</p></li>
 </ul>
-<div class="highlight-console notranslate"><div class="highlight"><pre><span></span><span class="gp gp-VirtualEnv">(.deeptune)</span> <span class="gp">$ </span>python<span class="w"> </span>-m<span class="w"> </span>coordinate_regressors.regressor<span class="w"> </span><span class="se">\</span>
+<div class="highlight-console notranslate"><div class="highlight"><pre><span></span><span class="gp"># </span>--heatmap_size<span class="w"> </span>&lt;heatmap_size&gt;<span class="w"> </span>is<span class="w"> </span>only<span class="w"> </span>required<span class="w"> </span>with<span class="w"> </span>coordinate<span class="w"> </span>regression<span class="w"> </span>tasks
+<span class="gp gp-VirtualEnv">(.deeptune)</span> <span class="gp">$ </span>python<span class="w"> </span>-m<span class="w"> </span>coordinate_regressors.regressor<span class="w"> </span><span class="se">\</span>
 --df<span class="w"> </span>&lt;dataset_path&gt;<span class="w"> </span><span class="se">\</span>
 --batch_size<span class="w"> </span>&lt;batch_size&gt;<span class="w"> </span><span class="se">\</span>
 --num_epochs<span class="w"> </span>&lt;num_epochs&gt;<span class="w"> </span><span class="se">\</span>
 --learning_rate<span class="w"> </span>&lt;learning_rate&gt;<span class="w"> </span><span class="se">\</span>
---heatmap_size<span class="w"> </span>&lt;heatmap_size&gt;<span class="w"> </span><span class="se">\ </span>//<span class="w"> </span>only<span class="w"> </span><span class="k">for</span><span class="w"> </span>coordinate<span class="w"> </span>regression<span class="w"> </span>tasks
-<span class="go">--model &lt;model_name&gt; \</span>
-<span class="go">--out &lt;output_directory&gt; \</span>
-<span class="go">--fixed-seed \</span>
+--heatmap_size<span class="w"> </span>&lt;heatmap_size&gt;<span class="w"> </span><span class="se">\</span>
+--model<span class="w"> </span>&lt;model_name&gt;<span class="w"> </span><span class="se">\</span>
+--out<span class="w"> </span>&lt;output_directory&gt;<span class="w"> </span><span class="se">\</span>
+--fixed-seed<span class="w"> </span><span class="se">\</span>
 </pre></div>
 </div>
 <p>After conducting a successful experiment of <strong>DeepTune</strong> for coordinate regression, the results will be saved in the specified output directory. The results include the dataset splits, trained model, and the train/val/evalauation metrics.</p>

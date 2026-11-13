@@ -102,7 +102,7 @@ If you make use of **DeepTune**, please cite the repository as follows:
 .. code-block:: bibtex
 
    @software{DeepTune,
-   author  = {Moayadeldin Hussain, Ahmed Saad, John Kendall, Youssoff Mahfouz, Yazan Hamad, Xuchen Guo, and Jacob Levman},
+   author  = {Moayadeldin Hussain, Ahmed Saad, John Kendall, Yousseff Mahfouz, Yazan Hamad, Xuchen Guo, and Jacob Levman},
    title   = {DeepTune: Cutting-edge Tool automating state-of-the-art deep learning models for cross-modal applications},
    year = {2026},
    url = {https://github.com/moayadeldin/deeptune},

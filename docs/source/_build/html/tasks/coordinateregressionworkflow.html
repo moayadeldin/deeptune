@@ -6,14 +6,14 @@
   <meta charset="utf-8" /><meta name="viewport" content="width=device-width, initial-scale=1" />
 
   <meta name="viewport" content="width=device-width, initial-scale=1.0" />
-  <title>Coordinate Regression Workflow Components &mdash; DeepTune 1.1.0 documentation</title>
+  <title>Coordinate Regression Workflow Components &mdash; DeepTune 2.0.0 documentation</title>
       <link rel="stylesheet" type="text/css" href="../_static/pygments.css?v=b86133f3" />
       <link rel="stylesheet" type="text/css" href="../_static/css/theme.css?v=e59714d7" />
 
   
       <script src="../_static/jquery.js?v=5d32c60e"></script>
       <script src="../_static/_sphinx_javascript_frameworks_compat.js?v=2cd50e6c"></script>
-      <script src="../_static/documentation_options.js?v=fc837d61"></script>
+      <script src="../_static/documentation_options.js?v=51b770b3"></script>
       <script src="../_static/doctools.js?v=9bcbadda"></script>
       <script src="../_static/sphinx_highlight.js?v=dc90522c"></script>
     <script src="../_static/js/theme.js"></script>
@@ -151,7 +151,7 @@ splits the dataset into training, validation, and testing subsets,
 and coordinates model training and evaluation.</p>
 <dl class="py class">
 <dt class="sig sig-object py" id="coordinate_regressors.components.backbone.RegressorBackbone">
-<em class="property"><span class="pre">class</span><span class="w"> </span></em><span class="sig-prename descclassname"><span class="pre">coordinate_regressors.components.backbone.</span></span><span class="sig-name descname"><span class="pre">RegressorBackbone</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">backbone</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">'resnet18'</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">pretrained</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">True</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">heatmap_size</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">28</span></span></em><span class="sig-paren">)</span><a class="headerlink" href="#coordinate_regressors.components.backbone.RegressorBackbone" title="Link to this definition"></a></dt>
+<em class="property"><span class="pre">class</span><span class="w"> </span></em><span class="sig-prename descclassname"><span class="pre">coordinate_regressors.components.backbone.</span></span><span class="sig-name descname"><span class="pre">RegressorBackbone</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">backbone</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">pretrained</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">heatmap_size</span></span></em><span class="sig-paren">)</span><a class="headerlink" href="#coordinate_regressors.components.backbone.RegressorBackbone" title="Link to this definition"></a></dt>
 <dd><p>Constructs a coordinate regression model using a configurable
 torchvision vision backbone and a heatmap prediction head.</p>
 <dl class="field-list simple">
@@ -185,7 +185,7 @@ of shape <code class="docutils literal notranslate"><span class="pre">(B,</span>
 <p><strong>Entry point:</strong> <code class="docutils literal notranslate"><span class="pre">coordinate_regressors.components.loss.coord_loss</span></code></p>
 <dl class="py function">
 <dt class="sig sig-object py" id="coordinate_regressors.components.loss.coord_loss">
-<span class="sig-prename descclassname"><span class="pre">coordinate_regressors.components.loss.</span></span><span class="sig-name descname"><span class="pre">coord_loss</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">pred_coords</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">target_coords</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">loss_mode</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">'mse'</span></span></em><span class="sig-paren">)</span><a class="headerlink" href="#coordinate_regressors.components.loss.coord_loss" title="Link to this definition"></a></dt>
+<span class="sig-prename descclassname"><span class="pre">coordinate_regressors.components.loss.</span></span><span class="sig-name descname"><span class="pre">coord_loss</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">pred_coords</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">target_coords</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">loss_mode</span></span></em><span class="sig-paren">)</span><a class="headerlink" href="#coordinate_regressors.components.loss.coord_loss" title="Link to this definition"></a></dt>
 <dd><p>Computes the regression loss between predicted and target
 coordinates.</p>
 <dl class="field-list simple">

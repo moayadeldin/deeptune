@@ -4,11 +4,11 @@ build-backend = "setuptools.build_meta"
 
 [project]
 name = "DeepTune"
-version = "1.1.0"
+version = "2.0.0"
 description = "Multimodal deep learning training, evaluation, and embeddings with a desktop interface"
 authors = [{name = "Moayadeldin Hussain", email = "moayadeldin@gmail.com"}]
 readme = "README.md"
-requires-python = ">=3.12"
+requires-python = "==3.10.*"
 dynamic = ["dependencies"]
 
 [project.optional-dependencies]

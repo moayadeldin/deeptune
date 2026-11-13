@@ -6,14 +6,14 @@
   <meta charset="utf-8" /><meta name="viewport" content="width=device-width, initial-scale=1" />
 
   <meta name="viewport" content="width=device-width, initial-scale=1.0" />
-  <title>Installation &mdash; DeepTune 1.1.0 documentation</title>
+  <title>Installation &mdash; DeepTune 2.0.0 documentation</title>
       <link rel="stylesheet" type="text/css" href="../_static/pygments.css?v=b86133f3" />
       <link rel="stylesheet" type="text/css" href="../_static/css/theme.css?v=e59714d7" />
 
   
       <script src="../_static/jquery.js?v=5d32c60e"></script>
       <script src="../_static/_sphinx_javascript_frameworks_compat.js?v=2cd50e6c"></script>
-      <script src="../_static/documentation_options.js?v=fc837d61"></script>
+      <script src="../_static/documentation_options.js?v=51b770b3"></script>
       <script src="../_static/doctools.js?v=9bcbadda"></script>
       <script src="../_static/sphinx_highlight.js?v=dc90522c"></script>
     <script src="../_static/js/theme.js"></script>
@@ -47,7 +47,8 @@
 <li class="toctree-l1 current"><a class="current reference internal" href="#">Installation</a><ul>
 <li class="toctree-l2"><a class="reference internal" href="#prerequisites">Prerequisites</a></li>
 <li class="toctree-l2"><a class="reference internal" href="#creating-virtual-environment-recommended">Creating Virtual Environment (Recommended)</a></li>
-<li class="toctree-l2"><a class="reference internal" href="#install-dependencies">Install dependencies</a></li>
+<li class="toctree-l2"><a class="reference internal" href="#install-dependencies">Install Dependencies</a></li>
+<li class="toctree-l2"><a class="reference internal" href="#option-2-install-deeptune-using-pip-directly-from-the-github-repository">Option 2: Install <strong>DeepTune</strong> using pip directly from the GitHub repository:</a></li>
 </ul>
 </li>
 <li class="toctree-l1"><a class="reference internal" href="getstarted.html">Getting Started</a></li>
@@ -144,10 +145,20 @@
 </div>
 </section>
 <section id="install-dependencies">
-<h2>Install dependencies<a class="headerlink" href="#install-dependencies" title="Link to this heading"></a></h2>
-<div class="highlight-console notranslate"><div class="highlight"><pre><span></span><span class="gp gp-VirtualEnv">(.deeptune)</span> <span class="gp">$ </span>pip<span class="w"> </span>install<span class="w"> </span>-r<span class="w"> </span>requirements.txt
+<h2>Install Dependencies<a class="headerlink" href="#install-dependencies" title="Link to this heading"></a></h2>
+<div class="highlight-console notranslate"><div class="highlight"><pre><span></span><span class="gp gp-VirtualEnv">(.deeptune)</span> <span class="gp">$ </span>git<span class="w"> </span>clone<span class="w"> </span>https://github.com/moayadeldin/deeptune
+<span class="gp gp-VirtualEnv">(.deeptune)</span> <span class="gp">$ </span>pip<span class="w"> </span>install<span class="w"> </span>-r<span class="w"> </span>requirements.txt
 </pre></div>
 </div>
+</section>
+<section id="option-2-install-deeptune-using-pip-directly-from-the-github-repository">
+<h2>Option 2: Install <strong>DeepTune</strong> using pip directly from the GitHub repository:<a class="headerlink" href="#option-2-install-deeptune-using-pip-directly-from-the-github-repository" title="Link to this heading"></a></h2>
+<div class="highlight-console notranslate"><div class="highlight"><pre><span></span><span class="gp gp-VirtualEnv">(.deeptune)</span> <span class="gp">$ </span>git<span class="w"> </span>clone<span class="w"> </span>https://github.com/moayadeldin/deeptune
+<span class="gp gp-VirtualEnv">(.deeptune)</span> <span class="gp">$ </span><span class="nb">cd</span><span class="w"> </span>deeptune
+<span class="gp gp-VirtualEnv">(.deeptune)</span> <span class="gp">$ </span>pip<span class="w"> </span>install<span class="w"> </span>-e<span class="w"> </span>.
+</pre></div>
+</div>
+<p>The above option will install <strong>DeepTune</strong> in editable mode, allowing you to run <strong>DeepTune</strong> directly without needing to navigate to the cloned repository directory.</p>
 </section>
 </section>
 

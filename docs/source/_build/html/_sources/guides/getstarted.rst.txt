@@ -35,6 +35,18 @@ In case a trained model that has been saved in the results directory is availabl
 2. Command Line Interface (CLI)
 ---------------------------------
 
+To get started with the CLI, you can run the following command to access the help menu and view the available options in the one unified CLI command:
+
+.. code-block:: console
+
+    (.deeptune) $ python -m deeptune --help
+
+The following output will be displayed, providing a summarized overview of the available options and their descriptions:
+
+.. image:: deeptune_help.png
+    :width: 800
+    :alt: A screenshot of the DeepTune GUI dataset tab for previewing videos.
+
 In case you prefer to use the command line interface, you can execute the following command to train a model:
 
 .. code-block:: console

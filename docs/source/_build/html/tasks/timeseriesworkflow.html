@@ -6,14 +6,14 @@
   <meta charset="utf-8" /><meta name="viewport" content="width=device-width, initial-scale=1" />
 
   <meta name="viewport" content="width=device-width, initial-scale=1.0" />
-  <title>Time-Series Workflow Components &mdash; DeepTune 1.1.0 documentation</title>
+  <title>Time-Series Workflow Components &mdash; DeepTune 2.0.0 documentation</title>
       <link rel="stylesheet" type="text/css" href="../_static/pygments.css?v=b86133f3" />
       <link rel="stylesheet" type="text/css" href="../_static/css/theme.css?v=e59714d7" />
 
   
       <script src="../_static/jquery.js?v=5d32c60e"></script>
       <script src="../_static/_sphinx_javascript_frameworks_compat.js?v=2cd50e6c"></script>
-      <script src="../_static/documentation_options.js?v=fc837d61"></script>
+      <script src="../_static/documentation_options.js?v=51b770b3"></script>
       <script src="../_static/doctools.js?v=9bcbadda"></script>
       <script src="../_static/sphinx_highlight.js?v=dc90522c"></script>
     <script src="../_static/js/theme.js"></script>
@@ -82,21 +82,42 @@
 <li class="toctree-l1"><a class="reference internal" href="timeseries.html">Time Series Forecasting</a></li>
 <li class="toctree-l1 current"><a class="current reference internal" href="#">Time-Series Workflow Components</a><ul>
 <li class="toctree-l2"><a class="reference internal" href="#model-training">Model Training</a><ul>
-<li class="toctree-l3"><a class="reference internal" href="#src.timeseries.deepAR.deepAR"><code class="docutils literal notranslate"><span class="pre">deepAR</span></code></a><ul>
-<li class="toctree-l4"><a class="reference internal" href="#src.timeseries.deepAR.deepAR.load_from_checkpoint"><code class="docutils literal notranslate"><span class="pre">deepAR.load_from_checkpoint()</span></code></a></li>
+<li class="toctree-l3"><a class="reference internal" href="#deepar-architecture">DeepAR Architecture</a><ul>
+<li class="toctree-l4"><a class="reference internal" href="#src.timeseries.deepAR.deepAR"><code class="docutils literal notranslate"><span class="pre">deepAR</span></code></a></li>
 </ul>
 </li>
-<li class="toctree-l3"><a class="reference internal" href="#train_deepar.train"><code class="docutils literal notranslate"><span class="pre">train()</span></code></a></li>
+<li class="toctree-l3"><a class="reference internal" href="#time-series-training-function">Time-Series Training Function</a><ul>
+<li class="toctree-l4"><a class="reference internal" href="#train_deepar.train"><code class="docutils literal notranslate"><span class="pre">train()</span></code></a></li>
+</ul>
+</li>
+<li class="toctree-l3"><a class="reference internal" href="#time-series-dataset-preparation">Time-Series Dataset Preparation</a></li>
+<li class="toctree-l3"><a class="reference internal" href="#validation-context-construction">Validation Context Construction</a></li>
+<li class="toctree-l3"><a class="reference internal" href="#model-optimization-and-checkpointing">Model Optimization and Checkpointing</a><ul>
+<li class="toctree-l4"><a class="reference internal" href="#train_deepar._LossHistory"><code class="docutils literal notranslate"><span class="pre">_LossHistory</span></code></a></li>
+</ul>
+</li>
 </ul>
 </li>
 <li class="toctree-l2"><a class="reference internal" href="#model-evaluation">Model Evaluation</a><ul>
-<li class="toctree-l3"><a class="reference internal" href="#evaluate_deepar.evaluate"><code class="docutils literal notranslate"><span class="pre">evaluate()</span></code></a></li>
+<li class="toctree-l3"><a class="reference internal" href="#evaluation-function">Evaluation Function</a><ul>
+<li class="toctree-l4"><a class="reference internal" href="#evaluate_deepar.evaluate"><code class="docutils literal notranslate"><span class="pre">evaluate()</span></code></a></li>
+</ul>
+</li>
+<li class="toctree-l3"><a class="reference internal" href="#evaluation-dataset-construction">Evaluation Dataset Construction</a></li>
+<li class="toctree-l3"><a class="reference internal" href="#forecast-generation-and-metrics">Forecast Generation and Metrics</a></li>
 </ul>
 </li>
 <li class="toctree-l2"><a class="reference internal" href="#embedding-extraction">Embedding Extraction</a><ul>
-<li class="toctree-l3"><a class="reference internal" href="#deepAR_embeddings.embed"><code class="docutils literal notranslate"><span class="pre">embed()</span></code></a></li>
+<li class="toctree-l3"><a class="reference internal" href="#embedding-extraction-function">Embedding Extraction Function</a><ul>
+<li class="toctree-l4"><a class="reference internal" href="#deepAR_embeddings.embed"><code class="docutils literal notranslate"><span class="pre">embed()</span></code></a></li>
 </ul>
 </li>
+<li class="toctree-l3"><a class="reference internal" href="#historical-context-preparation">Historical Context Preparation</a></li>
+<li class="toctree-l3"><a class="reference internal" href="#encoder-representation-extraction">Encoder Representation Extraction</a></li>
+<li class="toctree-l3"><a class="reference internal" href="#embedding-alignment-and-missing-context">Embedding Alignment and Missing Context</a></li>
+</ul>
+</li>
+<li class="toctree-l2"><a class="reference internal" href="#implementation-notes">Implementation Notes</a></li>
 </ul>
 </li>
 <li class="toctree-l1"><a class="reference internal" href="../configurations/timeseriesconfig.html">Time Series Forecasting Parameters Reference</a></li>
@@ -135,112 +156,514 @@
   <section id="time-series-workflow-components">
 <h1>Time-Series Workflow Components<a class="headerlink" href="#time-series-workflow-components" title="Link to this heading"></a></h1>
 <p>DeepTune provides dedicated components for time-series forecasting
-using DeepAR, organized into model training, evaluation, and embedding
-extraction workflows. These components leverage PyTorch Forecasting
-for probabilistic forecasting and temporal feature representation.</p>
+using DeepAR, organized into model training, evaluation, and
+embedding extraction workflows, leveraging PyTorch Forecasting for probabilistic
+time-series modeling and PyTorch Lightning for model optimization.
+DeepAR uses a recurrent neural network (RNN) to learn temporal
+dependencies from historical observations and generate forecasts
+for subsequent time steps.</p>
+<p>The workflow supports configurable encoder and prediction lengths,
+time-varying and static features, and optional time-series grouping.
+This page provides a high-level abstract overview of the DeepAR workflow
+components and their implementation.</p>
 <section id="model-training">
 <h2>Model Training<a class="headerlink" href="#model-training" title="Link to this heading"></a></h2>
 <p><strong>Entry point:</strong> <code class="docutils literal notranslate"><span class="pre">train_deepar.train</span></code></p>
-<p>The training function prepares time-series datasets, configures
-the DeepAR architecture, and delegates model optimization to
-the PyTorch Lightning <code class="docutils literal notranslate"><span class="pre">Trainer</span></code>.</p>
+<p>The training workflow prepares the time-series datasets, constructs
+the DeepAR architecture, and delegates model optimization to the
+PyTorch Lightning <code class="docutils literal notranslate"><span class="pre">Trainer</span></code>.</p>
+<p>The implementation consists of a model wrapper, time-series dataset
+construction, probabilistic training, validation, and checkpoint
+management.</p>
+<section id="deepar-architecture">
+<h3>DeepAR Architecture<a class="headerlink" href="#deepar-architecture" title="Link to this heading"></a></h3>
 <dl class="py class">
 <dt class="sig sig-object py" id="src.timeseries.deepAR.deepAR">
 <em class="property"><span class="pre">class</span><span class="w"> </span></em><span class="sig-prename descclassname"><span class="pre">src.timeseries.deepAR.</span></span><span class="sig-name descname"><span class="pre">deepAR</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">dataset</span></span></em>, <em class="sig-param"><span class="o"><span class="pre">**</span></span><span class="n"><span class="pre">kwargs</span></span></em><span class="sig-paren">)</span><a class="headerlink" href="#src.timeseries.deepAR.deepAR" title="Link to this definition"></a></dt>
-<dd><p>Wraps the PyTorch Forecasting DeepAR architecture.</p>
+<dd><p>Provides a wrapper around the PyTorch Forecasting
+<code class="docutils literal notranslate"><span class="pre">DeepAR</span></code> architecture.</p>
 <dl class="field-list simple">
 <dt class="field-odd">Parameters<span class="colon">:</span></dt>
 <dd class="field-odd"><ul class="simple">
-<li><p><strong>dataset</strong> – Configured <code class="docutils literal notranslate"><span class="pre">TimeSeriesDataSet</span></code>.</p></li>
-<li><p><strong>kwargs</strong> – Additional DeepAR model configuration parameters.</p></li>
+<li><p><strong>dataset</strong> – Configured PyTorch Forecasting
+<code class="docutils literal notranslate"><span class="pre">TimeSeriesDataSet</span></code>.</p></li>
+<li><p><strong>kwargs</strong> – Additional parameters controlling the
+DeepAR architecture and optimization.</p></li>
 </ul>
 </dd>
 </dl>
-<p>The wrapper initializes the model using
-<code class="docutils literal notranslate"><span class="pre">DeepAR.from_dataset</span></code> with the specified configuration.</p>
+<p>The wrapper initializes a native DeepAR model through
+<code class="docutils literal notranslate"><span class="pre">DeepAR.from_dataset()</span></code>, inheriting the dataset configuration
+and the provided model hyperparameters.</p>
+<p>The wrapper returns the underlying PyTorch Forecasting model
+rather than implementing a separate neural network architecture.</p>
 <dl class="py method">
 <dt class="sig sig-object py" id="src.timeseries.deepAR.deepAR.load_from_checkpoint">
 <em class="property"><span class="pre">classmethod</span><span class="w"> </span></em><span class="sig-name descname"><span class="pre">load_from_checkpoint</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">path</span></span></em><span class="sig-paren">)</span><a class="headerlink" href="#src.timeseries.deepAR.deepAR.load_from_checkpoint" title="Link to this definition"></a></dt>
-<dd><p>Loads a trained DeepAR model from a checkpoint.</p>
+<dd><p>Reconstructs a previously trained DeepAR model from a
+PyTorch Lightning checkpoint using
+<code class="docutils literal notranslate"><span class="pre">DeepAR.load_from_checkpoint()</span></code>.</p>
 </dd></dl>
 
 </dd></dl>
 
-<p>The training workflow uses an RNN-based DeepAR architecture
-with two recurrent layers, a hidden size of 30, and
-<code class="docutils literal notranslate"><span class="pre">NormalDistributionLoss</span></code> for probabilistic forecasting.</p>
+<p>The current training implementation configures DeepAR with
+the following parameters:</p>
+<ul class="simple">
+<li><p><strong>Hidden size:</strong> 30 recurrent hidden units.</p></li>
+<li><p><strong>Recurrent layers:</strong> Two RNN layers.</p></li>
+<li><p><strong>Optimizer:</strong> Adam.</p></li>
+<li><p><strong>Learning rate:</strong> <code class="docutils literal notranslate"><span class="pre">1e-3</span></code> by default.</p></li>
+<li><p><strong>Loss function:</strong> <code class="docutils literal notranslate"><span class="pre">NormalDistributionLoss</span></code>.</p></li>
+<li><p><strong>Training accelerator:</strong> CPU.</p></li>
+<li><p><strong>Gradient clipping:</strong> <code class="docutils literal notranslate"><span class="pre">0.1</span></code>.</p></li>
+</ul>
+<p>The model uses a probabilistic forecasting objective rather than
+directly minimizing point-prediction errors such as MSE.</p>
+<p><code class="docutils literal notranslate"><span class="pre">NormalDistributionLoss</span></code> models the target through a normal
+distribution and optimizes the likelihood of observed target values
+under the predicted distribution.</p>
+</section>
+<section id="time-series-training-function">
+<h3>Time-Series Training Function<a class="headerlink" href="#time-series-training-function" title="Link to this heading"></a></h3>
 <dl class="py function">
 <dt class="sig sig-object py" id="train_deepar.train">
-<span class="sig-prename descclassname"><span class="pre">train_deepar.</span></span><span class="sig-name descname"><span class="pre">train</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">train_df</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">val_df</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">num_epochs</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">out</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">batch_size</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">timeindex_column</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">target_column</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">args</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">max_encoder_length</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">8</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">max_prediction_length</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">1</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">time_varying_known_categoricals</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">[]</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">time_varying_unknown_categoricals</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">[]</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">static_categoricals</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">[]</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">time_varying_known_reals</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">[]</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">group_ids</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">None</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">time_varying_unknown_reals</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">[]</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">static_reals</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">None</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">model_str</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">'DeepAR'</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">learning_rate</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">1e-3</span></span></em><span class="sig-paren">)</span><a class="headerlink" href="#train_deepar.train" title="Link to this definition"></a></dt>
-<dd><p>Prepares training and validation DataLoaders using
-<code class="docutils literal notranslate"><span class="pre">TimeSeriesDataSet</span></code> and optimizes the model with Adam.</p>
-<p>The validation dataset includes historical observations
-from the training set to provide the required encoder context.</p>
-<p>Training and validation losses are recorded in
-<code class="docutils literal notranslate"><span class="pre">training_log.csv</span></code>.</p>
-<p>The best-performing checkpoint is selected according to
-validation loss and saved in <code class="docutils literal notranslate"><span class="pre">.ckpt</span></code> format.</p>
+<span class="sig-prename descclassname"><span class="pre">train_deepar.</span></span><span class="sig-name descname"><span class="pre">train</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">train_df</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">val_df</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">num_epochs</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">out</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">batch_size</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">timeindex_column</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">target_column</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">args</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">max_encoder_length</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">max_prediction_length</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">time_varying_known_categoricals</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">time_varying_unknown_categoricals</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">static_categoricals</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">time_varying_known_reals</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">group_ids</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">time_varying_unknown_reals</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">static_reals</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">model_str</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">learning_rate</span></span></em><span class="sig-paren">)</span><a class="headerlink" href="#train_deepar.train" title="Link to this definition"></a></dt>
+<dd><p>Coordinates time-series preprocessing, model initialization,
+training, validation, and checkpoint management.</p>
+<dl class="field-list simple">
+<dt class="field-odd">Parameters<span class="colon">:</span></dt>
+<dd class="field-odd"><ul class="simple">
+<li><p><strong>train_df</strong> – Path to the training Parquet dataset.</p></li>
+<li><p><strong>val_df</strong> – Path to the validation Parquet dataset.</p></li>
+<li><p><strong>num_epochs</strong> – Maximum number of training epochs.</p></li>
+<li><p><strong>out</strong> – Directory for training outputs.</p></li>
+<li><p><strong>batch_size</strong> – Number of time-series samples per batch.</p></li>
+<li><p><strong>timeindex_column</strong> – Column representing temporal order.</p></li>
+<li><p><strong>target_column</strong> – Target variable to forecast.</p></li>
+<li><p><strong>args</strong> – Parsed execution configuration.</p></li>
+<li><p><strong>max_encoder_length</strong> – Maximum number of historical
+time steps used as encoder context.</p></li>
+<li><p><strong>max_prediction_length</strong> – Maximum number of future
+time steps predicted by the model.</p></li>
+<li><p><strong>time_varying_known_categoricals</strong> – Categorical variables
+known across the relevant forecasting horizon.</p></li>
+<li><p><strong>time_varying_unknown_categoricals</strong> – Categorical variables
+whose future values are not assumed to be known.</p></li>
+<li><p><strong>static_categoricals</strong> – Categorical attributes that remain
+constant within a time series.</p></li>
+<li><p><strong>time_varying_known_reals</strong> – Numerical variables whose
+values are available across the forecasting horizon.</p></li>
+<li><p><strong>time_varying_unknown_reals</strong> – Numerical variables whose
+future values are not assumed to be known.</p></li>
+<li><p><strong>static_reals</strong> – Numerical attributes that remain constant
+within a time series.</p></li>
+<li><p><strong>group_ids</strong> – Optional identifiers distinguishing
+independent time-series groups.</p></li>
+<li><p><strong>model_str</strong> – Identifier used for the output directory.</p></li>
+<li><p><strong>learning_rate</strong> – Learning rate supplied to DeepAR.</p></li>
+</ul>
+</dd>
+</dl>
+<p>The function reads the training and validation datasets,
+prepares the temporal observations, constructs the appropriate
+DataLoaders, and initializes the DeepAR model. Model optimization is performed using the PyTorch Lightning
+<code class="docutils literal notranslate"><span class="pre">Trainer</span></code>, with validation and checkpointing integrated
+into the training procedure, and returns the directory containing the training outputs.</p>
 </dd></dl>
 
+</section>
+<section id="time-series-dataset-preparation">
+<h3>Time-Series Dataset Preparation<a class="headerlink" href="#time-series-dataset-preparation" title="Link to this heading"></a></h3>
+<p>The training function loads the training and validation datasets
+from Parquet files. Each dataset is assigned a temporary split identifier before
+the datasets are concatenated and processed through
+<code class="docutils literal notranslate"><span class="pre">prepare_timeseries()</span></code>. This helper prepares the time-index and grouping information
+required by the downstream time-series workflow. Following preprocessing, the training and validation subsets
+are recovered using their split identifiers.</p>
+<p>The training dataset is constructed using PyTorch Forecasting’s
+<code class="docutils literal notranslate"><span class="pre">TimeSeriesDataSet</span></code> with the following configuration:</p>
+<ul class="simple">
+<li><p><code class="docutils literal notranslate"><span class="pre">time_idx</span></code> identifies the temporal index.</p></li>
+<li><p><code class="docutils literal notranslate"><span class="pre">target</span></code> identifies the forecasting target.</p></li>
+<li><p><code class="docutils literal notranslate"><span class="pre">max_encoder_length</span></code> controls the available historical context.</p></li>
+<li><p><code class="docutils literal notranslate"><span class="pre">max_prediction_length</span></code> controls the prediction horizon.</p></li>
+<li><p><code class="docutils literal notranslate"><span class="pre">group_ids</span></code> identifies the independent time series.</p></li>
+<li><p><code class="docutils literal notranslate"><span class="pre">allow_missing_timesteps=True</span></code> enables handling of missing
+time-index steps through the dataset implementation.</p></li>
+<li><p><code class="docutils literal notranslate"><span class="pre">TorchNormalizer</span></code> provides target normalization.</p></li>
+</ul>
+<p>The target variable is additionally included among the
+time-varying unknown real-valued features, allowing the model
+to use historical target observations. The resulting training dataset is converted into a DataLoader
+using the configured batch size and synchronized batch sampling.</p>
+</section>
+<section id="validation-context-construction">
+<h3>Validation Context Construction<a class="headerlink" href="#validation-context-construction" title="Link to this heading"></a></h3>
+<p>DeepAR requires historical observations to initialize its encoder
+before generating forecasts. Consequently, validation cannot always be performed using
+the validation observations in isolation.</p>
+<p>The training implementation retrieves the final
+<code class="docutils literal notranslate"><span class="pre">max_encoder_length</span></code> observations from the training dataset
+for each time-series group. These observations are concatenated with the validation data
+and sorted according to the group identifiers and time index.</p>
+<p>The validation dataset is then constructed through
+<code class="docutils literal notranslate"><span class="pre">TimeSeriesDataSet.from_dataset()</span></code> using the training dataset
+as its reference, preserving the training dataset configuration
+and preprocessing parameters while providing historical context
+for validation predictions.</p>
+<p>The validation dataset is configured with:</p>
+<ul class="simple">
+<li><p><code class="docutils literal notranslate"><span class="pre">predict=True</span></code> to construct prediction-oriented windows.</p></li>
+<li><p><code class="docutils literal notranslate"><span class="pre">stop_randomization=True</span></code> to disable random window selection.</p></li>
+</ul>
+<p>Historical training observations supply encoder context,
+while validation observations are used for forecasting
+and model selection.</p>
+</section>
+<section id="model-optimization-and-checkpointing">
+<h3>Model Optimization and Checkpointing<a class="headerlink" href="#model-optimization-and-checkpointing" title="Link to this heading"></a></h3>
+<p>The training workflow initializes the PyTorch Lightning
+<code class="docutils literal notranslate"><span class="pre">Trainer</span></code> with the configured number of epochs and
+CPU execution. The trainer uses gradient clipping with a maximum value of
+<code class="docutils literal notranslate"><span class="pre">0.1</span></code> and a checkpoint callback monitoring validation loss, and the model optimization is executed through
+<code class="docutils literal notranslate"><span class="pre">Trainer.fit()</span></code>, using the training and validation DataLoaders.</p>
+<p>A <code class="docutils literal notranslate"><span class="pre">ModelCheckpoint</span></code> callback monitors <code class="docutils literal notranslate"><span class="pre">val_loss</span></code>
+and retains the checkpoint corresponding to the lowest
+observed validation loss.</p>
+<p>The checkpoint filename follows the pattern:</p>
+<div class="highlight-default notranslate"><div class="highlight"><pre><span></span><span class="n">deepar</span><span class="o">-&lt;</span><span class="n">epoch</span><span class="o">&gt;-&lt;</span><span class="n">val_loss</span><span class="o">&gt;.</span><span class="n">ckpt</span>
+</pre></div>
+</div>
+<p>Training progress is additionally monitored through a
+custom callback.</p>
+<dl class="py class">
+<dt class="sig sig-object py" id="train_deepar._LossHistory">
+<em class="property"><span class="pre">class</span><span class="w"> </span></em><span class="sig-prename descclassname"><span class="pre">train_deepar.</span></span><span class="sig-name descname"><span class="pre">_LossHistory</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">destination</span></span></em><span class="sig-paren">)</span><a class="headerlink" href="#train_deepar._LossHistory" title="Link to this definition"></a></dt>
+<dd><p>Implements a PyTorch Lightning callback for recording
+epoch-level training and validation losses.</p>
+<dl class="field-list simple">
+<dt class="field-odd">Parameters<span class="colon">:</span></dt>
+<dd class="field-odd"><p><strong>destination</strong> – Directory for saving training metrics.</p>
+</dd>
+</dl>
+<dl class="py method">
+<dt class="sig sig-object py" id="train_deepar._LossHistory.on_train_epoch_end">
+<span class="sig-name descname"><span class="pre">on_train_epoch_end</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">trainer</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">pl_module</span></span></em><span class="sig-paren">)</span><a class="headerlink" href="#train_deepar._LossHistory.on_train_epoch_end" title="Link to this definition"></a></dt>
+<dd><p>Retrieves available training and validation metrics
+from the Lightning trainer.</p>
+<p>Records the current epoch, training loss, and
+validation loss when available.</p>
+<p>The accumulated metrics are saved to
+<code class="docutils literal notranslate"><span class="pre">training_log.csv</span></code>.</p>
+</dd></dl>
+
+</dd></dl>
+
+<p>After training, the best-performing checkpoint is loaded
+using <code class="docutils literal notranslate"><span class="pre">deepAR.load_from_checkpoint()</span></code>. The selected model generates validation predictions through
+<code class="docutils literal notranslate"><span class="pre">predict()</span></code>. The implementation also invokes the MAE metric on validation
+predictions and targets, although this value is not separately
+written to a dedicated metrics file.</p>
+<p>The validation prediction outputs are saved through
+<code class="docutils literal notranslate"><span class="pre">save_timeseries_prediction_to_json()</span></code>. Training logs are additionally recorded through
+<code class="docutils literal notranslate"><span class="pre">TensorBoardLogger</span></code>, while execution configuration and
+processing-time information are saved to the output directory.</p>
+</section>
 </section>
 <section id="model-evaluation">
 <h2>Model Evaluation<a class="headerlink" href="#model-evaluation" title="Link to this heading"></a></h2>
 <p><strong>Entry point:</strong> <code class="docutils literal notranslate"><span class="pre">evaluate_deepar.evaluate</span></code></p>
-<p>The evaluation function reconstructs the time-series dataset
-using the trained model’s dataset parameters and performs
-forecasting on held-out observations.</p>
+<p>The evaluation workflow loads the selected DeepAR checkpoint
+and performs forecasting on a held-out time-series dataset.</p>
+<p>Unlike the training workflow, evaluation does not update
+model parameters. The implementation reconstructs the evaluation dataset using
+the preprocessing parameters stored in the trained model
+and incorporates historical observations to supply the
+required encoder context.</p>
+<section id="evaluation-function">
+<h3>Evaluation Function<a class="headerlink" href="#evaluation-function" title="Link to this heading"></a></h3>
 <dl class="py function">
 <dt class="sig sig-object py" id="evaluate_deepar.evaluate">
-<span class="sig-prename descclassname"><span class="pre">evaluate_deepar.</span></span><span class="sig-name descname"><span class="pre">evaluate</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">train_df_path</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">val_df_path</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">eval_df_path</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">out</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">batch_size</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">timeindex_column</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">target_column</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">model_weights</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">max_encoder_length</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">30</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">max_prediction_length</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">1</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">group_ids</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">None</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">time_varying_known_categoricals</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">[]</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">time_varying_unknown_categoricals</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">[]</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">static_categoricals</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">[]</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">time_varying_known_reals</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">[]</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">time_varying_unknown_reals</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">[]</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">static_reals</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">[]</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">args</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">None</span></span></em><span class="sig-paren">)</span><a class="headerlink" href="#evaluate_deepar.evaluate" title="Link to this definition"></a></dt>
-<dd><p>Loads the trained DeepAR checkpoint and generates forecasts
-using historical observations from the training and validation
-datasets as encoder context.</p>
-<p>Computes the following evaluation metrics:</p>
-<ul class="simple">
-<li><p><strong>MAE:</strong> Mean Absolute Error.</p></li>
-<li><p><strong>RMSE:</strong> Root Mean Squared Error.</p></li>
-<li><p><strong>Loss:</strong> Mean Squared Error (MSE).</p></li>
-<li><p><strong>Predictions:</strong> Number of evaluated prediction values.</p></li>
+<span class="sig-prename descclassname"><span class="pre">evaluate_deepar.</span></span><span class="sig-name descname"><span class="pre">evaluate</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">train_df_path</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">val_df_path</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">eval_df_path</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">out</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">batch_size</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">timeindex_column</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">target_column</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">model_weights</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">max_encoder_length</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">max_prediction_length</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">group_ids</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">time_varying_known_categoricals</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">time_varying_unknown_categoricals</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">static_categoricals</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">time_varying_known_reals</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">time_varying_unknown_reals</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">static_reals</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">args</span></span></em><span class="sig-paren">)</span><a class="headerlink" href="#evaluate_deepar.evaluate" title="Link to this definition"></a></dt>
+<dd><p>Evaluates a trained DeepAR model using held-out
+time-series observations.</p>
+<dl class="field-list simple">
+<dt class="field-odd">Parameters<span class="colon">:</span></dt>
+<dd class="field-odd"><ul class="simple">
+<li><p><strong>train_df_path</strong> – Path to the training Parquet dataset.</p></li>
+<li><p><strong>val_df_path</strong> – Path to the validation Parquet dataset.</p></li>
+<li><p><strong>eval_df_path</strong> – Path to the evaluation Parquet dataset.</p></li>
+<li><p><strong>out</strong> – Directory for evaluation outputs.</p></li>
+<li><p><strong>batch_size</strong> – Batch size used during inference.</p></li>
+<li><p><strong>timeindex_column</strong> – Column representing temporal order.</p></li>
+<li><p><strong>target_column</strong> – Target variable used for forecasting.</p></li>
+<li><p><strong>model_weights</strong> – Directory containing the trained
+DeepAR checkpoint.</p></li>
+<li><p><strong>max_encoder_length</strong> – Number of preceding observations
+retained as historical context per group.</p></li>
+<li><p><strong>max_prediction_length</strong> – Configured prediction horizon.</p></li>
+<li><p><strong>group_ids</strong> – Optional time-series grouping identifiers.</p></li>
+<li><p><strong>time_varying_known_categoricals</strong> – Configuration of
+known time-varying categorical features.</p></li>
+<li><p><strong>time_varying_unknown_categoricals</strong> – Configuration of
+unknown time-varying categorical features.</p></li>
+<li><p><strong>static_categoricals</strong> – Static categorical features.</p></li>
+<li><p><strong>time_varying_known_reals</strong> – Known time-varying
+numerical features.</p></li>
+<li><p><strong>time_varying_unknown_reals</strong> – Unknown time-varying
+numerical features.</p></li>
+<li><p><strong>static_reals</strong> – Static numerical features.</p></li>
+<li><p><strong>args</strong> – Parsed execution configuration.</p></li>
 </ul>
-<p>Evaluation metrics are saved to <code class="docutils literal notranslate"><span class="pre">full_metrics.json</span></code>,
-alongside the forecasting outputs.</p>
+</dd>
+</dl>
+<p>The function loads the specified checkpoint, constructs
+the evaluation dataset, generates forecasts, and calculates
+prediction-error metrics.</p>
+<p>Returns the evaluation output directory and a NumPy array
+containing the generated predictions.</p>
 </dd></dl>
 
+</section>
+<section id="evaluation-dataset-construction">
+<h3>Evaluation Dataset Construction<a class="headerlink" href="#evaluation-dataset-construction" title="Link to this heading"></a></h3>
+<p>The function loads the training, validation, and evaluation
+datasets and assigns identifiers to distinguish their
+original splits. The datasets are concatenated and processed through
+<code class="docutils literal notranslate"><span class="pre">prepare_timeseries()</span></code> before recovering the separate
+training, validation, and evaluation subsets.</p>
+<p>The evaluation workflow uses historical observations from
+both the training and validation datasets. For each time-series group, the function selects the final
+<code class="docutils literal notranslate"><span class="pre">max_encoder_length</span></code> historical observations and combines
+them with the evaluation dataset.</p>
+<p>The resulting dataset is sorted by group identifiers and
+time index to preserve temporal ordering.</p>
+<p>The evaluation <code class="docutils literal notranslate"><span class="pre">TimeSeriesDataSet</span></code> is reconstructed using
+<code class="docutils literal notranslate"><span class="pre">TimeSeriesDataSet.from_parameters()</span></code> and the
+<code class="docutils literal notranslate"><span class="pre">dataset_parameters</span></code> stored in the trained checkpoint. This preserves the trained model’s preprocessing configuration,
+including its encoders and normalization parameters.</p>
+<p>The evaluation dataset uses:</p>
+<ul class="simple">
+<li><p><code class="docutils literal notranslate"><span class="pre">predict=False</span></code> for constructing evaluation windows.</p></li>
+<li><p><code class="docutils literal notranslate"><span class="pre">stop_randomization=True</span></code> for deterministic window selection.</p></li>
+<li><p><code class="docutils literal notranslate"><span class="pre">min_prediction_idx</span></code> set to the earliest evaluation time
+index to restrict the prediction starting point.</p></li>
+</ul>
+<p>The resulting dataset is converted into an evaluation
+DataLoader without training-time shuffling.</p>
+</section>
+<section id="forecast-generation-and-metrics">
+<h3>Forecast Generation and Metrics<a class="headerlink" href="#forecast-generation-and-metrics" title="Link to this heading"></a></h3>
+<p>The evaluation workflow generates predictions using
+<code class="docutils literal notranslate"><span class="pre">DeepAR.predict()</span></code> with <code class="docutils literal notranslate"><span class="pre">mode=&quot;prediction&quot;</span></code>.</p>
+<p>The prediction call also requests:</p>
+<ul class="simple">
+<li><p>Input tensors through <code class="docutils literal notranslate"><span class="pre">return_x=True</span></code>.</p></li>
+<li><p>Ground-truth targets through <code class="docutils literal notranslate"><span class="pre">return_y=True</span></code>.</p></li>
+<li><p>Time-series indices through <code class="docutils literal notranslate"><span class="pre">return_index=True</span></code>.</p></li>
+<li><p>Decoder sequence lengths through
+<code class="docutils literal notranslate"><span class="pre">return_decoder_lengths=True</span></code>.</p></li>
+</ul>
+<p>The returned prediction values are compared with the
+corresponding ground-truth targets. The implementation calculates the following metrics:</p>
+<ul class="simple">
+<li><p><strong>MAE:</strong> Mean Absolute Error between predictions and targets.</p></li>
+<li><p><strong>RMSE:</strong> Root Mean Squared Error.</p></li>
+<li><p><strong>Loss:</strong> Mean Squared Error (MSE).</p></li>
+<li><p><strong>Predictions:</strong> Total number of evaluated prediction values.</p></li>
+</ul>
+<p>The metrics are calculated over the returned prediction
+elements and are not separately aggregated by time-series group.</p>
+<p>The evaluation <code class="docutils literal notranslate"><span class="pre">loss</span></code> field represents MSE, rather than
+the probabilistic <code class="docutils literal notranslate"><span class="pre">NormalDistributionLoss</span></code> used during training. The final metrics are saved to <code class="docutils literal notranslate"><span class="pre">full_metrics.json</span></code>. Forecast outputs are additionally serialized using
+<code class="docutils literal notranslate"><span class="pre">save_timeseries_prediction_to_json()</span></code>.</p>
+<p>The workflow saves the execution configuration and
+processing-time information alongside the evaluation outputs.</p>
+</section>
 </section>
 <section id="embedding-extraction">
 <h2>Embedding Extraction<a class="headerlink" href="#embedding-extraction" title="Link to this heading"></a></h2>
 <p><strong>Entry point:</strong> <code class="docutils literal notranslate"><span class="pre">deepAR_embeddings.embed</span></code></p>
-<p>The embedding workflow loads a trained DeepAR model and
-extracts temporal feature representations from its encoder.</p>
+<p>The embedding workflow extracts numerical representations
+of temporal information from a trained DeepAR model. Unlike the evaluation workflow, which focuses on forecast
+generation, embedding extraction retrieves intermediate
+representations from the recurrent encoder.</p>
+<p>These representations summarize historical time-series
+information and can be used as features for subsequent
+machine learning tasks.</p>
+<section id="embedding-extraction-function">
+<h3>Embedding Extraction Function<a class="headerlink" href="#embedding-extraction-function" title="Link to this heading"></a></h3>
 <dl class="py function">
 <dt class="sig sig-object py" id="deepAR_embeddings.embed">
-<span class="sig-prename descclassname"><span class="pre">deepAR_embeddings.</span></span><span class="sig-name descname"><span class="pre">embed</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">eval_df</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">out</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">batch_size</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">timeindex_column</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">target_column</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">model_weights</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">max_encoder_length</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">30</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">max_prediction_length</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">1</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">group_ids</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">None</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">time_varying_known_categoricals</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">[]</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">time_varying_unknown_categoricals</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">[]</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">static_categoricals</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">[]</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">time_varying_known_reals</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">[]</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">time_varying_unknown_reals</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">[]</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">static_reals</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">[]</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">model_str</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">'deepAR'</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">args</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">None</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">history_df_paths</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">None</span></span></em><span class="sig-paren">)</span><a class="headerlink" href="#deepAR_embeddings.embed" title="Link to this definition"></a></dt>
-<dd><p>Extracts numerical representations from time-series data
-using the trained DeepAR encoder.</p>
+<span class="sig-prename descclassname"><span class="pre">deepAR_embeddings.</span></span><span class="sig-name descname"><span class="pre">embed</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">eval_df</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">out</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">batch_size</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">timeindex_column</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">target_column</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">model_weights</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">max_encoder_length</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">max_prediction_length</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">group_ids</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">time_varying_known_categoricals</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">time_varying_unknown_categoricals</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">static_categoricals</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">time_varying_known_reals</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">time_varying_unknown_reals</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">static_reals</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">model_str=&quot;deepAR&quot;</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">args</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">history_df_paths</span></span></em><span class="sig-paren">)</span><a class="headerlink" href="#deepAR_embeddings.embed" title="Link to this definition"></a></dt>
+<dd><p>Extracts temporal feature representations from the
+recurrent encoder of a trained DeepAR model.</p>
 <dl class="field-list simple">
 <dt class="field-odd">Parameters<span class="colon">:</span></dt>
 <dd class="field-odd"><ul class="simple">
-<li><p><strong>eval_df</strong> – Path to the evaluation dataset.</p></li>
+<li><p><strong>eval_df</strong> – Path to the input Parquet dataset.</p></li>
 <li><p><strong>out</strong> – Directory for embedding outputs.</p></li>
-<li><p><strong>batch_size</strong> – Batch size for embedding extraction.</p></li>
-<li><p><strong>timeindex_column</strong> – Column identifying temporal order.</p></li>
-<li><p><strong>target_column</strong> – Target variable for forecasting.</p></li>
-<li><p><strong>model_weights</strong> – Path to the trained model checkpoint.</p></li>
-<li><p><strong>history_df_paths</strong> – Optional historical datasets used
-to provide encoder context.</p></li>
+<li><p><strong>batch_size</strong> – Number of samples processed per batch.</p></li>
+<li><p><strong>timeindex_column</strong> – Column representing temporal order.</p></li>
+<li><p><strong>target_column</strong> – Target column or columns retained
+in the embedding output.</p></li>
+<li><p><strong>model_weights</strong> – Path to a DeepAR checkpoint file
+or a directory containing checkpoint files.</p></li>
+<li><p><strong>max_encoder_length</strong> – Configured encoder length.</p></li>
+<li><p><strong>max_prediction_length</strong> – Configured prediction horizon.</p></li>
+<li><p><strong>group_ids</strong> – Optional time-series grouping identifiers.</p></li>
+<li><p><strong>time_varying_known_categoricals</strong> – Known time-varying
+categorical feature configuration.</p></li>
+<li><p><strong>time_varying_unknown_categoricals</strong> – Unknown time-varying
+categorical feature configuration.</p></li>
+<li><p><strong>static_categoricals</strong> – Static categorical features.</p></li>
+<li><p><strong>time_varying_known_reals</strong> – Known numerical
+time-varying feature configuration.</p></li>
+<li><p><strong>time_varying_unknown_reals</strong> – Unknown numerical
+time-varying feature configuration.</p></li>
+<li><p><strong>static_reals</strong> – Static numerical feature configuration.</p></li>
+<li><p><strong>model_str</strong> – Model identifier used for output naming.</p></li>
+<li><p><strong>args</strong> – Optional execution configuration.</p></li>
+<li><p><strong>history_df_paths</strong> – Optional list of historical Parquet
+datasets providing additional encoder context.</p></li>
 </ul>
 </dd>
 </dl>
-<p>The workflow extracts the encoder’s final hidden-state
-representations and associates them with evaluation samples.</p>
-<p>Samples without sufficient historical context receive
-zero-filled embeddings and are identified through the
-<code class="docutils literal notranslate"><span class="pre">is_padded</span></code> column.</p>
-<p>The resulting DataFrame contains extracted embeddings,
-target values, optional group identifiers, and padding flags.</p>
-<p>Embeddings are saved to <code class="docutils literal notranslate"><span class="pre">deepAR_embeddings.parquet</span></code>.</p>
+<p>The function loads the trained DeepAR model, reconstructs
+the time-series dataset, and extracts encoder representations
+without gradient computation, and returns the embedding output directory and the dimensions
+of the generated embedding DataFrame.</p>
 </dd></dl>
 
+</section>
+<section id="historical-context-preparation">
+<h3>Historical Context Preparation<a class="headerlink" href="#historical-context-preparation" title="Link to this heading"></a></h3>
+<p>The embedding workflow first loads the evaluation dataset
+and verifies that it contains observations. Each evaluation row is assigned an internal identifier
+through the <code class="docutils literal notranslate"><span class="pre">__embedding_row</span></code> column.</p>
+<p>When <code class="docutils literal notranslate"><span class="pre">history_df_paths</span></code> is provided, the function loads
+the specified historical datasets and concatenates them
+with the evaluation observations. Historical observations receive an identifier of <code class="docutils literal notranslate"><span class="pre">-1</span></code>
+to distinguish them from the rows requiring embeddings.</p>
+<p>The combined dataset is processed using
+<code class="docutils literal notranslate"><span class="pre">prepare_timeseries()</span></code>. After preprocessing, the workflow selects the evaluation
+rows and restores their original ordering using
+<code class="docutils literal notranslate"><span class="pre">__embedding_row</span></code>.</p>
+<p>The historical observations are used as encoder context
+but are not included as separate rows in the final
+embedding DataFrame.</p>
+<p>The time-series dataset is reconstructed through
+<code class="docutils literal notranslate"><span class="pre">TimeSeriesDataSet.from_parameters()</span></code> using the
+preprocessing configuration stored in the trained checkpoint. This ensures that the embedding workflow reuses the
+training-time encoders, feature transformations, and
+normalization parameters instead of fitting new ones
+on evaluation data.</p>
+<p>The reconstructed dataset uses <code class="docutils literal notranslate"><span class="pre">predict=False</span></code>,
+<code class="docutils literal notranslate"><span class="pre">stop_randomization=True</span></code>, and a minimum encoder
+length of two observations. The minimum prediction index is set to the earliest
+time index among the evaluation rows.</p>
+</section>
+<section id="encoder-representation-extraction">
+<h3>Encoder Representation Extraction<a class="headerlink" href="#encoder-representation-extraction" title="Link to this heading"></a></h3>
+<p>The extraction procedure runs the trained model in
+evaluation mode with gradient computation disabled.</p>
+<p>For each batch, the workflow invokes:</p>
+<div class="highlight-python notranslate"><div class="highlight"><pre><span></span><span class="n">hidden</span> <span class="o">=</span> <span class="n">model</span><span class="o">.</span><span class="n">encode</span><span class="p">(</span><span class="n">x</span><span class="p">)</span>
+</pre></div>
+</div>
+<p>The returned encoder representation is processed to
+obtain the final hidden-state tensor used by the
+implementation.</p>
+<p>The selected hidden-state representation is converted
+to a NumPy array and associated with the corresponding
+time-series group and decoder time indices. These group-time associations are recovered using
+<code class="docutils literal notranslate"><span class="pre">TimeSeriesDataSet.x_to_index()</span></code> and the decoder
+time-index information in each batch.</p>
+<p>The implementation assigns the selected encoder vector
+to the decoder time steps associated with its window,
+rather than independently computing an embedding
+from each individual target observation.</p>
+<p>The embedding dimension is determined by the
+trained model’s recurrent hidden size. For the current training configuration, the hidden
+size is <code class="docutils literal notranslate"><span class="pre">30</span></code>, producing 30-dimensional embedding
+vectors.</p>
+</section>
+<section id="embedding-alignment-and-missing-context">
+<h3>Embedding Alignment and Missing Context<a class="headerlink" href="#embedding-alignment-and-missing-context" title="Link to this heading"></a></h3>
+<p>After extracting the available encoder representations,
+the workflow aligns the embeddings with the original
+evaluation rows. Each evaluation observation is matched using its
+time-series group identifiers and time index.</p>
+<p>If an embedding is available, the corresponding
+encoder representation is assigned to the row. If no matching embedding is available, the workflow
+creates a zero-filled vector with the same dimension
+as the model’s recurrent hidden size.</p>
+<p>An <code class="docutils literal notranslate"><span class="pre">is_padded</span></code> column records whether an embedding
+was unavailable and replaced with zeros.</p>
+<p>This mechanism preserves the number and original
+ordering of evaluation rows. A padded embedding indicates that no matching encoder
+representation was produced for that observation,
+which may occur when the available temporal context
+is insufficient for constructing a valid window.</p>
+<p>The final embedding DataFrame contains:</p>
+<ul class="simple">
+<li><p><code class="docutils literal notranslate"><span class="pre">emb_0</span></code>, <code class="docutils literal notranslate"><span class="pre">emb_1</span></code>, …, <code class="docutils literal notranslate"><span class="pre">emb_&lt;N-1&gt;</span></code>:
+Extracted temporal feature representations.</p></li>
+<li><p>Target column or columns corresponding to the
+original observations.</p></li>
+<li><p><code class="docutils literal notranslate"><span class="pre">is_padded</span></code>: Boolean indicator of missing embeddings.</p></li>
+<li><p>Optional time-series group identifiers.</p></li>
+</ul>
+<p>The embedding DataFrame is saved to
+<code class="docutils literal notranslate"><span class="pre">deepAR_embeddings.parquet</span></code>.</p>
+<p>The workflow also records the total extraction time
+and saves the execution configuration when provided.</p>
+</section>
+</section>
+<section id="implementation-notes">
+<h2>Implementation Notes<a class="headerlink" href="#implementation-notes" title="Link to this heading"></a></h2>
+<p>Several implementation details are important when configuring
+and interpreting the DeepAR workflows.</p>
+<p><strong>Training and evaluation objectives</strong></p>
+<p>Training uses <code class="docutils literal notranslate"><span class="pre">NormalDistributionLoss</span></code> to optimize a
+probabilistic forecasting model, whereas the held-out
+evaluation function calculates point-prediction errors
+using MAE, RMSE, and MSE.</p>
+<p><strong>Temporal context</strong></p>
+<p>Training validation and held-out evaluation explicitly
+include earlier observations to provide encoder context.
+Embedding extraction can optionally receive additional
+historical datasets through <code class="docutils literal notranslate"><span class="pre">history_df_paths</span></code>.</p>
+<p><strong>Checkpoint selection</strong></p>
+<p>Only the best checkpoint according to validation loss
+is retained by the configured <code class="docutils literal notranslate"><span class="pre">ModelCheckpoint</span></code> callback.
+Evaluation and embedding extraction load saved checkpoints
+rather than retraining the model.</p>
+<p><strong>Saved preprocessing parameters</strong></p>
+<p>Evaluation and embedding extraction reuse the dataset
+parameters stored in the checkpoint. The feature-category
+parameters in their function signatures are not used to
+rebuild independent feature encoders.</p>
+<p><strong>Configuration differences</strong></p>
+<p>The training function defaults to
+<code class="docutils literal notranslate"><span class="pre">max_encoder_length=8</span></code>, while evaluation and embedding
+extraction default to <code class="docutils literal notranslate"><span class="pre">max_encoder_length=30</span></code>.</p>
+<p>During evaluation, the latter controls how many historical
+rows are explicitly selected, while the reconstructed
+dataset also inherits the trained model’s parameters.</p>
+<p>In the current embedding implementation,
+<code class="docutils literal notranslate"><span class="pre">max_encoder_length</span></code> and <code class="docutils literal notranslate"><span class="pre">max_prediction_length</span></code> are
+accepted as arguments but are not directly supplied to
+<code class="docutils literal notranslate"><span class="pre">TimeSeriesDataSet.from_parameters()</span></code>.</p>
+<p><strong>Embedding availability</strong></p>
+<p>The embedding workflow uses a group-and-time-index lookup
+to align extracted representations with evaluation rows.
+When multiple windows produce a representation for the
+same group and time index, the later assignment replaces
+the earlier one.</p>
+<p>The <code class="docutils literal notranslate"><span class="pre">is_padded</span></code> column should therefore be considered
+when using the resulting embeddings in downstream models.</p>
 </section>
 </section>
 

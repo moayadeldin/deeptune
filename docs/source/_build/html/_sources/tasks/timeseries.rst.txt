@@ -8,7 +8,7 @@ Time series forecasting is a critical task in machine learning, where the object
 Running Time Series Forecasting Tasks through DeepTune
 ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
 
-`deepAR <https://pytorch-forecasting.readthedocs.io/en/stable/tutorials/deepar.html>`_ (Deep Autoregressive Recurrent Neural Network) is a powerful model for time series forecasting. The only supported version is 'deepar'.
+`deepAR <https://pytorch-forecasting.readthedocs.io/en/stable/tutorials/deepar.html>`_ (Deep Autoregressive Recurrent Neural Network). The only supported version is 'deepar'.
 
 .. note::
     The `deepAR` model in **DeepTune** is yet to be heavily tested and validated, especially on the effectiveness of the embeddings extraction feature. Users are encouraged to report any issues or provide feedback to help improve the implementation.
@@ -17,6 +17,7 @@ For the time-series task using deepAR, the following command can be used to run 
 
 .. code-block:: console
 
+    # --time_idx_column <time_index_column_name> is only required with time series forecasting tasks
     (.deeptune) $ python -m deeptune \
         --modality timeseries \
         --model_version deepAR \

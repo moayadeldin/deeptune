@@ -44,18 +44,19 @@ Unified CLI Output Structure
 ~~~~~~~~~~~~~~~~~~~~~~~~~~~~
 After running the unified CLI command, **DeepTune** will generate an output directory containing the results of your experiment. The structure of the output directory will be as follows:
 
+
 .. code-block:: text
 
    output_directory
-   ├── deeptune_coordinate_regression-<yyyymmdd_hhmm>-exp<int>
+   └── deeptune_coordinate_regression-<yyyymmdd_hhmm>-exp<int>
        ├── data_splits_<yyyymmdd_hhmm>
        │   ├── train_split.parquet
        │   ├── val_split.parquet
-       │   └── test_split.parquet
-       │   └── label_mapping.json
+       │   ├── test_split.parquet
+       │   ├── label_mapping.json
        │   └── split_summary.json
-       ├── coordinate_regression_output_<model_version>_<yyyymmdd_hhmm>
-       │   └── test_log.txt
-       │   └── cli_arguments.json
-       │   └── model_weights.pth
-       │   └── trainval_performance_log.csv
+       └── coordinate_regression_output_<model_version>_<yyyymmdd_hhmm>
+           ├── test_log.txt
+           ├── cli_arguments.json
+           ├── model_weights.pth
+           └── trainval_performance_log.csv

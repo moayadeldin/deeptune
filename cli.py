@@ -11,7 +11,14 @@ class DeepTuneVisionOptions:
     """
     def __init__(self, run_type: RunType, args=None):
         self.parser = ArgumentParser(
-            description=f"CLI for {run_type.value} pipeline.",
+            description=(
+                "Run DeepTune's multimodal training pipeline. "
+                "Provide a dataset with --df and select its input type with --modality."
+            ),
+            epilog=(
+                "Example:\n"
+                "  python -m deeptune --modality images --df path/to/data.parquet"
+            ),
             formatter_class=RawTextHelpFormatter
         )
         self.mode = run_type

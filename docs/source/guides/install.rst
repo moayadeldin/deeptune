@@ -29,10 +29,38 @@ or using venv ensuring that you have Python 3.10 installed:
     $ python -m venv deeptune
     $ source deeptune/bin/activate
 
-Install dependencies
+Install Dependencies
 --------------------
 
 .. code-block:: console
 
+    (.deeptune) $ git clone https://github.com/moayadeldin/deeptune
     (.deeptune) $ pip install -r requirements.txt
 
+Install **DeepTune** using pip directly from the GitHub repository:
+---------------------------------------------------------------------
+
+.. code-block:: console
+
+    (.deeptune) $ git clone https://github.com/moayadeldin/deeptune
+    (.deeptune) $ cd deeptune
+    (.deeptune) $ pip install -e .
+
+The above option will install **DeepTune** in editable mode, allowing you to run **DeepTune** directly without needing to navigate to the cloned repository directory.
+
+Docker
+-------
+
+You can also run **DeepTune** using Docker. Please ensure that you have Docker installed on your system. You can find the installation instructions for Docker `here <https://docs.docker.com/get-docker/>`_.
+
+Pull DeepTune's docker image:
+
+.. code-block:: console
+
+    $ docker pull moayadeldinn/deeptune:latest
+
+Run it:
+
+.. code-block:: console
+
+    $ docker run -it moayadeldinn/deeptune:latest

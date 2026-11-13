@@ -16,6 +16,9 @@ In order to run the image reconstruction task through the CLI, the following com
 
 .. code-block:: console
 
+    # --image_size <image_size> is only required with autoencoder tasks
+    # --if-grayscale is only required with autoencoder tasks
+    # --use-deeper is only required with autoencoder tasks
     (.deeptune) $ python -m deeptune \
         --train_df <train_df_path> \
         --test_df <test_df_path> \
@@ -23,10 +26,10 @@ In order to run the image reconstruction task through the CLI, the following com
         --num_epochs <num_epochs> \
         --learning_rate <learning_rate> \
         --out <output_directory> \
-        --image_size <image_size> \ //only for autoencoder tasks
-        --model_weights <model_weights_path> \ // in case of reproducing a previous experiment, the model weights can be provided to continue training or for evaluation.
-        --if-grayscale \ //only for autoencoder tasks
-        --use-deeper \ //only for autoencoder tasks
+        --image_size <image_size> \
+        --model_weights <model_weights_path> \ 
+        --if-grayscale \
+        --use-deeper \
 
 .. image:: autoencoder_img.png
     :width: 800

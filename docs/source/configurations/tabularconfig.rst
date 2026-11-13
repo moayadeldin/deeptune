@@ -97,7 +97,7 @@ After running the unified CLI command, **DeepTune** will generate an output dire
        │   ├── test_indices.csv
        │   ├── label_mapping.json
        │   └── split_summary.json
-       
+       │
        │   // GANDALF
        ├── trainval_output_<model_version>_<yyyymmdd_hhmm>
        │   ├── GANDALF_model
@@ -109,7 +109,7 @@ After running the unified CLI command, **DeepTune** will generate an output dire
        │   ├── cli_arguments.json
        │   ├── training_details.json
        │   └── training_log.csv
-
+       │
        │   // TabPFN
        ├── train_output_<model_version>_<yyyymmdd_hhmm>
        │   ├── cli_arguments.json

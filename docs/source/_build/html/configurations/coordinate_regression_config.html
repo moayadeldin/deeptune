@@ -6,14 +6,14 @@
   <meta charset="utf-8" /><meta name="viewport" content="width=device-width, initial-scale=1" />
 
   <meta name="viewport" content="width=device-width, initial-scale=1.0" />
-  <title>Coordinate Regression Configuration Parameters &mdash; DeepTune 1.1.0 documentation</title>
+  <title>Coordinate Regression Configuration Parameters &mdash; DeepTune 2.0.0 documentation</title>
       <link rel="stylesheet" type="text/css" href="../_static/pygments.css?v=b86133f3" />
       <link rel="stylesheet" type="text/css" href="../_static/css/theme.css?v=e59714d7" />
 
   
       <script src="../_static/jquery.js?v=5d32c60e"></script>
       <script src="../_static/_sphinx_javascript_frameworks_compat.js?v=2cd50e6c"></script>
-      <script src="../_static/documentation_options.js?v=fc837d61"></script>
+      <script src="../_static/documentation_options.js?v=51b770b3"></script>
       <script src="../_static/doctools.js?v=9bcbadda"></script>
       <script src="../_static/sphinx_highlight.js?v=dc90522c"></script>
     <script src="../_static/js/theme.js"></script>
@@ -178,18 +178,18 @@ fine-tuning capabilities.</p>
 <h2>Unified CLI Output Structure<a class="headerlink" href="#unified-cli-output-structure" title="Link to this heading"></a></h2>
 <p>After running the unified CLI command, <strong>DeepTune</strong> will generate an output directory containing the results of your experiment. The structure of the output directory will be as follows:</p>
 <div class="highlight-text notranslate"><div class="highlight"><pre><span></span>output_directory
-├── deeptune_coordinate_regression-&lt;yyyymmdd_hhmm&gt;-exp&lt;int&gt;
+└── deeptune_coordinate_regression-&lt;yyyymmdd_hhmm&gt;-exp&lt;int&gt;
     ├── data_splits_&lt;yyyymmdd_hhmm&gt;
     │   ├── train_split.parquet
     │   ├── val_split.parquet
-    │   └── test_split.parquet
-    │   └── label_mapping.json
+    │   ├── test_split.parquet
+    │   ├── label_mapping.json
     │   └── split_summary.json
-    ├── coordinate_regression_output_&lt;model_version&gt;_&lt;yyyymmdd_hhmm&gt;
-    │   └── test_log.txt
-    │   └── cli_arguments.json
-    │   └── model_weights.pth
-    │   └── trainval_performance_log.csv
+    └── coordinate_regression_output_&lt;model_version&gt;_&lt;yyyymmdd_hhmm&gt;
+        ├── test_log.txt
+        ├── cli_arguments.json
+        ├── model_weights.pth
+        └── trainval_performance_log.csv
 </pre></div>
 </div>
 </section>

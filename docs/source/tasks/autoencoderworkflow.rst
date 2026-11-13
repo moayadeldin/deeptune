@@ -20,7 +20,7 @@ the input image.
 
 .. py:currentmodule:: autoencoders.components.architecture
 
-.. py:class:: ConvBlock(in_ch, out_ch, norm="group", groups=8)
+.. py:class:: ConvBlock(in_ch, out_ch, norm, groups)
 
    Implements a convolutional processing block consisting of
    a 2D convolution, optional Group Normalization, and
@@ -32,7 +32,7 @@ the input image.
    :param groups: Maximum number of normalization groups.
 
 
-.. py:class:: AutoEncoder(use_deeper=False, in_ch=1, base=32, blur_k=5, blur_simga=1.0)
+.. py:class:: AutoEncoder(use_deeper, in_ch, base, blur_k, blur_simga)
 
    Implements an encoder-decoder architecture for image
    reconstruction.
@@ -94,7 +94,7 @@ reconstruction using Adam and Smooth L1 Loss.
 
 .. py:currentmodule:: autoencoders.autoencoder
 
-.. py:function:: run_autoencoder(model, train_df_path, transform, test_df_path, num_epochs, learning_rate, out, model_weights=None, device=DEVICE)
+.. py:function:: run_autoencoder(model, train_df_path, transform, test_df_path, num_epochs, learning_rate, out, model_weights, device)
 
    Coordinates autoencoder training and evaluation.
 
@@ -127,7 +127,7 @@ dataset using the trained autoencoder.
 
 .. py:currentmodule:: autoencoders.autoencoder
 
-.. py:function:: test_autoencoder(model, test_loader, device=DEVICE)
+.. py:function:: test_autoencoder(model, test_loader, device)
 
    Evaluates the model on the testing dataset without
    gradient computation.
@@ -159,24 +159,11 @@ dataset class labels.
    as ``autoencoder_model.pth``.
 
 
-.. py:function:: rescale_image(x, eps=1e-6)
+.. py:function:: rescale_image(x, eps)
 
    Applies channel-wise spatial min-max normalization to
    rescale reconstructed image tensors to ``[0, 1]``
    before saving them.
-
-The reconstruction workflow produces the following
-output directory structure::
-
-   output_directory/
-   └── reconstructed_images_<yymmdd>/
-       ├── autoencoder_model.pth
-       ├── Class 0/
-       │   ├── reconstructed_0.png
-       │   └── reconstructed_1.png
-       └── Class 1/
-           ├── reconstructed_0.png
-           └── reconstructed_1.png
 
 The model checkpoint is generated only when training
 a new autoencoder. Existing checkpoints are not saved

@@ -6,14 +6,14 @@
   <meta charset="utf-8" /><meta name="viewport" content="width=device-width, initial-scale=1" />
 
   <meta name="viewport" content="width=device-width, initial-scale=1.0" />
-  <title>Autoencoder Workflow Components &mdash; DeepTune 1.1.0 documentation</title>
+  <title>Autoencoder Workflow Components &mdash; DeepTune 2.0.0 documentation</title>
       <link rel="stylesheet" type="text/css" href="../_static/pygments.css?v=b86133f3" />
       <link rel="stylesheet" type="text/css" href="../_static/css/theme.css?v=e59714d7" />
 
   
       <script src="../_static/jquery.js?v=5d32c60e"></script>
       <script src="../_static/_sphinx_javascript_frameworks_compat.js?v=2cd50e6c"></script>
-      <script src="../_static/documentation_options.js?v=fc837d61"></script>
+      <script src="../_static/documentation_options.js?v=51b770b3"></script>
       <script src="../_static/doctools.js?v=9bcbadda"></script>
       <script src="../_static/sphinx_highlight.js?v=dc90522c"></script>
     <script src="../_static/js/theme.js"></script>
@@ -156,7 +156,7 @@ a bottleneck representation, and a decoder that reconstructs
 the input image.</p>
 <dl class="py class">
 <dt class="sig sig-object py" id="autoencoders.components.architecture.ConvBlock">
-<em class="property"><span class="pre">class</span><span class="w"> </span></em><span class="sig-prename descclassname"><span class="pre">autoencoders.components.architecture.</span></span><span class="sig-name descname"><span class="pre">ConvBlock</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">in_ch</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">out_ch</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">norm</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">'group'</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">groups</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">8</span></span></em><span class="sig-paren">)</span><a class="headerlink" href="#autoencoders.components.architecture.ConvBlock" title="Link to this definition"></a></dt>
+<em class="property"><span class="pre">class</span><span class="w"> </span></em><span class="sig-prename descclassname"><span class="pre">autoencoders.components.architecture.</span></span><span class="sig-name descname"><span class="pre">ConvBlock</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">in_ch</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">out_ch</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">norm</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">groups</span></span></em><span class="sig-paren">)</span><a class="headerlink" href="#autoencoders.components.architecture.ConvBlock" title="Link to this definition"></a></dt>
 <dd><p>Implements a convolutional processing block consisting of
 a 2D convolution, optional Group Normalization, and
 SiLU activation.</p>
@@ -174,7 +174,7 @@ SiLU activation.</p>
 
 <dl class="py class">
 <dt class="sig sig-object py" id="autoencoders.components.architecture.AutoEncoder">
-<em class="property"><span class="pre">class</span><span class="w"> </span></em><span class="sig-prename descclassname"><span class="pre">autoencoders.components.architecture.</span></span><span class="sig-name descname"><span class="pre">AutoEncoder</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">use_deeper</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">False</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">in_ch</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">1</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">base</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">32</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">blur_k</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">5</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">blur_simga</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">1.0</span></span></em><span class="sig-paren">)</span><a class="headerlink" href="#autoencoders.components.architecture.AutoEncoder" title="Link to this definition"></a></dt>
+<em class="property"><span class="pre">class</span><span class="w"> </span></em><span class="sig-prename descclassname"><span class="pre">autoencoders.components.architecture.</span></span><span class="sig-name descname"><span class="pre">AutoEncoder</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">use_deeper</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">in_ch</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">base</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">blur_k</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">blur_simga</span></span></em><span class="sig-paren">)</span><a class="headerlink" href="#autoencoders.components.architecture.AutoEncoder" title="Link to this definition"></a></dt>
 <dd><p>Implements an encoder-decoder architecture for image
 reconstruction.</p>
 <dl class="field-list simple">
@@ -238,7 +238,7 @@ architecture, prepares image DataLoaders, and optimizes
 reconstruction using Adam and Smooth L1 Loss.</p>
 <dl class="py function">
 <dt class="sig sig-object py" id="autoencoders.autoencoder.run_autoencoder">
-<span class="sig-prename descclassname"><span class="pre">autoencoders.autoencoder.</span></span><span class="sig-name descname"><span class="pre">run_autoencoder</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">model</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">train_df_path</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">transform</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">test_df_path</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">num_epochs</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">learning_rate</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">out</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">model_weights</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">None</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">device</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">DEVICE</span></span></em><span class="sig-paren">)</span><a class="headerlink" href="#autoencoders.autoencoder.run_autoencoder" title="Link to this definition"></a></dt>
+<span class="sig-prename descclassname"><span class="pre">autoencoders.autoencoder.</span></span><span class="sig-name descname"><span class="pre">run_autoencoder</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">model</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">train_df_path</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">transform</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">test_df_path</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">num_epochs</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">learning_rate</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">out</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">model_weights</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">device</span></span></em><span class="sig-paren">)</span><a class="headerlink" href="#autoencoders.autoencoder.run_autoencoder" title="Link to this definition"></a></dt>
 <dd><p>Coordinates autoencoder training and evaluation.</p>
 <dl class="field-list simple">
 <dt class="field-odd">Parameters<span class="colon">:</span></dt>
@@ -271,7 +271,7 @@ additional training.</p>
 dataset using the trained autoencoder.</p>
 <dl class="py function">
 <dt class="sig sig-object py" id="autoencoders.autoencoder.test_autoencoder">
-<span class="sig-prename descclassname"><span class="pre">autoencoders.autoencoder.</span></span><span class="sig-name descname"><span class="pre">test_autoencoder</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">model</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">test_loader</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">device</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">DEVICE</span></span></em><span class="sig-paren">)</span><a class="headerlink" href="#autoencoders.autoencoder.test_autoencoder" title="Link to this definition"></a></dt>
+<span class="sig-prename descclassname"><span class="pre">autoencoders.autoencoder.</span></span><span class="sig-name descname"><span class="pre">test_autoencoder</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">model</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">test_loader</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">device</span></span></em><span class="sig-paren">)</span><a class="headerlink" href="#autoencoders.autoencoder.test_autoencoder" title="Link to this definition"></a></dt>
 <dd><p>Evaluates the model on the testing dataset without
 gradient computation.</p>
 <p>Returns three lists containing the original target
@@ -298,25 +298,12 @@ as <code class="docutils literal notranslate"><span class="pre">autoencoder_mode
 
 <dl class="py function">
 <dt class="sig sig-object py" id="autoencoders.autoencoder.rescale_image">
-<span class="sig-prename descclassname"><span class="pre">autoencoders.autoencoder.</span></span><span class="sig-name descname"><span class="pre">rescale_image</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">x</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">eps</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">1e-6</span></span></em><span class="sig-paren">)</span><a class="headerlink" href="#autoencoders.autoencoder.rescale_image" title="Link to this definition"></a></dt>
+<span class="sig-prename descclassname"><span class="pre">autoencoders.autoencoder.</span></span><span class="sig-name descname"><span class="pre">rescale_image</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">x</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">eps</span></span></em><span class="sig-paren">)</span><a class="headerlink" href="#autoencoders.autoencoder.rescale_image" title="Link to this definition"></a></dt>
 <dd><p>Applies channel-wise spatial min-max normalization to
 rescale reconstructed image tensors to <code class="docutils literal notranslate"><span class="pre">[0,</span> <span class="pre">1]</span></code>
 before saving them.</p>
 </dd></dl>
 
-<p>The reconstruction workflow produces the following
-output directory structure:</p>
-<div class="highlight-default notranslate"><div class="highlight"><pre><span></span>output_directory/
-└── reconstructed_images_&lt;yymmdd&gt;/
-    ├── autoencoder_model.pth
-    ├── Class 0/
-    │   ├── reconstructed_0.png
-    │   └── reconstructed_1.png
-    └── Class 1/
-        ├── reconstructed_0.png
-        └── reconstructed_1.png
-</pre></div>
-</div>
 <p>The model checkpoint is generated only when training
 a new autoencoder. Existing checkpoints are not saved
 again during evaluation-only execution.</p>

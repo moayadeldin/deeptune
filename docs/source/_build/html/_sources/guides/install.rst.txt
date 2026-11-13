@@ -29,10 +29,21 @@ or using venv ensuring that you have Python 3.10 installed:
     $ python -m venv deeptune
     $ source deeptune/bin/activate
 
-Install dependencies
+Install Dependencies
 --------------------
 
 .. code-block:: console
 
+    (.deeptune) $ git clone https://github.com/moayadeldin/deeptune
     (.deeptune) $ pip install -r requirements.txt
 
+Option 2: Install **DeepTune** using pip directly from the GitHub repository:
+--------------------------------------------------------------------------------------
+
+.. code-block:: console
+
+    (.deeptune) $ git clone https://github.com/moayadeldin/deeptune
+    (.deeptune) $ cd deeptune
+    (.deeptune) $ pip install -e .
+
+The above option will install **DeepTune** in editable mode, allowing you to run **DeepTune** directly without needing to navigate to the cloned repository directory.

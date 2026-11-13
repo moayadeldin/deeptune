@@ -6,14 +6,14 @@
   <meta charset="utf-8" /><meta name="viewport" content="width=device-width, initial-scale=1" />
 
   <meta name="viewport" content="width=device-width, initial-scale=1.0" />
-  <title>Time Series Forecasting &mdash; DeepTune 1.1.0 documentation</title>
+  <title>Time Series Forecasting &mdash; DeepTune 2.0.0 documentation</title>
       <link rel="stylesheet" type="text/css" href="../_static/pygments.css?v=b86133f3" />
       <link rel="stylesheet" type="text/css" href="../_static/css/theme.css?v=e59714d7" />
 
   
       <script src="../_static/jquery.js?v=5d32c60e"></script>
       <script src="../_static/_sphinx_javascript_frameworks_compat.js?v=2cd50e6c"></script>
-      <script src="../_static/documentation_options.js?v=fc837d61"></script>
+      <script src="../_static/documentation_options.js?v=51b770b3"></script>
       <script src="../_static/doctools.js?v=9bcbadda"></script>
       <script src="../_static/sphinx_highlight.js?v=dc90522c"></script>
     <script src="../_static/js/theme.js"></script>
@@ -122,13 +122,14 @@
 <p>Time series forecasting is a critical task in machine learning, where the objective is to predict future values based on historical data. <strong>DeepTune</strong> offers a robust framework for training, evaluating, and extracting knowledge from models designed for time series forecasting, supporting a variety of state-of-the-art architectures and training paradigms.</p>
 <section id="running-time-series-forecasting-tasks-through-deeptune">
 <h2>Running Time Series Forecasting Tasks through DeepTune<a class="headerlink" href="#running-time-series-forecasting-tasks-through-deeptune" title="Link to this heading"></a></h2>
-<p><a class="reference external" href="https://pytorch-forecasting.readthedocs.io/en/stable/tutorials/deepar.html">deepAR</a> (Deep Autoregressive Recurrent Neural Network) is a powerful model for time series forecasting. The only supported version is ‘deepar’.</p>
+<p><a class="reference external" href="https://pytorch-forecasting.readthedocs.io/en/stable/tutorials/deepar.html">deepAR</a> (Deep Autoregressive Recurrent Neural Network). The only supported version is ‘deepar’.</p>
 <div class="admonition note">
 <p class="admonition-title">Note</p>
 <p>The <cite>deepAR</cite> model in <strong>DeepTune</strong> is yet to be heavily tested and validated, especially on the effectiveness of the embeddings extraction feature. Users are encouraged to report any issues or provide feedback to help improve the implementation.</p>
 </div>
 <p>For the time-series task using deepAR, the following command can be used to run the experiment through the CLI:</p>
-<div class="highlight-console notranslate"><div class="highlight"><pre><span></span><span class="gp gp-VirtualEnv">(.deeptune)</span> <span class="gp">$ </span>python<span class="w"> </span>-m<span class="w"> </span>deeptune<span class="w"> </span><span class="se">\</span>
+<div class="highlight-console notranslate"><div class="highlight"><pre><span></span><span class="gp"># </span>--time_idx_column<span class="w"> </span>&lt;time_index_column_name&gt;<span class="w"> </span>is<span class="w"> </span>only<span class="w"> </span>required<span class="w"> </span>with<span class="w"> </span><span class="nb">time</span><span class="w"> </span>series<span class="w"> </span>forecasting<span class="w"> </span>tasks
+<span class="gp gp-VirtualEnv">(.deeptune)</span> <span class="gp">$ </span>python<span class="w"> </span>-m<span class="w"> </span>deeptune<span class="w"> </span><span class="se">\</span>
 <span class="w">    </span>--modality<span class="w"> </span>timeseries<span class="w"> </span><span class="se">\</span>
 <span class="w">    </span>--model_version<span class="w"> </span>deepAR<span class="w"> </span><span class="se">\</span>
 <span class="w">    </span>--df<span class="w"> </span>&lt;dataset_path&gt;<span class="w"> </span><span class="se">\</span>

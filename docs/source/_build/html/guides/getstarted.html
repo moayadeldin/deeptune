@@ -6,14 +6,14 @@
   <meta charset="utf-8" /><meta name="viewport" content="width=device-width, initial-scale=1" />
 
   <meta name="viewport" content="width=device-width, initial-scale=1.0" />
-  <title>Getting Started &mdash; DeepTune 1.1.0 documentation</title>
+  <title>Getting Started &mdash; DeepTune 2.0.0 documentation</title>
       <link rel="stylesheet" type="text/css" href="../_static/pygments.css?v=b86133f3" />
       <link rel="stylesheet" type="text/css" href="../_static/css/theme.css?v=e59714d7" />
 
   
       <script src="../_static/jquery.js?v=5d32c60e"></script>
       <script src="../_static/_sphinx_javascript_frameworks_compat.js?v=2cd50e6c"></script>
-      <script src="../_static/documentation_options.js?v=fc837d61"></script>
+      <script src="../_static/documentation_options.js?v=51b770b3"></script>
       <script src="../_static/doctools.js?v=9bcbadda"></script>
       <script src="../_static/sphinx_highlight.js?v=dc90522c"></script>
     <script src="../_static/js/theme.js"></script>
@@ -139,6 +139,13 @@
 </section>
 <section id="command-line-interface-cli">
 <h2>2. Command Line Interface (CLI)<a class="headerlink" href="#command-line-interface-cli" title="Link to this heading"></a></h2>
+<p>To get started with the CLI, you can run the following command to access the help menu and view the available options in the one unified CLI command:</p>
+<div class="highlight-console notranslate"><div class="highlight"><pre><span></span><span class="gp gp-VirtualEnv">(.deeptune)</span> <span class="gp">$ </span>python<span class="w"> </span>-m<span class="w"> </span>deeptune<span class="w"> </span>--help
+</pre></div>
+</div>
+<p>The following output will be displayed, providing a summarized overview of the available options and their descriptions:</p>
+<a class="reference internal image-reference" href="../_images/deeptune_help.png"><img alt="A screenshot of the DeepTune GUI dataset tab for previewing videos." src="../_images/deeptune_help.png" style="width: 800px;" />
+</a>
 <p>In case you prefer to use the command line interface, you can execute the following command to train a model:</p>
 <div class="highlight-console notranslate"><div class="highlight"><pre><span></span><span class="gp gp-VirtualEnv">(.deeptune)</span> <span class="gp">$ </span>python<span class="w"> </span>-m<span class="w"> </span>deeptune<span class="w"> </span>--modality<span class="w"> </span>&lt;model_name&gt;<span class="w"> </span>--model<span class="w"> </span>&lt;model_name&gt;<span class="w"> </span>--df<span class="w"> </span>&lt;dataset_path&gt;
 </pre></div>

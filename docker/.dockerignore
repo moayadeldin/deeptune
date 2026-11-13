@@ -1,0 +1,16 @@
+
+.git
+.github
+__pycache__/
+*.pyc
+.venv/
+venv/
+.env
+.env.*
+_build/
+dist/
+build/
+*.egg-info/
+data/
+outputs/
+results/

@@ -6,7 +6,7 @@ Coordinate Regression
 Coordinate regression is a computer vision task that involves predicting the coordinates of the center of an object in an image. It is commonly used in applications such as object tracking, pose estimation, and robotics, where accurate localization of objects is crucial for decision-making and control.
 
 .. note::
-    The coordinate regression task is currently in development and is yet to be heavily tested in **DeepTune**, and it is not supported in the current GUI version. The following information provides an overview of the task and its configuration parameters, but please note that the implementation may be subject to change.
+    The coordinate regression task is currently in development and is yet to be heavily tested in **DeepTune**, and it is not supported in the current GUI version. The following information provides an overview of the task and its configuration parameters. Note that the implementation may be subject to change.
 
 Running Coordinate Regression Tasks through the DeepTune CLI
 ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
@@ -25,13 +25,14 @@ Running Coordinate Regression Tasks through the DeepTune CLI
 
 
 .. code-block:: console
-
+    
+    # --heatmap_size <heatmap_size> is only required with coordinate regression tasks
     (.deeptune) $ python -m coordinate_regressors.regressor \
     --df <dataset_path> \
     --batch_size <batch_size> \
     --num_epochs <num_epochs> \
     --learning_rate <learning_rate> \
-    --heatmap_size <heatmap_size> \ // only for coordinate regression tasks
+    --heatmap_size <heatmap_size> \
     --model <model_name> \
     --out <output_directory> \
     --fixed-seed \

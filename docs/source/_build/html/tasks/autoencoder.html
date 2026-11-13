@@ -6,14 +6,14 @@
   <meta charset="utf-8" /><meta name="viewport" content="width=device-width, initial-scale=1" />
 
   <meta name="viewport" content="width=device-width, initial-scale=1.0" />
-  <title>Image Reconstruction with Autoencoders &mdash; DeepTune 1.1.0 documentation</title>
+  <title>Image Reconstruction with Autoencoders &mdash; DeepTune 2.0.0 documentation</title>
       <link rel="stylesheet" type="text/css" href="../_static/pygments.css?v=b86133f3" />
       <link rel="stylesheet" type="text/css" href="../_static/css/theme.css?v=e59714d7" />
 
   
       <script src="../_static/jquery.js?v=5d32c60e"></script>
       <script src="../_static/_sphinx_javascript_frameworks_compat.js?v=2cd50e6c"></script>
-      <script src="../_static/documentation_options.js?v=fc837d61"></script>
+      <script src="../_static/documentation_options.js?v=51b770b3"></script>
       <script src="../_static/doctools.js?v=9bcbadda"></script>
       <script src="../_static/sphinx_highlight.js?v=dc90522c"></script>
     <script src="../_static/js/theme.js"></script>
@@ -125,17 +125,20 @@
 <p><strong>DeepTune</strong> autoencoder architecture follows an encoder-decoder structure designed to extract and reconstruct hierarchical features. The process begins with a Gaussan blur to the input. The encoder consists of three successive stages, each stage utilizes a 3 by 3 convolutions (or a 5 by 5 in the case of the deeper autoencoder) → Group Normalization → SiLU functon, with a stride of 2 for doubling the feature channels and halving the spatial dimensions. The decoder mirrors the encoder and the model is projecting the feature maps back to the original image space dimensions.</p>
 <p>For more information on the Group normalization and SiLU function, please refer to the following resources: <a class="reference external" href="https://wandb.ai/wandb_fc/GroupNorm/reports/Group-Normalization-in-Pytorch-With-Examples---VmlldzoxMzU0MzMy">Group Normalization</a> and <a class="reference external" href="https://docs.pytorch.org/docs/stable/generated/torch.nn.SiLU.html">SiLU Function</a></p>
 <p>In order to run the image reconstruction task through the CLI, the following command can be used:</p>
-<div class="highlight-console notranslate"><div class="highlight"><pre><span></span><span class="gp gp-VirtualEnv">(.deeptune)</span> <span class="gp">$ </span>python<span class="w"> </span>-m<span class="w"> </span>deeptune<span class="w"> </span><span class="se">\</span>
+<div class="highlight-console notranslate"><div class="highlight"><pre><span></span><span class="gp"># </span>--image_size<span class="w"> </span>&lt;image_size&gt;<span class="w"> </span>is<span class="w"> </span>only<span class="w"> </span>required<span class="w"> </span>with<span class="w"> </span>autoencoder<span class="w"> </span>tasks
+<span class="gp"># </span>--if-grayscale<span class="w"> </span>is<span class="w"> </span>only<span class="w"> </span>required<span class="w"> </span>with<span class="w"> </span>autoencoder<span class="w"> </span>tasks
+<span class="gp"># </span>--use-deeper<span class="w"> </span>is<span class="w"> </span>only<span class="w"> </span>required<span class="w"> </span>with<span class="w"> </span>autoencoder<span class="w"> </span>tasks
+<span class="gp gp-VirtualEnv">(.deeptune)</span> <span class="gp">$ </span>python<span class="w"> </span>-m<span class="w"> </span>deeptune<span class="w"> </span><span class="se">\</span>
 <span class="w">    </span>--train_df<span class="w"> </span>&lt;train_df_path&gt;<span class="w"> </span><span class="se">\</span>
 <span class="w">    </span>--test_df<span class="w"> </span>&lt;test_df_path&gt;<span class="w"> </span><span class="se">\</span>
 <span class="w">    </span>--num_epochs<span class="w"> </span>&lt;num_epochs&gt;<span class="w"> </span><span class="se">\</span>
 <span class="w">    </span>--num_epochs<span class="w"> </span>&lt;num_epochs&gt;<span class="w"> </span><span class="se">\</span>
 <span class="w">    </span>--learning_rate<span class="w"> </span>&lt;learning_rate&gt;<span class="w"> </span><span class="se">\</span>
 <span class="w">    </span>--out<span class="w"> </span>&lt;output_directory&gt;<span class="w"> </span><span class="se">\</span>
-<span class="w">    </span>--image_size<span class="w"> </span>&lt;image_size&gt;<span class="w"> </span><span class="se">\ </span>//only<span class="w"> </span><span class="k">for</span><span class="w"> </span>autoencoder<span class="w"> </span>tasks
-<span class="go">    --model_weights &lt;model_weights_path&gt; \ // in case of reproducing a previous experiment, the model weights can be provided to continue training or for evaluation.</span>
-<span class="go">    --if-grayscale \ //only for autoencoder tasks</span>
-<span class="go">    --use-deeper \ //only for autoencoder tasks</span>
+<span class="w">    </span>--image_size<span class="w"> </span>&lt;image_size&gt;<span class="w"> </span><span class="se">\</span>
+<span class="w">    </span>--model_weights<span class="w"> </span>&lt;model_weights_path&gt;<span class="w"> </span><span class="se">\</span>
+<span class="w">    </span>--if-grayscale<span class="w"> </span><span class="se">\</span>
+<span class="w">    </span>--use-deeper<span class="w"> </span><span class="se">\</span>
 </pre></div>
 </div>
 <a class="reference internal image-reference" href="../_images/autoencoder_img.png"><img alt="A screenshot of the DeepTune CLI output for an autoencoder image reconstruction experiment, showing the best model checkpoint, evaluation metrics, and output directory path." src="../_images/autoencoder_img.png" style="width: 800px;" />

@@ -48,18 +48,25 @@ Unified CLI Output Structure
 ~~~~~~~~~~~~~~~~~~~~~~~~~~~~
 After running the unified CLI command, **DeepTune** will generate an output directory containing the results of your experiment. The structure of the output directory will be as follows:
 
+
 .. code-block:: text
 
-  output_directory/
-  └── reconstructed_images-<yyyymmdd>/
-      ├── autoencoder_model.pth
-      ├── Class 0/
-      │   ├── image1.jpg
-      │   └── image2.jpg
-      └── Class 1/
-          ├── image3.jpg
-          └── image4.jpg
-      ...
+   output_directory/
+   └── reconstructed_images_<yymmdd>/
+       ├── autoencoder_model.pth
+       ├── Class 0/
+       │   ├── reconstructed_0.png
+       │   └── reconstructed_1.png
+       ├── Class 1/
+       │   ├── reconstructed_0.png
+       │   └── reconstructed_1.png
+       ├── Class 2/
+       │   ├── reconstructed_0.png
+       │   └── reconstructed_1.png
+       ├── Class 3/
+       │   ├── reconstructed_0.png
+       │   └── reconstructed_1.png
+       └── ...
 
     
 
